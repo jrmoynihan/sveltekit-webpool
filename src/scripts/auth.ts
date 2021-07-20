@@ -1,0 +1,135 @@
+import {
+	AuthProvider,
+	FacebookAuthProvider,
+	GoogleAuthProvider,
+	linkWithPopup,
+	linkWithRedirect,
+	OAuthCredential,
+	signInWithPopup,
+	signInWithRedirect,
+	signOut,
+	User,
+	UserCredential
+} from '@firebase/auth';
+import { firestoreAuth } from '../scripts/firebaseInit';
+import { get, writable } from 'svelte/store';
+import type { WebUserData } from './classes';
+import { getDoc, doc, setDoc, DocumentSnapshot } from '@firebase/firestore';
+import { usersCollection } from './store';
+
+export const currentUser = writable<User>(firestoreAuth.currentUser);
+export const userData = writable<WebUserData>();
+export let userDocSnapshot: DocumentSnapshot;
+
+export const getProvider = async (loginPlatform: string): Promise<AuthProvider> => {
+	let provider: AuthProvider;
+	switch (loginPlatform) {
+		case 'Google':
+			provider = new GoogleAuthProvider();
+			break;
+		case 'Facebook':
+			provider = new FacebookAuthProvider();
+			break;
+		default:
+			provider = new GoogleAuthProvider();
+			break;
+	}
+	return provider;
+};
+
+export const getUserCredential = async (
+	provider: AuthProvider,
+	useRedirect: boolean
+): Promise<UserCredential> => {
+	if (useRedirect) {
+		return await getUserCredentialFromRedirect(provider);
+	} else {
+		return await getUserCredentialFromPopup(provider);
+	}
+};
+
+export const getUserCredentialFromRedirect = async (
+	provider: AuthProvider
+): Promise<UserCredential> => {
+	try {
+		return await signInWithRedirect(firestoreAuth, provider); // If useRedirect is true, signInWithRedirect...
+	} catch (error) {
+		alert(error);
+	}
+};
+
+export const getUserCredentialFromPopup = async (
+	provider: AuthProvider
+): Promise<UserCredential> => {
+	try {
+		return await signInWithPopup(firestoreAuth, provider); // Else signInWithPopup
+	} catch (error) {
+		alert(error);
+	}
+};
+
+export const startSignIn = async (loginPlatform: string, useRedirect: boolean): Promise<void> => {
+	// Set which Auth provider we want to use to authenticate the user
+	const provider = await getProvider(loginPlatform);
+
+	// If the user is already signed in, this will link the new provider credentials with the existing user account under the initial login provider
+	if (firestoreAuth.currentUser) {
+		useRedirect
+			? await linkWithRedirect(firestoreAuth.currentUser, provider)
+			: await linkWithPopup(firestoreAuth.currentUser, provider);
+	}
+
+	// Store the promised user credential that the auth provider returns
+	const userCredential = await getUserCredential(provider, useRedirect);
+
+	if (userCredential) {
+		// const OAuthCredential = await getOAuthCredential(provider, userCredential);
+		// const token = OAuthCredential.accessToken;
+		currentUser.set(userCredential.user);
+		const _currentUser = get(currentUser);
+
+		// Find if the user document already exists before trying to write a new one
+		userDocSnapshot = await getDoc(doc(usersCollection, _currentUser.uid));
+	}
+	if (userDocSnapshot.exists()) {
+		console.info(`User ${userDocSnapshot.exists() ? 'already exists' : 'does not exist!'}`);
+	}
+	// Else, create a new document for the user
+	else {
+		const newUser = get(currentUser);
+		// Make a document reference for the user with the user's UID, making it both unique and easy to lookup after they login
+		const newUserRef = doc(usersCollection, newUser.uid);
+
+		// Write some initial data to the user document
+		setDoc(newUserRef, {
+			name: newUser.displayName,
+			email: newUser.email,
+			admin: true,
+			college: false,
+			pick6: true,
+			playoffs: true,
+			survivor: true
+		});
+		console.info(`New user doc for ${newUser.displayName} (${newUser.uid}) added!`);
+	}
+};
+
+export const startSignOut = async (): Promise<void> => {
+	userData.set(undefined);
+	signOut(firestoreAuth);
+};
+firestoreAuth.onAuthStateChanged(() => {
+	currentUser.set(firestoreAuth.currentUser);
+});
+
+export const getOAuthCredential = async (
+	provider: AuthProvider,
+	userCredential: UserCredential
+): Promise<OAuthCredential> => {
+	if (provider instanceof GoogleAuthProvider) {
+		return GoogleAuthProvider.credentialFromResult(userCredential);
+	}
+	if (provider instanceof FacebookAuthProvider) {
+		return FacebookAuthProvider.credentialFromResult(userCredential);
+	}
+};

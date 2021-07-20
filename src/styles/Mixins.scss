@@ -1,0 +1,183 @@
+// Responsive Media Queries
+@mixin responsive_desktop_only($min-width: 1024px) {
+	@media only screen and (min-width: $min-width) {
+		@content;
+	}
+}
+@mixin responsive_mobile_only($max-width: 1024px) {
+	@media only screen and (max-width: $max-width) {
+		@content;
+	}
+}
+//** Text Effects **
+@mixin textWithShadow($color: var(--alternate-color)) {
+	text-shadow: 0px 0px 5px $color;
+}
+//********************************************************************************
+
+// *** Box-Shadows ***
+@mixin dayShadow {
+	box-shadow: -2px -2px 20px 0px gold, 2px 2px 15px 2px purple;
+	transition: box-shadow 200ms ease-in-out;
+}
+@mixin nightShadow {
+	box-shadow: -2px -2px 20px 0px rgba(0, 255, 234, 0.541), 2px 2px 15px 2px rgba(0, 19, 128, 0.5);
+	transition: box-shadow 200ms ease-in-out;
+}
+@mixin normalShadow {
+	box-shadow: 0 0 5px -2px;
+}
+@mixin hoverBoxShadow {
+	&:hover {
+		box-shadow: 0 0px 10px 5px rgba(0, 0, 0, 0.2);
+		transform: scale(0.98);
+		@content;
+	}
+}
+@mixin glassShadow {
+	box-shadow: 0px 0px 15px 0px rgb(0 0 0 / 50%);
+}
+// ******************************************
+
+// Rounded Elements (border-radius)
+@mixin rounded($radius: 5vh) {
+	border-radius: $radius;
+}
+@mixin fillAvailableWidth {
+	width: auto;
+	width: -webkit-fill-available;
+	width: -moz-available;
+}
+@mixin flexCenter {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+@mixin stickyToTop {
+	position: sticky;
+	top: 0;
+}
+@mixin gridAndGap($gap: 10px) {
+	display: grid;
+	gap: $gap;
+}
+@mixin cell {
+	font-family: 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Open Sans', 'Helvetica Neue',
+		'sans-serif';
+	border-radius: 2vh; // or 20px?
+	padding: 0.5em;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	font-size: 1rem;
+	@include defaultTransition;
+	@include fillAvailableWidth;
+	border: none;
+}
+@mixin editableCell {
+	@include cell;
+	@include frostedGlass;
+	@include normalShadow;
+	max-width: 100%;
+	&:hover,
+	&:focus {
+		cursor: text;
+		filter: brightness(105%);
+		outline: none;
+		@include dayShadow;
+		&:focus {
+			@include nightShadow;
+		}
+	}
+}
+@mixin editableInput {
+	@include editableCell;
+	@include cursorPointerAlways;
+	max-width: 100%;
+}
+
+@mixin padded1M {
+	padding: 1em;
+}
+@mixin centeredButton {
+	justify-self: center;
+	margin: auto;
+}
+
+@mixin defaultTransition {
+	transition: all 300ms ease-in-out;
+}
+@mixin noBorder {
+	border: none;
+}
+@mixin thinnestBorder {
+	border: 0.1px solid rgba(0, 0, 0, 0.2);
+}
+@mixin cursorPointerAlways {
+	cursor: pointer;
+	&:hover,
+	&:focus {
+		cursor: pointer;
+	}
+}
+@mixin noOutline {
+	outline: none;
+}
+@mixin frostedGlass {
+	backdrop-filter: blur(3px);
+	background-color: #ffffff50;
+}
+@mixin frostedGlassHighContrast {
+	backdrop-filter: blur(3px);
+	color: black;
+	background-color: #ffffff91;
+}
+
+@mixin cloudyBackground {
+	color: black; // override the default color to maintain high contrast with whitish background
+	box-shadow: 0 0 10px 5px rgb(255 255 255 / 30%);
+	background: radial-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.3));
+}
+
+@mixin defaultButtonStyles {
+	width: auto;
+	font-size: 1rem;
+	color: var(--main-color);
+	@include textWithShadow;
+	@include frostedGlass;
+	@include glassShadow;
+	@include rounded(5vh);
+	@include padded1M;
+	@include centeredButton;
+	@include hoverBoxShadow;
+	@include defaultTransition;
+	@include thinnestBorder;
+	@include cursorPointerAlways;
+	@include noOutline;
+	&:focus {
+		@include nightShadow;
+	}
+	&:hover {
+		@include dayShadow;
+	}
+}
+@mixin discreetButtonStyles {
+	background: transparent;
+	box-shadow: none;
+	border: none;
+	border-radius: 1em;
+}
+
+@mixin fadeOut {
+	animation: both fadeOut 1s linear;
+
+	@keyframes fadeOut {
+		from {
+			opacity: 1;
+		}
+		to {
+			opacity: 0;
+		}
+	}
+} ;
