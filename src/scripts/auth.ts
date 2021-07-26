@@ -11,11 +11,12 @@ import {
 	User,
 	UserCredential
 } from '@firebase/auth';
-import { firestoreAuth } from '../scripts/firebaseInit';
+import { firestoreAuth } from '$scripts/firebaseInit';
 import { get, writable } from 'svelte/store';
 import type { WebUserData } from './classes';
 import { getDoc, doc, setDoc, DocumentSnapshot } from '@firebase/firestore';
 import { usersCollection } from './store';
+import { goto } from '$app/navigation';
 
 export const currentUser = writable<User>(firestoreAuth.currentUser);
 export const userData = writable<WebUserData>();
@@ -90,33 +91,41 @@ export const startSignIn = async (loginPlatform: string, useRedirect: boolean): 
 
 		// Find if the user document already exists before trying to write a new one
 		userDocSnapshot = await getDoc(doc(usersCollection, _currentUser.uid));
-	}
-	if (userDocSnapshot.exists()) {
-		console.info(`User ${userDocSnapshot.exists() ? 'already exists' : 'does not exist!'}`);
-	}
-	// Else, create a new document for the user
-	else {
-		const newUser = get(currentUser);
-		// Make a document reference for the user with the user's UID, making it both unique and easy to lookup after they login
-		const newUserRef = doc(usersCollection, newUser.uid);
 
-		// Write some initial data to the user document
-		setDoc(newUserRef, {
-			name: newUser.displayName,
-			email: newUser.email,
-			admin: true,
-			college: false,
-			pick6: true,
-			playoffs: true,
-			survivor: true
-		});
-		console.info(`New user doc for ${newUser.displayName} (${newUser.uid}) added!`);
+		// Log if the user doc exists
+		if (userDocSnapshot.exists()) {
+			console.info(`User ${userDocSnapshot.exists() ? 'already exists' : 'does not exist!'}`);
+		}
+		// Else, create a new document for the user
+		else {
+			createNewUserDocument();
+		}
 	}
+};
+
+export const createNewUserDocument = async (): Promise<void> => {
+	const newUser: User = get(currentUser);
+	// Make a document reference for the user with the user's UID, making it both unique and easy to lookup after they login
+	const newUserRef = doc(usersCollection, newUser.uid);
+
+	// Write some initial data to the user document
+	await setDoc(newUserRef, {
+		name: newUser.displayName,
+		email: newUser.email,
+		admin: false,
+		college: false,
+		pick6: false,
+		playoffs: false,
+		survivor: false,
+		weekly: false
+	});
+	console.info(`New user doc for ${newUser.displayName} (${newUser.uid}) added!`);
 };
 
 export const startSignOut = async (): Promise<void> => {
 	userData.set(undefined);
 	signOut(firestoreAuth);
+	goto('/'); // go to the index page, navigating the user away from any authorized page they may be on currently
 };
 firestoreAuth.onAuthStateChanged(() => {
 	currentUser.set(firestoreAuth.currentUser);

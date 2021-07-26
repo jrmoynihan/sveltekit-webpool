@@ -12,10 +12,11 @@ import { firestoreDB } from './firebaseInit';
 import { userConverter } from './converters';
 import type { WebUserData } from './classes';
 
-export const useDarkTheme = writable(true);
-export const chosenMixBlendMode = writable('exclusion');
+export const useDarkTheme = writable(false);
+export const chosenMixBlendMode = writable('normal');
 export const navChecked = writable(true);
 export const sidePanelChecked = writable(true);
+export const windowWidth = writable();
 
 export const queryAsStore = (
 	query: Query,
@@ -58,11 +59,7 @@ export const updateUser = async (userData: WebUserData): Promise<void> => {
 	const docRef = doc(usersCollection, userData.id);
 	try {
 		console.log(`attempting to update ${userData.name}`);
-		await updateDoc(docRef.withConverter(userConverter), {
-			name: userData.name,
-			email: userData.email,
-			admin: userData.admin
-		});
+		await updateDoc(docRef.withConverter(userConverter), userData);
 	} catch (error) {
 		console.error('Error updating User document', error);
 	}

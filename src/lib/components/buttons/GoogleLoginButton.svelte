@@ -19,11 +19,13 @@
 	.google {
 		@include defaultButtonStyles;
 		@include frostedGlassHighContrast;
+		background-color: white;
 		align-items: center;
 		display: grid;
 		font-weight: medium;
 		grid-template-columns: auto 1fr;
 		font-size: large;
 		text-shadow: none;
+		padding: 0 1em 0 0;
 	}
 </style>

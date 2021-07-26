@@ -11,7 +11,7 @@ export function enhance(
 		error?: (res: Response, error: Error, form: HTMLFormElement) => void;
 		result: (res: Response, form: HTMLFormElement) => void;
 	}
-) {
+): { destroy(): void } {
 	let current_token: {};
 
 	async function handle_submit(e: Event) {

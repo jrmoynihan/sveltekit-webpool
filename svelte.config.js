@@ -1,5 +1,6 @@
 import preprocess from 'svelte-preprocess';
 import firebase from 'svelte-adapter-firebase';
+import path from 'path';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -18,11 +19,22 @@ const config = {
 	compilerOptions: {
 		css: false
 	},
-
 	kit: {
 		// hydrate the <div id="svelte"> element in src/app.html
 		target: '#svelte',
-		adapter: firebase()
+		adapter: firebase(),
+		vite: {
+			resolve: {
+				alias: {
+					$scripts: path.resolve('./src/scripts'),
+					$buttons: path.resolve('./src/lib/components/buttons'),
+					$navigation: path.resolve('./src/lib/components/navigation'),
+					$selects: path.resolve('./src/lib/components/selects'),
+					$switches: path.resolve('./src/lib/components/switches'),
+					$majorFeatures: path.resolve('./src/lib/majorFeatures')
+				}
+			}
+		}
 	}
 };
 

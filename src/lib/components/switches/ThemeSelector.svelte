@@ -1,0 +1,158 @@
+<script lang="ts">
+	import { browser } from '$app/env';
+	import { chosenMixBlendMode, useDarkTheme } from '$scripts/store';
+
+	import DatalistSelect from '$lib/components/selects/DatalistSelect.svelte';
+
+	let root;
+	if (browser) {
+		root = document.documentElement;
+	}
+
+	let mixBlendModes = [
+		'normal',
+		'multiply',
+		'screen',
+		'overlay',
+		'darken',
+		'lighten',
+		'color-dodge',
+		'color-burn',
+		'hard-light',
+		'soft-light',
+		'difference',
+		'exclusion',
+		'hue',
+		'saturation',
+		'color',
+		'luminosity'
+	];
+	// export let chosenMixBlendMode = 'exclusion';
+	// export let useDarkTheme: boolean = true;
+
+	export let lightThemeColors = {
+		main: 'rgb(0,0,0)',
+		alternate: 'rgb(255,255,255)',
+		// accent: 'rgb(99,144,233)'
+		accent: 'rgb(36,68,36)'
+	};
+	export let darkThemeColors = {
+		main: 'rgb(255,255,255)',
+		// alternate: 'rgb(22, 29, 45)',
+		alternate: 'rgb(36,68,36)',
+		// accent: 'rgb(99, 144, 233)'
+		accent: 'rgb(233, 181, 99)'
+	};
+	export let colors = { ...darkThemeColors };
+
+	// Store these original colors for later if you want to reset them
+	const darkResets = { ...darkThemeColors };
+	const lightResets = { ...lightThemeColors };
+
+	// Set globally available CSS custom properties (AKA variables) on the root element
+	const setCSSvariable = (colors) => {
+		// console.table(colors);
+		Object.entries(colors).forEach((entry: [string, string]) => {
+			// Set a CSS custom property name and value for each theme array member; e.g. `--main-color: rgb(0,0,0)`
+			if (browser) {
+				root.style.setProperty(`--${entry[0]}-color`, entry[1]);
+			}
+
+			// A regular expression to find elements within parentheses
+			var regExp = /\(([^)]+)\)/;
+
+			// RegExp search returns an arrau of 3 elements:
+			// 0) everything to the left parentheses (including the parentheses), 1) everything in between parentheses, 2) everything to the right of the parentheses (including the parentheses)
+			var matches = regExp.exec(entry[1]);
+			var rgbColor;
+			var rgbString;
+			if (matches) {
+				if (browser) {
+					root.style.setProperty(`--${entry[0]}Value-color`, matches[1]);
+				}
+			} else {
+				rgbColor = hexToRgb(entry[1]);
+				rgbString = `${rgbColor.r},${rgbColor.g},${rgbColor.b}`;
+			}
+			if (rgbColor) {
+				if (browser) {
+					root.style.setProperty(`--${entry[0]}Value-color`, rgbString);
+				}
+			}
+		});
+	};
+	// Converts hex color values from the default color picker to RGB for easier use
+	function hexToRgb(hex) {
+		var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+		return result
+			? {
+					r: parseInt(result[1], 16),
+					g: parseInt(result[2], 16),
+					b: parseInt(result[3], 16)
+			  }
+			: null;
+	}
+
+	// Resets both the CSS custom properties and the internal state of these theme objects to their defaults
+	const resetCSSvariable = (colorName: string) => {
+		const resetColor = $useDarkTheme ? darkResets[colorName] : lightResets[colorName];
+		$useDarkTheme ? (darkThemeColors = { ...darkResets }) : (lightThemeColors = { ...lightResets });
+		root.style.setProperty(`--${colorName}-color`, resetColor);
+	};
+
+	// Update/set the CSS custom properties anytime the colors object changes
+	$: colors = $useDarkTheme ? { ...darkThemeColors } : { ...lightThemeColors };
+	$: {
+		setCSSvariable(colors);
+	}
+</script>
+
+<section>
+	<DatalistSelect
+		inputID="mix-blend-mode-selector"
+		items={mixBlendModes}
+		displayedKeyNames={['name']}
+		placeholder={'Select a mix-blend-mode'}
+		bind:selectedItem={$chosenMixBlendMode}
+	/>
+
+	{#each Object.keys($useDarkTheme ? darkThemeColors : lightThemeColors) as color}
+		<div class="container">
+			<label for="{color}-color-picker">{color}</label>
+
+			<!--@TODO Replace these with a more robust custom color picker -->
+			{#if $useDarkTheme}
+				<input type="color" id="{color}-color-picker" bind:value={darkThemeColors[color]} />
+			{:else}
+				<input type="color" id="{color}-color-picker" bind:value={lightThemeColors[color]} />
+			{/if}
+
+			<button on:click={() => resetCSSvariable(color)}>Reset</button>
+		</div>
+	{/each}
+</section>
+
+<style lang="scss">
+	section {
+		display: grid;
+		position: relative;
+		width: max-content;
+		color: var(--main-color);
+	}
+	.container {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		grid-template-rows: 1fr 2fr;
+		align-items: center;
+		justify-items: center;
+	}
+	label {
+		text-transform: capitalize;
+		max-width: max-content;
+		grid-column: span 2;
+	}
+	button {
+		@include defaultButtonStyles;
+		display: inline-block;
+	}
+</style>

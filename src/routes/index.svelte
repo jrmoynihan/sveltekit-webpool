@@ -3,7 +3,12 @@
 </script>
 
 <script lang="ts">
-	import Counter from '$lib/Counter.svelte';
+	import RoleToggle from '$switches/RoleToggle.svelte';
+	import AmericanFootball from '../../static/American_football.svelte';
+	import { dev } from '$app/env';
+	import { allTeams } from '$scripts/site';
+
+	let drawing = true;
 </script>
 
 <svelte:head>
@@ -12,48 +17,81 @@
 
 <section>
 	<h1>
-		<div class="welcome">
+		Welcome!
+		<!-- <div class="welcome">
 			<picture>
 				<source srcset="svelte-welcome.webp" type="image/webp" />
 				<img src="svelte-welcome.png" alt="Welcome" />
 			</picture>
-		</div>
-
-		to your new<br />SvelteKit app
+		</div>-->
 	</h1>
-
-	<h2>
-		try editing <strong>src/routes/index.svelte</strong>
-	</h2>
-
-	<Counter />
+	<AmericanFootball bind:drawing />
+	{#if dev}
+		<RoleToggle role="admin" />
+		<RoleToggle role="college" />
+		<RoleToggle role="pick6" />
+		<RoleToggle role="playoffs" />
+		<RoleToggle role="survivor" />
+		<RoleToggle role="weekly" />
+	{/if}
+	<div class="team-gallery">
+		{#each allTeams as team}
+			<picture>
+				<!-- <source srcset={team.logoPath} type="image/webp" /> -->
+				<img
+					src={team.logoPath}
+					alt="{team.city}-{team.name}"
+					width="50px"
+					height="auto"
+					loading="lazy"
+				/>
+			</picture>
+			<picture>
+				<!-- <source srcset={team.logoPath} type="image/webp" /> -->
+				<img
+					src={team.fontPath}
+					alt="{team.city}-{team.name}"
+					width="100px"
+					height="auto"
+					loading="lazy"
+				/>
+			</picture>
+		{/each}
+	</div>
 </section>
 
-<style>
+<style lang="scss">
+	* {
+		box-sizing: border-box;
+	}
 	section {
-		display: flex;
-		flex-direction: column;
+		@include frostedGlass;
+		@include rounded;
+		display: grid;
+		gap: 10px;
+		grid-template-columns: repeat(auto-fit, minmax(0, auto));
+		justify-items: center;
 		justify-content: center;
 		align-items: center;
-		flex: 1;
+		max-height: 100%;
+		overflow: auto;
 	}
 
 	h1 {
 		width: 100%;
 	}
-
-	.welcome {
-		position: relative;
+	.team-gallery {
+		box-sizing: border-box;
+		display: grid;
+		grid-column: span 2;
+		grid-template-columns: 1fr 1fr;
+		margin: 1rem;
+		padding: 1rem;
 		width: 100%;
-		height: 0;
-		padding: 0 0 calc(100% * 495 / 2048) 0;
 	}
-
-	.welcome img {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		top: 0;
-		display: block;
+	picture {
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 </style>

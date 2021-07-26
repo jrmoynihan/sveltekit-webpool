@@ -27,6 +27,6 @@
 		text-shadow: none;
 		background-color: #405d9a;
 		color: white;
-		padding: 1.2rem 0.8rem;
+		padding: 0.8rem;
 	}
 </style>

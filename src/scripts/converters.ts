@@ -11,7 +11,8 @@ export const userConverter = {
 			college: user.college,
 			pick6: user.pick6,
 			playoffs: user.playoffs,
-			survivor: user.survivor
+			survivor: user.survivor,
+			weekly: user.weekly
 		};
 	},
 	fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): WebUserData => {
@@ -27,7 +28,8 @@ export const userConverter = {
 			data.college,
 			data.pick6,
 			data.playoffs,
-			data.survivor
+			data.survivor,
+			data.weekly
 		);
 	}
 };

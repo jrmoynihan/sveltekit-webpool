@@ -11,6 +11,7 @@
 	export let labelText = '';
 	// Add override styles
 	export let sliderStyles = '';
+	export let labelStyles = '';
 
 	// Create an event dispatcher object
 	const dispatch = createEventDispatcher();
@@ -21,7 +22,7 @@
 </script>
 
 {#if labelText !== ''}
-	<label class="label-text" for={id}>
+	<label class="label-text" for={id} style={labelStyles}>
 		{labelText}
 	</label>
 {/if}
