@@ -78,7 +78,7 @@
 		background: var(--alternate-color);
 		position: relative;
 		opacity: 0.99;
-		height: 100vh;
+		min-height: 100vh;
 		width: 100%;
 		grid-template-areas:
 			'menu'
@@ -90,7 +90,8 @@
 		@include responsive_desktop_only {
 			grid-template-areas: 'nav menu' 'main menu';
 			grid-template-columns: auto max-content;
-			grid-template-rows: minmax(0, max-content) minmax(0, auto);
+			// grid-template-rows: minmax(0, max-content) minmax(0, auto);
+			grid-template-rows: minmax(0, max-content) 1fr;
 		}
 		&.pseudo:before {
 			content: '';
@@ -106,13 +107,11 @@
 		}
 	}
 	main {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
+		align-self: start;
+		justify-self: center;
 		padding: 1rem;
 		width: 100%;
 		max-width: 1024px;
-		margin: 0 auto;
 		box-sizing: border-box;
 
 		// my styles

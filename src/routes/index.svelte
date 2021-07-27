@@ -7,6 +7,7 @@
 	import AmericanFootball from '../../static/American_football.svelte';
 	import { dev } from '$app/env';
 	import { allTeams } from '$scripts/site';
+	import NflLogo from '../../static/nfl-logo.svelte';
 
 	let drawing = true;
 </script>
@@ -58,6 +59,9 @@
 			</picture>
 		{/each}
 	</div>
+</section>
+<section>
+	<NflLogo bind:drawing />
 </section>
 
 <style lang="scss">

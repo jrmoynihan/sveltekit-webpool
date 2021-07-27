@@ -28,7 +28,7 @@ body {
 	);
 }
 
-body::before {
+/* body::before {
 	content: '';
 	width: 80vw;
 	height: 100vh;
@@ -42,13 +42,13 @@ body::before {
 		rgba(255, 255, 255, 0) 100%
 	);
 	opacity: 0.05;
-}
+} */
 
-#svelte {
+/* #svelte {
 	min-height: 100vh;
 	display: flex;
 	flex-direction: column;
-}
+} */
 
 /* h1,
 h2,

@@ -30,7 +30,7 @@
 
 <Navigator minItemSize="{maxLengthText}ch" maxItemSize="max-content">
 	{#each weeklyTabs as tab, index}
-		<NavLink {index} pageOption={tab} />
+		<NavLink {index} pageOption={tab} fullyRounded={true} />
 	{/each}
 </Navigator>
 <TransitionWrapper {refresh}>

@@ -8,6 +8,7 @@
 
 	export let index = 0;
 	export let pageOption: PageOption;
+	export let fullyRounded = false;
 	let active = false;
 
 	$: {
@@ -22,7 +23,9 @@
 	for={pageOption.navigationText}
 	tabindex={1 + index}
 	class:active
-	class="{$navChecked ? 'expanded' : 'collapsed'} {$useDarkTheme ? 'dark-mode' : 'light-mode'}"
+	class="{$navChecked ? 'expanded' : 'collapsed'} {$useDarkTheme
+		? 'dark-mode'
+		: 'light-mode'} {fullyRounded ? 'rounded' : ''}"
 >
 	<a id={pageOption.navigationText} sveltekit:prefetch href={pageOption.path}
 		><Fa
@@ -49,9 +52,12 @@
 		transition: all 300ms ease-in-out;
 		background: radial-gradient(var(--alternate-color), transparent);
 		@include responsive_desktop_only {
-			border-radius: 0 0 20px 20px;
+			&:not(.rounded) {
+				border-radius: 0 0 20px 20px;
+			}
 			height: 3em;
 		}
+
 		&.collapsed {
 			// opacity: 0;
 			height: 0;

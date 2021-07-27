@@ -10,7 +10,7 @@ export let drawing = false
 
 {#if drawing}
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
-<svg in:fade={{duration:500, delay:500}} out:fade xmlns="http://www.w3.org/2000/svg"  xmlns:xlink="http://www.w3.org/1999/xlink" width="20%" id="svg10018" viewBox="0 0 1000 1000" version="1.1">
+<svg in:fade={{duration:500, delay:500}} out:fade xmlns="http://www.w3.org/2000/svg"  xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" id="svg10018" viewBox="0 0 1000 1000" version="1.1">
   <title id="title10187">American Football</title>
   <defs id="defs10020">
     <linearGradient id="linearGradient10949" y2="278.81" gradientUnits="userSpaceOnUse" x2="509.9" gradientTransform="matrix(.93679 -.85929 .85927 .93681 -400.21 462.79)" y1="544.75" x1="509.97">

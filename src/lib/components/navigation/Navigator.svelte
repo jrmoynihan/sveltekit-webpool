@@ -28,12 +28,14 @@
 		max-width: 100%;
 		// padding-bottom: 1rem;
 		padding-top: 0;
-		position: sticky;
 		text-align: center;
 		top: 0;
 		transition: all 300ms ease-in-out;
 		width: 100%;
 		z-index: 10;
+		@include responsive_desktop_only {
+			position: sticky;
+		}
 		@include responsive_mobile_only {
 			font-size: 1.5rem;
 			gap: 2px;

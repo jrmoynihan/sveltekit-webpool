@@ -17,6 +17,7 @@
 <style lang="scss">
 	.transitionWrapper {
 		box-sizing: border-box;
+		position: relative;
 		max-width: 100%;
 	}
 </style>

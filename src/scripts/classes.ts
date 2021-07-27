@@ -88,7 +88,7 @@ export class Team {
 	city: string;
 	conference: string;
 	division: string;
-	logoPath: unknown;
+	logoPath: string;
 	fontPath: string;
 	wins: number;
 	losses: number;
@@ -99,7 +99,7 @@ export class Team {
 		city: string,
 		conference: string,
 		division: string,
-		logoPath?: unknown,
+		logoPath?: string,
 		fontPath?: string,
 		wins?: number,
 		losses?: number,

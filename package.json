@@ -2,9 +2,9 @@
 	"name": "sveltekit-webpool",
 	"version": "0.0.1",
 	"scripts": {
-		"dev": "svelte-kit dev",
+		"dev": "svelte-kit dev --https",
 		"build": "npx rimraf output && svelte-kit build --verbose",
-		"preview-build-locally": "svelte-kit preview --port 4000",
+		"preview-build-locally": "svelte-kit preview --port 4000 --https",
 		"check": "svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --check --plugin-search-dir=. . && eslint --ignore-path .gitignore .",
