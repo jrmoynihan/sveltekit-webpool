@@ -1,34 +1,24 @@
 <script lang="ts">
-	import { browser } from '$app/env';
-	import { navChecked } from '$scripts/store';
-	import { currentUser } from '$scripts/auth';
+	import { navChecked, windowWidth } from '$scripts/store';
 	import { faBars, faCog } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import Auth from '$lib/majorFeatures/Auth.svelte';
 	import ModalButtonAndSlot from '$lib/components/ModalButtonAndSlot.svelte';
 	import LightDarkToggle from '$lib/components/switches/LightDarkToggle.svelte';
 	import ThemeSelector from '$lib/components/switches/ThemeSelector.svelte';
-	import { getWindowSize } from '$scripts/functions';
-
-	// export let currentUser: User;
-	// export let navChecked = true;
-	// export let useDarkTheme = true;
-	// export let chosenMixBlendMode;
-	let width;
-	if (browser) {
-		width = window.innerWidth;
-	}
+	import { mobileBreakpoint } from '$scripts/site';
 
 	function toggleNav(): void {
 		$navChecked = !$navChecked;
 	}
 </script>
 
+<menu />
 <aside id="app-menu">
 	<button
 		id="nav-label"
 		on:click={toggleNav}
-		class="nav-label {$navChecked && width < 1024 ? 'mobile-nav-open' : ''}"
+		class="nav-label {$navChecked && $windowWidth < mobileBreakpoint ? 'mobile-nav-open' : ''}"
 	>
 		<Fa icon={faBars} class="fa-bars" size="lg" />
 		<input type="checkbox" id="nav-toggle" on:click={toggleNav} />
@@ -53,7 +43,6 @@
 		</ModalButtonAndSlot>
 	</div>
 </aside>
-<svelte:window on:resize={() => (width = getWindowSize())} />
 
 <style lang="scss">
 	#app-menu {
@@ -78,10 +67,11 @@
 		justify-content: center;
 		grid-area: menu;
 		// grid-template-columns: repeat(3, min-content) 1fr;
-		grid-template-rows: 1fr auto;
+		// grid-template-rows: 1fr auto;
 		max-width: 100%;
 		position: sticky;
 		top: 0;
+		max-height: 100vh;
 		@include responsive_mobile_only {
 			padding-top: 0.5rem;
 			font-size: inherit;
@@ -90,7 +80,7 @@
 		@include responsive_desktop_only {
 			grid-template-columns: min-content !important;
 			grid-template-rows: repeat(2, min-content) 1fr; //** getting set above depending on user being logged in
-			margin: 0.5rem;
+			padding: 0.5rem;
 		}
 	}
 	#nav-toggle {
