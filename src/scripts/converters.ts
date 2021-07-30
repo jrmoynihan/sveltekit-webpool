@@ -1,19 +1,10 @@
 import type { QueryDocumentSnapshot, SnapshotOptions } from 'firebase/firestore';
-import { WebUserData } from './classes';
+import { Team, WebUserData } from './classes';
 
 export const userConverter = {
 	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 	toFirestore: (user: Partial<WebUserData>) => {
-		return {
-			name: user.name,
-			email: user.email,
-			admin: user.admin,
-			college: user.college,
-			pick6: user.pick6,
-			playoffs: user.playoffs,
-			survivor: user.survivor,
-			weekly: user.weekly
-		};
+		return { ...user };
 	},
 	fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): WebUserData => {
 		const data = snapshot.data(options);
@@ -23,6 +14,7 @@ export const userConverter = {
 			docID,
 			docRef,
 			data.name,
+			data.nickname,
 			data.email,
 			data.admin,
 			data.college,
@@ -30,6 +22,32 @@ export const userConverter = {
 			data.playoffs,
 			data.survivor,
 			data.weekly
+		);
+	}
+};
+export const teamConverter = {
+	toFirestore: (team: Partial<Team>): Partial<Team> => {
+		return {
+			...team
+		};
+	},
+	fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): Team => {
+		const data = snapshot.data(options);
+		const docRef = snapshot.ref;
+		const docID = snapshot.id;
+		return new Team(
+			data.city,
+			data.abbreviation,
+			data.name,
+			data.conference,
+			data.division,
+			data.logoPath,
+			data.fontPath,
+			data.wins,
+			data.losses,
+			data.ties,
+			docRef,
+			docID
 		);
 	}
 };

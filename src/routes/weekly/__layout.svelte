@@ -11,6 +11,7 @@
 	import Navigator from '$navigation/Navigator.svelte';
 	import { PageOption } from '$scripts/classes';
 	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
+	import { navChecked } from '$scripts/store';
 
 	export let refresh;
 
@@ -33,6 +34,6 @@
 		<NavLink {index} pageOption={tab} fullyRounded={true} />
 	{/each}
 </Navigator>
-<TransitionWrapper {refresh}>
+<TransitionWrapper {refresh} customStyles={$navChecked ? 'margin-top: 0.6rem;' : 'margin-top: 0;'}>
 	<slot />
 </TransitionWrapper>

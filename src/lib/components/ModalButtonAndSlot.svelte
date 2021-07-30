@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { hideModal } from '$scripts/functions';
 	import { nanoid } from 'nanoid';
 	export let displayModalButtonText = '';
 	export let useDefaultButtonStyles = true;
@@ -33,22 +34,11 @@
 		blurElement()
     }
 
-	export const hideModal = () => {
-		var modal: HTMLDialogElement = document.getElementById(`modal-${modalID}`) as HTMLDialogElement;
-		var isDialogSupported = true;
+	const hideThisModal = async() =>{
+		hideModal(modalID);
+		dialogOpen = false;
+	}
 
-		if (!window.HTMLDialogElement) {
-			document.body.classList.add('no-dialog');
-			isDialogSupported = false;
-		}
-
-		if (isDialogSupported) {
-			dialogOpen = false;
-			modal.close();
-		} else {
-			modal.removeAttribute('open');
-		}
-	};
 	const blurElement = () => {
 		const modal = document.getElementById(`modal-${modalID}`);
 		modal.blur();
@@ -58,7 +48,7 @@
 <dialog
 	id={`modal-${modalID}`}
 	style="{dialogOpen ? 'opacity:1' : 'opacity:0'}; {dialogStyles}"
-	on:click|self={hideModal}
+	on:click|self={hideThisModal}
 >
 	<div class="modal-foreground" style={modalForegroundStyles}>
 		<slot name="modal-content">slotted modal content goes here</slot>

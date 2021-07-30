@@ -4,9 +4,11 @@ import { getStorage } from '@firebase/storage';
 import { getFirestore } from '@firebase/firestore';
 import { enableIndexedDbPersistence } from '@firebase/firestore';
 import { browser } from '$app/env';
+import { getApp, getApps } from '@firebase/app';
 
 // TODO: API key should be stored in a environment variable (see: privateStuff.env) so it is not exposed publicly
-// const API_KEY: string = import.meta.env.API_KEY as string;
+// const API_KEY: string = import.meta.env['VITE_API_KEY'] as string;
+// console.log(API_KEY);
 
 const firebaseConfig = {
 	// apiKey: API_KEY,
@@ -20,7 +22,15 @@ const firebaseConfig = {
 	measurementId: 'G-8Y5HV7HDFZ'
 };
 
-const firebaseApp = initializeApp(firebaseConfig);
+export let firebaseApp;
+
+// If a firebase app is already initialized, use that one
+if (getApps().length === 0) {
+	firebaseApp = initializeApp(firebaseConfig);
+} else {
+	firebaseApp = getApp();
+}
+
 export const firestoreDB = getFirestore(firebaseApp);
 export const firestoreAuth = getAuth(firebaseApp);
 export const firestoreStorage = getStorage(firebaseApp);

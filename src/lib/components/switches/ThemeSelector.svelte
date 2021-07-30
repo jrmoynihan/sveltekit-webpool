@@ -34,12 +34,12 @@
 		main: 'rgb(0,0,0)',
 		alternate: 'rgb(255,255,255)',
 		// accent: 'rgb(99,144,233)'
-		accent: 'rgb(36,68,36)'
+		accent: 'rgb(36,50,36)'
 	};
 	export let darkThemeColors = {
 		main: 'rgb(255,255,255)',
 		// alternate: 'rgb(22, 29, 45)',
-		alternate: 'rgb(36,68,36)',
+		alternate: 'rgb(36,50,36)',
 		// accent: 'rgb(99, 144, 233)'
 		accent: 'rgb(233, 181, 99)'
 	};
@@ -82,7 +82,7 @@
 		});
 	};
 	// Converts hex color values from the default color picker to RGB for easier use
-	function hexToRgb(hex) {
+	function hexToRgb(hex: string): { r: number; g: number; b: number } {
 		var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
 		return result
 			? {

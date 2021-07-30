@@ -3,11 +3,12 @@
 
 	export let minItemSize = '200px';
 	export let maxItemSize = '1fr';
+	export let customStyles: string[];
 </script>
 
 <nav
 	class="navigationList {$navChecked ? 'expanded' : 'collapsed'}"
-	style="--minItemSize:{minItemSize}; --maxItemSize: {maxItemSize}"
+	style="--minItemSize:{minItemSize}; --maxItemSize: {maxItemSize}; {customStyles}"
 >
 	<slot />
 </nav>
@@ -33,6 +34,7 @@
 		transition: all 300ms ease-in-out;
 		width: 100%;
 		z-index: 10;
+		background: radial-gradient(rgba(var(--alternateValue-color), 90%) 70%, transparent);
 		@include responsive_desktop_only {
 			position: sticky;
 		}
@@ -44,7 +46,7 @@
 	}
 	.collapsed {
 		opacity: 0;
-		// height: 0;
+		margin: 0;
 		pointer-events: none;
 	}
 

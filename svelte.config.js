@@ -1,6 +1,7 @@
 import preprocess from 'svelte-preprocess';
 import firebase from 'svelte-adapter-firebase';
 import path from 'path';
+import mkcert from 'vite-plugin-mkcert';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -33,7 +34,11 @@ const config = {
 					$switches: path.resolve('./src/lib/components/switches'),
 					$majorFeatures: path.resolve('./src/lib/majorFeatures')
 				}
-			}
+			},
+			server: {
+				https: true
+			},
+			plugins: [mkcert]
 		}
 	}
 };

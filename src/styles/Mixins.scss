@@ -180,4 +180,22 @@
 			opacity: 0;
 		}
 	}
-} ;
+}
+
+@mixin accelerate {
+	transform: translate3d(
+		0,
+		0,
+		0
+	); // trick the browser into using hardware acceleration (GPU) for expensive animations
+}
+@mixin active(
+	$color: white,
+	$textDecorationColor: white,
+	$backgroundColor: var(--accentValue-color),
+	$backgroundAlpha: 0.8
+) {
+	color: $color;
+	text-decoration: underline 2px $textDecorationColor;
+	background-color: rgba($backgroundColor, $backgroundAlpha);
+}

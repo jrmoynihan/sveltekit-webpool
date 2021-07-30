@@ -15,8 +15,9 @@ import { firestoreAuth } from '$scripts/firebaseInit';
 import { get, writable } from 'svelte/store';
 import type { WebUserData } from './classes';
 import { getDoc, doc, setDoc, DocumentSnapshot } from '@firebase/firestore';
-import { usersCollection } from './store';
+import { usersCollection } from '$scripts/store';
 import { goto } from '$app/navigation';
+import { hideModal } from './functions';
 
 export const currentUser = writable<User>(firestoreAuth.currentUser);
 export const userData = writable<WebUserData>();
@@ -69,7 +70,11 @@ export const getUserCredentialFromPopup = async (
 	}
 };
 
-export const startSignIn = async (loginPlatform: string, useRedirect: boolean): Promise<void> => {
+export const startSignIn = async (
+	loginPlatform: string,
+	useRedirect: boolean,
+	modalID?: string
+): Promise<void> => {
 	// Set which Auth provider we want to use to authenticate the user
 	const provider = await getProvider(loginPlatform);
 
@@ -100,6 +105,9 @@ export const startSignIn = async (loginPlatform: string, useRedirect: boolean): 
 		else {
 			createNewUserDocument();
 		}
+	}
+	if (modalID) {
+		hideModal(modalID);
 	}
 };
 

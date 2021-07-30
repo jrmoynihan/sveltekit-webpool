@@ -9,22 +9,24 @@
 	import FacebookLoginButton from '$lib/components/buttons/FacebookLoginButton.svelte';
 
 	export let useRedirect = true;
+	let modalID: string;
 </script>
 
 <ModalButtonAndSlot
 	useDefaultButtonStyles={true}
 	displayModalButtonText={$currentUser ? '' : 'Login'}
 	displayModalButtonStyles={$currentUser
-		? 'padding:0;'
+		? 'padding:0;border-radius:50%;'
 		: 'height: 100%; background:none; display:grid; align-content:center;'}
 	dialogStyles="align-items:center; justify-content:center; background-color:#00000078;"
+	bind:modalID
 >
 	<svelte:fragment slot="modal-content">
 		{#if $currentUser !== undefined && $currentUser !== null}
 			<button id="sign-out-button" on:click={startSignOut}>Sign Out</button>
 		{:else}
-			<GoogleLoginButton on:click={() => startSignIn('Google', useRedirect)} />
-			<FacebookLoginButton on:click={() => startSignIn('Facebook', useRedirect)} />
+			<GoogleLoginButton on:click={() => startSignIn('Google', useRedirect, modalID)} />
+			<FacebookLoginButton on:click={() => startSignIn('Facebook', useRedirect, modalID)} />
 			<ToggleSwitch
 				bind:checked={useRedirect}
 				labelStyles={'color:white;'}

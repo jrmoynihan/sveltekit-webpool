@@ -17,6 +17,16 @@
 		// TODO fix the regeex so the index path ('/') doesn't match when it's
 		active = pageOption.path === '/' && $page.path !== '/' ? false : active;
 	}
+
+	// const removeWillChange = async (item: HTMLImageElement) => {
+	// 	item.style.willChange = 'auto';
+	// 	item.removeEventListener('animationend', () => removeWillChange(item));
+	// };
+	// const addWillChange = async () => {
+	// 	const images = document.querySelectorAll('img');
+	// 	images.forEach((item) => item.addEventListener('animationend', () => removeWillChange(item)));
+	// 	images.forEach((item) => (item.style.willChange = 'translate, opacity, transform'));
+	// };
 </script>
 
 <label
@@ -27,11 +37,15 @@
 		? 'dark-mode'
 		: 'light-mode'} {fullyRounded ? 'rounded' : ''}"
 >
-	<a id={pageOption.navigationText} sveltekit:prefetch href={pageOption.path}
+	<a
+		class:active={$page.path === pageOption.path && !$useDarkTheme}
+		id={pageOption.navigationText}
+		sveltekit:prefetch
+		href={pageOption.path}
 		><Fa
 			icon={faFootballBall}
 			size="lg"
-			style={$page.path === pageOption.path ? 'color:var(--main-color);' : ''}
+			style={$page.path === pageOption.path ? 'color:var(--alternate-color);' : ''}
 		/>
 		<h2>{pageOption.navigationText}</h2>
 	</a>
@@ -43,14 +57,14 @@
 		position: relative;
 		color: var(--main-color);
 		display: inline-flex;
-		box-shadow: 0 2px 2px 2px rgba(var(--accentValue-color), 0.4);
+		box-shadow: 0 2px 2px 2px rgba(var(--accentValue-color), 0.3);
 		width: 100%;
 		height: 2em;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		transition: all 300ms ease-in-out;
-		background: radial-gradient(var(--alternate-color), transparent);
+
 		@include responsive_desktop_only {
 			&:not(.rounded) {
 				border-radius: 0 0 20px 20px;
@@ -63,28 +77,21 @@
 			height: 0;
 			padding: 0;
 		}
-		&:hover,
-		&:focus {
-			background-color: rgba(var(--mainValue-color), 0.15);
+		&:hover:not(.active),
+		&:focus:not(.active) {
+			background: radial-gradient(var(--alternate-color) 30%, transparent 90%);
+			background-color: rgba(var(--accentValue-color), 50%);
 			// text-shadow: 2px 5px 10px var(--alternate-color);
 			// box-shadow: 0 0 5px 5px rgba(var(--accentValue-color), 0.5);
 		}
 		// Current page indicator
 		&.active {
-			color: var(--accent-color);
-			text-decoration: underline 2px var(--main-color);
-			background-color: rgba(var(--accentValue-color), 0.5);
-			// &::before {
-			// 	--size: 6px;
-			// 	content: '';
-			// 	width: 0;
-			// 	height: 0;
-			// 	position: absolute;
-			// 	top: 0;
-			// 	left: calc(50% - var(--size));
-			// 	border: var(--size) solid transparent;
-			// 	border-top: var(--size) solid var(--accent-color);
-			// }
+			&.dark-mode {
+				@include active($backgroundAlpha: 0.4);
+			}
+			&.light-mode {
+				@include active;
+			}
 		}
 	}
 	a {
@@ -100,10 +107,13 @@
 		letter-spacing: 10%;
 		text-decoration: none;
 		transition: color 0.2s linear;
-		color: var(--main-color);
+		// color: var(--main-color);
 		gap: 0.7em;
 		&:visited {
 			color: var(--main-color);
+		}
+		&.active {
+			color: var(--alternate-color);
 		}
 	}
 </style>

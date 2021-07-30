@@ -87,6 +87,9 @@
 			background-color: darken($toggle-background-color-inactive, 20%);
 		}
 	}
+	input {
+		visibility: hidden;
+	}
 	input:checked + .slider {
 		background-color: $toggle-background-color-active;
 		&:before {

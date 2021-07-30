@@ -1,7 +1,8 @@
 <script lang="ts">
+	import SeasonStandings from './../../lib/tabular/SeasonStandings.svelte';
+	import WeekStandings from './../../lib/tabular/WeekStandings.svelte';
+
 	import Tabs from '$navigation/Tabs.svelte';
-	import SeasonStandings from './seasonStandings.svelte';
-	import WeekStandings from './weekStandings.svelte';
 
 	const standingsTabs = [
 		{ name: 'Week', component: WeekStandings },
@@ -9,15 +10,19 @@
 	];
 </script>
 
-<h1>Standings</h1>
+<details>
+	<summary>
+		<h1>Standings</h1>
+	</summary>
 
-<section class="section-one">
-	<p>
-		Split screen for two components that show week leaders and season; contain them in tabs when
-		viewport shrinks; load data only once upon instantiation in module-scoped script tag
-	</p>
-	<p>Season table doesn't really need to show weeks that aren't the current week</p>
-</section>
+	<section class="section-one">
+		<p>
+			Split screen for two components that show week leaders and season; contain them in tabs when
+			viewport shrinks; load data only once upon instantiation in module-scoped script tag
+		</p>
+		<p>Season table doesn't really need to show weeks that aren't the current week</p>
+	</section>
+</details>
 
 <section class="section-two">
 	<Tabs selectedTab={standingsTabs[0]} tabs={standingsTabs} />

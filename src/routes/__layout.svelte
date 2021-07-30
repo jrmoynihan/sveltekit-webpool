@@ -49,7 +49,10 @@
 	</Navigator>
 
 	<main>
-		<TransitionWrapper {refresh}>
+		<TransitionWrapper
+			{refresh}
+			customStyles={$navChecked ? 'margin-top: 0.6rem;' : 'margin-top: 0;'}
+		>
 			<slot />
 		</TransitionWrapper>
 	</main>
@@ -89,7 +92,7 @@
 
 		@include responsive_desktop_only {
 			grid-template-areas: 'nav menu' 'main menu';
-			grid-template-columns: auto max-content;
+			grid-template-columns: minmax(0, auto) max-content;
 			// grid-template-rows: minmax(0, max-content) minmax(0, auto);
 			grid-template-rows: minmax(0, max-content) 1fr;
 		}
@@ -109,20 +112,17 @@
 	main {
 		align-self: start;
 		justify-self: center;
-		padding: 1rem;
 		width: 100%;
-		max-width: 1024px;
 		box-sizing: border-box;
 
 		// my styles
 		@include gridAndGap(15px);
 		color: var(--main-color);
 		grid-template-rows: repeat(auto-fit, minmax(0, auto));
+		grid-template-columns: 100%;
 		text-align: center;
 		position: relative;
 		grid-area: main;
 		transition: all 300ms ease-in-out;
-		padding-bottom: 5%;
-		padding-top: 0.5em;
 	}
 </style>

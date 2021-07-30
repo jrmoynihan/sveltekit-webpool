@@ -50,6 +50,7 @@ export class WebUserData {
 	id: string;
 	ref: DocumentReference;
 	name: string;
+	nickname: string;
 	email: string;
 	admin: boolean;
 	college: boolean;
@@ -61,6 +62,7 @@ export class WebUserData {
 		id?: string,
 		ref?: DocumentReference,
 		name?: string,
+		nickname?: string,
 		email?: string,
 		admin?: boolean,
 		college?: boolean,
@@ -72,6 +74,7 @@ export class WebUserData {
 		(this.id = id),
 			(this.ref = ref),
 			(this.name = name),
+			(this.nickname = nickname),
 			(this.email = email),
 			(this.admin = admin);
 		this.college = college;
@@ -93,17 +96,21 @@ export class Team {
 	wins: number;
 	losses: number;
 	ties: number;
+	docRef?: DocumentReference;
+	docID?: string;
 	constructor(
-		name: string,
-		abbreviation: string,
 		city: string,
+		abbreviation: string,
+		name: string,
 		conference: string,
 		division: string,
 		logoPath?: string,
 		fontPath?: string,
 		wins?: number,
 		losses?: number,
-		ties?: number
+		ties?: number,
+		docRef?: DocumentReference,
+		docID?: string
 	) {
 		this.name = name;
 		this.abbreviation = abbreviation;
@@ -115,6 +122,8 @@ export class Team {
 		this.wins = wins;
 		this.losses = losses;
 		this.ties = ties;
+		this.docRef = docRef;
+		this.docID = docID;
 	}
 }
 
