@@ -1,6 +1,7 @@
 <script lang="ts">
-	import SeasonStandings from './../../lib/tabular/SeasonStandings.svelte';
-	import WeekStandings from './../../lib/tabular/WeekStandings.svelte';
+	import AccordionDetails from '$containers/AccordionDetails.svelte';
+	import SeasonStandings from '$tabular/SeasonStandings.svelte';
+	import WeekStandings from '$tabular/WeekStandings.svelte';
 
 	import Tabs from '$navigation/Tabs.svelte';
 
@@ -10,19 +11,17 @@
 	];
 </script>
 
-<details>
-	<summary>
-		<h1>Standings</h1>
-	</summary>
+<AccordionDetails expandIcon={null}>
+	<h1 slot="summary">Standings</h1>
 
-	<section class="section-one">
+	<section class="section-one" slot="content">
 		<p>
 			Split screen for two components that show week leaders and season; contain them in tabs when
-			viewport shrinks; load data only once upon instantiation in module-scoped script tag
+			viewport shrinks
 		</p>
 		<p>Season table doesn't really need to show weeks that aren't the current week</p>
 	</section>
-</details>
+</AccordionDetails>
 
 <section class="section-two">
 	<Tabs selectedTab={standingsTabs[0]} tabs={standingsTabs} />
