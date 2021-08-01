@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { navChecked, useDarkTheme } from '$scripts/store';
-	import type { PageOption } from '$scripts/classes';
+	import type { PageOption } from '$scripts/classes/pageOption';
 	import Fa from 'svelte-fa';
 	import { faFootballBall } from '@fortawesome/free-solid-svg-icons';
 	import { matchPath } from '$scripts/functions';

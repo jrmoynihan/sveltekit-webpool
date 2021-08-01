@@ -10,18 +10,13 @@
 	import '../app.css';
 	import { userConverter } from '$scripts/converters';
 	import { currentUser, userData } from '$scripts/auth';
-	import {
-		chosenMixBlendMode,
-		navChecked,
-		useDarkTheme,
-		usersCollection,
-		windowWidth
-	} from '$scripts/store';
+	import { chosenMixBlendMode, navChecked, useDarkTheme, windowWidth } from '$scripts/store';
 	import { doc, onSnapshot } from '@firebase/firestore';
 	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
 	import Navigator from '$navigation/Navigator.svelte';
 	import AppMenu from '$lib/majorFeatures/AppMenu.svelte';
 	import SiteNavOptions from '$navigation/siteNavOptions.svelte';
+	import { usersCollection } from '$scripts/collections';
 
 	export let refresh;
 

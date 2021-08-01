@@ -9,7 +9,7 @@
 <script lang="ts">
 	import NavLink from '$navigation/NavLink.svelte';
 	import Navigator from '$navigation/Navigator.svelte';
-	import { PageOption } from '$scripts/classes';
+	import { PageOption } from '$scripts/classes/pageOption';
 	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
 	import { navChecked } from '$scripts/store';
 

@@ -2,17 +2,20 @@
 	import { teamConverter } from '$scripts/converters';
 	import { doc, setDoc } from '@firebase/firestore';
 	import { allTeams, teamsCollection } from '$scripts/teams';
-	import type { Team } from '$scripts/classes';
+	import type { Team } from '$scripts/classes/team';
+	import { conferences, divisions } from '$scripts/classes/constants';
 
 	function writeTeamDoc(team: Team): void {
-		console.log(team);
 		try {
+			// If the team has a document reference, store it; otherwise, find one from its abbreviation
 			var docRef;
 			if (team.docRef) {
 				docRef = team.docRef;
 			} else {
 				docRef = doc(teamsCollection, team.abbreviation);
 			}
+
+			// Collect the properties that are defined on the Team object to avoid writing undefined data to the DB
 			let definedKeys = {};
 			Object.keys(team).forEach((key) => {
 				if (team[key] !== undefined) {
@@ -20,15 +23,15 @@
 				}
 			});
 
+			// Write the defined properties to the document in the Team collection
 			setDoc(docRef.withConverter(teamConverter), definedKeys);
+
+			// Since this is admin-only, the alert interface is sufficient for success/error notification
 			alert('success!');
 		} catch (err) {
 			alert(err);
 		}
 	}
-
-	const conferences = ['AFC', 'NFC'];
-	const divisions = ['East', 'West', 'North', 'South'];
 </script>
 
 {#each $allTeams as team, i (team)}

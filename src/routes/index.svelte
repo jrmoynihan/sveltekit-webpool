@@ -21,8 +21,10 @@
 	let width: number | string; // allow width to be a number for window resizing or a string for passing fixed CSS properties
 
 	if (browser) {
-		width = $windowWidth.toString();
-		width = widthContainment;
+		if ($windowWidth) {
+			width = $windowWidth.toString();
+			width = widthContainment;
+		}
 	}
 </script>
 

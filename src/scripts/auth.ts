@@ -13,14 +13,14 @@ import {
 } from '@firebase/auth';
 import { firestoreAuth } from '$scripts/firebaseInit';
 import { get, writable } from 'svelte/store';
-import type { WebUserData } from './classes';
+import type { WebUser } from '$scripts/classes/webUser';
 import { getDoc, doc, setDoc, DocumentSnapshot } from '@firebase/firestore';
-import { usersCollection } from '$scripts/store';
+import { usersCollection } from '$scripts/collections';
 import { goto } from '$app/navigation';
 import { hideModal } from './functions';
 
 export const currentUser = writable<User>(firestoreAuth.currentUser);
-export const userData = writable<WebUserData>();
+export const userData = writable<WebUser>();
 export let userDocSnapshot: DocumentSnapshot;
 
 export const getProvider = async (loginPlatform: string): Promise<AuthProvider> => {

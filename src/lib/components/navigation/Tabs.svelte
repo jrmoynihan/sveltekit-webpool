@@ -13,7 +13,7 @@
 			{#each tabs as tab}
 				<input type="radio" bind:group={selectedTab} value={tab} id={tab.name} />
 				<label class="defaultTransition {$useDarkTheme ? 'dark' : 'light'}" for={tab.name}
-					>{tab.name}</label
+					><h3>{tab.name}</h3></label
 				>
 			{/each}
 		{/if}

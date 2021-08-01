@@ -3,7 +3,7 @@ import { getAuth } from '@firebase/auth';
 import { getStorage } from '@firebase/storage';
 import { getFirestore } from '@firebase/firestore';
 import { enableIndexedDbPersistence } from '@firebase/firestore';
-import { browser } from '$app/env';
+import { browser, dev } from '$app/env';
 import { getApp, getApps } from '@firebase/app';
 
 // TODO: API key should be stored in a environment variable (see: privateStuff.env) so it is not exposed publicly
@@ -35,7 +35,7 @@ export const firestoreDB = getFirestore(firebaseApp);
 export const firestoreAuth = getAuth(firebaseApp);
 export const firestoreStorage = getStorage(firebaseApp);
 
-if (browser) {
+if (browser && !dev) {
 	enableIndexedDbPersistence(firestoreDB).catch((err) => {
 		if (err.code == 'failed-precondition') {
 			// Multiple tabs open, persistence can only be enabled

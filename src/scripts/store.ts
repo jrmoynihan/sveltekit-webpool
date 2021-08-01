@@ -10,7 +10,8 @@ import {
 } from '@firebase/firestore';
 import { firestoreDB } from './firebaseInit';
 import { userConverter } from './converters';
-import type { WebUserData } from './classes';
+import type { WebUser } from '$scripts/classes/webUser';
+import { usersCollection } from './collections';
 
 export const useDarkTheme = writable(false);
 export const chosenMixBlendMode = writable('normal');
@@ -53,9 +54,7 @@ export const collectionAsStore = (
 	converter: FirestoreDataConverter<unknown>
 ): Readable<unknown[]> => queryAsStore(query(collection(firestoreDB, path)), converter);
 
-export const usersCollection = collection(firestoreDB, 'Users');
-
-export const updateUser = async (userData: WebUserData): Promise<void> => {
+export const updateUser = async (userData: WebUser): Promise<void> => {
 	const docRef = doc(usersCollection, userData.id);
 	try {
 		console.log(`attempting to update ${userData.name}`);

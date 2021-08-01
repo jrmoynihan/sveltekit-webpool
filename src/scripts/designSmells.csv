@@ -1,0 +1,4 @@
+Project, Class/Interface path, Class/Interface, Detected smell
+my-app,c:/Users/kfls271/Desktop/Svelte/my-app/src/scripts,PageOption,Deficient Encapsulation
+my-app,c:/Users/kfls271/Desktop/Svelte/my-app/src/scripts,WebUserData,Deficient Encapsulation
+my-app,c:/Users/kfls271/Desktop/Svelte/my-app/src/scripts,Team,Deficient Encapsulation

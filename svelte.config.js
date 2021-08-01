@@ -29,9 +29,11 @@ const config = {
 				alias: {
 					$scripts: path.resolve('./src/scripts'),
 					$buttons: path.resolve('./src/lib/components/buttons'),
+					$containers: path.resolve('./src/lib/components/containers'),
 					$navigation: path.resolve('./src/lib/components/navigation'),
 					$selects: path.resolve('./src/lib/components/selects'),
 					$switches: path.resolve('./src/lib/components/switches'),
+					$tabular: path.resolve('./src/lib/tabular'),
 					$majorFeatures: path.resolve('./src/lib/majorFeatures')
 				}
 			},

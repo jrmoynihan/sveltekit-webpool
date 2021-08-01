@@ -10,7 +10,6 @@
 	let abbreviatedWeekHeaders: string[] = ['#', 'Name', 'W', 'L', 'T'];
 	let weekHeaders: string[] = initialWeekHeaders;
 	let weeks: string[] = [];
-	let width: number;
 
 	for (let i = 1; i < 18; i++) {
 		weeks = [...weeks, i.toString()];
@@ -45,7 +44,6 @@
 		<WeeklyStandingsTable {playerData} />
 	</div>
 </div>
-<svelte:window on:resize={() => (width = getWindowSize())} />
 
 <style lang="scss">
 	.grid {

@@ -1,4 +1,4 @@
-import type { Team } from './classes';
+import type { Team } from '$scripts/classes/team';
 import { collection, onSnapshot } from '@firebase/firestore';
 import { firestoreDB } from './firebaseInit';
 import { get, writable } from 'svelte/store';

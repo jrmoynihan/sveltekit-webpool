@@ -5,7 +5,7 @@
 	export let customStyles: string = '';
 	export let customClasses: string = '';
 	export let inTransition = fly;
-	export let inTransitionParams = { duration: 200, x: -50, delay: 400 };
+	export let inTransitionParams = { duration: 200, x: -50, delay: 200 };
 	export let outTransition = fly;
 	export let outTransitionParams = { duration: 200, x: 50 };
 </script>
