@@ -17,16 +17,7 @@
 		// TODO fix the regeex so the index path ('/') doesn't match when it's
 		active = pageOption.path === '/' && $page.path !== '/' ? false : active;
 	}
-
-	// const removeWillChange = async (item: HTMLImageElement) => {
-	// 	item.style.willChange = 'auto';
-	// 	item.removeEventListener('animationend', () => removeWillChange(item));
-	// };
-	// const addWillChange = async () => {
-	// 	const images = document.querySelectorAll('img');
-	// 	images.forEach((item) => item.addEventListener('animationend', () => removeWillChange(item)));
-	// 	images.forEach((item) => (item.style.willChange = 'translate, opacity, transform'));
-	// };
+	
 </script>
 
 <label
@@ -50,6 +41,8 @@
 		<h2>{pageOption.navigationText}</h2>
 	</a>
 </label>
+
+
 
 <style lang="scss">
 	label {
