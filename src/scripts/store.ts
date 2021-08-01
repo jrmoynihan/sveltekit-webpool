@@ -12,12 +12,14 @@ import { firestoreDB } from './firebaseInit';
 import { userConverter } from './converters';
 import type { WebUser } from '$scripts/classes/webUser';
 import { usersCollection } from './collections';
+import { browser } from '$app/env';
 
 export const useDarkTheme = writable(false);
 export const chosenMixBlendMode = writable('normal');
 export const navChecked = writable(true);
 export const sidePanelChecked = writable(true);
-export const windowWidth = writable();
+export const windowWidth = writable(browser ? window.innerWidth : null);
+export const editing = writable(false);
 
 export const queryAsStore = (
 	query: Query,

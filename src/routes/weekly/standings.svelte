@@ -2,7 +2,6 @@
 	import AccordionDetails from '$containers/AccordionDetails.svelte';
 	import SeasonStandings from '$tabular/SeasonStandings.svelte';
 	import WeekStandings from '$tabular/WeekStandings.svelte';
-
 	import Tabs from '$navigation/Tabs.svelte';
 
 	const standingsTabs = [
@@ -39,6 +38,8 @@
 	.section-two {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(min(20em, 100%), 1fr));
-		width: 100%;
+		// width: 100%;
+		max-width: calc(max-content + 4ch);
+	margin: 0 auto;
 	}
 </style>

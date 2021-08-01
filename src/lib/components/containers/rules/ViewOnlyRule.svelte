@@ -1,20 +1,22 @@
 <script lang="ts">
-	import { DocumentSnapshot } from '@firebase/firestore';
-	export let ruleDocument: DocumentSnapshot;
-	let ruleData = { ...ruleDocument.data() };
+	import type { DocumentReference } from '@firebase/firestore';
+	import type {DocumentData} from 'firebase/firestore'
+
+	export let rule : {data: DocumentData, ref: DocumentReference};
+	
+	let ruleData = { ...rule.data };
 </script>
 
-<div class="rule-item">{@html ruleData.text}</div>
+<li class="rule-item">{@html ruleData.text}</li>
 
 <style>
 	/* Style rule items */
 	.rule-item {
 		display: inline-block;
-		padding: 2vw;
+		padding: 0.5rem 2rem;
+		max-width: 100%;
 		justify-content: center;
 		align-items: center;
 		align-content: center;
-		align-self: center;
-		max-width: 100%;
 	}
 </style>

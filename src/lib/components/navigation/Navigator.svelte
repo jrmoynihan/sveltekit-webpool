@@ -13,6 +13,7 @@
 	<slot />
 </nav>
 
+
 <style lang="scss">
 	$minItemSize: var(--minItemSize);
 	$maxItemSize: var(--maxItemSize);

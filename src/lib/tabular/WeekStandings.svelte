@@ -1,7 +1,5 @@
 <script lang="ts">
-	import { browser } from '$app/env';
 	import WeeklyStandingsTable from '$lib/tabular/WeeklyStandingsTable.svelte';
-	import { getWindowSize } from '$scripts/functions';
 	import { mobileBreakpoint } from '$scripts/site';
 	import { windowWidth } from '$scripts/store';
 

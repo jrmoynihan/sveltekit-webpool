@@ -26,7 +26,7 @@
 	const maxLengthText: number = Math.max(...textLengths);
 </script>
 
-<Navigator minItemSize="{maxLengthText}ch" maxItemSize="max-content" customStyles="top:3.5em;">
+<Navigator minItemSize="{maxLengthText}ch" maxItemSize="max-content" customStyles="top:2.5rem;">
 	{#each adminTabs as tab, index}
 		<NavLink {index} pageOption={tab} fullyRounded={true} />
 	{/each}

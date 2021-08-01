@@ -13,7 +13,7 @@
 		"clone-preview-channel-to-live": "firebase hosting:clone tonyswebpool:preview-test tonyswebpool:live"
 	},
 	"devDependencies": {
-		"@sveltejs/kit": "^1.0.0-next.1",
+		"@sveltejs/kit": "^1.0.0-next.139",
 		"@types/cookie": "^0.4.1",
 		"@typescript-eslint/eslint-plugin": "^4.28.5",
 		"@typescript-eslint/parser": "^4.28.5",
@@ -35,7 +35,7 @@
 		"@fortawesome/free-solid-svg-icons": "^5.15.3",
 		"@lukeed/uuid": "^2.0.0",
 		"cookie": "^0.4.1",
-		"firebase": "^8.8.1",
+		"firebase": "^9.0.0-beta.7",
 		"sass": "^1.37.0",
 		"svelte-adapter-firebase": "next",
 		"svelte-fa": "^2.2.1",

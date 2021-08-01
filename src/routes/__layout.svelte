@@ -18,7 +18,7 @@
 	import SiteNavOptions from '$navigation/siteNavOptions.svelte';
 	import { usersCollection } from '$scripts/collections';
 
-	export let refresh;
+	export let refresh: any;
 
 	$: {
 		if ($currentUser && userConverter) {
@@ -83,13 +83,12 @@
 			'nav'
 			'main';
 		grid-template-columns: 100%;
-		grid-template-rows: repeat(3, minmax(0, max-content));
+		grid-template-rows: repeat(3, minmax(min(0px,100%), max-content));
 
 		@include responsive_desktop_only {
 			grid-template-areas: 'nav menu' 'main menu';
-			grid-template-columns: minmax(0, auto) max-content;
-			// grid-template-rows: minmax(0, max-content) minmax(0, auto);
-			grid-template-rows: minmax(0, max-content) 1fr;
+			grid-template-columns: minmax(min(0px,100%), 1fr) max-content;
+			grid-template-rows: minmax(min(0px,100%), max-content) 1fr;
 		}
 		&.pseudo:before {
 			content: '';
@@ -113,7 +112,7 @@
 		// my styles
 		@include gridAndGap(15px);
 		color: var(--main-color);
-		grid-template-rows: repeat(auto-fit, minmax(0, auto));
+		grid-template-rows: repeat(auto-fit, minmax(min(0px,100%), 1fr));
 		grid-template-columns: 100%;
 		text-align: center;
 		position: relative;

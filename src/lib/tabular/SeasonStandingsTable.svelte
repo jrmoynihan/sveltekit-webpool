@@ -51,11 +51,19 @@
 			color: var(--main-color);
 		}
 	}
+	.percentage{
+		display: inline-grid;
+		gap: 10px;
+		grid-template-columns: min-content min-content;
+		align-items: center;
+		justify-content: center;
+	}
 	span {
 		aspect-ratio: 1/1;
 		background: conic-gradient(var(--accent-color) $radii, transparent $radii);
 		border-radius: 50%;
 		display: inline-block;
 		height: 100%;
+		width: 2em;
 	}
 </style>

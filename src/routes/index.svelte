@@ -15,6 +15,7 @@
 	import { getWindowSize } from '$scripts/functions';
 	import { browser } from '$app/env';
 	import { windowWidth } from '$scripts/store';
+import { page } from '$app/stores';
 
 	let drawing = true;
 	const widthContainment = '100%';
@@ -29,7 +30,7 @@
 </script>
 
 <svelte:head>
-	<title>Home</title>
+	<title>Tony's Football Pool</title>
 </svelte:head>
 
 <h1>

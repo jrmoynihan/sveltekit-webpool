@@ -16,8 +16,8 @@ import { get, writable } from 'svelte/store';
 import type { WebUser } from '$scripts/classes/webUser';
 import { getDoc, doc, setDoc, DocumentSnapshot } from '@firebase/firestore';
 import { usersCollection } from '$scripts/collections';
-import { goto } from '$app/navigation';
 import { hideModal } from './functions';
+import { goto } from '$app/navigation';
 
 export const currentUser = writable<User>(firestoreAuth.currentUser);
 export const userData = writable<WebUser>();
@@ -119,6 +119,7 @@ export const createNewUserDocument = async (): Promise<void> => {
 	// Write some initial data to the user document
 	await setDoc(newUserRef, {
 		name: newUser.displayName,
+		nickname: newUser.displayName,
 		email: newUser.email,
 		admin: false,
 		college: false,

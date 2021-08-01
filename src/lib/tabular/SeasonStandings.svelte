@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { browser } from '$app/env';
-
 	import { mobileBreakpoint } from '$scripts/site';
 	import SeasonStandingsTable from '$lib/tabular/SeasonStandingsTable.svelte';
 	import { windowWidth } from '$scripts/store';
@@ -17,13 +15,11 @@
 	];
 
 	$: {
-		if (browser) {
 			if ($windowWidth < mobileBreakpoint - 500) {
 				seasonHeaders = abbreviatedSeasonHeaders;
 			} else {
 				seasonHeaders = initialSeasonHeaders;
 			}
-		}
 	}
 </script>
 

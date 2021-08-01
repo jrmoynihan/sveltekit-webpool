@@ -1,24 +1,26 @@
 <script lang="ts">
-	import type { CollectionReference, DocumentSnapshot, doc } from '@firebase/firestore';
+	import {  DocumentReference, updateDoc } from '@firebase/firestore';
+	import type {DocumentData} from 'firebase/firestore'
 
-	export let rulesCollection: CollectionReference;
-	export let ruleDocument: DocumentSnapshot;
-	export let categoryID: string;
+	export let rule : {data: DocumentData, ref: DocumentReference};
 
-	const id = ruleDocument.id;
-	const ruleData = { ...ruleDocument.data() };
+	const ruleData = { ...rule.data };
 
-	function updateRule() {
-		// doc(rulesCollection, categoryID).collection('Rules').doc(id).update({
-		// 	text: ruleData.text,
-		// 	order: ruleData.order
-		// });
+	function updateRule(): void {
+		try{		
+		console.log('before',rule);
+		updateDoc(rule.ref,{text:ruleData.text,order: ruleData.order})
+		console.log('after',rule);
+	}
+	catch(err){
+		console.error(err)
+		}
 	}
 </script>
 
 <div class="rule-item">
 	<textarea bind:value={ruleData.text} on:change={updateRule} />
-	<input class="order-input" bind:value={ruleData.order} on:change={updateRule} />
+	<input class="order-input" bind:value={ruleData.order} on:change={()=>updateRule()} />
 </div>
 
 <style>
@@ -29,7 +31,15 @@
 		align-content: center;
 		align-items: center;
 		justify-content: center;
-		display: flex;
+		display: grid;
+		grid-template-columns: 1fr max-content;
 		gap: 10px;
+		width: 100%;
+	}
+	textarea{
+		font-family: inherit;
+		font-weight: lighter;
+		border-radius: 1em;
+		padding: 1em;
 	}
 </style>

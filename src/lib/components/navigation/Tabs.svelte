@@ -4,7 +4,7 @@
 	import TransitionWrapper from '../TransitionWrapper.svelte';
 
 	export let tabs = [];
-	export let selectedTab: { name: string; component: any };
+	export let selectedTab = {};
 </script>
 
 <div class="tabs-container defaultTransition">
@@ -21,9 +21,11 @@
 	<TransitionWrapper refresh={selectedTab}>
 		<div class="tab-component">
 			{#if selectedTab}
-				<svelte:component this={selectedTab.component} />
+				<svelte:component this={selectedTab['component']} {selectedTab}>
+					<slot name="tab-component" />
+				</svelte:component>
 			{/if}
-			<slot name="tab-component" />
+			
 		</div>
 	</TransitionWrapper>
 	<slot name="tab-footer" />
@@ -42,17 +44,21 @@
 		}
 	}
 	label {
+		align-items: center;
 		box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.3);
 		cursor: pointer;
+		display: grid;
 		font-weight: bold;
 		padding: 1rem;
+		height:100%;
 		// background: radial-gradient(var(--alternate-color) 30%, transparent);
 	}
 	.tab-header {
 		@include rounded;
+		align-items: center;
 		display: grid;
 		gap: 0.2em;
-		grid-template-columns: repeat(auto-fit, minmax(0, auto));
+		grid-template-columns: repeat(auto-fit, minmax(15ch, auto));
 		& > label:first-of-type {
 			border-radius: 1rem 0 0 1rem;
 		}

@@ -20,12 +20,12 @@
 
 {#if prizeData.hasWeeklyPayout}
 	<div class="title" style="--span-length:{spanLength}">
-		<h3>Weekly</h3>
+		<h3>Weekly Prizes</h3>
 	</div>
 {/if}
 
 <div class="title" style="--span-length:{spanLength}">
-	<h3>Season</h3>
+	<h3>Season Prizes</h3>
 </div>
 
 {#if prizeData.hasWeeklyPayout}
@@ -49,6 +49,10 @@
 
 <style lang="scss">
 	$spanLength: var(--span-length);
+	h3{
+		color: var(--accent-color);
+		text-decoration: underline 2px;
+	}
 	.title {
 		grid-column: span $spanLength;
 	}

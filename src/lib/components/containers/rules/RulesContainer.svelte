@@ -4,7 +4,8 @@
 		QueryDocumentSnapshot,
 		orderBy,
 		query,
-		CollectionReference
+		CollectionReference,
+		collection
 	} from '@firebase/firestore';
 	import ToggleSwitch from '$switches/ToggleSwitch.svelte';
 	import { userData } from '$scripts/auth';
@@ -13,13 +14,15 @@
 	import { rulesConverter } from '$scripts/converters';
 	import PrizeCard from '$containers/rules/PrizeCard.svelte';
 	import RulesCategoryGrid from '$containers/rules/RulesCategoryGrid.svelte';
-	import RulesGridItem from '$containers/rules/RulesGridItem.svelte';
+	import { onDestroy } from 'svelte';
+	import Tabs from '$navigation/Tabs.svelte';
+	import { editing } from '$scripts/store';
 
 	// Dynamically pass a specific rules collection in
 	export let rulesCollection: CollectionReference;
 
 	// By default, even an admin won't see an editable rule page
-	let editing = false;
+	$editing = false
 	let editable = false;
 
 	// But an admin will have the option to make it editable
@@ -42,16 +45,35 @@
 			snap.forEach((doc) => {
 				rulesCollectionDocuments = [...rulesCollectionDocuments, doc];
 			});
-			console.log('fetched rules!', rulesCollectionDocuments);
-			unsubscribe();
-			console.log('unsubscribed from rule changes!');
+			// console.log('fetched rules!', rulesCollectionDocuments);
+			// unsubscribe();
 		} catch (err) {
 			console.error(err);
 		}
 	});
+	onDestroy(()=>{
+		unsubscribe(); // Stop listening to the collection when the component is unmounted from the DOM
+		console.log('unsubscribed from rule changes!');
+	})
+	
+	let tabs = []
+	let tab = {}
+
+	
+	$: {rulesCollectionDocuments.forEach(doc => {
+		const data = doc.data()
+		const ref = doc.ref
+		const q = query(collection(doc.ref, 'Rules'), orderBy('order'));		
+			tab = {name: data.title, component: RulesCategoryGrid, data: data, ref: ref}		
+			if(tab['name'] !== 'Prizes'){
+ 				tabs = [...tabs,tab]
+ 			}
+		})
+					
+}
 </script>
 
-<div id="stickyHeader">
+<!-- <div id="stickyHeader"> -->
 	<!-- {#if dev}
 	{#each rulesCollectionDocuments as ruleDoc}
 		{ruleDoc.data().title}
@@ -64,23 +86,26 @@
 		<div id="editToggle">
 			<div id="editToggle-text">Edit (Admin Only)</div>
 			<div class="lock-switch">
-				<ToggleSwitch on:toggle={() => (editing = !editing)} />
-				<Fa icon={editing ? faUnlock : faLock} size="lg" />
+				<ToggleSwitch on:toggle={() => ($editing = !$editing)} />
+				<Fa icon={$editing ? faUnlock : faLock} size="lg" />
 			</div>
 		</div>
 	{/if}
-</div>
+<!-- </div> -->
 
 <!-- {#await rulesCollectionDocuments}
 	Loading...
 {:then} -->
 <PrizeCard {rulesCollectionDocuments} />
 <hr />
-<RulesCategoryGrid {rulesCollectionDocuments}>
+<!-- <RulesCategoryGrid {rulesCollectionDocuments}>
 	{#each rulesCollectionDocuments as ruleCategoryDocument}
 		<RulesGridItem {ruleCategoryDocument} {rulesCollection} {editable} {editing} />
 	{/each}
-</RulesCategoryGrid>
+</RulesCategoryGrid> -->
+{#if tabs}
+<Tabs {tabs} selectedTab={tabs[0]}/>
+{/if}
 
 <!-- {rulesCollectionDocuments}
 {:catch error}
@@ -102,10 +127,13 @@
 		background-color: var(--theme-background);
 	}
 	#editToggle {
-		padding-top: 0;
-		display: flex;
-		right: 0;
-		position: absolute;
+		@include rounded;
+		display: grid;
+		padding: 1rem;
+		// position: absolute;
+		outline: 2px var(--accent-color) solid;
+		margin: 1rem auto;
+		max-width: max-content;
 	}
 	#editToggle-text {
 		width: 20vmin;

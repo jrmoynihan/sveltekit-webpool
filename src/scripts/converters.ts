@@ -5,7 +5,7 @@ import { RuleCategory } from '$scripts/classes/rules';
 
 export const userConverter = {
 	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-	toFirestore: (user: Partial<WebUser>) => {
+	toFirestore: (user: Partial<WebUser>): Partial<WebUser> => {
 		return { ...user };
 	},
 	fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): WebUser => {
