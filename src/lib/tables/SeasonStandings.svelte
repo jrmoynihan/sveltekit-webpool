@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { mobileBreakpoint } from '$scripts/site';
-	import SeasonStandingsTable from '$lib/tabular/SeasonStandingsTable.svelte';
+	import SeasonStandingsTable from '$tables/SeasonStandingsTable.svelte';
 	import { windowWidth } from '$scripts/store';
 
 	let initialSeasonHeaders = ['Rank', 'Player', 'Wins', 'Losses', '% Won'];

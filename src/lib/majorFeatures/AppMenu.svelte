@@ -73,9 +73,10 @@
 		top: 0;
 		max-height: 100vh;
 		@include responsive_mobile_only {
-			padding-top: 0.5rem;
+			padding: 0.5rem;
 			font-size: inherit;
 			grid-template-columns: repeat(2, min-content) 1fr;
+			background: rgba(var(--alternateValue-color), 70%);
 		}
 		@include responsive_desktop_only {
 			grid-template-columns: min-content !important;
@@ -102,32 +103,7 @@
 	}
 	.mobile-nav-open {
 		box-shadow: 0 0 0 rgba(var(--accentValue-color), 50%);
-		animation: pulse 3s infinite;
-	}
-	@-webkit-keyframes pulse {
-		0% {
-			-webkit-box-shadow: 0 0 0 0 rgba(var(--accentValue-color), 40%);
-		}
-		70% {
-			-webkit-box-shadow: 0 0 0 10px rgba(var(--accentValue-color), 0%);
-		}
-		100% {
-			-webkit-box-shadow: 0 0 0 0 rgba(var(--accentValue-color), 0%);
-		}
-	}
-	@keyframes pulse {
-		0% {
-			-moz-box-shadow: 0 0 0 0 rgba(var(--accentValue-color), 40%);
-			box-shadow: 0 0 0 0 rgba(var(--accentValue-color), 40%);
-		}
-		70% {
-			-moz-box-shadow: 0 0 0 10px rgba(var(--accentValue-color), 0%);
-			box-shadow: 0 0 0 10px rgba(var(--accentValue-color), 0%);
-		}
-		100% {
-			-moz-box-shadow: 0 0 0 0 rgba(var(--accentValue-color), 0%);
-			box-shadow: 0 0 0 0 rgba(var(--accentValue-color), 0%);
-		}
+		@include pulse;
 	}
 	#settings-wrapper {
 		display: grid;

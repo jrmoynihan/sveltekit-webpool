@@ -15,7 +15,7 @@
 	export let refresh;
 
 	const adminTabs: PageOption[] = [
-		new PageOption({ navigationText: 'Admin Home', path: '/admin' }),
+		new PageOption({ navigationText: 'Toggle Roles', path: '/admin/toggleRoles' }),
 		new PageOption({ navigationText: 'Manage Teams', path: '/admin/manageTeams' })
 	];
 

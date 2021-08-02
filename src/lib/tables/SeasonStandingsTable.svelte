@@ -60,7 +60,7 @@
 	}
 	span {
 		aspect-ratio: 1/1;
-		background: conic-gradient(var(--accent-color) $radii, transparent $radii);
+		background: conic-gradient(var(--main-color) $radii, transparent $radii);
 		border-radius: 50%;
 		display: inline-block;
 		height: 100%;

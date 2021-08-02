@@ -4,6 +4,9 @@
 	import { allTeams, teamsCollection } from '$scripts/teams';
 	import type { Team } from '$scripts/classes/team';
 	import { conferences, divisions } from '$scripts/classes/constants';
+	import PageTitle from '$lib/components/misc/PageTitle.svelte';
+
+	let selectedTeam = $allTeams[0];
 
 	function writeTeamDoc(team: Team): void {
 		try {
@@ -34,67 +37,135 @@
 	}
 </script>
 
-{#each $allTeams as team, i (team)}
-	<p>
-		{#each Object.keys($allTeams[0]) as key}
+<PageTitle>Manage Teams</PageTitle>
+
+<select bind:value={selectedTeam} class='team-select'>
+	{#each $allTeams as team, i (team)}
+		<option value={team}>{team.city} {team.name}</option>
+	{/each}
+</select>
+{#if selectedTeam}
+	<div class="info-grid">
+		<div class="images" style="grid-area:image;">
+			<img src={selectedTeam.logoPath} alt={selectedTeam.name} width="200px" />
+			<img src={selectedTeam.fontPath} alt={selectedTeam.name} width="200px" />
+		</div>
+		{#each Object.keys(selectedTeam) as key}
 			{#if key !== 'docRef'}
-				<label for={`${team}-${key}`}>
+				<label for={`${selectedTeam}-${key}`} style="grid-area:{key}">
+					{key}
 					{#if key === 'conference'}
 						<select
-							id={`${team}-${key}`}
-							bind:value={team[key]}
-							style="font-style:{team[key] ? '' : 'italic'}"
+							id={`${selectedTeam}-${key}`}
+							bind:value={selectedTeam[key]}
+							style="font-style:{selectedTeam[key] ? '' : 'italic'}"
 							>{#each conferences as conf}
 								<option value={conf}>{conf}</option>
 							{/each}
 						</select>
 					{:else if key === 'division'}
 						<select
-							id={`${team}-${key}`}
-							bind:value={team[key]}
-							style="font-style:{team[key] ? '' : 'italic'}"
+							id={`${selectedTeam}-${key}`}
+							bind:value={selectedTeam[key]}
+							style="font-style:{selectedTeam[key] ? '' : 'italic'}"
 							>{#each divisions as div}
 								<option value={div}>{div}</option>
 							{/each}
 						</select>
 					{:else if key === 'wins' || key === 'losses' || key === 'ties'}
-						<label for={`${team}-${key}`}>
-							{key}
-							<input
-								type="number"
-								id={`${team}-${key}`}
-								bind:value={team[key]}
-								style="font-style:{team[key] ? '' : 'italic'}"
-								placeholder={key}
-							/>
-						</label>
+						<input
+							type="number"
+							id={`${selectedTeam}-${key}`}
+							bind:value={selectedTeam[key]}
+							style="font-style:{selectedTeam[key] ? '' : 'italic'};  width:min(calc({selectedTeam[key].toString().length}ch + 5rem),100%);"
+							placeholder={key}
+						/>
 					{:else}
 						<input
 							type="text"
-							id={`${team}-${key}`}
-							bind:value={team[key]}
-							style="font-style:{team[key] ? '' : 'bold'}"
+							id={`${selectedTeam}-${key}`}
+							bind:value={selectedTeam[key]}
+							style="font-style:{selectedTeam[key] ? '' : 'bold'} ; width:min(calc({selectedTeam[key].toString().length}ch + 5rem),100%);"
 							placeholder={key}
 						/>
 					{/if}
 				</label>
 			{/if}
 		{/each}
-		<button on:click={() => writeTeamDoc(team)}>Update Doc</button>
-	</p>
-	<p>
-		{#each Object.keys(team) as key, i (key)}
+		<button on:click={() => writeTeamDoc(selectedTeam)}>Update Doc</button>
+		<!-- <p>
+		{#each Object.keys(selectedTeam) as key, i (key)}
 			{#if key !== 'docRef'}
-				{#if team[key] !== undefined || team[key] === 0}
-					<div style="color:{team[key] ? 'green' : 'black'}; display:inline-flex">{team[key]}</div>
+				{#if selectedTeam[key] !== undefined || selectedTeam[key] === 0}
+					<div style="color:{selectedTeam[key] ? 'green' : 'black'}; display:inline-flex">
+						{selectedTeam[key]}
+					</div>
 				{:else}
 					<strong>{key}</strong>
 				{/if}
 				|| &nbsp;
 			{/if}
 		{/each}
-		<img src={team.logoPath} alt={team.name} width="50px" />
-		<img src={team.fontPath} alt={team.name} width="50px" />
-	</p>
-	<hr />
-{/each}
+	</p> -->
+	</div>
+{/if}
+
+<style lang="scss">
+	select {
+		@include rounded;
+		color: var(--alternate-color);
+		margin: 0 auto;
+		max-width: max-content;
+		padding: 1rem;
+	}
+	input{
+		@include rounded;
+		padding: 1rem;
+		width:100%;
+		text-align: center;
+	}
+	button {
+		@include defaultButtonStyles;
+		margin: 1rem;
+		grid-area: update;
+
+	}
+	label, .images, .info-grid{
+		display: grid;
+		@include rounded;
+	}
+	label{
+		grid-template-columns: 1fr;
+		grid-template-rows: min-content auto;
+		align-items: start;
+		justify-items: center;
+		text-align: center;
+		text-transform: capitalize;
+		margin: 1rem;
+		padding: 1rem;
+		width: 100%;
+		justify-content: center;
+	}
+	.images{
+		@include frostedGlass;
+		grid-template-columns: 1fr 1fr;
+		align-items: center;
+		justify-items: center;
+		padding: 0.5rem;
+	}
+	img{
+		max-width:100%;
+	}
+	.info-grid {
+		width: 100%;
+		grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+		grid-template-areas: "conference division image" "city name abbreviation" "wins losses ties" "fontPath logoPath docID" ". update .";
+		align-items: center;
+		justify-items: center;
+		justify-content: center;
+	}
+	.team-select{
+		background-color: rgba(var(--accentValue-color),80%);
+		margin: 2rem auto;
+	}
+</style>

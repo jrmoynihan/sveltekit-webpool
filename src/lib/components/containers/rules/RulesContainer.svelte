@@ -16,7 +16,8 @@
 	import RulesCategoryGrid from '$containers/rules/RulesCategoryGrid.svelte';
 	import { onDestroy } from 'svelte';
 	import Tabs from '$navigation/Tabs.svelte';
-	import { editing } from '$scripts/store';
+	import { editing, windowWidth } from '$scripts/store';
+import { mobileBreakpoint } from '$scripts/site';
 
 	// Dynamically pass a specific rules collection in
 	export let rulesCollection: CollectionReference;
@@ -72,59 +73,30 @@
 					
 }
 </script>
+<!-- Allows admins to edit this text directly -->
+{#if editable}
+<div id="editToggle" class={$windowWidth < mobileBreakpoint ? '':'desktop'}>
+	<div id="editToggle-text">Edit (Admin Only)</div>
+	<div class="lock-switch ">
+		<ToggleSwitch on:toggle={() => ($editing = !$editing)} />
+		<Fa icon={$editing ? faUnlock : faLock} size="lg" />
+	</div>
+</div>
+{/if}
 
-<!-- <div id="stickyHeader"> -->
-	<!-- {#if dev}
-	{#each rulesCollectionDocuments as ruleDoc}
-		{ruleDoc.data().title}
-		<TestRuleDoc {ruleDoc} />
-	{/each}
-{/if} -->
-
-	<!-- Allows admins to edit this text directly -->
-	{#if editable}
-		<div id="editToggle">
-			<div id="editToggle-text">Edit (Admin Only)</div>
-			<div class="lock-switch">
-				<ToggleSwitch on:toggle={() => ($editing = !$editing)} />
-				<Fa icon={$editing ? faUnlock : faLock} size="lg" />
-			</div>
-		</div>
-	{/if}
-<!-- </div> -->
-
-<!-- {#await rulesCollectionDocuments}
-	Loading...
-{:then} -->
 <PrizeCard {rulesCollectionDocuments} />
 <hr />
-<!-- <RulesCategoryGrid {rulesCollectionDocuments}>
-	{#each rulesCollectionDocuments as ruleCategoryDocument}
-		<RulesGridItem {ruleCategoryDocument} {rulesCollection} {editable} {editing} />
-	{/each}
-</RulesCategoryGrid> -->
+
 {#if tabs}
 <Tabs {tabs} selectedTab={tabs[0]}/>
 {/if}
 
-<!-- {rulesCollectionDocuments}
-{:catch error}
-	<code>{error}</code>
-{/await} -->
 <style lang="scss">
 	div {
 		padding: 1%;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-	}
-	#stickyHeader {
-		position: sticky;
-		top: 0;
-		left: 0;
-		border-bottom: 1px var(--theme-text) solid;
-		padding-bottom: 15px;
-		background-color: var(--theme-background);
 	}
 	#editToggle {
 		@include rounded;
@@ -141,5 +113,10 @@
 	.lock-switch {
 		display: flex;
 		gap: 0.3em;
+		
 	}
+	.desktop{
+			position: fixed;
+			bottom:0;
+		}
 </style>

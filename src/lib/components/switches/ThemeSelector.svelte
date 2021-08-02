@@ -2,8 +2,6 @@
 	import { browser } from '$app/env';
 	import { chosenMixBlendMode, useDarkTheme } from '$scripts/store';
 
-	import DatalistSelect from '$lib/components/selects/DatalistSelect.svelte';
-
 	let root;
 	if (browser) {
 		root = document.documentElement;
@@ -27,8 +25,6 @@
 		'color',
 		'luminosity'
 	];
-	// export let chosenMixBlendMode = 'exclusion';
-	// export let useDarkTheme: boolean = true;
 
 	export let lightThemeColors = {
 		main: 'rgb(0,0,0)',
@@ -108,13 +104,18 @@
 </script>
 
 <section>
-	<DatalistSelect
+	<!-- <DatalistSelect
 		inputID="mix-blend-mode-selector"
 		items={mixBlendModes}
 		displayedKeyNames={['name']}
 		placeholder={'Select a mix-blend-mode'}
 		bind:selectedItem={$chosenMixBlendMode}
-	/>
+	/> -->
+	<select bind:value={$chosenMixBlendMode}>
+		{#each mixBlendModes as mode}
+		<option value={mode}>{mode}</option>
+		{/each}
+	</select>
 
 	{#each Object.keys($useDarkTheme ? darkThemeColors : lightThemeColors) as color}
 		<div class="container">
@@ -154,5 +155,11 @@
 	button {
 		@include defaultButtonStyles;
 		display: inline-block;
+	}
+	select{
+		@include defaultButtonStyles;
+		color:initial;
+		background-color: revert;
+		text-shadow: none;
 	}
 </style>

@@ -12,12 +12,11 @@
 	let active = false;
 
 	$: {
-		$page.path;
 		active = matchPath(pageOption.path, $page.path);
 		// TODO fix the regeex so the index path ('/') doesn't match when it's
-		active = pageOption.path === '/' && $page.path !== '/' ? false : active;
+		active = (pageOption.path === '/') && ($page.path !== '/') ? false : active;
 	}
-	
+
 </script>
 
 <label
@@ -50,7 +49,7 @@
 		position: relative;
 		color: var(--main-color);
 		display: inline-flex;
-		box-shadow: 0 2px 2px 2px rgba(var(--accentValue-color), 0.3);
+		box-shadow: 0 0 2px 2px rgba(var(--accentValue-color), 0.3);
 		width: 100%;
 		height: 2em;
 		display: flex;
@@ -103,7 +102,7 @@
 		// color: var(--main-color);
 		gap: 0.7em;
 		&:visited {
-			color: var(--main-color);
+			color: currentColor;
 		}
 		&.active {
 			color: var(--alternate-color);

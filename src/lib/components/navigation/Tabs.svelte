@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { useDarkTheme } from '$scripts/store';
+	import { mobileBreakpoint } from '$scripts/site';
+import { useDarkTheme, windowWidth } from '$scripts/store';
 
 	import TransitionWrapper from '../TransitionWrapper.svelte';
 
@@ -12,7 +13,7 @@
 		{#if tabs}
 			{#each tabs as tab}
 				<input type="radio" bind:group={selectedTab} value={tab} id={tab.name} />
-				<label class="defaultTransition {$useDarkTheme ? 'dark' : 'light'}" for={tab.name}
+				<label class="defaultTransition {$useDarkTheme ? 'dark' : 'light'}  {$windowWidth < mobileBreakpoint ? 'mobile' : ''}" for={tab.name}
 					><h3>{tab.name}</h3></label
 				>
 			{/each}
@@ -64,6 +65,9 @@
 		}
 		& > label:last-of-type {
 			border-radius: 0 1rem 1rem 0;
+		}
+		& >label.mobile{
+			border-radius: 1rem;
 		}
 	}
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import WeeklyStandingsTable from '$lib/tabular/WeeklyStandingsTable.svelte';
+	import WeeklyStandingsTable from '$lib/tables/WeeklyStandingsTable.svelte';
 	import { mobileBreakpoint } from '$scripts/site';
 	import { windowWidth } from '$scripts/store';
 

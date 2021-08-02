@@ -1,1 +1,11 @@
-<h1>Pick 6</h1>
+<script lang='ts'>
+    import PageTitle from "$lib/components/misc/PageTitle.svelte";
+    
+    
+    </script>
+    
+    <PageTitle>Pick6</PageTitle>
+    
+    <style lang='scss'>
+    
+    </style>

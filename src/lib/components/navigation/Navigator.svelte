@@ -21,15 +21,14 @@
 		box-sizing: border-box;
 	}
 	.navigationList {
-		@include gridAndGap(10px);
+		@include gridAndGap(0.5rem);
 		align-items: center;
 		font-weight: bold;
 		grid-area: nav;
 		grid-template-columns: repeat(auto-fit, minmax($minItemSize, $maxItemSize));
 		justify-items: center;
 		max-width: 100%;
-		// padding-bottom: 1rem;
-		padding-top: 0;
+		padding: 0.2rem 0;
 		text-align: center;
 		top: 0;
 		transition: all 300ms ease-in-out;
@@ -41,7 +40,6 @@
 		}
 		@include responsive_mobile_only {
 			font-size: 1.5rem;
-			gap: 2px;
 			margin-top: 0.5rem;
 		}
 	}

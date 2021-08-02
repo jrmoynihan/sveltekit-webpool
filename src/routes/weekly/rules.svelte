@@ -1,8 +1,11 @@
 <script lang="ts">
 	import { weeklyRulesCollection } from '$scripts/collections';
 	import RulesContainer from '$containers/rules/RulesContainer.svelte';
+	import PageTitle from '$lib/components/misc/PageTitle.svelte';
 </script>
 
-<h1>Weekly Pool Rules</h1>
+<PageTitle>
+	Weekly Pool Rules
+</PageTitle>
 
 <RulesContainer rulesCollection={weeklyRulesCollection} />

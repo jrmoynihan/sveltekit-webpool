@@ -1,13 +1,12 @@
 <script lang="ts">
 	import type { IconDefinition } from '@fortawesome/fontawesome-common-types';
 	import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
-
 	import { createEventDispatcher, onMount } from 'svelte';
 	import Fa from 'svelte-fa';
 
 	export let expandTitle: string = '';
-	export let showArrow: boolean = false;
-	export let expandIcon: IconDefinition = faCaretDown;
+	export let showArrow: boolean = true;
+	export let customExpandIcon: IconDefinition;
 	export let iconClass: string = 'fa-CaretDown';
 
 	export class Accordion {
@@ -150,13 +149,14 @@
 </script>
 
 <details on:click={clicked}>
-	<summary class={showArrow ? '' : 'hideArrow'}>
+	<summary class={showArrow ? '' : 'hideArrow'} style='{showArrow ? 'display:list-item':'display:flex'};'>
+		{#if customExpandIcon}<Fa icon={customExpandIcon} class={iconClass}/>{/if}
+		 &nbsp;
 		{expandTitle}
-		{#if expandIcon}<Fa icon={expandIcon} class={iconClass} />{/if}
 		<slot name="summary" />
 	</summary>
-	<div class="content">
-		<slot name="content" />
+	<div class="content"on:click={clicked}>
+		<slot name="content"/>
 	</div>
 </details>
 
@@ -197,7 +197,6 @@
 	// }
 
 	summary {
-		display: flex;
 		padding: 0.5em;
 		transition: all 300ms ease-in-out;
 		cursor: pointer;
@@ -225,5 +224,8 @@
 		&:hover {
 			@include dayShadow;
 		}
+	}
+	.content{
+		padding:1rem;
 	}
 </style>

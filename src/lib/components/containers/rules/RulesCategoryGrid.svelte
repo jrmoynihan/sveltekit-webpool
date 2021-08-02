@@ -20,11 +20,11 @@ import { onDestroy } from "svelte";
 	onDestroy(()=>unsubscribe())
 </script>
 
-<div id="rules-grid" class={$editing ? 'editing': 'false'}>
+<div id="rules-grid" class={$editing ? 'editing': ''}>
 	<!-- <slot /> -->
 	{#if rules}
 	{#key rules}
-		<ul>
+		<ol class={$editing ? 'editing': ''}>
 			{#each rules as rule}
 				{#if $editing}
 					<EditableRule {rule}/>
@@ -32,7 +32,7 @@ import { onDestroy } from "svelte";
 					<ViewOnlyRule {rule}/>
 				{/if}
 			{/each}
-		</ul>
+		</ol>
 		{/key}
 	{/if}
 </div>
@@ -43,7 +43,7 @@ import { onDestroy } from "svelte";
 		// grid-template-columns: repeat(auto-fit, clamp(45ch, 50%, 75ch));
 		justify-content: center;
 		align-items: start;
-		column-gap: 2rem;
+		// column-gap: 2rem;
 		@media (max-width: 960px) {
 			// grid-template-columns: clamp(45ch, 50%, 75ch);
 		}
@@ -51,9 +51,15 @@ import { onDestroy } from "svelte";
 			grid-template-columns: 1fr;
 		}
 	}
-	ul{
+	ol{
 		display: grid;
-		grid-template-columns: repeat(auto-fit,minmax(min(50ch,100%),1fr));
-		width: 100%;
+		grid-template-columns:  repeat(auto-fit,clamp(45ch,50%,75ch));
+		// width: 100%;
+		justify-items: start;
+		// justify-self: center;
+		justify-content: center;
+		&.editing{
+			grid-template-columns: 1fr;
+		}
 	}
 </style>

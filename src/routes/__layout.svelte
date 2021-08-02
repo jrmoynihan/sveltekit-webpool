@@ -17,6 +17,7 @@
 	import AppMenu from '$lib/majorFeatures/AppMenu.svelte';
 	import SiteNavOptions from '$navigation/siteNavOptions.svelte';
 	import { usersCollection } from '$scripts/collections';
+	import ReturnToTop from '$lib/components/buttons/ReturnToTop.svelte';
 
 	export let refresh: any;
 
@@ -31,6 +32,7 @@
 	}
 </script>
 
+<!-- {#if $navChecked && $useDarkTheme && $chosenMixBlendMode} -->
 <div
 	id="app-background"
 	class="app-wrapper pseudo {$navChecked ? 'expanded' : 'collapsed'} {$useDarkTheme
@@ -39,7 +41,7 @@
 	style="--mix-blend-mode:{$chosenMixBlendMode};"
 >
 	<AppMenu />
-	<Navigator>
+	<Navigator customStyles={'transform: translateY(-3px);'}>
 		<SiteNavOptions />
 	</Navigator>
 
@@ -52,10 +54,9 @@
 		</TransitionWrapper>
 	</main>
 
-	<!-- <footer>
-		<p>visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to learn SvelteKit</p> 
-	</footer>-->
+	<ReturnToTop/>
 </div>
+<!-- {/if} -->
 
 <svelte:window on:resize={() => ($windowWidth = window.innerWidth)} />
 
@@ -66,6 +67,8 @@
 		box-sizing: border-box;
 		font-display: swap;
 		color: var(--main-color);
+		scrollbar-width: thin;
+		scrollbar-color: var(--accent-color);
 	}
 	* {
 		box-sizing: border-box;

@@ -15,7 +15,6 @@
 	import { getWindowSize } from '$scripts/functions';
 	import { browser } from '$app/env';
 	import { windowWidth } from '$scripts/store';
-import { page } from '$app/stores';
 
 	let drawing = true;
 	const widthContainment = '100%';
@@ -66,17 +65,14 @@ import { page } from '$app/stores';
 		@include rounded;
 		backdrop-filter: initial;
 		display: grid;
-		// display: contents;
 		position: relative;
 		gap: 10px;
 		grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
-		// grid-auto-columns: 1fr;
 		justify-items: center;
 		justify-content: center;
 		align-items: center;
 		max-height: 100%;
 		overflow: auto;
-		scrollbar-width: thin;
 	}
 
 	h1 {

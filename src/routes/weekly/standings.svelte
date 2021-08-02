@@ -1,8 +1,10 @@
 <script lang="ts">
 	import AccordionDetails from '$containers/AccordionDetails.svelte';
-	import SeasonStandings from '$tabular/SeasonStandings.svelte';
-	import WeekStandings from '$tabular/WeekStandings.svelte';
+	import SeasonStandings from '$tables/SeasonStandings.svelte';
+	import WeekStandings from '$tables/WeekStandings.svelte';
 	import Tabs from '$navigation/Tabs.svelte';
+	import PageTitle from '$lib/components/misc/PageTitle.svelte';
+	import { dev } from '$app/env';
 
 	const standingsTabs = [
 		{ name: 'Week', component: WeekStandings },
@@ -10,19 +12,18 @@
 	];
 </script>
 
-<AccordionDetails expandIcon={null}>
-	<h1 slot="summary">Standings</h1>
+<PageTitle>Standings</PageTitle>
 
-	<section class="section-one" slot="content">
-		<p>
-			Split screen for two components that show week leaders and season; contain them in tabs when
-			viewport shrinks
-		</p>
-		<p>Season table doesn't really need to show weeks that aren't the current week</p>
-	</section>
-</AccordionDetails>
+{#if dev}
+	<AccordionDetails>
+		<h4 slot='summary'>Dev Notes (not visible in production)</h4>
+		<section class="dev-notes" slot="content">
+			<p style='width:100ch;'>Season table doesn't really need to show weeks that aren't the current week</p>
+		</section>
+	</AccordionDetails>
+{/if}
 
-<section class="section-two">
+<section class="section-one">
 	<Tabs selectedTab={standingsTabs[0]} tabs={standingsTabs} />
 </section>
 
@@ -30,12 +31,12 @@
 	section {
 		padding: 0 1rem;
 	}
-	.section-one {
+	.dev-notes {
 		display: grid;
 		grid-template-columns: 1fr;
 		justify-items: center;
 	}
-	.section-two {
+	.section-one {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(min(20em, 100%), 1fr));
 		// width: 100%;

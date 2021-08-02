@@ -42,9 +42,9 @@
 	<div>3rd -- TBD</div>
 </div>
 <div class="details">
-	{prizeData.endOfSeason}
+	<p>{prizeData.endOfSeason}</p>
 	<!-- TODO this should be hidden if prizes can be calculated -->
-	{prizeData.prizeTBDmessage}
+	<p>{prizeData.prizeTBDmessage}</p>
 </div>
 
 <style lang="scss">
@@ -58,9 +58,15 @@
 	}
 	.prizes {
 		grid-column: span $spanLength;
+		font-family: Open Sans;
 	}
 	.details {
 		grid-column: span 4;
+		align-items: center;
 		padding: 2vmin;
+		& > p {
+			width:100%;
+			line-height: 2.5;
+		}
 	}
 </style>
