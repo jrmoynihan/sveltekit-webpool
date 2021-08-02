@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { mobileBreakpoint } from '$scripts/site';
-import { useDarkTheme, windowWidth } from '$scripts/store';
+	import { useDarkTheme, windowWidth } from '$scripts/store';
 
 	import TransitionWrapper from '../TransitionWrapper.svelte';
 
@@ -13,8 +13,12 @@ import { useDarkTheme, windowWidth } from '$scripts/store';
 		{#if tabs}
 			{#each tabs as tab}
 				<input type="radio" bind:group={selectedTab} value={tab} id={tab.name} />
-				<label class="defaultTransition {$useDarkTheme ? 'dark' : 'light'}  {$windowWidth < mobileBreakpoint ? 'mobile' : ''}" for={tab.name}
-					><h3>{tab.name}</h3></label
+				<label
+					class="defaultTransition {$useDarkTheme ? 'dark' : 'light'}  {$windowWidth <
+					mobileBreakpoint
+						? 'mobile'
+						: ''}"
+					for={tab.name}><h3>{tab.name}</h3></label
 				>
 			{/each}
 		{/if}
@@ -26,7 +30,6 @@ import { useDarkTheme, windowWidth } from '$scripts/store';
 					<slot name="tab-component" />
 				</svelte:component>
 			{/if}
-			
 		</div>
 	</TransitionWrapper>
 	<slot name="tab-footer" />
@@ -51,7 +54,7 @@ import { useDarkTheme, windowWidth } from '$scripts/store';
 		display: grid;
 		font-weight: bold;
 		padding: 1rem;
-		height:100%;
+		height: 100%;
 		// background: radial-gradient(var(--alternate-color) 30%, transparent);
 	}
 	.tab-header {
@@ -66,7 +69,7 @@ import { useDarkTheme, windowWidth } from '$scripts/store';
 		& > label:last-of-type {
 			border-radius: 0 1rem 1rem 0;
 		}
-		& >label.mobile{
+		& > label.mobile {
 			border-radius: 1rem;
 		}
 	}

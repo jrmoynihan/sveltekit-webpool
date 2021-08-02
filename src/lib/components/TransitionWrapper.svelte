@@ -1,7 +1,7 @@
 <script>
 	import { fly } from 'svelte/transition';
 
-	export let refresh;
+	export let refresh: any;
 	export let customStyles: string = '';
 	export let customClasses: string = '';
 	export let inTransition = fly;

@@ -14,9 +14,8 @@
 	$: {
 		active = matchPath(pageOption.path, $page.path);
 		// TODO fix the regeex so the index path ('/') doesn't match when it's
-		active = (pageOption.path === '/') && ($page.path !== '/') ? false : active;
+		active = pageOption.path === '/' && $page.path !== '/' ? false : active;
 	}
-
 </script>
 
 <label
@@ -40,8 +39,6 @@
 		<h2>{pageOption.navigationText}</h2>
 	</a>
 </label>
-
-
 
 <style lang="scss">
 	label {

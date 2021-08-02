@@ -15,11 +15,11 @@
 	];
 
 	$: {
-			if ($windowWidth < mobileBreakpoint - 500) {
-				seasonHeaders = abbreviatedSeasonHeaders;
-			} else {
-				seasonHeaders = initialSeasonHeaders;
-			}
+		if ($windowWidth < mobileBreakpoint - 500) {
+			seasonHeaders = abbreviatedSeasonHeaders;
+		} else {
+			seasonHeaders = initialSeasonHeaders;
+		}
 	}
 </script>
 

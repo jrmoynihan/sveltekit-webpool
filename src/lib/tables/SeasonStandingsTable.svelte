@@ -51,7 +51,7 @@
 			color: var(--main-color);
 		}
 	}
-	.percentage{
+	.percentage {
 		display: inline-grid;
 		gap: 10px;
 		grid-template-columns: min-content min-content;

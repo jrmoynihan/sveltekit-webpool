@@ -2,7 +2,7 @@
 	import { browser } from '$app/env';
 	import { chosenMixBlendMode, useDarkTheme } from '$scripts/store';
 
-	let root;
+	let root: HTMLElement;
 	if (browser) {
 		root = document.documentElement;
 	}
@@ -46,7 +46,7 @@
 	const lightResets = { ...lightThemeColors };
 
 	// Set globally available CSS custom properties (AKA variables) on the root element
-	const setCSSvariable = (colors) => {
+	const setCSSvariable = (colors: { [s: string]: unknown; }|ArrayLike<unknown>) => {
 		// console.table(colors);
 		Object.entries(colors).forEach((entry: [string, string]) => {
 			// Set a CSS custom property name and value for each theme array member; e.g. `--main-color: rgb(0,0,0)`
@@ -55,13 +55,13 @@
 			}
 
 			// A regular expression to find elements within parentheses
-			var regExp = /\(([^)]+)\)/;
+			let regExp = /\(([^)]+)\)/;
 
 			// RegExp search returns an arrau of 3 elements:
 			// 0) everything to the left parentheses (including the parentheses), 1) everything in between parentheses, 2) everything to the right of the parentheses (including the parentheses)
-			var matches = regExp.exec(entry[1]);
-			var rgbColor;
-			var rgbString;
+			let matches = regExp.exec(entry[1]);
+			let rgbColor: { r: any; g: any; b: any; };
+			let rgbString: string;
 			if (matches) {
 				if (browser) {
 					root.style.setProperty(`--${entry[0]}Value-color`, matches[1]);
@@ -113,7 +113,7 @@
 	/> -->
 	<select bind:value={$chosenMixBlendMode}>
 		{#each mixBlendModes as mode}
-		<option value={mode}>{mode}</option>
+			<option value={mode}>{mode}</option>
 		{/each}
 	</select>
 
@@ -156,9 +156,9 @@
 		@include defaultButtonStyles;
 		display: inline-block;
 	}
-	select{
+	select {
 		@include defaultButtonStyles;
-		color:initial;
+		color: initial;
 		background-color: revert;
 		text-shadow: none;
 	}

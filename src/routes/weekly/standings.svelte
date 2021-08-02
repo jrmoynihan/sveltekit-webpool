@@ -16,9 +16,11 @@
 
 {#if dev}
 	<AccordionDetails>
-		<h4 slot='summary'>Dev Notes (not visible in production)</h4>
+		<h4 slot="summary">Dev Notes (not visible in production)</h4>
 		<section class="dev-notes" slot="content">
-			<p style='width:100ch;'>Season table doesn't really need to show weeks that aren't the current week</p>
+			<p style="width:100ch;">
+				Season table doesn't really need to show weeks that aren't the current week
+			</p>
 		</section>
 	</AccordionDetails>
 {/if}
@@ -41,6 +43,6 @@
 		grid-template-columns: repeat(auto-fit, minmax(min(20em, 100%), 1fr));
 		// width: 100%;
 		max-width: calc(max-content + 4ch);
-	margin: 0 auto;
+		margin: 0 auto;
 	}
 </style>

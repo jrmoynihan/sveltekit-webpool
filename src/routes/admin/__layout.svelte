@@ -12,7 +12,7 @@
 	import { PageOption } from '$scripts/classes/pageOption';
 	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
 
-	export let refresh;
+	export let refresh: any;
 
 	const adminTabs: PageOption[] = [
 		new PageOption({ navigationText: 'Toggle Roles', path: '/admin/toggleRoles' }),

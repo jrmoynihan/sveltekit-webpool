@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { teamConverter } from '$scripts/converters';
-	import { doc, setDoc } from '@firebase/firestore';
+	import { doc, DocumentData, DocumentReference, setDoc } from '@firebase/firestore';
 	import { allTeams, teamsCollection } from '$scripts/teams';
 	import type { Team } from '$scripts/classes/team';
 	import { conferences, divisions } from '$scripts/classes/constants';
@@ -11,7 +11,7 @@
 	function writeTeamDoc(team: Team): void {
 		try {
 			// If the team has a document reference, store it; otherwise, find one from its abbreviation
-			var docRef;
+			let docRef: DocumentReference<DocumentData>;
 			if (team.docRef) {
 				docRef = team.docRef;
 			} else {
@@ -39,8 +39,8 @@
 
 <PageTitle>Manage Teams</PageTitle>
 
-<select bind:value={selectedTeam} class='team-select'>
-	{#each $allTeams as team, i (team)}
+<select bind:value={selectedTeam} class="team-select">
+	{#each $allTeams as team (team)}
 		<option value={team}>{team.city} {team.name}</option>
 	{/each}
 </select>
@@ -77,7 +77,9 @@
 							type="number"
 							id={`${selectedTeam}-${key}`}
 							bind:value={selectedTeam[key]}
-							style="font-style:{selectedTeam[key] ? '' : 'italic'};  width:min(calc({selectedTeam[key].toString().length}ch + 5rem),100%);"
+							style="font-style:{selectedTeam[key] ? '' : 'italic'};  width:min(calc({selectedTeam[
+								key
+							].toString().length}ch + 5rem),100%);"
 							placeholder={key}
 						/>
 					{:else}
@@ -85,7 +87,9 @@
 							type="text"
 							id={`${selectedTeam}-${key}`}
 							bind:value={selectedTeam[key]}
-							style="font-style:{selectedTeam[key] ? '' : 'bold'} ; width:min(calc({selectedTeam[key].toString().length}ch + 5rem),100%);"
+							style="font-style:{selectedTeam[key] ? '' : 'bold'} ; width:min(calc({selectedTeam[
+								key
+							].toString().length}ch + 5rem),100%);"
 							placeholder={key}
 						/>
 					{/if}
@@ -118,23 +122,24 @@
 		max-width: max-content;
 		padding: 1rem;
 	}
-	input{
+	input {
 		@include rounded;
 		padding: 1rem;
-		width:100%;
+		width: 100%;
 		text-align: center;
 	}
 	button {
 		@include defaultButtonStyles;
 		margin: 1rem;
 		grid-area: update;
-
 	}
-	label, .images, .info-grid{
+	label,
+	.images,
+	.info-grid {
 		display: grid;
 		@include rounded;
 	}
-	label{
+	label {
 		grid-template-columns: 1fr;
 		grid-template-rows: min-content auto;
 		align-items: start;
@@ -146,26 +151,26 @@
 		width: 100%;
 		justify-content: center;
 	}
-	.images{
+	.images {
 		@include frostedGlass;
 		grid-template-columns: 1fr 1fr;
 		align-items: center;
 		justify-items: center;
 		padding: 0.5rem;
 	}
-	img{
-		max-width:100%;
+	img {
+		max-width: 100%;
 	}
 	.info-grid {
 		width: 100%;
 		grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
-		grid-template-areas: "conference division image" "city name abbreviation" "wins losses ties" "fontPath logoPath docID" ". update .";
+		grid-template-areas: 'conference division image' 'city name abbreviation' 'wins losses ties' 'fontPath logoPath docID' '. update .';
 		align-items: center;
 		justify-items: center;
 		justify-content: center;
 	}
-	.team-select{
-		background-color: rgba(var(--accentValue-color),80%);
+	.team-select {
+		background-color: rgba(var(--accentValue-color), 80%);
 		margin: 2rem auto;
 	}
 </style>

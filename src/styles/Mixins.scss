@@ -18,12 +18,14 @@
 // *** Box-Shadows ***
 @mixin dayShadow {
 	// box-shadow: -2px -2px 20px 0px gold, 2px 2px 15px 2px purple;
-	box-shadow: -2px -2px 20px 0px rgba(71, 112, 173, 0.63), 2px 2px 15px 2px rgba(var(--accentValue-color), 0.5);
+	box-shadow: -2px -2px 20px 0px rgba(71, 112, 173, 0.63),
+		2px 2px 15px 2px rgba(var(--accentValue-color), 0.5);
 	transition: box-shadow 200ms ease-in-out;
 }
 @mixin nightShadow {
 	// box-shadow: -2px -2px 20px 0px rgba(0, 255, 234, 0.541), 2px 2px 15px 2px rgba(0, 19, 128, 0.5);
-	box-shadow: -2px -2px 20px 0px rgba(83, 168, 53, 0.54), 2px 2px 15px 2px rgba(var(--accentValue-color), 0.5);
+	box-shadow: -2px -2px 20px 0px rgba(83, 168, 53, 0.54),
+		2px 2px 15px 2px rgba(var(--accentValue-color), 0.5);
 	transition: box-shadow 200ms ease-in-out;
 }
 @mixin normalShadow {
@@ -202,7 +204,7 @@
 	background-color: rgba($backgroundColor, $backgroundAlpha);
 }
 
-@mixin pulse($color:var(--accentValue-color)){
+@mixin pulse($color: var(--accentValue-color)) {
 	animation: pulse 3s infinite;
 
 	@-webkit-keyframes pulse {

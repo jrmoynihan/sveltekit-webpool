@@ -17,11 +17,11 @@
 	export let selectedItem = {};
 
 	const dispatch = createEventDispatcher();
-	function forwardToParent(event) {
+	function forwardToParent(event: { detail: any; }): void {
 		dispatch('pressedEnter', event.detail);
 	}
 
-	function onKeyPress(e) {
+	function onKeyPress(e: { key?: any; preventDefault?: any; target?: any; detail?: any; }): void {
 		if (e.key === 'Enter') {
 			// e.preventDefault();
 			handleInput(e);
@@ -34,14 +34,14 @@
 			e.target.focus();
 		}
 	}
-	const handleInput = (event) => {
+	const handleInput = (event: { key?: any; preventDefault?: any; target: any; detail?: any; }): void => {
 		// Update the bound selected item (i.e. the whole object)
 		if (items instanceof Array) {
 			selectedItem = items.find((item) => buildItemString(item) === event.target.value);
 		}
 		blur();
 	};
-	function buildItemString(item): string {
+	function buildItemString(item: unknown): string {
 		let itemStr = '';
 		if (typeof item === 'object') {
 			Object.keys(item).forEach((key) => {
@@ -74,10 +74,10 @@
 
 		return itemStr;
 	}
-	function selectText(e) {
+	const selectText = (e): void => {
 		e.target.select();
 	}
-	function handleChange(e) {
+	function handleChange(): void {
 		blur();
 	}
 </script>
@@ -102,7 +102,7 @@
 		{#each items as item}
 			<option value={buildItemString(item)}>
 				{#if typeof items === 'object'}
-					{#each Object.keys(item) as key, i}
+					{#each Object.keys(item) as key}
 						<!-- Uses the keys of the 'item' object looking for names that match the elements of the displayedKeyNames array, and appends prefixes and delimeters to their values -->
 						{#if typeof item[key] === 'object'}
 							{#each Object.keys(item[key]) as subkey}

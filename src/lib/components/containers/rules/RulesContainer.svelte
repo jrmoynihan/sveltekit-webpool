@@ -17,13 +17,13 @@
 	import { onDestroy } from 'svelte';
 	import Tabs from '$navigation/Tabs.svelte';
 	import { editing, windowWidth } from '$scripts/store';
-import { mobileBreakpoint } from '$scripts/site';
+	import { mobileBreakpoint } from '$scripts/site';
 
 	// Dynamically pass a specific rules collection in
 	export let rulesCollection: CollectionReference;
 
 	// By default, even an admin won't see an editable rule page
-	$editing = false
+	$editing = false;
 	let editable = false;
 
 	// But an admin will have the option to make it editable
@@ -52,43 +52,43 @@ import { mobileBreakpoint } from '$scripts/site';
 			console.error(err);
 		}
 	});
-	onDestroy(()=>{
+	onDestroy(() => {
 		unsubscribe(); // Stop listening to the collection when the component is unmounted from the DOM
 		console.log('unsubscribed from rule changes!');
-	})
-	
-	let tabs = []
-	let tab = {}
+	});
 
-	
-	$: {rulesCollectionDocuments.forEach(doc => {
-		const data = doc.data()
-		const ref = doc.ref
-		const q = query(collection(doc.ref, 'Rules'), orderBy('order'));		
-			tab = {name: data.title, component: RulesCategoryGrid, data: data, ref: ref}		
-			if(tab['name'] !== 'Prizes'){
- 				tabs = [...tabs,tab]
- 			}
-		})
-					
-}
+	let tabs = [];
+	let tab = {};
+
+	$: {
+		rulesCollectionDocuments.forEach((doc) => {
+			const data = doc.data();
+			const ref = doc.ref;
+			// const q = query(collection(doc.ref, 'Rules'), orderBy('order'));
+			tab = { name: data.title, component: RulesCategoryGrid, data: data, ref: ref };
+			if (tab['name'] !== 'Prizes') {
+				tabs = [...tabs, tab];
+			}
+		});
+	}
 </script>
+
 <!-- Allows admins to edit this text directly -->
 {#if editable}
-<div id="editToggle" class={$windowWidth < mobileBreakpoint ? '':'desktop'}>
-	<div id="editToggle-text">Edit (Admin Only)</div>
-	<div class="lock-switch ">
-		<ToggleSwitch on:toggle={() => ($editing = !$editing)} />
-		<Fa icon={$editing ? faUnlock : faLock} size="lg" />
+	<div id="editToggle" class={$windowWidth < mobileBreakpoint ? '' : 'desktop'}>
+		<div id="editToggle-text">Edit (Admin Only)</div>
+		<div class="lock-switch ">
+			<ToggleSwitch on:toggle={() => ($editing = !$editing)} />
+			<Fa icon={$editing ? faUnlock : faLock} size="lg" />
+		</div>
 	</div>
-</div>
 {/if}
 
 <PrizeCard {rulesCollectionDocuments} />
 <hr />
 
 {#if tabs}
-<Tabs {tabs} selectedTab={tabs[0]}/>
+	<Tabs {tabs} selectedTab={tabs[0]} />
 {/if}
 
 <style lang="scss">
@@ -113,10 +113,9 @@ import { mobileBreakpoint } from '$scripts/site';
 	.lock-switch {
 		display: flex;
 		gap: 0.3em;
-		
 	}
-	.desktop{
-			position: fixed;
-			bottom:0;
-		}
+	.desktop {
+		position: fixed;
+		bottom: 0;
+	}
 </style>

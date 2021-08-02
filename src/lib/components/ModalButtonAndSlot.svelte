@@ -34,10 +34,10 @@
 		blurElement()
     }
 
-	const hideThisModal = async() =>{
+	const hideThisModal = async () => {
 		hideModal(modalID);
 		dialogOpen = false;
-	}
+	};
 
 	const blurElement = () => {
 		const modal = document.getElementById(`modal-${modalID}`);
@@ -55,7 +55,7 @@
 	</div>
 </dialog>
 <button
-	on:click={(e) => {
+	on:click={() => {
 		displayModal();
 	}}
 	style={displayModalButtonStyles}

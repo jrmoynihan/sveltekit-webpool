@@ -49,7 +49,7 @@
 
 <style lang="scss">
 	$spanLength: var(--span-length);
-	h3{
+	h3 {
 		color: var(--accent-color);
 		text-decoration: underline 2px;
 	}
@@ -65,7 +65,7 @@
 		align-items: center;
 		padding: 2vmin;
 		& > p {
-			width:100%;
+			width: 100%;
 			line-height: 2.5;
 		}
 	}

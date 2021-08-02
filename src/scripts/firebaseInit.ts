@@ -1,4 +1,4 @@
-import { initializeApp } from '@firebase/app';
+import { FirebaseApp, initializeApp } from '@firebase/app';
 import { getAuth } from '@firebase/auth';
 import { getStorage } from '@firebase/storage';
 import { getFirestore } from '@firebase/firestore';
@@ -22,7 +22,7 @@ const firebaseConfig = {
 	measurementId: 'G-8Y5HV7HDFZ'
 };
 
-export let firebaseApp;
+export let firebaseApp: FirebaseApp;
 
 // If a firebase app is already initialized, use that one
 if (getApps().length === 0) {

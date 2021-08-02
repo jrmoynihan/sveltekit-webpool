@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { IconDefinition } from '@fortawesome/fontawesome-common-types';
-	import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
 	import { createEventDispatcher, onMount } from 'svelte';
 	import Fa from 'svelte-fa';
 
@@ -35,7 +34,7 @@
 			this.summary.addEventListener('click', (e) => this.onClick(e));
 		}
 
-		onClick(e) {
+		onClick(e: MouseEvent) {
 			// Stop default behaviour from the browser
 			e.preventDefault();
 			// Add an overflow on the <details> to avoid content overflowing
@@ -122,7 +121,7 @@
 			this.animation.oncancel = () => (this.isExpanding = false);
 		}
 
-		onAnimationFinish(open) {
+		onAnimationFinish(open: boolean) {
 			// Set the open attribute based on the parameter
 			this.el.open = open;
 			// Clear the stored animation
@@ -149,14 +148,17 @@
 </script>
 
 <details on:click={clicked}>
-	<summary class={showArrow ? '' : 'hideArrow'} style='{showArrow ? 'display:list-item':'display:flex'};'>
-		{#if customExpandIcon}<Fa icon={customExpandIcon} class={iconClass}/>{/if}
-		 &nbsp;
+	<summary
+		class={showArrow ? '' : 'hideArrow'}
+		style="{showArrow ? 'display:list-item' : 'display:flex'};"
+	>
+		{#if customExpandIcon}<Fa icon={customExpandIcon} class={iconClass} />{/if}
+		&nbsp;
 		{expandTitle}
 		<slot name="summary" />
 	</summary>
-	<div class="content"on:click={clicked}>
-		<slot name="content"/>
+	<div class="content" on:click={clicked}>
+		<slot name="content" />
 	</div>
 </details>
 
@@ -225,7 +227,7 @@
 			@include dayShadow;
 		}
 	}
-	.content{
-		padding:1rem;
+	.content {
+		padding: 1rem;
 	}
 </style>

@@ -1,1 +1,3 @@
-const s=!0,a=!1;export{s as b,a as d};
+const s = !0,
+	a = !1;
+export { s as b, a as d };

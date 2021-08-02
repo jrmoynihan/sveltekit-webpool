@@ -4,8 +4,6 @@
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
 </script>
 
-<PageTitle>
-	Weekly Pool Rules
-</PageTitle>
+<PageTitle>Weekly Pool Rules</PageTitle>
 
 <RulesContainer rulesCollection={weeklyRulesCollection} />

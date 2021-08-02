@@ -13,7 +13,7 @@
 	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
 	import { navChecked } from '$scripts/store';
 
-	export let refresh;
+	export let refresh: any;
 
 	const weeklyTabs: PageOption[] = [
 		new PageOption({ navigationText: 'Make Picks', path: '/weekly/makePicks' }),

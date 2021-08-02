@@ -21,7 +21,7 @@
 			<picture>
 				<!-- <source srcset={team.logoPath} type="image/webp" /> -->
 				<img
-					class='logo'
+					class="logo"
 					src={team.fontPath}
 					alt="{team.city}-{team.name}"
 					width="200rem"
@@ -42,13 +42,13 @@
 		@include rounded;
 		box-sizing: border-box;
 		display: inline-grid;
-		grid-template-columns: repeat(auto-fit, minmax(min(30rem,100%), 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(min(30rem, 100%), 1fr));
 		width: 87%;
 		overflow: clip;
 	}
 	.team-image-container {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(min(150px,50%), 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(min(150px, 50%), 1fr));
 		justify-content: center;
 	}
 	picture {
@@ -63,7 +63,7 @@
 	img {
 		// @include accelerate;
 		padding: 0.5rem 1rem;
-		&.logo{
+		&.logo {
 			padding: 0 1rem;
 		}
 	}
