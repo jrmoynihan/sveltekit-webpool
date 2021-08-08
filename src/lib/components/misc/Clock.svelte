@@ -75,21 +75,22 @@
 <style lang="scss">
 	.positioning{
 		@include rounded;
-		@include frostedGlass;
+		@include frostedGlassHighContrast;
 		@include cloudyBackground;
-		position:fixed;
-		top:93%;
-		right: 1%;
+		position:sticky;
+		top:95%;
+		left: 95%;
 		z-index: 10;
+		width: max-content;
 	}
 	.clock-grid {
 		display: grid;
 		// position: relative;
-		grid-template-columns: repeat(4, minmax(0px, auto));
+		grid-template-columns: repeat(4, minmax(0px, 1fr));
 		// max-width: calc(6.5 * var(--size));
 		width: calc(6.5 * var(--size));
 		grid-template-rows: 1fr;
-		// color: var(--accent-color);
+		padding: 0 0 0 0.5rem;
 	}
 	.counter-digits {
 		position: absolute;

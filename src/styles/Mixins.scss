@@ -130,10 +130,12 @@
 }
 @mixin frostedGlass {
 	backdrop-filter: blur(3px);
+	-webkit-backdrop-filter: blur(3px);
 	background-color: #ffffff50;
 }
 @mixin frostedGlassHighContrast {
 	backdrop-filter: blur(3px);
+	-webkit-backdrop-filter: blur(3px);
 	color: black;
 	background-color: #ffffff91;
 }
@@ -237,21 +239,14 @@
 	width: auto;
 	font-size: 1rem;
 	color: var(--main-color);
-	@include textWithShadow;
-	@include frostedGlass;
 	@include glassShadow;
 	@include rounded(5vh);
 	@include padded1M;
 	@include centeredButton;
-	// @include hoverBoxShadow;
 	@include defaultTransition;
 	@include thinnestBorder;
-	@include cursorPointerAlways;
 	@include noOutline;
 	&:focus {
 		@include nightShadow;
-	}
-	&:hover {
-		@include dayShadow;
 	}
 }

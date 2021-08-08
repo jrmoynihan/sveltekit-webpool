@@ -5,3 +5,6 @@ node_modules
 privatestuff.**
 output
 output/*
+public
+public/*
+public/**

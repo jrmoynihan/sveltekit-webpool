@@ -10,7 +10,7 @@
 	import { scheduleCollection } from '$scripts/schedule';
 	import { mobileBreakpoint } from '$scripts/site';
 	import { windowWidth } from '$scripts/store';
-	import { getDocs, onSnapshot, query, where } from '@firebase/firestore';
+	import { onSnapshot, query, where } from '@firebase/firestore';
 	import { onMount } from 'svelte';
 
 	let showIDs = false;
@@ -42,15 +42,15 @@
 		<ToggleSwitch bind:checked={showIDs} />
 	</div>
 {/if}
-{#if $windowWidth > mobileBreakpoint}
+<!-- {#if $windowWidth > mobileBreakpoint} -->
 <Clock />
-{/if}
+<!-- {/if} -->
 <WeekSelect bind:selectedWeek on:weekChanged={getGames} />
 {#if weekOfGames}
 	<div class="grid weekGames">
-		{#each weekOfGames as { id, spread, timestamp, homeTeam, awayTeam }}
+		{#each weekOfGames as { id, spread, timestamp, homeTeam, awayTeam, competitions }}
 			<div class="game-container">
-				<MatchupContainer {id} {spread} {homeTeam} {awayTeam} bind:showIDs {timestamp} />
+				<MatchupContainer {id} {spread} {homeTeam} {awayTeam} bind:showIDs {timestamp} {competitions}/>
 			</div>
 		{/each}
 	</div>

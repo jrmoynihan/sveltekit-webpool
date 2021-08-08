@@ -34,9 +34,13 @@ export let frosted = false
 	}
 	img {
 		@include accelerate;
+		@include defaultTransition;
 		padding: 0.5rem 1rem;
 		max-width: min(12rem,33vw);
 		max-height: 8rem;
+		&:hover{
+			transform: scale(1.1);
+		}
 	}
 	.grayscale{
 		filter:grayscale(100%);
