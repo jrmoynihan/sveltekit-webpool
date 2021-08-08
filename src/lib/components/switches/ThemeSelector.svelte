@@ -46,7 +46,7 @@
 	const lightResets = { ...lightThemeColors };
 
 	// Set globally available CSS custom properties (AKA variables) on the root element
-	const setCSSvariable = (colors: { [s: string]: unknown; }|ArrayLike<unknown>) => {
+	const setCSSvariable = (colors: { [s: string]: unknown } | ArrayLike<unknown>) => {
 		// console.table(colors);
 		Object.entries(colors).forEach((entry: [string, string]) => {
 			// Set a CSS custom property name and value for each theme array member; e.g. `--main-color: rgb(0,0,0)`
@@ -60,7 +60,7 @@
 			// RegExp search returns an arrau of 3 elements:
 			// 0) everything to the left parentheses (including the parentheses), 1) everything in between parentheses, 2) everything to the right of the parentheses (including the parentheses)
 			let matches = regExp.exec(entry[1]);
-			let rgbColor: { r: any; g: any; b: any; };
+			let rgbColor: { r: any; g: any; b: any };
 			let rgbString: string;
 			if (matches) {
 				if (browser) {

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { teamConverter } from '$scripts/converters';
-	import { doc, DocumentData, DocumentReference, setDoc } from '@firebase/firestore';
+	import { doc, DocumentReference, setDoc } from '@firebase/firestore';
 	import { allTeams, teamsCollection } from '$scripts/teams';
 	import type { Team } from '$scripts/classes/team';
 	import { conferences, divisions } from '$scripts/classes/constants';
@@ -11,8 +11,8 @@
 	function writeTeamDoc(team: Team): void {
 		try {
 			// If the team has a document reference, store it; otherwise, find one from its abbreviation
-			let docRef: DocumentReference<DocumentData>;
-			if (team.docRef) {
+			let docRef: DocumentReference;
+			if (team.docRef && team.docRef.path === team.abbreviation) {
 				docRef = team.docRef;
 			} else {
 				docRef = doc(teamsCollection, team.abbreviation);
@@ -117,7 +117,7 @@
 <style lang="scss">
 	select {
 		@include rounded;
-		color: var(--alternate-color);
+		color: var(--main-color);
 		margin: 0 auto;
 		max-width: max-content;
 		padding: 1rem;

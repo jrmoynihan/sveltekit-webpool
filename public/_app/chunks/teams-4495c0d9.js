@@ -1,0 +1,1 @@
+import{ae as a,ad as s,ah as r,C as o}from"./vendor-bd6d5c90.js";import{b as t}from"./store-b6b9cd95.js";import{t as e}from"./converters-afa3a857.js";const m=a(t,"Teams"),d=o([]),c=s(m.withConverter(e),(a=>{a.forEach((a=>{d.set([...r(d),a.data()])})),c()}));export{d as a,m as t};

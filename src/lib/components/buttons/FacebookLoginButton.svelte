@@ -4,7 +4,7 @@
 	import Fa from 'svelte-fa';
 
 	const dispatch = createEventDispatcher();
-	function buttonClicked(event: { detail: any; }): void {
+	function buttonClicked(event: { detail: any }): void {
 		dispatch('click', event.detail);
 	}
 </script>

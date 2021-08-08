@@ -3,6 +3,9 @@
 </script>
 
 <PageTitle>Admin</PageTitle>
+<svelte:head>
+	<title>Admin</title>
+</svelte:head>
 
 <style lang="scss">
 </style>

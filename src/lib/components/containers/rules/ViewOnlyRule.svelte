@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { DocumentReference } from '@firebase/firestore';
 	import { faFootballBall } from '@fortawesome/free-solid-svg-icons';
-	import type { DocumentData } from 'firebase/firestore';
+	import type { DocumentData } from '@firebase/firestore';
 	import Fa from 'svelte-fa';
 
 	export let rule: { data: DocumentData; ref: DocumentReference };

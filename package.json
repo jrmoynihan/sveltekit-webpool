@@ -3,8 +3,9 @@
 	"version": "0.0.1",
 	"scripts": {
 		"dev": "svelte-kit dev --https",
-		"build": "npx rimraf .svelte-kit/output && svelte-kit build --verbose",
-		"preview-build-locally": "svelte-kit preview --port 4000 --https",
+		"build": "npx rimraf public && svelte-kit build --verbose",
+		"preview-build-locally": "svelte-kit preview --port 5000 --https",
+		"deploy": "firebase deploy",
 		"check": "svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --check --plugin-search-dir=. . && eslint --ignore-path .gitignore .",
@@ -13,32 +14,33 @@
 		"clone-preview-channel-to-live": "firebase hosting:clone tonyswebpool:preview-test tonyswebpool:live"
 	},
 	"devDependencies": {
-		"@sveltejs/kit": "^1.0.0-next.140",
+		"@sveltejs/kit": "^1.0.0-next.1",
 		"@types/cookie": "^0.4.1",
-		"@typescript-eslint/eslint-plugin": "^4.28.5",
-		"@typescript-eslint/parser": "^4.28.5",
+		"@typescript-eslint/eslint-plugin": "^4.29.0",
+		"@typescript-eslint/parser": "^4.29.0",
 		"eslint": "^7.32.0",
 		"eslint-config-prettier": "^8.3.0",
 		"eslint-plugin-svelte3": "^3.2.0",
 		"prettier": "~2.3.2",
 		"prettier-plugin-svelte": "^2.3.1",
 		"rimraf": "^3.0.2",
-		"svelte": "^3.41.0",
-		"svelte-check": "^2.2.3",
+		"svelte": "^3.42.1",
+		"svelte-check": "^2.2.4",
 		"svelte-preprocess": "^4.7.4",
 		"tslib": "^2.3.0",
 		"typescript": "^4.3.5"
 	},
 	"type": "module",
 	"dependencies": {
-		"@fortawesome/free-brands-svg-icons": "^5.15.3",
-		"@fortawesome/free-solid-svg-icons": "^5.15.3",
+		"@fortawesome/free-brands-svg-icons": "^5.15.4",
+		"@fortawesome/free-solid-svg-icons": "^5.15.4",
 		"@lukeed/uuid": "^2.0.0",
 		"cookie": "^0.4.1",
 		"firebase": "^9.0.0-beta.8",
-		"sass": "^1.37.0",
+		"firebase-functions": "^3.14.1",
+		"sass": "^1.37.5",
 		"svelte-adapter-firebase": "next",
 		"svelte-fa": "^2.2.1",
-		"vite-plugin-mkcert": "^1.5.0"
+		"vite-plugin-mkcert": "^1.5.1"
 	}
 }

@@ -1,5 +1,9 @@
-import type { DocumentReference, CollectionReference } from '@firebase/firestore';
-import { collection } from 'firebase/firestore';
+import {
+	collection,
+	CollectionReference,
+	DocumentData,
+	DocumentReference
+} from '@firebase/firestore';
 
 export class Rule {
 	order: number;
@@ -30,7 +34,7 @@ export class RuleCategory {
 		weeklyThird,
 		hasWeeklyPayout
 	}: {
-		docRef?: DocumentReference;
+		docRef?: DocumentReference<DocumentData>;
 		docID?: string;
 		order?: number;
 		title?: string;
@@ -51,6 +55,6 @@ export class RuleCategory {
 			(this.weeklySecond = weeklySecond),
 			(this.weeklyThird = weeklyThird),
 			(this.hasWeeklyPayout = hasWeeklyPayout),
-			(this.rules = collection(this.docRef, 'Rules'));
+			(this.rules = collection(docRef, 'Rules'));
 	}
 }

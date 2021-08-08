@@ -5,7 +5,7 @@
 
 	export let expandTitle: string = '';
 	export let showArrow: boolean = true;
-	export let customExpandIcon: IconDefinition;
+	export let customExpandIcon: IconDefinition = null;
 	export let iconClass: string = 'fa-CaretDown';
 
 	export class Accordion {

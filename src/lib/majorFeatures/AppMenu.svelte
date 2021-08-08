@@ -107,13 +107,12 @@
 	}
 	#settings-wrapper {
 		display: grid;
-		grid-auto-columns: max-content;
 		gap: 1em;
 		align-items: center;
 		justify-items: center;
 		width: auto;
 		@include responsive_mobile_only {
-			grid-template-columns: auto 1fr;
+			grid-template-columns: repeat(auto-fit,minmax(0px,min-content));
 			justify-self: end;
 		}
 		@include responsive_desktop_only {

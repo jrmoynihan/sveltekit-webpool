@@ -61,7 +61,8 @@
 	let tab = {};
 
 	$: {
-		rulesCollectionDocuments.forEach((doc) => {
+		if(rulesCollectionDocuments){
+			rulesCollectionDocuments.forEach((doc) => {
 			const data = doc.data();
 			const ref = doc.ref;
 			// const q = query(collection(doc.ref, 'Rules'), orderBy('order'));
@@ -70,6 +71,8 @@
 				tabs = [...tabs, tab];
 			}
 		});
+		}
+		
 	}
 </script>
 

@@ -17,11 +17,11 @@
 	export let selectedItem = {};
 
 	const dispatch = createEventDispatcher();
-	function forwardToParent(event: { detail: any; }): void {
+	function forwardToParent(event: { detail: any }): void {
 		dispatch('pressedEnter', event.detail);
 	}
 
-	function onKeyPress(e: { key?: any; preventDefault?: any; target?: any; detail?: any; }): void {
+	function onKeyPress(e: { key?: any; preventDefault?: any; target?: any; detail?: any }): void {
 		if (e.key === 'Enter') {
 			// e.preventDefault();
 			handleInput(e);
@@ -34,7 +34,12 @@
 			e.target.focus();
 		}
 	}
-	const handleInput = (event: { key?: any; preventDefault?: any; target: any; detail?: any; }): void => {
+	const handleInput = (event: {
+		key?: any;
+		preventDefault?: any;
+		target: any;
+		detail?: any;
+	}): void => {
 		// Update the bound selected item (i.e. the whole object)
 		if (items instanceof Array) {
 			selectedItem = items.find((item) => buildItemString(item) === event.target.value);
@@ -76,7 +81,7 @@
 	}
 	const selectText = (e): void => {
 		e.target.select();
-	}
+	};
 	function handleChange(): void {
 		blur();
 	}

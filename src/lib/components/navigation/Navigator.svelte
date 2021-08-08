@@ -41,11 +41,14 @@
 			font-size: 1.5rem;
 			margin-top: 0.5rem;
 		}
+		
 	}
 	.collapsed {
-		opacity: 0;
 		margin: 0;
+		max-height: 0.2em;
+		opacity: 0;
 		pointer-events: none;
+		transform: rotateX(90deg);
 	}
 
 	// &:checked + label {

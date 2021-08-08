@@ -5,6 +5,7 @@
 	import Tabs from '$navigation/Tabs.svelte';
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
 	import { dev } from '$app/env';
+import DevNotes from '$lib/components/misc/DevNotes.svelte';
 
 	const standingsTabs = [
 		{ name: 'Week', component: WeekStandings },
@@ -14,16 +15,12 @@
 
 <PageTitle>Standings</PageTitle>
 
-{#if dev}
-	<AccordionDetails>
-		<h4 slot="summary">Dev Notes (not visible in production)</h4>
-		<section class="dev-notes" slot="content">
-			<p style="width:100ch;">
-				Season table doesn't really need to show weeks that aren't the current week
-			</p>
-		</section>
-	</AccordionDetails>
-{/if}
+
+<DevNotes>
+	<svelte:fragment slot="notes">
+		Season table doesn't really need to show weeks that aren't the current week
+	</svelte:fragment>
+</DevNotes>
 
 <section class="section-one">
 	<Tabs selectedTab={standingsTabs[0]} tabs={standingsTabs} />
@@ -32,11 +29,6 @@
 <style lang="scss">
 	section {
 		padding: 0 1rem;
-	}
-	.dev-notes {
-		display: grid;
-		grid-template-columns: 1fr;
-		justify-items: center;
 	}
 	.section-one {
 		display: grid;

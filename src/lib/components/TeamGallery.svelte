@@ -1,5 +1,8 @@
 <script lang="ts">
+	import { dev } from '$app/env';
 	import { allTeams } from '$scripts/teams';
+import TeamImage from './containers/TeamImage.svelte';
+import TeamNameImage from './containers/TeamNameImage.svelte';
 </script>
 
 <div class="team-gallery">
@@ -8,27 +11,8 @@
     {:then teams} -->
 	{#each $allTeams as team}
 		<div class="team-image-container">
-			<picture>
-				<!-- <source srcset={team.logoPath} type="image/webp" /> -->
-				<img
-					src={team.logoPath}
-					alt="{team.city}-{team.name}"
-					width="auto"
-					height="100rem"
-					loading="lazy"
-				/>
-			</picture>
-			<picture>
-				<!-- <source srcset={team.logoPath} type="image/webp" /> -->
-				<img
-					class="logo"
-					src={team.fontPath}
-					alt="{team.city}-{team.name}"
-					width="200rem"
-					height="auto"
-					loading="lazy"
-				/>
-			</picture>
+			<TeamImage {team}/>
+			<TeamNameImage {team}/>
 		</div>
 	{/each}
 	<!-- {:catch}
@@ -50,21 +34,5 @@
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(min(150px, 50%), 1fr));
 		justify-content: center;
-	}
-	picture {
-		// @include accelerate;
-		@include frostedGlass;
-		box-shadow: none;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		z-index: 2;
-	}
-	img {
-		// @include accelerate;
-		padding: 0.5rem 1rem;
-		&.logo {
-			padding: 0 1rem;
-		}
 	}
 </style>

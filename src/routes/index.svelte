@@ -7,6 +7,7 @@
 	// const teamsPromise = async () => {
 	// 	return await import('../scripts/teams').then((module) => module.default);
 	// };
+
 </script>
 
 <script lang="ts">
@@ -15,6 +16,7 @@
 	import { getWindowSize } from '$scripts/functions';
 	import { browser } from '$app/env';
 	import { windowWidth } from '$scripts/store';
+	import GameFetcher from '$lib/components/misc/GameFetcher.svelte';
 
 	let drawing = true;
 	const widthContainment = '100%';
@@ -26,6 +28,7 @@
 			width = widthContainment;
 		}
 	}
+
 </script>
 
 <svelte:head>

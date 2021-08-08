@@ -3,7 +3,7 @@
 	import GoogleLogo from '/static/GoogleLogo.svelte';
 
 	const dispatch = createEventDispatcher();
-	function buttonClicked(event: { detail: any; }): void {
+	function buttonClicked(event: { detail: any }): void {
 		dispatch('click', event.detail);
 	}
 </script>

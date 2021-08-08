@@ -24,6 +24,7 @@ const config = {
 		// hydrate the <div id="svelte"> element in src/app.html
 		target: '#svelte',
 		adapter: firebase(),
+		ssr: true,
 		vite: {
 			resolve: {
 				alias: {
@@ -34,11 +35,12 @@ const config = {
 					$selects: path.resolve('./src/lib/components/selects'),
 					$switches: path.resolve('./src/lib/components/switches'),
 					$tables: path.resolve('./src/lib/tables'),
-					$majorFeatures: path.resolve('./src/lib/majorFeatures')
+					$majorFeatures: path.resolve('./src/lib/majorFeatures'),
+					$static: path.resolve('./static/')
 				}
 			},
 			server: {
-				https: true
+				https: true,
 			},
 			plugins: [mkcert]
 		}

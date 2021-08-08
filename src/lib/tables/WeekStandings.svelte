@@ -1,17 +1,13 @@
 <script lang="ts">
+	import WeekSelect from '$lib/components/selects/WeekSelect.svelte';
 	import WeeklyStandingsTable from '$lib/tables/WeeklyStandingsTable.svelte';
 	import { mobileBreakpoint } from '$scripts/site';
 	import { windowWidth } from '$scripts/store';
 
-	let currentWeek: number = 11; // @TODO find a function to determine the NFL week automatically
 	let initialWeekHeaders: string[] = ['Rank', 'Player', 'Wins', 'Losses', 'Tiebreaker'];
 	let abbreviatedWeekHeaders: string[] = ['#', 'Name', 'W', 'L', 'T'];
 	let weekHeaders: string[] = initialWeekHeaders;
-	let weeks: string[] = [];
 
-	for (let i = 1; i < 18; i++) {
-		weeks = [...weeks, i.toString()];
-	}
 	// TODO query the collection by week, and sort by wins, then net tiebreaker
 	let playerData = [
 		{ nickname: 'jrmoynihan', wins: 10, losses: 6, tiebreaker: 42 },
@@ -30,11 +26,7 @@
 </script>
 
 <div class="week grid">
-	<select>
-		{#each weeks as week}
-			<option>Week {week}</option>
-		{/each}
-	</select>
+	<WeekSelect/>
 	<div class="table grid">
 		{#each weekHeaders as header}
 			<div class="header">{header}</div>
@@ -63,18 +55,5 @@
 	.header {
 		// grid-template-rows: 1fr;
 		font-weight: bold;
-	}
-
-	select {
-		@include rounded;
-		display: inline-flex;
-		grid-area: selector;
-		padding: 1rem;
-		&:focus {
-			@include nightShadow;
-		}
-		&:hover {
-			@include dayShadow;
-		}
 	}
 </style>

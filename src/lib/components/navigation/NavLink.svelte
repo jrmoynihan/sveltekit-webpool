@@ -31,7 +31,8 @@
 		id={pageOption.navigationText}
 		sveltekit:prefetch
 		href={pageOption.path}
-		><Fa
+		>
+		<Fa
 			icon={faFootballBall}
 			size="lg"
 			style={$page.path === pageOption.path ? 'color:var(--alternate-color);' : ''}
@@ -84,20 +85,20 @@
 		}
 	}
 	a {
-		display: flex;
-		height: 100%;
 		align-items: center;
-		padding: 0 1em;
-		width: 100%;
-		justify-content: center;
+		color: var(--alternate-color);
+		display: flex;
 		font-weight: 700;
 		font-size: 0.8rem;
-		text-transform: uppercase;
-		letter-spacing: 10%;
-		text-decoration: none;
-		transition: color 0.2s linear;
-		// color: var(--main-color);
 		gap: 0.7em;
+		height: 100%;
+		justify-content: center;
+		letter-spacing: 10%;
+		padding: 0 1em;
+		text-decoration: none;
+		text-transform: uppercase;
+		transition: color 0.2s linear;
+		width: 100%;
 		&:visited {
 			color: currentColor;
 		}

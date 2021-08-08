@@ -3,6 +3,9 @@
 </script>
 
 <PageTitle>Survivor</PageTitle>
+<svelte:head>
+	<title>Survivor Pool</title>
+</svelte:head>
 
 <style lang="scss">
 </style>

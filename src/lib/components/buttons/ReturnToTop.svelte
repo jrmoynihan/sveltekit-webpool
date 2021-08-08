@@ -21,22 +21,22 @@
 			$scrollProgress = windowScroll / height;
 		}
 	};
-	export const scrollProgress = writable();
+	export const scrollProgress = writable<number>();
 </script>
 
-{#if $windowWidth < mobileBreakpoint && $scrollProgress > 0.1}
+{#if $windowWidth < mobileBreakpoint && $scrollProgress > 0.15}
 	<button class="fixed" on:click={returnToTop} style={customStyles} transition:fade>
 		<Fa icon={faArrowUp} class="fa-icon" size="lg" />
 	</button>
-	{scrollProgress}
 {/if}
+<custom-progress style="width:{($scrollProgress*100).toString()}%; background-color: rgba(var(--accentValue-color),{20+($scrollProgress*50)}%)"></custom-progress>
 <svelte:window on:scroll={getScrollProgress} />
 
 <style lang="scss">
 	button.fixed {
 		@include pulse;
 		position: fixed;
-		bottom: 0;
+		bottom: 5px;
 		left: 0;
 		border-radius: 0 25% 0 0;
 		width: 2.6rem;
@@ -48,8 +48,16 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		opacity:50%;
 		&:hover,
 		&:focus {
 		}
+	}
+	custom-progress{
+		position:fixed;
+		bottom:0;
+		left:0;
+		right:0;
+		height:5px;
 	}
 </style>

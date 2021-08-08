@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { DocumentReference, updateDoc } from '@firebase/firestore';
-	import type { DocumentData } from 'firebase/firestore';
+	import type { DocumentData } from '@firebase/firestore';
 
 	export let rule: { data: DocumentData; ref: DocumentReference };
 

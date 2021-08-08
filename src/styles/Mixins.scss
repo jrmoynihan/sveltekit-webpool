@@ -29,7 +29,7 @@
 	transition: box-shadow 200ms ease-in-out;
 }
 @mixin normalShadow {
-	box-shadow: 0 0 5px -2px;
+	box-shadow: 0 0 6px 3px var(--main-color);
 }
 @mixin hoverBoxShadow {
 	&:hover {
@@ -231,5 +231,27 @@
 			-moz-box-shadow: 0 0 0 0 rgba($color, 0%);
 			box-shadow: 0 0 0 0 rgba($color, 0%);
 		}
+	}
+}
+@mixin defaultContainerStyles {
+	width: auto;
+	font-size: 1rem;
+	color: var(--main-color);
+	@include textWithShadow;
+	@include frostedGlass;
+	@include glassShadow;
+	@include rounded(5vh);
+	@include padded1M;
+	@include centeredButton;
+	// @include hoverBoxShadow;
+	@include defaultTransition;
+	@include thinnestBorder;
+	@include cursorPointerAlways;
+	@include noOutline;
+	&:focus {
+		@include nightShadow;
+	}
+	&:hover {
+		@include dayShadow;
 	}
 }

@@ -3,6 +3,9 @@
 </script>
 
 <PageTitle>Pick6</PageTitle>
+<svelte:head>
+	<title>Pick6 Pool</title>
+</svelte:head>
 
 <style lang="scss">
 </style>

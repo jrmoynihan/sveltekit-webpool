@@ -16,7 +16,8 @@
 
 	const adminTabs: PageOption[] = [
 		new PageOption({ navigationText: 'Toggle Roles', path: '/admin/toggleRoles' }),
-		new PageOption({ navigationText: 'Manage Teams', path: '/admin/manageTeams' })
+		new PageOption({ navigationText: 'Manage Teams', path: '/admin/manageTeams' }),
+		new PageOption({ navigationText: 'Game Data', path: '/admin/setGames' })
 	];
 
 	const textLengths: number[] = adminTabs.map((tab) => {

@@ -3,6 +3,9 @@
 </script>
 
 <PageTitle>Playoffs</PageTitle>
+<svelte:head>
+	<title>Playoff Pool</title>
+</svelte:head>
 
 <style lang="scss">
 </style>

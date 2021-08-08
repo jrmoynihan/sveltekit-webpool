@@ -2,6 +2,7 @@ import type { QueryDocumentSnapshot, SnapshotOptions } from '@firebase/firestore
 import { WebUser } from '$scripts/classes/webUser';
 import { Team } from '$scripts/classes/team';
 import { RuleCategory } from '$scripts/classes/rules';
+import { Game } from './classes/game';
 
 export const userConverter = {
 	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -83,5 +84,36 @@ export const rulesConverter = {
 			weeklyThird,
 			hasWeeklyPayout
 		});
+	}
+};
+
+export const gameConverter = {
+	toFirestore: (game: Partial<Game>): Partial<Game> => {
+		return { ...game };
+	},
+	fromFirestore: (snapshot: QueryDocumentSnapshot): Game => {
+		const docRef = snapshot.ref;
+		const data = snapshot.data();
+		return new Game(
+			docRef,
+			data.$ref,
+			data.competitions,
+			data.date,
+			data.id,
+			data.league,
+			data.links,
+			data.name,
+			data.season,
+			data.seasonType,
+			data.shortName,
+			data.spread,
+			data.timeValid,
+			data.timestamp,
+			data.uid,
+			data.venues,
+			data.week,
+			data.homeTeam,
+			data.awayTeam
+		);
 	}
 };

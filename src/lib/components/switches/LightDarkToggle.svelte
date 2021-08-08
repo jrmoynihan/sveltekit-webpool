@@ -4,7 +4,7 @@
 	// export let checked = false;
 </script>
 
-<label class="switch" tabindex="0" on:keypress={() => ($useDarkTheme = !$useDarkTheme)}>
+<label class="switch" tabindex="0" on:keypress={(e) => {($useDarkTheme = !$useDarkTheme)}}>
 	<input type="checkbox" bind:checked={$useDarkTheme} />
 	<div>
 		<span />
