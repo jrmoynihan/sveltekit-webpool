@@ -33,6 +33,9 @@
 <style lang="scss">
 	.player {
 		padding: 0.2em;
+		height: 100%;
+		align-content: center;
+		display: grid;
 	}
 	.even-row {
 		background-color: rgba(var(--accentValue-color), 50%);

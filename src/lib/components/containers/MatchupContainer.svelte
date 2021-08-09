@@ -24,15 +24,22 @@
 		// }
 	];
 	const getStatus = async () => {
-		const statusResponse = await fetch(competitions[0].status.$ref);
+        const httpGameStatusEndpoint : string = competitions[0].status.$ref
+        const httpsGameStatusEndpoint = httpGameStatusEndpoint.replace('http','https')
+        // console.log(httpsGameStatusEndpoint)
+		const statusResponse = await fetch(httpsGameStatusEndpoint);
 		const statusData = statusResponse.json();
 		return statusData;
 	};
 
-	// TODO should move this to a web worker to avoid slowdown
+	// TODO move this to a web worker to avoid slowdown?
 	const getScores = async (): Promise<{ homeScoreData: any; awayScoreData: any }> => {
-		const homeScoreResponse = await fetch(competitions[0].competitors[0].score.$ref);
-		const awayScoreResponse = await fetch(competitions[0].competitors[1].score.$ref);
+        const httpHomeEndpoint = competitions[0].competitors[0].score.$ref
+        const httpAwayEndpoint = competitions[0].competitors[1].score.$ref
+        const httpsHomeEndpoint = httpHomeEndpoint.replace('http','https')
+        const httpsAwayEndpoint = httpAwayEndpoint.replace('http','https')
+		const homeScoreResponse = await fetch(httpsHomeEndpoint);
+		const awayScoreResponse = await fetch(httpsAwayEndpoint);
 		const homeScoreData = await homeScoreResponse.json();
 		const awayScoreData = await awayScoreResponse.json();
 		return { homeScoreData, awayScoreData };

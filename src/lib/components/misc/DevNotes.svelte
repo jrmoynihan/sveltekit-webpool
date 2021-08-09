@@ -9,7 +9,7 @@ import AccordionDetails from "$containers/AccordionDetails.svelte";
 		<h4 slot="summary">Dev Notes (not visible in production)</h4>
 		<section class="dev-notes" slot="content">
 			<p>
-				<slot name="notes"/>
+				<slot/>
 			</p>
 		</section>
 	</AccordionDetails>

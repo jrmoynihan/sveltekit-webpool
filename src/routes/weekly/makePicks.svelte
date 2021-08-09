@@ -2,6 +2,7 @@
 	import { dev } from '$app/env';
 	import MatchupContainer from '$lib/components/containers/MatchupContainer.svelte';
 	import Clock from '$lib/components/misc/Clock.svelte';
+import DevNotes from '$lib/components/misc/DevNotes.svelte';
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
 	import WeekSelect from '$lib/components/selects/WeekSelect.svelte';
 	import ToggleSwitch from '$lib/components/switches/ToggleSwitch.svelte';
@@ -36,34 +37,45 @@
 </script>
 
 <PageTitle>Make Weekly Picks</PageTitle>
-{#if dev}
+<DevNotes>
 	<div style="display:grid">
 		Show Game IDs (not visible in production)
 		<ToggleSwitch bind:checked={showIDs} />
 	</div>
+</DevNotes>
+
+{#if $windowWidth > mobileBreakpoint}
+	<Clock />
 {/if}
-<!-- {#if $windowWidth > mobileBreakpoint} -->
-<Clock />
-<!-- {/if} -->
+
 <div class="grid positioning">
-<WeekSelect bind:selectedWeek on:weekChanged={getGames} />
-{#if weekOfGames}
-	<div class="grid weekGames" style={$windowWidth > mobileBreakpoint ? 'max-width:60%;':''}>
-		{#each weekOfGames as { id, spread, timestamp, homeTeam, awayTeam, competitions }}
-			<div class="game-container">
-				<MatchupContainer {id} {spread} {homeTeam} {awayTeam} bind:showIDs {timestamp} {competitions}/>
-			</div>
-		{/each}
-	</div>
-{/if}
+	<WeekSelect bind:selectedWeek on:weekChanged={getGames} />
+
+	{#if weekOfGames}
+		<div class="grid weekGames" style={$windowWidth > mobileBreakpoint ? 'max-width:60%;' : ''}>
+			{#each weekOfGames as { id, spread, timestamp, homeTeam, awayTeam, competitions }}
+				<div class="game-container">
+					<MatchupContainer
+						{id}
+						{spread}
+						{homeTeam}
+						{awayTeam}
+						bind:showIDs
+						{timestamp}
+						{competitions}
+					/>
+				</div>
+			{/each}
+		</div>
+	{/if}
 </div>
 
 <style lang="scss">
-		.grid {
+	.grid {
 		@include gridAndGap;
 		justify-items: center;
 	}
-	.positioning{
+	.positioning {
 		grid-template-columns: 1fr;
 		grid-template-rows: min-content 1fr;
 	}
@@ -75,6 +87,7 @@
 	.weekGames {
 		justify-content: center;
 		padding: 1rem;
-		grid-template-columns: repeat(auto-fit, minmax(min(100%,30em), 1fr))  // min function prevents grid blowout
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 30em), 1fr)) // min function prevents grid blowout
+;
 	}
 </style>

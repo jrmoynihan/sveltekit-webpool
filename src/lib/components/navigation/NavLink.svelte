@@ -13,6 +13,7 @@
 
 	$: {
 		active = matchPath(pageOption.path, $page.path);
+		// console.log($page.path)
 		// TODO fix the regeex so the index path ('/') doesn't match when it's
 		active = pageOption.path === '/' && $page.path !== '/' ? false : active;
 	}
@@ -44,16 +45,13 @@
 <style lang="scss">
 	label {
 		@include rounded;
+		@include defaultTransition;
+		@include flexCenter;
 		position: relative;
 		color: var(--main-color);
-		display: inline-flex;
 		box-shadow: 0 0 2px 2px rgba(var(--accentValue-color), 0.3);
 		width: 100%;
 		height: 2em;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		transition: all 300ms ease-in-out;
 
 		@include responsive_desktop_only {
 			&:not(.rounded) {
@@ -63,7 +61,6 @@
 		}
 
 		&.collapsed {
-			// opacity: 0;
 			height: 0;
 			padding: 0;
 		}
@@ -71,8 +68,6 @@
 		&:focus:not(.active) {
 			background: radial-gradient(var(--alternate-color) 30%, transparent 90%);
 			background-color: rgba(var(--accentValue-color), 50%);
-			// text-shadow: 2px 5px 10px var(--alternate-color);
-			// box-shadow: 0 0 5px 5px rgba(var(--accentValue-color), 0.5);
 		}
 		// Current page indicator
 		&.active {
@@ -100,9 +95,10 @@
 		transition: color 0.2s linear;
 		width: 100%;
 		&:visited {
-			color: currentColor;
+			// color: currentColor;
+			color: var(--main-color);
 		}
-		&.active {
+		&.active, &:active {
 			color: var(--alternate-color);
 		}
 	}
