@@ -172,9 +172,6 @@
 </div>
 
 <style lang="scss">
-	* {
-		@include defaultTransition;
-	}
 	input {
 		visibility: hidden;
 		height: 0;
@@ -201,6 +198,7 @@
 		grid-template-columns: minmax(0, 1fr);
 	}
 	.selected {
+        @include defaultTransition;
 		@include normalShadow;
 		// font-weight: bold;
 		// text-decoration: underline 2px;

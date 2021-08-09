@@ -1,10 +1,10 @@
 <script lang="ts">
-import type { Game } from '$scripts/classes/game';
-import { gameConverter } from '$scripts/converters';
+	import type { Game } from '$scripts/classes/game';
+	import { gameConverter } from '$scripts/converters';
 
 	import { firestoreDB } from '$scripts/firebaseInit';
 	import { scheduleCollection } from '$scripts/schedule';
-import allTeams from '$scripts/teams';
+	import allTeams from '$scripts/teams';
 
 	import { doc, setDoc, Timestamp } from '@firebase/firestore';
 	import AccordionDetails from '../containers/AccordionDetails.svelte';
@@ -109,7 +109,7 @@ import allTeams from '$scripts/teams';
 		}
 		message = 'Games Set!';
 	};
-	const setGame = async (game:Game, i) => {
+	const setGame = async (game: Game, i) => {
 		message = `setting Week ${selectedWeek}, Game #${i}`;
 		const gameDocRef = doc(firestoreDB, scheduleCollection.path, game.id);
 
@@ -129,20 +129,20 @@ import allTeams from '$scripts/teams';
 		gameFormatted.timestamp = timestamp;
 
 		// Get the home and away teams for easier access
-		const shortName = gameFormatted.shortName
-		const homeAndAwayTeams = shortName.split('@')
-		const trimmedTeams = homeAndAwayTeams.map(team => team.trim())
-		console.log(trimmedTeams)
-		const awayTeam = trimmedTeams[0]
-		const homeTeam = trimmedTeams[1]
+		const shortName = gameFormatted.shortName;
+		const homeAndAwayTeams = shortName.split('@');
+		const trimmedTeams = homeAndAwayTeams.map((team) => team.trim());
+		console.log(trimmedTeams);
+		const awayTeam = trimmedTeams[0];
+		const homeTeam = trimmedTeams[1];
 
 		// Set their records on the game document
-		for(const team of $allTeams){
-			if(team.abbreviation === homeTeam){
-				gameFormatted.homeTeam = {...team}
+		for (const team of $allTeams) {
+			if (team.abbreviation === homeTeam) {
+				gameFormatted.homeTeam = { ...team };
 			}
-			if(team.abbreviation === awayTeam){
-				gameFormatted.awayTeam = {...team}
+			if (team.abbreviation === awayTeam) {
+				gameFormatted.awayTeam = { ...team };
 			}
 		}
 
@@ -154,12 +154,14 @@ import allTeams from '$scripts/teams';
 <div>
 	<PageTitle>Fetch Game Data</PageTitle>
 	<WeekSelect bind:selectedWeek on:weekChanged={() => weekChanged(selectedWeek)} />
-	{#if games.length > 0}
-	<span class="padded">
-		<button on:click={setGames}>Set Games</button>
-		<span class:padded={message}>{message}</span>
-		<span class:padded={submessage}>{submessage}</span>
-	</span>
+	{#if games}
+		{#if games.length > 0}
+			<span class="padded">
+				<button on:click={setGames}>Set Games</button>
+				<span class:padded={message}>{message}</span>
+				<span class:padded={submessage}>{submessage}</span>
+			</span>
+		{/if}
 	{/if}
 	{#await promise}
 		<div class="padded">Loading...</div>
