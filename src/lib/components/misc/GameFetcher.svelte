@@ -16,6 +16,7 @@
 	let promise: Promise<any[]>;
 	let weeks: number[] = [];
 	let selectedWeek: number;
+	let selectedYear: number = 2021
 	let games = [];
 
 	for (let i = 1; i < 17; i++) {
@@ -25,7 +26,7 @@
 	const fetchWeek = async (selectedWeek: number) => {
 		try {
 			const response = await fetch(
-				`https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/2021/types/2/weeks/${selectedWeek}/events?lang=en&region=us`
+				`https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/${selectedYear}/types/2/weeks/${selectedWeek}/events?lang=en&region=us`
 			);
 			const data = await response.json();
 
@@ -50,8 +51,8 @@
 
 			for await (const url of referenceURLs) {
 				const httpUrl = url
-				const httpsUrl = url.replace('http','https')
-				const response = await fetch(url);
+				const httpsUrl = httpUrl.replace('http','https')
+				const response = await fetch(httpsUrl);
 				const data = await response.json();
 				gameData.push(data);
 			}
@@ -168,7 +169,7 @@
 	{#await promise}
 		<div class="padded">Loading...</div>
 	{:then gameData}
-		<div>
+		<div class='padded'>
 			{#if gameData}
 				{#each gameData as { name, date }, i}
 					<AccordionDetails
