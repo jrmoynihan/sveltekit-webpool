@@ -5,7 +5,6 @@
 		orderBy,
 		query,
 		CollectionReference,
-		collection
 	} from '@firebase/firestore';
 	import ToggleSwitch from '$switches/ToggleSwitch.svelte';
 	import { userData } from '$scripts/auth';

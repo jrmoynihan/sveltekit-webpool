@@ -131,7 +131,9 @@ export const createNewUserDocument = async (): Promise<void> => {
 			pick6: false,
 			playoffs: false,
 			survivor: false,
-			weekly: false
+			weekly: false,
+			id: newUser.uid,
+			ref: newUserRef
 		});
 		console.info(`New user doc for ${newUser.displayName} (${newUser.uid}) added!`);
 	} catch (error) {

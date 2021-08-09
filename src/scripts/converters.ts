@@ -3,6 +3,7 @@ import { WebUser } from '$scripts/classes/webUser';
 import { Team } from '$scripts/classes/team';
 import { RuleCategory } from '$scripts/classes/rules';
 import { Game } from './classes/game';
+import { WeeklyPickDoc } from './classes/picks';
 
 export const userConverter = {
 	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -115,5 +116,16 @@ export const gameConverter = {
 			data.homeTeam,
 			data.awayTeam
 		);
+	}
+};
+
+export const weeklyPickConverter = {
+	toFirestore: (pick: WeeklyPickDoc): WeeklyPickDoc => {
+		return { ...pick };
+	},
+	fromFirestore: (snapshot: QueryDocumentSnapshot): WeeklyPickDoc => {
+		const docRef = snapshot.ref;
+		const data = snapshot.data();
+		return new WeeklyPickDoc(docRef, data.picks, data.uid, data.week);
 	}
 };

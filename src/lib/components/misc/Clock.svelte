@@ -35,11 +35,11 @@
 				>{$displayed_hour < 9 ? '0' : ''}{Math.floor($displayed_hour + 1)}:</strong
 			>
 			<strong
-				>{$displayed_hour > 12
-					? $displayed_hour - 12 < 10
+				>{Math.floor($displayed_hour) > 12
+					? Math.floor($displayed_hour) - 12 < 10
 						? '0'
 						: ''
-					: $displayed_hour < 10
+					: Math.floor($displayed_hour) < 10
 					? '0'
 					: ''}{Math.floor($displayed_hour) > 12
 					? Math.floor($displayed_hour) - 12
@@ -77,9 +77,10 @@
 		@include rounded;
 		@include frostedGlassHighContrast;
 		@include cloudyBackground;
-		position:sticky;
-		top:95%;
-		left: 95%;
+		// position:sticky;
+		// top:95%;
+		// left: 95%;
+		position:relative;
 		z-index: 10;
 		width: max-content;
 	}

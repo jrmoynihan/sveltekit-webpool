@@ -111,6 +111,7 @@
 		justify-self: center;
 		width: 100%;
 		box-sizing: border-box;
+		padding-bottom:2rem;
 
 		// my styles
 		@include gridAndGap(15px);

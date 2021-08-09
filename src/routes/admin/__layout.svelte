@@ -11,6 +11,7 @@
 	import Navigator from '$navigation/Navigator.svelte';
 	import { PageOption } from '$scripts/classes/pageOption';
 	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
+import { dev } from '$app/env';
 
 	export let refresh: any;
 
@@ -29,7 +30,11 @@
 
 <Navigator minItemSize="{maxLengthText}ch" maxItemSize="max-content" customStyles="top:2.5rem;">
 	{#each adminTabs as tab, index}
-		<NavLink {index} pageOption={tab} fullyRounded={true} />
+		{#if dev}
+			<NavLink {index} pageOption={tab} fullyRounded={true} />
+		{:else if tab.navigationText !== 'Toggle Roles'}}
+			<NavLink {index} pageOption={tab} fullyRounded={true} />
+		{/if}
 	{/each}
 </Navigator>
 <TransitionWrapper {refresh} customStyles="display:grid;">

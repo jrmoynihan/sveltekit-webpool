@@ -6,13 +6,15 @@
 	import Fa from 'svelte-fa';
 	import GameTime from './micro/GameTime.svelte';
 	import TeamImage from './TeamImage.svelte';
+	import type { WeeklyGamePick } from '$scripts/classes/picks';
+import { afterUpdate, onMount } from 'svelte';
 
 	export let id = 'id';
 	export let spread = 0;
 	export let homeTeam: Team;
 	export let awayTeam: Team;
 	export let timestamp: Timestamp;
-	export let selectedTeam = '';
+	export let selectedTeam : WeeklyGamePick = {pick: '', id:''}
 	export let showIDs = false;
 	export let competitions = [];
 
@@ -38,32 +40,36 @@
 		return { homeScoreData, awayScoreData };
 	};
 
-	// onMount(()=>{
+    // const updatePick = async(): Promise<void> => {
+    //     selectedTeams.forEach(selection => {
+    //         if(selection.id === id){
+    //             selection.pick = selectedTeam
+    //         }
+    //     }) 
+    // }
 
-	// })
 </script>
 
 <div class="matchup grid rounded">
-	<!-- <div class="away"> -->
 	<label
 		for="{id}-away"
-		class:pressed={selectedTeam === awayTeam.abbreviation}
+		class:pressed={selectedTeam.pick === awayTeam.abbreviation}
 		class="rounded"
-		class:selected={selectedTeam === awayTeam.abbreviation}
+		class:selected={selectedTeam.pick === awayTeam.abbreviation}
 		class:dark-mode={$useDarkTheme}
 	>
-		<input id="{id}-away" type="radio" bind:group={selectedTeam} value={awayTeam.abbreviation} />
+		<input id="{id}-away" type="radio" bind:group={selectedTeam.pick} value={awayTeam.abbreviation} />
 		<TeamImage
 			team={awayTeam}
-			grayscaled={selectedTeam === homeTeam.abbreviation && selectedTeam !== ''}
+			grayscaled={selectedTeam.pick === homeTeam.abbreviation && selectedTeam.pick !== ''}
 		/>
 	</label>
-	<!-- </div> -->
+
 	<label class="game-info rounded" for="{id}-none">
 		<p class="grid info team-abbreviation">
 			<span
 				class="rounded"
-				class:selected={selectedTeam === awayTeam.abbreviation}
+				class:selected={selectedTeam.pick === awayTeam.abbreviation}
 				class:dark-mode={$useDarkTheme}
 				>{awayTeam.abbreviation}
 				({awayTeam.wins}-{awayTeam.losses}{#if awayTeam.ties > 0}
@@ -73,7 +79,7 @@
 			<span> @ </span>
 			<span
 				class="rounded"
-				class:selected={selectedTeam === homeTeam.abbreviation}
+				class:selected={selectedTeam.pick === homeTeam.abbreviation}
 				class:dark-mode={$useDarkTheme}
 				>{homeTeam.abbreviation}
 				({homeTeam.wins}-{homeTeam.losses}{#if homeTeam.ties > 0}
@@ -152,23 +158,22 @@
 				{/if}
 			{/await}
 		</div>
-		<input id="{id}-none" type="radio" bind:group={selectedTeam} value="" />
+		<input id="{id}-none" type="radio" bind:group={selectedTeam.pick} value="" />
 	</label>
 	<!-- <div class="home"> -->
 	<label
 		for="{id}-home"
-		class:pressed={selectedTeam === homeTeam.abbreviation}
+		class:pressed={selectedTeam.pick === homeTeam.abbreviation}
 		class="rounded"
-		class:selected={selectedTeam === homeTeam.abbreviation}
+		class:selected={selectedTeam.pick === homeTeam.abbreviation}
 		class:dark-mode={$useDarkTheme}
 	>
-		<input id="{id}-home" type="radio" bind:group={selectedTeam} value={homeTeam.abbreviation} />
+		<input id="{id}-home" type="radio" bind:group={selectedTeam.pick} value={homeTeam.abbreviation} />
 		<TeamImage
 			team={homeTeam}
-			grayscaled={selectedTeam === awayTeam.abbreviation && selectedTeam !== ''}
+			grayscaled={selectedTeam.pick === awayTeam.abbreviation && selectedTeam.pick !== ''}
 		/>
 	</label>
-	<!-- </div> -->
 </div>
 
 <style lang="scss">
@@ -198,7 +203,7 @@
 		grid-template-columns: minmax(0, 1fr);
 	}
 	.selected {
-        @include defaultTransition;
+		@include defaultTransition;
 		@include normalShadow;
 		// font-weight: bold;
 		// text-decoration: underline 2px;

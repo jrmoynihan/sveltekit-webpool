@@ -28,7 +28,7 @@
 	.standings {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(min(20em, 100%), 1fr));
-		max-width: calc(max-content + 4ch);
+		max-width: min(100%,70em);
 		margin: 0 auto;
 		padding: 0 1rem;
 	}
