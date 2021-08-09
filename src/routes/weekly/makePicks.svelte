@@ -45,9 +45,10 @@
 <!-- {#if $windowWidth > mobileBreakpoint} -->
 <Clock />
 <!-- {/if} -->
+<div class="grid positioning">
 <WeekSelect bind:selectedWeek on:weekChanged={getGames} />
 {#if weekOfGames}
-	<div class="grid weekGames">
+	<div class="grid weekGames" style={$windowWidth > mobileBreakpoint ? 'max-width:60%;':''}>
 		{#each weekOfGames as { id, spread, timestamp, homeTeam, awayTeam, competitions }}
 			<div class="game-container">
 				<MatchupContainer {id} {spread} {homeTeam} {awayTeam} bind:showIDs {timestamp} {competitions}/>
@@ -55,11 +56,16 @@
 		{/each}
 	</div>
 {/if}
+</div>
 
 <style lang="scss">
 		.grid {
 		@include gridAndGap;
 		justify-items: center;
+	}
+	.positioning{
+		grid-template-columns: 1fr;
+		grid-template-rows: min-content 1fr;
 	}
 	.game-container {
 		@include defaultContainerStyles;

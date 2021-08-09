@@ -127,7 +127,6 @@
 		<div class="dateTime">
 			{showIDs ? id : ''}
 			{#await getStatus()}
-				...
 				{#if timestamp}
 					<GameTime {timestamp} />
 				{:else}

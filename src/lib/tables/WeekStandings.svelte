@@ -26,7 +26,7 @@
 </script>
 
 <div class="week grid">
-	<WeekSelect/>
+	<WeekSelect gridArea='selector'/>
 	<div class="table grid">
 		{#each weekHeaders as header}
 			<div class="header">{header}</div>
