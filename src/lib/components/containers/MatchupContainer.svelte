@@ -14,19 +14,12 @@
 	export let timestamp: Timestamp;
 	export let selectedTeam = '';
 	export let showIDs = false;
-	export let competitions = [
-		//     {
-		//     competitors: [{
-		//         score: {
-		//             $ref: ''
-		//         }
-		//     }]
-		// }
-	];
+	export let competitions = [];
+
 	const getStatus = async () => {
-        const httpGameStatusEndpoint : string = competitions[0].status.$ref
-        const httpsGameStatusEndpoint = httpGameStatusEndpoint.replace('http','https')
-        // console.log(httpsGameStatusEndpoint)
+		const httpGameStatusEndpoint: string = competitions[0].status.$ref;
+		const httpsGameStatusEndpoint = httpGameStatusEndpoint.replace('http', 'https');
+		// console.log(httpsGameStatusEndpoint)
 		const statusResponse = await fetch(httpsGameStatusEndpoint);
 		const statusData = statusResponse.json();
 		return statusData;
@@ -34,10 +27,10 @@
 
 	// TODO move this to a web worker to avoid slowdown?
 	const getScores = async (): Promise<{ homeScoreData: any; awayScoreData: any }> => {
-        const httpHomeEndpoint = competitions[0].competitors[0].score.$ref
-        const httpAwayEndpoint = competitions[0].competitors[1].score.$ref
-        const httpsHomeEndpoint = httpHomeEndpoint.replace('http','https')
-        const httpsAwayEndpoint = httpAwayEndpoint.replace('http','https')
+		const httpHomeEndpoint = competitions[0].competitors[0].score.$ref;
+		const httpAwayEndpoint = competitions[0].competitors[1].score.$ref;
+		const httpsHomeEndpoint = httpHomeEndpoint.replace('http', 'https');
+		const httpsAwayEndpoint = httpAwayEndpoint.replace('http', 'https');
 		const homeScoreResponse = await fetch(httpsHomeEndpoint);
 		const awayScoreResponse = await fetch(httpsAwayEndpoint);
 		const homeScoreData = await homeScoreResponse.json();
@@ -71,14 +64,22 @@
 			<span
 				class="rounded"
 				class:selected={selectedTeam === awayTeam.abbreviation}
-				class:dark-mode={$useDarkTheme}>{awayTeam.abbreviation}</span
+				class:dark-mode={$useDarkTheme}
+				>{awayTeam.abbreviation}
+				({awayTeam.wins}-{awayTeam.losses}{#if awayTeam.ties > 0}
+					{awayTeam.ties}
+				{/if})</span
 			>
 			<span> @ </span>
 			<span
 				class="rounded"
 				class:selected={selectedTeam === homeTeam.abbreviation}
-				class:dark-mode={$useDarkTheme}>{homeTeam.abbreviation}</span
-			>
+				class:dark-mode={$useDarkTheme}
+				>{homeTeam.abbreviation}
+				({homeTeam.wins}-{homeTeam.losses}{#if homeTeam.ties > 0}
+					{homeTeam.ties}
+				{/if})
+			</span>
 		</p>
 		<p class="grid info">
 			{#await getStatus()}
@@ -87,12 +88,12 @@
 				<span />
 			{:then status}
 				{#if status.type.description === 'Final'}
-                    <span></span>
-                    <span>Final</span>
-                    <span></span>
+					<span />
+					<span>Final</span>
+					<span />
 				{:else if status.type.description === 'Scheduled'}
 					<span />
-					<span></span>
+					<span />
 					<span />
 				{:else}
 					{#await getScores()}
@@ -193,11 +194,11 @@
 	label {
 		@include defaultTransition;
 		align-items: center;
-        display: grid;
-        padding: 0.5rem;
+		display: grid;
+		padding: 0.5rem;
 		height: 100%;
 		width: 100%;
-        grid-template-columns: minmax(0,1fr)
+		grid-template-columns: minmax(0, 1fr);
 	}
 	.selected {
 		@include normalShadow;
@@ -211,13 +212,13 @@
 			box-shadow: 0 0 6px 3px rgba(var(--accentValue-color), 30%);
 		}
 	}
-	.team-abbreviation{
-        font-weight: bold;
-    }
+	.team-abbreviation {
+		font-weight: bold;
+	}
 	span {
 		padding: 0.3rem 0.5rem;
 	}
 	.info {
-		grid-template-columns: minmax(0,1fr) minmax(0,auto) minmax(0,1fr);
+		grid-template-columns: minmax(0, 1fr) minmax(0, auto) minmax(0, 1fr);
 	}
 </style>
