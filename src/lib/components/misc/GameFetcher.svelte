@@ -49,6 +49,8 @@
 			const gameData = [];
 
 			for await (const url of referenceURLs) {
+				const httpUrl = url
+				const httpsUrl = url.replace('http','https')
 				const response = await fetch(url);
 				const data = await response.json();
 				gameData.push(data);

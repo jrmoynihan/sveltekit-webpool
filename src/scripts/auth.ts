@@ -103,7 +103,11 @@ export const startSignIn = async (
 		}
 		// Else, create a new document for the user
 		else {
-			createNewUserDocument();
+			try {
+				createNewUserDocument();
+			} catch (error) {
+				console.warn('failed to create user doc!', error);
+			}
 		}
 	}
 	if (modalID) {
@@ -112,23 +116,27 @@ export const startSignIn = async (
 };
 
 export const createNewUserDocument = async (): Promise<void> => {
-	const newUser: User = get(currentUser);
-	// Make a document reference for the user with the user's UID, making it both unique and easy to lookup after they login
-	const newUserRef = doc(usersCollection, newUser.uid);
+	try {
+		const newUser: User = get(currentUser);
+		// Make a document reference for the user with the user's UID, making it both unique and easy to lookup after they login
+		const newUserRef = doc(usersCollection, newUser.uid);
 
-	// Write some initial data to the user document
-	await setDoc(newUserRef, {
-		name: newUser.displayName,
-		nickname: newUser.displayName,
-		email: newUser.email,
-		admin: false,
-		college: false,
-		pick6: false,
-		playoffs: false,
-		survivor: false,
-		weekly: false
-	});
-	console.info(`New user doc for ${newUser.displayName} (${newUser.uid}) added!`);
+		// Write some initial data to the user document
+		await setDoc(newUserRef, {
+			name: newUser.displayName,
+			nickname: newUser.displayName,
+			email: newUser.email,
+			admin: false,
+			college: false,
+			pick6: false,
+			playoffs: false,
+			survivor: false,
+			weekly: false
+		});
+		console.info(`New user doc for ${newUser.displayName} (${newUser.uid}) added!`);
+	} catch (error) {
+		console.warn('error in createNewUserDocument', error);
+	}
 };
 
 export const startSignOut = async (): Promise<void> => {
