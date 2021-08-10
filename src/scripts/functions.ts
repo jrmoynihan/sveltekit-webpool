@@ -1,4 +1,4 @@
-export const isOfType = <T>(
+export const isPropertyOf = <T>(
 	varToBeChecked: unknown,
 	propertyToCheckFor: keyof T
 ): varToBeChecked is T => (varToBeChecked as T)[propertyToCheckFor] !== undefined;
@@ -9,7 +9,7 @@ export function getWindowSize(): number {
 export const matchPath = (testPath: string, currentPath: string): boolean => {
 	try {
 		let replaced = testPath;
-		replaced = replaced + `\w*`;
+		replaced = replaced + `\\W*`;
 		const regex = new RegExp(replaced);
 		// console.log(`current: ${currentPath}`, regex.test(currentPath));
 		return regex.test(currentPath);
