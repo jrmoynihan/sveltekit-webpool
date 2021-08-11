@@ -1,6 +1,7 @@
 <script lang="ts">
 	import WeekSelect from '$lib/components/selects/WeekSelect.svelte';
 	import WeeklyStandingsTable from '$lib/tables/WeeklyStandingsTable.svelte';
+	import { sortByWins } from '$scripts/functions';
 	import { mobileBreakpoint } from '$scripts/site';
 	import { windowWidth } from '$scripts/store';
 
@@ -10,11 +11,14 @@
 
 	// TODO query the collection by week, and sort by wins, then net tiebreaker
 	let playerData = [
+		{ nickname: 'daphne', wins: 4, losses: 12, tiebreaker: 49 },
 		{ nickname: 'jrmoynihan', wins: 10, losses: 6, tiebreaker: 42 },
-		{ nickname: 'moynihan', wins: 9, losses: 7, tiebreaker: 35 },
 		{ nickname: 'winston', wins: 7, losses: 9, tiebreaker: 38 },
-		{ nickname: 'daphne', wins: 4, losses: 12, tiebreaker: 49 }
+		{ nickname: 'moynihan', wins: 9, losses: 7, tiebreaker: 35 }
 	];
+
+	// Sort players in order of # of wins
+	playerData.sort((firstPlayer, secondPlayer) => secondPlayer.wins - firstPlayer.wins);
 
 	$: {
 		if ($windowWidth < mobileBreakpoint - 500) {
@@ -26,7 +30,7 @@
 </script>
 
 <div class="week grid">
-	<WeekSelect gridArea='selector'/>
+	<WeekSelect gridArea="selector" />
 	<div class="table grid">
 		{#each weekHeaders as header}
 			<div class="header">{header}</div>

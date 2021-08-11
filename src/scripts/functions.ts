@@ -32,3 +32,5 @@ export const hideModal = async (modalID: string): Promise<void> => {
 		modal.removeAttribute('open');
 	}
 };
+export const sortByWins = (firstPlayer: { wins: number }, secondPlayer: { wins: number }): number =>
+	secondPlayer.wins - firstPlayer.wins;
