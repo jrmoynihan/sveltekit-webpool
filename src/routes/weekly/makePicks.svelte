@@ -22,12 +22,14 @@
 	let selectedWeek = 1;
 	let weekOfGames: Game[] = [];
 	let quickButtons = ['All Favored', 'All Underdogs', 'All Home', 'All Away'];
-	let selectedTeams: WeeklyGamePick[] = [];
+	let gamePicks: WeeklyGamePick[] = [];
 	let pickDocRef: DocumentReference = null;
 	const progress = tweened(0, {
 		duration: 400,
 		easing: cubicOut
 	});
+	let promisedGames: Promise<Game[]>;
+	let promisedPicks: Promise<WeeklyGamePick[]>;
 
 	const getGames = async () => {
 		try {
@@ -59,9 +61,6 @@
 				snapshot.docs.forEach((doc) => {
 					console.log(doc.data());
 					picks.push(...doc.data().picks);
-					// const docRef = doc.ref;
-					// pickDocRef = docRef;
-					// selectedTeams = picks;
 				});
 				unsubscribe();
 			});
@@ -71,47 +70,37 @@
 			console.log('getPicks had an error: ', error);
 		}
 	};
-	const fillNonExistentPicks = async (selectedTeams: WeeklyGamePick[], weekOfGames: Game[]) => {
-		try {
-			console.log('selectedTeams length: ', selectedTeams.length);
-			console.log('weekOfGames length: ', weekOfGames.length);
-			for (let i = 0; i < weekOfGames.length; i++) {
-				console.log('before: ', selectedTeams[i]);
-				if (selectedTeams[i].id === undefined) {
-					selectedTeams.push({ pick: '', id: weekOfGames[i].id });
-					console.log('after: ', selectedTeams[i]);
-				}
-			}
-			console.log(selectedTeams);
-			console.log('filled non-existent picks!');
-		} catch (error) {
-			console.log('fillNonExistentPicks had an error: ', error);
-		}
-	};
+	// const fillNonExistentPicks = async (gamePicks: WeeklyGamePick[], weekOfGames: Game[]) => {
+	// 	try {
+	// 		if (gamePicks.length > 0 && weekOfGames.length > 0) {
+	// 			// console.log('gamePicks length: ', gamePicks.length);
+	// 			// console.log('weekOfGames length: ', weekOfGames.length);
+	// 			for (let i = 0; i < weekOfGames.length; i++) {
+	// 				if (gamePicks[i] === undefined) {
+	// 					gamePicks = [...gamePicks, { id: weekOfGames[i].id, pick: '' }];
+	// 				}
+	// 			}
+	// 			console.log('filled non-existent picks!');
+	// 		}
+	// 	} catch (error) {
+	// 		console.log('fillNonExistentPicks had an error: ', error);
+	// 	}
+	// };
 
 	const submitPicks = async () => {
-		const weeklyPickDoc = new WeeklyPickDoc(
-			pickDocRef,
-			selectedTeams,
-			$currentUser.uid,
-			selectedWeek
-		);
+		const weeklyPickDoc = new WeeklyPickDoc(pickDocRef, gamePicks, $currentUser.uid, selectedWeek);
 		setDoc(pickDocRef, weeklyPickDoc);
 	};
 
 	const changedWeek = async () => {
-		const games = await getGames();
-		const picks = await getPicks();
-		weekOfGames = games;
-		selectedTeams = picks;
-		const promise = await fillNonExistentPicks(selectedTeams, weekOfGames);
-		return promise;
+		promisedGames = getGames();
+		promisedPicks = getPicks();
 	};
 
 	$: {
-		if (selectedTeams !== undefined && weekOfGames !== undefined) {
-			if (selectedTeams.length >= 0 && weekOfGames.length > 0) {
-				$progress = selectedTeams.length / weekOfGames.length;
+		if (gamePicks !== undefined && weekOfGames !== undefined) {
+			if (gamePicks.length >= 0) {
+				$progress = gamePicks.length / weekOfGames.length;
 			}
 		}
 	}
@@ -149,43 +138,39 @@
 		{/each}
 	</div>
 
-	{#if weekOfGames}
-		<div class="grid weekGames" style={$windowWidth > mobileBreakpoint ? 'max-width:60%;' : ''}>
-			{#each weekOfGames as { id, spread, timestamp, homeTeam, awayTeam, competitions }, i}
-				<div class="game-container">
-					{#if selectedTeams[i]}
-						<MatchupContainer
-							{id}
-							{spread}
-							{homeTeam}
-							{awayTeam}
-							bind:showIDs
-							{timestamp}
-							{competitions}
-							bind:selectedTeam={selectedTeams[i]}
-						/>
-					{/if}
-				</div>
-			{/each}
-		</div>
-	{/if}
+	<div class="grid weekGames" style={$windowWidth > mobileBreakpoint ? 'max-width:60%;' : ''}>
+		{#each weekOfGames as { id, spread, timestamp, homeTeam, awayTeam, competitions }, i}
+			<div class="game-container">
+				{#if gamePicks[i]}
+					<MatchupContainer
+						{id}
+						{spread}
+						{homeTeam}
+						{awayTeam}
+						bind:showIDs
+						{timestamp}
+						{competitions}
+					/>
+				{/if}
+			</div>
+		{/each}
+	</div>
 </div>
 
-{#if $windowWidth > mobileBreakpoint}
-	<div class="fixed bottom-left padded">
-		<p>{selectedTeams.length}/{weekOfGames.length} Picks Made</p>
-		{#if selectedTeams.length >= 0 && weekOfGames.length > 0}
-			<progress value={$progress} />
-		{/if}
-	</div>
-{:else}
-	<div class="fixed bottom-right padded">
-		<p>{selectedTeams.length}/{weekOfGames.length} Picks Made</p>
-		{#if selectedTeams.length >= 0 && weekOfGames.length > 0}
-			<progress value={$progress} />
-		{/if}
-	</div>
-{/if}
+{#await promisedPicks then picks}
+	{#await promisedGames then games}
+		<div class="fixed padded {$windowWidth > mobileBreakpoint ? 'bottom-left' : 'bottom-right'}">
+			{#if picks !== undefined && games !== undefined}
+				{#if picks.length > 0 && games.length > 0}
+					<p>{picks.length}/{games.length} Picks Made</p>
+					<progress value={$progress} />
+				{/if}
+			{/if}
+		</div>
+	{:catch err}
+		error in promise: {err}
+	{/await}
+{/await}
 
 <style lang="scss">
 	.grid {
