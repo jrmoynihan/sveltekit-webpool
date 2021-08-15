@@ -3,7 +3,7 @@
 	import { gameConverter } from '$scripts/converters';
 
 	import { firestoreDB } from '$scripts/firebaseInit';
-	import { scheduleCollection } from '$scripts/schedule';
+	import { scheduleCollection } from '$scripts/collections';
 	import allTeams from '$scripts/teams';
 
 	import { doc, setDoc, Timestamp } from '@firebase/firestore';

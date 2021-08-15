@@ -7,112 +7,181 @@
 	import ToggleSwitch from '$lib/components/switches/ToggleSwitch.svelte';
 	import { currentUser } from '$scripts/auth';
 	import type { Game } from '$scripts/classes/game';
-	import { WeeklyGamePick, WeeklyPickDoc } from '$scripts/classes/picks';
+	import type { WeeklyPickDoc } from '$scripts/classes/picks';
 	import { weeklyPicksCollection } from '$scripts/collections';
 	import { gameConverter, weeklyPickConverter } from '$scripts/converters';
-	import { scheduleCollection } from '$scripts/schedule';
+	import { scheduleCollection } from '$scripts/collections';
 	import { mobileBreakpoint } from '$scripts/site';
 	import { windowWidth } from '$scripts/store';
-	import { DocumentReference, onSnapshot, query, setDoc, where } from '@firebase/firestore';
-	import { onMount } from 'svelte';
+	import {
+		doc,
+		DocumentReference,
+		getDocs,
+		onSnapshot,
+		orderBy,
+		query,
+		setDoc,
+		updateDoc,
+		where
+	} from '@firebase/firestore';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
+	import Fa from 'svelte-fa';
+	import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 
 	let showIDs = false;
 	let selectedWeek = 1;
-	let weekOfGames: Game[] = [];
-	let quickButtons = ['All Favored', 'All Underdogs', 'All Home', 'All Away'];
-	let gamePicks: WeeklyGamePick[] = [];
-	let pickDocRef: DocumentReference = null;
+	let gamesList: Game[] = [];
+	let currentPicks: WeeklyPickDoc[] = [];
+	let currentPickCount = 0;
 	const progress = tweened(0, {
 		duration: 400,
 		easing: cubicOut
 	});
-	let promisedGames: Promise<Game[]>;
-	let promisedPicks: Promise<WeeklyGamePick[]>;
 
-	const getGames = async () => {
+	const getGames = async (selectedWeek: number) => {
 		try {
-			const q = query(scheduleCollection, where('week', '==', selectedWeek));
 			const games: Game[] = [];
-			// weekOfGames = [];
-
-			const unsubscribe = onSnapshot(q.withConverter(gameConverter), (snapshot) => {
-				snapshot.docs.forEach((doc) => {
-					games.push(doc.data());
-				});
-				unsubscribe();
+			const q = query(scheduleCollection, where('week', '==', selectedWeek));
+			const querySnapshot = await getDocs(q.withConverter(gameConverter));
+			querySnapshot.forEach((doc) => {
+				games.push(doc.data());
 			});
+
 			console.log('got games!', games);
+			gamesList = games;
 			return games;
 		} catch (error) {
 			console.log('getGames had an error: ', error);
 		}
 	};
-	const getPicks = async () => {
+
+	const getPicks = async (selectedWeek: number) => {
 		try {
+			const picks: WeeklyPickDoc[] = [];
 			const q = query(
 				weeklyPicksCollection,
 				where('week', '==', selectedWeek),
-				where('uid', '==', $currentUser.uid)
+				where('uid', '==', $currentUser.uid),
+				orderBy('id', 'asc')
 			);
-			const picks: WeeklyGamePick[] = [];
-			const unsubscribe = onSnapshot(q.withConverter(weeklyPickConverter), (snapshot) => {
-				snapshot.docs.forEach((doc) => {
-					console.log(doc.data());
-					picks.push(...doc.data().picks);
-				});
-				unsubscribe();
+			const querySnapshot = await getDocs(q.withConverter(weeklyPickConverter));
+			querySnapshot.forEach((doc) => {
+				picks.push(doc.data());
 			});
+
 			console.log('got picks!', picks);
+			currentPicks = picks;
 			return picks;
 		} catch (error) {
 			console.log('getPicks had an error: ', error);
 		}
 	};
-	// const fillNonExistentPicks = async (gamePicks: WeeklyGamePick[], weekOfGames: Game[]) => {
-	// 	try {
-	// 		if (gamePicks.length > 0 && weekOfGames.length > 0) {
-	// 			// console.log('gamePicks length: ', gamePicks.length);
-	// 			// console.log('weekOfGames length: ', weekOfGames.length);
-	// 			for (let i = 0; i < weekOfGames.length; i++) {
-	// 				if (gamePicks[i] === undefined) {
-	// 					gamePicks = [...gamePicks, { id: weekOfGames[i].id, pick: '' }];
-	// 				}
-	// 			}
-	// 			console.log('filled non-existent picks!');
-	// 		}
-	// 	} catch (error) {
-	// 		console.log('fillNonExistentPicks had an error: ', error);
-	// 	}
-	// };
 
 	const submitPicks = async () => {
-		const weeklyPickDoc = new WeeklyPickDoc(pickDocRef, gamePicks, $currentUser.uid, selectedWeek);
-		setDoc(pickDocRef, weeklyPickDoc);
+		try {
+			currentPicks.forEach(async (pick) => {
+				const docRef = pick.docRef;
+				await updateDoc(docRef.withConverter(weeklyPickConverter), pick);
+			});
+			console.log('submitted picks!', currentPicks);
+		} catch (error) {
+			console.error('submitPicks had an error:', error);
+		}
+	};
+
+	const pickAllHome = async () => {
+		try {
+			const homeTeams = gamesList.map((game) => {
+				return game.homeTeam;
+			});
+			currentPicks.forEach((pick, i) => {
+				pick.pick = homeTeams[i].abbreviation;
+			});
+			currentPicks = currentPicks;
+		} catch (error) {
+			console.error('pickAllHome had an error:', error);
+		}
+	};
+	const pickAllAway = async () => {
+		try {
+			const awayTeams = gamesList.map((game) => {
+				return game.awayTeam;
+			});
+			currentPicks.forEach((pick, i) => {
+				pick.pick = awayTeams[i].abbreviation;
+			});
+			currentPicks = currentPicks;
+		} catch (error) {
+			console.error('pickAllAway had an error:', error);
+		}
+	};
+	const pickAllFavored = async () => {
+		try {
+			const favored = gamesList.map((game) => {
+				if (game.spread < 0) {
+					return game.homeTeam;
+				} else if (game.spread > 0) {
+					return game.awayTeam;
+				} else {
+					return null;
+				}
+			});
+
+			currentPicks.forEach((pick, i) => {
+				if (favored[i] !== null) {
+					pick.pick = favored[i].abbreviation;
+				} else {
+					pick.pick = '';
+				}
+			});
+			currentPicks = currentPicks;
+		} catch (error) {
+			console.error('pickAllFavored had an error:', error);
+		}
+	};
+	const pickAllDogs = async () => {
+		try {
+			const underdogs = gamesList.map((game) => {
+				if (game.spread < 0) {
+					return game.awayTeam;
+				} else if (game.spread > 0) {
+					return game.homeTeam;
+				} else {
+					return null;
+				}
+			});
+
+			currentPicks.forEach((pick, i) => {
+				if (underdogs[i] !== null) {
+					pick.pick = underdogs[i].abbreviation;
+				} else {
+					pick.pick = '';
+				}
+			});
+			currentPicks = currentPicks;
+		} catch (error) {
+			console.error('pickAllFavored had an error:', error);
+		}
 	};
 
 	const changedWeek = async () => {
-		promisedGames = getGames();
-		promisedPicks = getPicks();
+		gamesPromise = getGames(selectedWeek);
+		picksPromise = getPicks(selectedWeek);
 	};
 
+	let gamesPromise = getGames(selectedWeek);
+	let picksPromise = getPicks(selectedWeek);
+
 	$: {
-		if (gamePicks !== undefined && weekOfGames !== undefined) {
-			if (gamePicks.length >= 0) {
-				$progress = gamePicks.length / weekOfGames.length;
+		if (currentPicks !== undefined && gamesList !== undefined) {
+			if (currentPicks.length > 0 && gamesList.length > 0) {
+				currentPickCount = currentPicks.filter((pick) => pick.pick !== '').length;
+				$progress = currentPickCount / gamesList.length;
 			}
 		}
 	}
-
-	onMount(() => {
-		changedWeek();
-		// TODO make a query to get active player's picks for this week
-		// selectedTeams = [
-		// 	{id: '401326308', pick: 'BUF'},
-		// 	{id: '401326309', pick: 'CAR'}
-		// ]
-	});
+	$: console.log('currentPicks:', currentPicks);
 </script>
 
 <PageTitle>Make Weekly Picks</PageTitle>
@@ -120,6 +189,7 @@
 	<div style="display:grid">
 		Show Game IDs (not visible in production)
 		<ToggleSwitch bind:checked={showIDs} />
+		{$currentUser.uid}
 	</div>
 </DevNotes>
 
@@ -129,48 +199,60 @@
 	{/if}
 	<div class="first-row grid">
 		<WeekSelect bind:selectedWeek on:weekChanged={changedWeek} />
-		<button class="submit">Submit Picks</button>
+		<button class="submit" on:click={submitPicks}>Submit Picks</button>
 	</div>
 
 	<div class="second-row flex">
-		{#each quickButtons as button}
-			<button>{button}</button>
-		{/each}
+		<button on:click={pickAllFavored}>All Favored</button>
+		<button on:click={pickAllDogs}>All Underdogs</button>
+		<button on:click={pickAllAway}>All Away</button>
+		<button on:click={pickAllHome}>All Home</button>
 	</div>
 
 	<div class="grid weekGames" style={$windowWidth > mobileBreakpoint ? 'max-width:60%;' : ''}>
-		{#each weekOfGames as { id, spread, timestamp, homeTeam, awayTeam, competitions }, i}
-			<div class="game-container">
-				{#if gamePicks[i]}
-					<MatchupContainer
-						{id}
-						{spread}
-						{homeTeam}
-						{awayTeam}
-						bind:showIDs
-						{timestamp}
-						{competitions}
-					/>
-				{/if}
-			</div>
-		{/each}
+		{#await gamesPromise}
+			Loading games...
+		{:then games}
+			{#await picksPromise}
+				Loading picks...
+			{:then picks}
+				{#each games as game}
+					{#each currentPicks as pick}
+						{#if pick.id === game.id}
+							<div class="game-container">
+								<MatchupContainer
+									bind:showIDs
+									id={game.id}
+									spread={game.spread}
+									homeTeam={game.homeTeam}
+									awayTeam={game.awayTeam}
+									timestamp={game.timestamp}
+									competitions={game.competitions}
+									bind:selectedTeam={pick.pick}
+								/>
+							</div>
+						{/if}
+					{/each}
+				{/each}
+			{/await}
+		{/await}
 	</div>
 </div>
 
-{#await promisedPicks then picks}
-	{#await promisedGames then games}
-		<div class="fixed padded {$windowWidth > mobileBreakpoint ? 'bottom-left' : 'bottom-right'}">
-			{#if picks !== undefined && games !== undefined}
-				{#if picks.length > 0 && games.length > 0}
-					<p>{picks.length}/{games.length} Picks Made</p>
-					<progress value={$progress} />
-				{/if}
+<div class="fixed padded {$windowWidth > mobileBreakpoint ? 'bottom-left' : 'bottom-right'}">
+	{#if currentPicks !== undefined && gamesList !== undefined}
+		{#if currentPicks.length >= 0 && gamesList.length > 0}
+			<div class="icon-padded">
+				{currentPickCount} / {gamesList.length} Picks Made
+			</div>
+			{#if currentPickCount === gamesList.length}
+				<Fa icon={faCheckCircle} size="lg" />
+			{:else}
+				<progress value={$progress} />
 			{/if}
-		</div>
-	{:catch err}
-		error in promise: {err}
-	{/await}
-{/await}
+		{/if}
+	{/if}
+</div>
 
 <style lang="scss">
 	.grid {
@@ -198,6 +280,7 @@
 	.second-row {
 		// grid-template-columns: repeat(auto-fit,1fr);
 		display: flex;
+		gap: 0.5em;
 		justify-content: space-evenly;
 		width: 100%;
 		max-width: min(100%, 35em);
@@ -210,17 +293,35 @@
 		}
 	}
 	.fixed {
+		background-color: var(--alternate-color);
+		// @include frostedGlass;
 		position: fixed;
-	}
-	.bottom-left {
-		bottom: 0;
-		left: 0;
-	}
-	.bottom-right {
-		bottom: 0;
-		right: 0;
+		z-index: 20;
+		font-weight: bold;
 	}
 	.padded {
 		padding: 1rem;
 	}
+	.bottom-left {
+		bottom: 0;
+		left: 0;
+		border-radius: 0 1rem 1rem 0;
+	}
+	.bottom-right {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		gap: 10px;
+		align-items: center;
+		justify-items: center;
+		bottom: 0;
+		right: 0;
+		// border-radius: 1rem 0 0 1rem;
+		border-top: var(--accent-color) 2px inset;
+		border-left: var(--accent-color) 2px inset;
+		width: 100%;
+		padding-left: 14%;
+	}
+	// .icon-padded {
+	// 	padding-left: 10%;
+	// }
 </style>

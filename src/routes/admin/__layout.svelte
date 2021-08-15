@@ -11,14 +11,15 @@
 	import Navigator from '$navigation/Navigator.svelte';
 	import { PageOption } from '$scripts/classes/pageOption';
 	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
-import { dev } from '$app/env';
+	import { dev } from '$app/env';
 
 	export let refresh: any;
 
 	const adminTabs: PageOption[] = [
 		new PageOption({ navigationText: 'Toggle Roles', path: '/admin/toggleRoles' }),
 		new PageOption({ navigationText: 'Manage Teams', path: '/admin/manageTeams' }),
-		new PageOption({ navigationText: 'Game Data', path: '/admin/setGames' })
+		new PageOption({ navigationText: 'Game Data', path: '/admin/setGames' }),
+		new PageOption({ navigationText: 'Create Weekly Picks', path: '/admin/createWeeklyPicks' })
 	];
 
 	const textLengths: number[] = adminTabs.map((tab) => {
