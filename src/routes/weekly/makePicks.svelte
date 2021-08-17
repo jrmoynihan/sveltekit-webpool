@@ -366,7 +366,6 @@
 	}
 	.fixed {
 		background-color: var(--alternate-color);
-		// @include frostedGlass;
 		position: fixed;
 		z-index: 20;
 		font-weight: bold;

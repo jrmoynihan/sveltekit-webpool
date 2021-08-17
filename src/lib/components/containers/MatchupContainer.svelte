@@ -221,15 +221,8 @@
 		@include defaultTransition;
 		@include normalShadow;
 		@include accentedContainer;
-		// font-weight: bold;
-		// text-decoration: underline 2px;
 		color: white;
 		text-shadow: none;
-		// background-color: var(--accent-color);
-		// &.dark-mode {
-		// 	background-color: rgba(var(--accentValue-color), 40%);
-		// 	box-shadow: 0 0 6px 3px rgba(var(--accentValue-color), 30%);
-		// }
 		&.disabled {
 			@include accentedContainer(70%, 10%);
 		}

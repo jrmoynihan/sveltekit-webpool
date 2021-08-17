@@ -105,7 +105,6 @@
 		@include rounded;
 		display: grid;
 		padding: 1rem;
-		// position: absolute;
 		outline: 2px var(--accent-color) solid;
 		margin: 1rem auto;
 		max-width: max-content;

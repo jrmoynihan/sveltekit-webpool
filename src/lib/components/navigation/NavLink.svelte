@@ -97,7 +97,6 @@
 		transition: color 0.2s linear;
 		width: 100%;
 		&:visited {
-			// color: currentColor;
 			color: var(--main-color);
 		}
 		&.active,

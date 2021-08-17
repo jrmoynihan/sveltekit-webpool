@@ -32,7 +32,6 @@
 	li,
 	ul {
 		line-height: 1.6;
-		// font-size: 1.05em;
 	}
 	li {
 		display: inline-block;

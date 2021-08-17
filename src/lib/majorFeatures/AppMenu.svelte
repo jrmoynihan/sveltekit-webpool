@@ -66,8 +66,6 @@
 		justify-items: center;
 		justify-content: center;
 		grid-area: menu;
-		// grid-template-columns: repeat(3, min-content) 1fr;
-		// grid-template-rows: 1fr auto;
 		max-width: 100%;
 		position: sticky;
 		top: 0;
