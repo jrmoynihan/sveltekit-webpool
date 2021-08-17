@@ -53,7 +53,7 @@
 	}
 	ol {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, clamp(45ch, 50%, 75ch));
+		grid-template-columns: repeat(auto-fit, clamp(45ch, 100%, 75ch));
 		// width: 100%;
 		justify-items: start;
 		// justify-self: center;

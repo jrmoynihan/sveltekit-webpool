@@ -29,11 +29,16 @@
 
 <style lang="scss">
 	/* Style rule items */
+	li,
+	ul {
+		line-height: 1.6;
+		// font-size: 1.05em;
+	}
 	li {
 		display: inline-block;
 		padding: 0.5rem 2rem;
 		text-align: start;
-		font-family: Open Sans;
+
 		&::marker {
 			color: var(--accent-color);
 			font-size: 1.2em;
