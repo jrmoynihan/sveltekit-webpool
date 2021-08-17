@@ -16,7 +16,7 @@
 	let promise: Promise<any[]>;
 	let weeks: number[] = [];
 	let selectedWeek: number;
-	let selectedYear: number = 2021
+	let selectedYear: number = 2021;
 	let games = [];
 
 	for (let i = 1; i < 17; i++) {
@@ -50,8 +50,8 @@
 			const gameData = [];
 
 			for await (const url of referenceURLs) {
-				const httpUrl = url
-				const httpsUrl = httpUrl.replace('http','https')
+				const httpUrl = url;
+				const httpsUrl = httpUrl.replace('http', 'https');
 				const response = await fetch(httpsUrl);
 				const data = await response.json();
 				gameData.push(data);
@@ -169,7 +169,7 @@
 	{#await promise}
 		<div class="padded">Loading...</div>
 	{:then gameData}
-		<div class='padded'>
+		<div class="padded">
 			{#if gameData}
 				{#each gameData as { name, date }, i}
 					<AccordionDetails

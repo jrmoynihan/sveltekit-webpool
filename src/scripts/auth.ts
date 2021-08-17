@@ -105,6 +105,7 @@ export const startSignIn = async (
 		else {
 			try {
 				createNewUserDocument();
+				console.log('created bew yser doc!');
 			} catch (error) {
 				console.warn('failed to create user doc!', error);
 			}

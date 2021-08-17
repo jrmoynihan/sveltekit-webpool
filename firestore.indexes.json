@@ -1,4 +1,14 @@
 {
-	"indexes": [],
+	"indexes": [
+		{
+			"collectionGroup": "WeeklyPicks",
+			"queryScope": "COLLECTION",
+			"fields": [
+				{ "fieldPath": "uid", "order": "ASCENDING"},
+				{"fieldPath":"week", "order": "ASCENDING"},
+				{"fieldPath": "id","order": "ASCENDING"}
+			]
+		}
+	],
 	"fieldOverrides": []
 }

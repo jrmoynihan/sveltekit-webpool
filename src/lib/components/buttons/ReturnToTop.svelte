@@ -8,6 +8,8 @@
 	import { fade } from 'svelte/transition';
 
 	export let customStyles: string = '';
+	export let showProgressRadial = false;
+	export let showProgressBar = true;
 
 	const returnToTop = () => {
 		if (browser) {
@@ -29,14 +31,17 @@
 		<Fa icon={faArrowUp} class="fa-icon" size="lg" />
 	</button>
 {/if}
-<custom-progress
-	style="width:{(
-		$scrollProgress * 100
-	).toString()}%; background-color: rgba(var(--accentValue-color),{20 + $scrollProgress * 50}%)"
-/>
+{#if showProgressBar}
+	<custom-progress style="width:{($scrollProgress * 100).toString()}%;" />
+{/if}
+{#if showProgressRadial}
+	<custom-progress-radial style="--radii:{($scrollProgress * 100).toString()}%" />
+{/if}
 <svelte:window on:scroll={getScrollProgress} />
 
 <style lang="scss">
+	$radii: var(--radii);
+
 	button {
 		@include pulse;
 		position: fixed;
@@ -65,5 +70,16 @@
 		right: 0;
 		height: 5px;
 		z-index: 30;
+		background-color: var(--accent-color);
+	}
+	custom-progress-radial {
+		position: fixed;
+		top: 50vh;
+		left: 1rem;
+		width: 10rem;
+		aspect-ratio: 1/1;
+		z-index: 300;
+		border-radius: 50%;
+		background: conic-gradient(var(--accent-color) $radii, transparent $radii);
 	}
 </style>

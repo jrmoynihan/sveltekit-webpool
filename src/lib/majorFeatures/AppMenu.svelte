@@ -73,10 +73,15 @@
 		top: 0;
 		max-height: 100vh;
 		@include responsive_mobile_only {
+			border-radius: 0;
 			padding: 0.5rem;
 			font-size: inherit;
 			grid-template-columns: repeat(2, min-content) 1fr;
-			background: rgba(var(--alternateValue-color), 70%);
+			background: linear-gradient(
+				rgba(var(--alternateValue-color), 90%) 90%,
+				rgba(var(--alternateValue-color), 50%) 95%,
+				transparent 99%
+			);
 		}
 		@include responsive_desktop_only {
 			grid-template-columns: min-content !important;

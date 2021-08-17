@@ -1,3 +1,6 @@
+import type { Timestamp } from '@firebase/firestore';
+import type { Game } from './classes/game';
+
 export const isPropertyOf = <T>(
 	varToBeChecked: unknown,
 	propertyToCheckFor: keyof T
@@ -34,3 +37,14 @@ export const hideModal = async (modalID: string): Promise<void> => {
 };
 export const sortByWins = (firstPlayer: { wins: number }, secondPlayer: { wins: number }): number =>
 	secondPlayer.wins - firstPlayer.wins;
+
+export const isBeforeGameTime = async (timestamp: Timestamp): Promise<boolean> => {
+	const gameDate = timestamp.toDate();
+	// console.log('gameDate', gameDate.getTime());
+	// console.log('currentTime', Date.now());
+	if (gameDate.getTime() < Date.now()) {
+		return true;
+	} else {
+		return false;
+	}
+};

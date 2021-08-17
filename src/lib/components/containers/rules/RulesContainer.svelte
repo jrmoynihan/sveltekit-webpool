@@ -4,7 +4,7 @@
 		QueryDocumentSnapshot,
 		orderBy,
 		query,
-		CollectionReference,
+		CollectionReference
 	} from '@firebase/firestore';
 	import ToggleSwitch from '$switches/ToggleSwitch.svelte';
 	import { userData } from '$scripts/auth';
@@ -17,6 +17,7 @@
 	import Tabs from '$navigation/Tabs.svelte';
 	import { editing, windowWidth } from '$scripts/store';
 	import { mobileBreakpoint } from '$scripts/site';
+	import type { WebUser } from '$scripts/classes/webUser';
 
 	// Dynamically pass a specific rules collection in
 	export let rulesCollection: CollectionReference;
@@ -26,11 +27,12 @@
 	let editable = false;
 
 	// But an admin will have the option to make it editable
-	$: if ($userData) {
-		if ($userData.admin) {
-			editable = true;
+	const isUserAdmin = (userData: WebUser): boolean => {
+		if (userData !== undefined) {
+			return userData.admin;
 		}
-	}
+	};
+	$: editable = isUserAdmin($userData);
 
 	// Initialize an empty array to store document snapshots (listeners) of the WeeklyRules collection
 	let rulesCollectionDocuments: QueryDocumentSnapshot[] = [];
@@ -60,24 +62,23 @@
 	let tab = {};
 
 	$: {
-		if(rulesCollectionDocuments){
+		if (rulesCollectionDocuments) {
 			rulesCollectionDocuments.forEach((doc) => {
-			const data = doc.data();
-			const ref = doc.ref;
-			// const q = query(collection(doc.ref, 'Rules'), orderBy('order'));
-			tab = { name: data.title, component: RulesCategoryGrid, data: data, ref: ref };
-			if (tab['name'] !== 'Prizes') {
-				tabs = [...tabs, tab];
-			}
-		});
+				const data = doc.data();
+				const ref = doc.ref;
+				// const q = query(collection(doc.ref, 'Rules'), orderBy('order'));
+				tab = { name: data.title, component: RulesCategoryGrid, data: data, ref: ref };
+				if (tab['name'] !== 'Prizes') {
+					tabs = [...tabs, tab];
+				}
+			});
 		}
-		
 	}
 </script>
 
 <!-- Allows admins to edit this text directly -->
 {#if editable}
-	<div id="editToggle" class={$windowWidth < mobileBreakpoint ? '' : 'desktop'}>
+	<div id="editToggle">
 		<div id="editToggle-text">Edit (Admin Only)</div>
 		<div class="lock-switch ">
 			<ToggleSwitch on:toggle={() => ($editing = !$editing)} />
@@ -115,9 +116,5 @@
 	.lock-switch {
 		display: flex;
 		gap: 0.3em;
-	}
-	.desktop {
-		position: fixed;
-		bottom: 0;
 	}
 </style>

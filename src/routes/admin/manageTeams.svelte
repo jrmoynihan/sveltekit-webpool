@@ -97,20 +97,6 @@
 			{/if}
 		{/each}
 		<button on:click={() => writeTeamDoc(selectedTeam)}>Update Doc</button>
-		<!-- <p>
-		{#each Object.keys(selectedTeam) as key, i (key)}
-			{#if key !== 'docRef'}
-				{#if selectedTeam[key] !== undefined || selectedTeam[key] === 0}
-					<div style="color:{selectedTeam[key] ? 'green' : 'black'}; display:inline-flex">
-						{selectedTeam[key]}
-					</div>
-				{:else}
-					<strong>{key}</strong>
-				{/if}
-				|| &nbsp;
-			{/if}
-		{/each}
-	</p> -->
 	</div>
 {/if}
 
@@ -171,6 +157,7 @@
 	}
 	.team-select {
 		background-color: rgba(var(--accentValue-color), 80%);
+		color: var(--alternate-color);
 		margin: 2rem auto;
 	}
 </style>

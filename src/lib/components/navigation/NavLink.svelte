@@ -83,7 +83,7 @@
 	}
 	a {
 		align-items: center;
-		color: var(--alternate-color);
+		color: var(--main-color);
 		display: flex;
 		font-weight: 700;
 		font-size: 0.8rem;

@@ -126,6 +126,6 @@ export const weeklyPickConverter = {
 	fromFirestore: (snapshot: QueryDocumentSnapshot): WeeklyPickDoc => {
 		const docRef = snapshot.ref;
 		const data = snapshot.data();
-		return new WeeklyPickDoc(docRef, data.id, data.pick, data.uid, data.week);
+		return new WeeklyPickDoc(docRef, data.id, data.pick, data.uid, data.week, data.timestamp);
 	}
 };

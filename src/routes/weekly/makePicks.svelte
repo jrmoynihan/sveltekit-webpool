@@ -12,28 +12,38 @@
 	import { gameConverter, weeklyPickConverter } from '$scripts/converters';
 	import { scheduleCollection } from '$scripts/collections';
 	import { mobileBreakpoint } from '$scripts/site';
-	import { windowWidth } from '$scripts/store';
-	import {
-		doc,
-		DocumentReference,
-		getDocs,
-		onSnapshot,
-		orderBy,
-		query,
-		setDoc,
-		updateDoc,
-		where
-	} from '@firebase/firestore';
+	import { useDarkTheme, windowWidth } from '$scripts/store';
+	import { getDocs, orderBy, query, updateDoc, where, writeBatch } from '@firebase/firestore';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
 	import Fa from 'svelte-fa';
 	import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+	import { isBeforeGameTime } from '$scripts/functions';
+	import { fade, fly } from 'svelte/transition';
+	import {
+		airplaneDeparture,
+		checkmark,
+		dog,
+		dogFace,
+		football,
+		home,
+		okHand,
+		pick,
+		policeCarLight
+	} from '$scripts/classes/constants';
 
 	let showIDs = false;
 	let selectedWeek = 1;
 	let gamesList: Game[] = [];
 	let currentPicks: WeeklyPickDoc[] = [];
 	let currentPickCount = 0;
+	let tiebreaker: number;
+	let consoleLogStyle = [
+		'align-items:center',
+		'display:grid',
+		'font-size: 2rem',
+		'padding: 0.5rem'
+	].join(';');
 	const progress = tweened(0, {
 		duration: 400,
 		easing: cubicOut
@@ -42,17 +52,17 @@
 	const getGames = async (selectedWeek: number) => {
 		try {
 			const games: Game[] = [];
-			const q = query(scheduleCollection, where('week', '==', selectedWeek));
+			const q = query(scheduleCollection, where('week', '==', selectedWeek), orderBy('timestamp'));
 			const querySnapshot = await getDocs(q.withConverter(gameConverter));
 			querySnapshot.forEach((doc) => {
 				games.push(doc.data());
 			});
 
-			console.log('got games!', games);
+			console.log(`%c${football} got games!`, consoleLogStyle, games);
 			gamesList = games;
 			return games;
 		} catch (error) {
-			console.log('getGames had an error: ', error);
+			console.error(`%c${policeCarLight} getGames had an error: `, consoleLogStyle, error);
 		}
 	};
 
@@ -63,81 +73,94 @@
 				weeklyPicksCollection,
 				where('week', '==', selectedWeek),
 				where('uid', '==', $currentUser.uid),
-				orderBy('id', 'asc')
+				orderBy('timestamp')
 			);
 			const querySnapshot = await getDocs(q.withConverter(weeklyPickConverter));
 			querySnapshot.forEach((doc) => {
 				picks.push(doc.data());
 			});
 
-			console.log('got picks!', picks);
+			console.log(`%c${pick} got picks!`, consoleLogStyle, picks);
 			currentPicks = picks;
 			return picks;
 		} catch (error) {
-			console.log('getPicks had an error: ', error);
+			console.error(`%c${policeCarLight} getPicks had an error:`, consoleLogStyle, error);
 		}
 	};
 
 	const submitPicks = async () => {
 		try {
-			currentPicks.forEach(async (pick) => {
-				const docRef = pick.docRef;
-				await updateDoc(docRef.withConverter(weeklyPickConverter), pick);
+			currentPicks.forEach(async (currentPick) => {
+				const docRef = currentPick.docRef;
+				const pick = currentPick.pick;
+				// console.log('docRef:', docRef);
+				// console.log('pick:', pick);
+				try {
+					await updateDoc(docRef.withConverter(weeklyPickConverter), { pick: pick });
+				} catch (error) {
+					console.error(
+						`%c${policeCarLight} unable to update game pick ${currentPick.docRef} for user ${currentPick.uid}:`,
+						consoleLogStyle,
+						error
+					);
+				}
 			});
-			console.log('submitted picks!', currentPicks);
+			console.log(`%c${okHand} submitted picks!`, consoleLogStyle, currentPicks);
+			picksPromise = getPicks(selectedWeek);
+			alert(
+				`${checkmark} Picks submitted! \n You can return to change any game's pick up until gametime.`
+			);
 		} catch (error) {
-			console.error('submitPicks had an error:', error);
+			console.error(`%c${policeCarLight} submitPicks had an error:`, consoleLogStyle, error);
 		}
 	};
 
 	const pickAllHome = async () => {
 		try {
-			const homeTeams = gamesList.map((game) => {
-				return game.homeTeam;
+			currentPicks.forEach((pick) => {
+				if (isBeforeGameTime(pick.timestamp)) {
+					const homeTeam = gamesList.find((game) => game.id === pick.id).homeTeam;
+					pick.pick = homeTeam.abbreviation;
+				}
 			});
-			currentPicks.forEach((pick, i) => {
-				pick.pick = homeTeams[i].abbreviation;
-			});
+			console.log(`%c${home} picked all home teams`, consoleLogStyle);
 			currentPicks = currentPicks;
 		} catch (error) {
-			console.error('pickAllHome had an error:', error);
+			console.error(`%c${policeCarLight} pickAllHome had an error:`, consoleLogStyle, error);
 		}
 	};
 	const pickAllAway = async () => {
 		try {
-			const awayTeams = gamesList.map((game) => {
-				return game.awayTeam;
+			currentPicks.forEach((pick) => {
+				if (isBeforeGameTime(pick.timestamp)) {
+					const awayTeam = gamesList.find((game) => game.id === pick.id).awayTeam;
+					pick.pick = awayTeam.abbreviation;
+				}
 			});
-			currentPicks.forEach((pick, i) => {
-				pick.pick = awayTeams[i].abbreviation;
-			});
+			console.log(`%c${airplaneDeparture} picked all away teams`, consoleLogStyle);
 			currentPicks = currentPicks;
 		} catch (error) {
-			console.error('pickAllAway had an error:', error);
+			console.error(`%c${policeCarLight} pickAllAway had an error:`, consoleLogStyle, error);
 		}
 	};
 	const pickAllFavored = async () => {
 		try {
-			const favored = gamesList.map((game) => {
-				if (game.spread < 0) {
-					return game.homeTeam;
-				} else if (game.spread > 0) {
-					return game.awayTeam;
-				} else {
-					return null;
+			gamesList.forEach((game) => {
+				const pickToChange = currentPicks.find((pick) => pick.id === game.id);
+				if (isBeforeGameTime(pickToChange.timestamp)) {
+					if (game.spread < 0) {
+						pickToChange.pick = game.homeTeam.abbreviation;
+					} else if (game.spread > 0) {
+						pickToChange.pick = game.awayTeam.abbreviation;
+					} else {
+						return null;
+					}
 				}
 			});
-
-			currentPicks.forEach((pick, i) => {
-				if (favored[i] !== null) {
-					pick.pick = favored[i].abbreviation;
-				} else {
-					pick.pick = '';
-				}
-			});
+			console.log(`%c${okHand} picked favored teams`, consoleLogStyle);
 			currentPicks = currentPicks;
 		} catch (error) {
-			console.error('pickAllFavored had an error:', error);
+			console.error(`%c${policeCarLight} pickAllFavored had an error:`, consoleLogStyle, error);
 		}
 	};
 	const pickAllDogs = async () => {
@@ -153,25 +176,28 @@
 			});
 
 			currentPicks.forEach((pick, i) => {
-				if (underdogs[i] !== null) {
-					pick.pick = underdogs[i].abbreviation;
-				} else {
-					pick.pick = '';
+				if (isBeforeGameTime(pick.timestamp)) {
+					if (underdogs[i] !== null) {
+						pick.pick = underdogs[i].abbreviation;
+					} else {
+						pick.pick = '';
+					}
 				}
 			});
+			console.log(`%c${dogFace} picked all underdogs ${dog}`, consoleLogStyle);
 			currentPicks = currentPicks;
 		} catch (error) {
-			console.error('pickAllFavored had an error:', error);
+			console.error(`%c${policeCarLight} pickAllFavored had an error:`, consoleLogStyle, error);
 		}
 	};
+
+	let gamesPromise = getGames(selectedWeek);
+	let picksPromise = getPicks(selectedWeek);
 
 	const changedWeek = async () => {
 		gamesPromise = getGames(selectedWeek);
 		picksPromise = getPicks(selectedWeek);
 	};
-
-	let gamesPromise = getGames(selectedWeek);
-	let picksPromise = getPicks(selectedWeek);
 
 	$: {
 		if (currentPicks !== undefined && gamesList !== undefined) {
@@ -181,32 +207,35 @@
 			}
 		}
 	}
-	$: console.log('currentPicks:', currentPicks);
 </script>
 
 <PageTitle>Make Weekly Picks</PageTitle>
 <DevNotes>
 	<div style="display:grid">
-		Show Game IDs (not visible in production)
+		Show Game IDs
 		<ToggleSwitch bind:checked={showIDs} />
 		{$currentUser.uid}
 	</div>
 </DevNotes>
 
 <div class="grid positioning">
-	{#if $windowWidth > mobileBreakpoint}
-		<Clock />
-	{/if}
 	<div class="first-row grid">
 		<WeekSelect bind:selectedWeek on:weekChanged={changedWeek} />
-		<button class="submit" on:click={submitPicks}>Submit Picks</button>
 	</div>
 
 	<div class="second-row flex">
-		<button on:click={pickAllFavored}>All Favored</button>
-		<button on:click={pickAllDogs}>All Underdogs</button>
-		<button on:click={pickAllAway}>All Away</button>
-		<button on:click={pickAllHome}>All Home</button>
+		<button on:click={pickAllFavored} class={$useDarkTheme ? 'dark-mode' : 'light-mode'}
+			>All Favored</button
+		>
+		<button on:click={pickAllDogs} class={$useDarkTheme ? 'dark-mode' : 'light-mode'}
+			>All Underdogs</button
+		>
+		<button on:click={pickAllAway} class={$useDarkTheme ? 'dark-mode' : 'light-mode'}
+			>All Away</button
+		>
+		<button on:click={pickAllHome} class={$useDarkTheme ? 'dark-mode' : 'light-mode'}
+			>All Home</button
+		>
 	</div>
 
 	<div class="grid weekGames" style={$windowWidth > mobileBreakpoint ? 'max-width:60%;' : ''}>
@@ -239,14 +268,47 @@
 	</div>
 </div>
 
-<div class="fixed padded {$windowWidth > mobileBreakpoint ? 'bottom-left' : 'bottom-right'}">
+<div
+	class="fixed padded {$windowWidth > mobileBreakpoint ? 'bottom-left grid' : 'bottom-right flex'}"
+	style="{$windowWidth > mobileBreakpoint || tiebreaker === undefined || tiebreaker === null
+		? 'grid-template-columns: 1fr 1fr;'
+		: 'grid-template-columns: 0 1fr;'} {tiebreaker === undefined || tiebreaker === null
+		? 'padding-left: 0;'
+		: 'padding-left:14%'}"
+>
+	{#if $windowWidth > mobileBreakpoint}
+		<Clock />
+	{/if}
 	{#if currentPicks !== undefined && gamesList !== undefined}
 		{#if currentPicks.length >= 0 && gamesList.length > 0}
-			<div class="icon-padded">
+			<div
+				class="pick-count"
+				in:fade={{ delay: 250, duration: 200 }}
+				out:fly={{ duration: 200 }}
+				style={$windowWidth > mobileBreakpoint || tiebreaker === undefined || tiebreaker === null
+					? ''
+					: 'transform: translateX(-100%); opacity:0'}
+			>
 				{currentPickCount} / {gamesList.length} Picks Made
 			</div>
 			{#if currentPickCount === gamesList.length}
-				<Fa icon={faCheckCircle} size="lg" />
+				<input
+					class="tiebreaker flex"
+					type="number"
+					bind:value={tiebreaker}
+					placeholder="tiebreaker"
+					in:fade={{ delay: 250, duration: 200 }}
+				/>
+				{#if tiebreaker > 0}
+					<button
+						on:click={submitPicks}
+						class="submit flex {$useDarkTheme ? 'dark-mode' : 'light-mode'}"
+						in:fly={{ delay: 250, duration: 200, x: 100 }}
+						out:fly={{ x: 100, duration: 200 }}
+					>
+						Submit Picks <Fa icon={faCheckCircle} size="lg" />
+					</button>
+				{/if}
 			{:else}
 				<progress value={$progress} />
 			{/if}
@@ -258,6 +320,11 @@
 	.grid {
 		@include gridAndGap;
 		justify-items: center;
+		align-items: center;
+		justify-items: center;
+	}
+	.flex {
+		display: flex;
 	}
 	.positioning {
 		grid-template-columns: 1fr;
@@ -278,8 +345,6 @@
 	}
 	.first-row,
 	.second-row {
-		// grid-template-columns: repeat(auto-fit,1fr);
-		display: flex;
 		gap: 0.5em;
 		justify-content: space-evenly;
 		width: 100%;
@@ -287,9 +352,16 @@
 	}
 	button {
 		@include defaultButtonStyles;
+		@include accentedContainer(80%);
+		color: white;
+		text-shadow: none;
 		&.submit {
+			gap: 0.5rem;
+			align-items: center;
+			max-height: 90%;
 			font-weight: bold;
 			margin: unset;
+			grid-area: submit;
 		}
 	}
 	.fixed {
@@ -306,22 +378,32 @@
 		bottom: 0;
 		left: 0;
 		border-radius: 0 1rem 1rem 0;
+		grid-template-rows: 1fr 1fr 1fr;
+		max-width: max-content;
+		grid-template-areas: 'clock clock' 'pickCount pickCount' 'tiebreaker submit';
+		justify-items: center;
 	}
 	.bottom-right {
-		display: grid;
-		grid-template-columns: auto 1fr;
-		gap: 10px;
-		align-items: center;
-		justify-items: center;
 		bottom: 0;
 		right: 0;
-		// border-radius: 1rem 0 0 1rem;
 		border-top: var(--accent-color) 2px inset;
-		border-left: var(--accent-color) 2px inset;
 		width: 100%;
-		padding-left: 14%;
+		grid-template-rows: minmax(23px, 1.4rem);
 	}
-	// .icon-padded {
-	// 	padding-left: 10%;
-	// }
+	.tiebreaker {
+		grid-area: tiebreaker;
+		height: 3.5rem;
+	}
+	input {
+		@include rounded;
+		@include editableInput;
+		text-align: center;
+		padding: 1rem;
+		width: 100%;
+		max-height: 90%;
+	}
+	.pick-count {
+		@include defaultTransition;
+		grid-area: pickCount;
+	}
 </style>

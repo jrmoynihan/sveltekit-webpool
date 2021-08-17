@@ -7,7 +7,7 @@
 	import { scheduleCollection, usersCollection, weeklyPicksCollection } from '$scripts/collections';
 	import { gameConverter, userConverter, weeklyPickConverter } from '$scripts/converters';
 	import { faSync } from '@fortawesome/free-solid-svg-icons';
-	import { doc, getDocs, query, setDoc, where } from 'firebase/firestore';
+	import { deleteDoc, doc, getDocs, query, setDoc, where } from 'firebase/firestore';
 	import Fa from 'svelte-fa';
 
 	let weeklyUsers: WebUser[] = [];
@@ -53,10 +53,25 @@
 		weeklyUsers.forEach((user) => {
 			weeklyGames.forEach((game) => {
 				const newWeeklyPickRef = doc(weeklyPicksCollection);
-				const pickDoc = new WeeklyPickDoc(newWeeklyPickRef, game.id, '', user.id, game.week);
+				const pickDoc = new WeeklyPickDoc(
+					newWeeklyPickRef,
+					game.id,
+					'',
+					user.id,
+					game.week,
+					game.timestamp
+				);
 				setDoc(newWeeklyPickRef.withConverter(weeklyPickConverter), pickDoc);
 			});
 		});
+	};
+	const deleteWeeklyPicksForAllUsers = async () => {
+		const q = query(weeklyPicksCollection);
+		const allWeeklyDocs = await getDocs(q);
+		allWeeklyDocs.forEach((doc) => {
+			deleteDoc(doc.ref);
+		});
+		alert('deleted WeeklyPicks!!');
 	};
 </script>
 
@@ -70,6 +85,7 @@
 	<Fa icon={faSync} />
 </button>
 <button on:click={createWeeklyPicksForAllUsers}>Create Picks for All Users</button>
+<button on:click={deleteWeeklyPicksForAllUsers}>Delete All Picks for All Users</button>
 
 {#await userPromise}
 	Loading Users...

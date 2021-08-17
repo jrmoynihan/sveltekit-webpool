@@ -68,7 +68,7 @@
 		font-display: swap;
 		color: var(--main-color);
 		scrollbar-width: thin;
-		scrollbar-color: var(--accent-color);
+		scrollbar-color: var(--accent-color) var(--alternate-color);
 	}
 	* {
 		box-sizing: border-box;
@@ -111,7 +111,7 @@
 		justify-self: center;
 		width: 100%;
 		box-sizing: border-box;
-		padding-bottom:2rem;
+		padding-bottom: 2rem;
 
 		// my styles
 		@include gridAndGap(15px);

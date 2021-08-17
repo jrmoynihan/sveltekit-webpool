@@ -1,8 +1,9 @@
 <script lang="ts">
 	import type { Team } from '$scripts/classes/team';
+	import { isBeforeGameTime } from '$scripts/functions';
 	import { useDarkTheme } from '$scripts/store';
 	import type { Timestamp } from '@firebase/firestore';
-	import { faArrowCircleLeft, faArrowCircleRight } from '@fortawesome/free-solid-svg-icons';
+	import { faArrowCircleLeft, faArrowCircleRight, faLock } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import GameTime from './micro/GameTime.svelte';
 	import TeamImage from './TeamImage.svelte';
@@ -16,7 +17,10 @@
 	export let showIDs = false;
 	export let competitions = [];
 
-	const getStatus = async () => {
+	let disabled: boolean = true;
+	$: isBeforeGameTime(timestamp).then((result) => (disabled = result));
+
+	const getStatus = async (): Promise<any> => {
 		const httpGameStatusEndpoint: string = competitions[0].status.$ref;
 		const httpsGameStatusEndpoint = httpGameStatusEndpoint.replace('http', 'https');
 		// console.log(httpsGameStatusEndpoint)
@@ -37,6 +41,8 @@
 		const awayScoreData = await awayScoreResponse.json();
 		return { homeScoreData, awayScoreData };
 	};
+	let promiseStatus = getStatus();
+	let promiseScores = getScores();
 </script>
 
 <div class="matchup grid rounded">
@@ -46,8 +52,15 @@
 		class="rounded"
 		class:selected={selectedTeam === awayTeam.abbreviation}
 		class:dark-mode={$useDarkTheme}
+		class:disabled
 	>
-		<input id="{id}-away" type="radio" bind:group={selectedTeam} value={awayTeam.abbreviation} />
+		<input
+			id="{id}-away"
+			type="radio"
+			bind:group={selectedTeam}
+			value={awayTeam.abbreviation}
+			{disabled}
+		/>
 		<TeamImage
 			team={awayTeam}
 			grayscaled={selectedTeam === homeTeam.abbreviation && selectedTeam !== ''}
@@ -60,6 +73,7 @@
 				class="rounded"
 				class:selected={selectedTeam === awayTeam.abbreviation}
 				class:dark-mode={$useDarkTheme}
+				class:disabled
 				>{awayTeam.abbreviation}
 				({awayTeam.wins}-{awayTeam.losses}{#if awayTeam.ties > 0}
 					{awayTeam.ties}
@@ -70,6 +84,7 @@
 				class="rounded"
 				class:selected={selectedTeam === homeTeam.abbreviation}
 				class:dark-mode={$useDarkTheme}
+				class:disabled
 				>{homeTeam.abbreviation}
 				({homeTeam.wins}-{homeTeam.losses}{#if homeTeam.ties > 0}
 					{homeTeam.ties}
@@ -77,7 +92,7 @@
 			</span>
 		</p>
 		<p class="grid info">
-			{#await getStatus()}
+			{#await promiseStatus}
 				<span />
 				<span />
 				<span />
@@ -91,7 +106,7 @@
 					<span />
 					<span />
 				{:else}
-					{#await getScores()}
+					{#await promiseScores}
 						--
 					{:then { homeScoreData }}
 						<span>{homeScoreData.value}</span>
@@ -101,7 +116,7 @@
 
 					<span>Q{status.period}</span>
 
-					{#await getScores()}
+					{#await promiseScores}
 						--
 					{:then { awayScoreData }}
 						<span>{awayScoreData.value}</span>
@@ -116,12 +131,16 @@
 
 		{#if spread}
 			<p style="line-height: 2;">
-				{#if spread > 0}
-					<Fa icon={faArrowCircleLeft} size="lg" />
-				{/if}
-				{spread > 0 ? `+${spread}` : spread}
-				{#if spread < 0}
-					<Fa icon={faArrowCircleRight} size="lg" />
+				{#if disabled}
+					<Fa icon={faLock} size="lg" />
+				{:else}
+					{#if spread > 0}
+						<Fa icon={faArrowCircleLeft} size="lg" />
+					{/if}
+					{spread > 0 ? `+${spread}` : spread}
+					{#if spread < 0}
+						<Fa icon={faArrowCircleRight} size="lg" />
+					{/if}
 				{/if}
 			</p>
 		{:else}
@@ -129,7 +148,7 @@
 		{/if}
 		<div class="dateTime">
 			{showIDs ? id : ''}
-			{#await getStatus()}
+			{#await promiseStatus}
 				{#if timestamp}
 					<GameTime {timestamp} />
 				{:else}
@@ -147,7 +166,7 @@
 				{/if}
 			{/await}
 		</div>
-		<input id="{id}-none" type="radio" bind:group={selectedTeam} value="" />
+		<input id="{id}-none" type="radio" bind:group={selectedTeam} value="" {disabled} />
 	</label>
 	<!-- <div class="home"> -->
 	<label
@@ -156,8 +175,15 @@
 		class="rounded"
 		class:selected={selectedTeam === homeTeam.abbreviation}
 		class:dark-mode={$useDarkTheme}
+		class:disabled
 	>
-		<input id="{id}-home" type="radio" bind:group={selectedTeam} value={homeTeam.abbreviation} />
+		<input
+			id="{id}-home"
+			type="radio"
+			bind:group={selectedTeam}
+			value={homeTeam.abbreviation}
+			{disabled}
+		/>
 		<TeamImage
 			team={homeTeam}
 			grayscaled={selectedTeam === awayTeam.abbreviation && selectedTeam !== ''}
@@ -194,14 +220,18 @@
 	.selected {
 		@include defaultTransition;
 		@include normalShadow;
+		@include accentedContainer;
 		// font-weight: bold;
 		// text-decoration: underline 2px;
 		color: white;
 		text-shadow: none;
-		background-color: rgba(var(--accentValue-color), 100%);
-		&.dark-mode {
-			background-color: rgba(var(--accentValue-color), 40%);
-			box-shadow: 0 0 6px 3px rgba(var(--accentValue-color), 30%);
+		// background-color: var(--accent-color);
+		// &.dark-mode {
+		// 	background-color: rgba(var(--accentValue-color), 40%);
+		// 	box-shadow: 0 0 6px 3px rgba(var(--accentValue-color), 30%);
+		// }
+		&.disabled {
+			@include accentedContainer(70%, 10%);
 		}
 	}
 	.team-abbreviation {
