@@ -23,10 +23,13 @@
 	import {
 		airplaneDeparture,
 		checkmark,
+		defaultConsoleLogStyle,
 		dog,
 		dogFace,
 		football,
 		home,
+		myError,
+		myLog,
 		okHand,
 		pick,
 		policeCarLight
@@ -39,12 +42,6 @@
 	let currentPicks: WeeklyPickDoc[] = [];
 	let currentPickCount = 0;
 	let tiebreaker: number;
-	let consoleLogStyle = [
-		'align-items:center',
-		'display:grid',
-		'font-size: 2rem',
-		'padding: 0.5rem'
-	].join(';');
 	const progress = tweened(0, {
 		duration: 400,
 		easing: cubicOut
@@ -58,12 +55,11 @@
 			querySnapshot.forEach((doc) => {
 				games.push(doc.data());
 			});
-
-			console.log(`%c${football} got games!`, consoleLogStyle, games);
+			myLog('got games!', '', football, games);
 			gamesList = games;
 			return games;
 		} catch (error) {
-			console.error(`%c${policeCarLight} getGames had an error: `, consoleLogStyle, error);
+			myError('getGames', error);
 		}
 	};
 
@@ -81,11 +77,11 @@
 				picks.push(doc.data());
 			});
 
-			console.log(`%c${pick} got picks!`, consoleLogStyle, picks);
+			myLog('got picks!', '', pick, picks);
 			currentPicks = picks;
 			return picks;
 		} catch (error) {
-			console.error(`%c${policeCarLight} getPicks had an error:`, consoleLogStyle, error);
+			myError('getPicks', error);
 		}
 	};
 
@@ -99,20 +95,20 @@
 				try {
 					await updateDoc(docRef.withConverter(weeklyPickConverter), { pick: pick });
 				} catch (error) {
-					console.error(
-						`%c${policeCarLight} unable to update game pick ${currentPick.docRef} for user ${currentPick.uid}:`,
-						consoleLogStyle,
-						error
+					myError(
+						'submitPicks->updateDoc',
+						error,
+						`unable to update game pick ${currentPick.docRef} for user ${currentPick.uid}`
 					);
 				}
 			});
-			console.log(`%c${okHand} submitted picks!`, consoleLogStyle, currentPicks);
+			myLog('submitted picks!', '', okHand, currentPicks);
 			picksPromise = getPicks(selectedWeek);
 			alert(
 				`${checkmark} Picks submitted! \n You can return to change any game's pick up until gametime.`
 			);
 		} catch (error) {
-			console.error(`%c${policeCarLight} submitPicks had an error:`, consoleLogStyle, error);
+			myError('submitPicks', error);
 		}
 	};
 
@@ -125,10 +121,10 @@
 					pick.pick = homeTeam.abbreviation;
 				}
 			});
-			console.log(`%c${home} picked all home teams`, consoleLogStyle);
+			myLog('picked all home teams!', '', home);
 			currentPicks = currentPicks;
 		} catch (error) {
-			console.error(`%c${policeCarLight} pickAllHome had an error:`, consoleLogStyle, error);
+			myError('pickAllHome', error);
 		}
 	};
 	const pickAllAway = async () => {
@@ -140,10 +136,10 @@
 					pick.pick = awayTeam.abbreviation;
 				}
 			});
-			console.log(`%c${airplaneDeparture} picked all away teams`, consoleLogStyle);
+			myLog('picks all away teams!', '', airplaneDeparture);
 			currentPicks = currentPicks;
 		} catch (error) {
-			console.error(`%c${policeCarLight} pickAllAway had an error:`, consoleLogStyle, error);
+			myError('pickAllAway', error);
 		}
 	};
 	const pickAllFavored = async () => {
@@ -175,10 +171,10 @@
 					}
 				}
 			});
-			console.log(`%c${okHand} picked favored teams`, consoleLogStyle);
+			myLog('picked favored teams!', '', okHand);
 			currentPicks = currentPicks;
 		} catch (error) {
-			console.error(`%c${policeCarLight} pickAllFavored had an error:`, consoleLogStyle, error);
+			myError('pickAllFavored', error);
 		}
 	};
 	const pickAllDogs = async () => {
@@ -210,10 +206,10 @@
 					}
 				}
 			});
-			console.log(`%c${dogFace} picked all underdogs ${dog}`, consoleLogStyle);
+			myLog('picked all underdogs!', '', dogFace);
 			currentPicks = currentPicks;
 		} catch (error) {
-			console.error(`%c${policeCarLight} pickAllFavored had an error:`, consoleLogStyle, error);
+			myError('pickAllFavored', error);
 		}
 	};
 

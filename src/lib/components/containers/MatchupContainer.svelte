@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { home, policeCarLight } from '$scripts/classes/constants';
+
 	import type { Team } from '$scripts/classes/team';
 	import { isBeforeGameTime } from '$scripts/functions';
 	import { useDarkTheme } from '$scripts/store';
@@ -32,15 +34,30 @@
 
 	// TODO move this to a web worker to avoid slowdown?
 	const getScores = async (): Promise<{ homeScoreData: any; awayScoreData: any }> => {
-		const httpHomeEndpoint = competitions[0].competitors[0].score.$ref;
-		const httpAwayEndpoint = competitions[0].competitors[1].score.$ref;
-		const httpsHomeEndpoint = httpHomeEndpoint.replace('http', 'https');
-		const httpsAwayEndpoint = httpAwayEndpoint.replace('http', 'https');
-		const homeScoreResponse = await fetch(httpsHomeEndpoint);
-		const awayScoreResponse = await fetch(httpsAwayEndpoint);
-		const homeScoreData = await homeScoreResponse.json();
-		const awayScoreData = await awayScoreResponse.json();
-		return { homeScoreData, awayScoreData };
+		try {
+			let homeScoreData;
+			let awayScoreData;
+			const httpHomeEndpoint = competitions[0].competitors[0].score.$ref;
+			const httpAwayEndpoint = competitions[0].competitors[1].score.$ref;
+			const httpsHomeEndpoint = httpHomeEndpoint.replace('http', 'https');
+			const httpsAwayEndpoint = httpAwayEndpoint.replace('http', 'https');
+			const homeScoreResponse = await fetch(httpsHomeEndpoint);
+			const awayScoreResponse = await fetch(httpsAwayEndpoint);
+
+			if (homeScoreResponse.ok) {
+				homeScoreData = await homeScoreResponse.json();
+			}
+			if (awayScoreResponse.ok) {
+				awayScoreData = await awayScoreResponse.json();
+			}
+			if (homeScoreData !== undefined && awayScoreData !== undefined) {
+				return { homeScoreData, awayScoreData };
+			} else {
+				throw `error getting scores`;
+			}
+		} catch (error) {
+			console.error(`%c${policeCarLight} error getting scores!`);
+		}
 	};
 	let promiseStatus = getStatus();
 	let promiseScores = getScores();

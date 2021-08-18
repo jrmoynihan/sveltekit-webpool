@@ -27,3 +27,35 @@ export const airplaneDeparture = String.fromCodePoint(0x1f6eb);
 export const home = String.fromCodePoint(0x1f3e0);
 
 // console.log(home)
+
+export const defaultConsoleLogStyle = [
+	'align-items:center',
+	'display:grid',
+	'font-size: 2rem',
+	'padding: 0.5rem'
+].join(';');
+
+export const myError = (
+	functionName: string,
+	error: Error,
+	additionalMessage: string = null,
+	icon: string = policeCarLight
+) => {
+	console.error(
+		`%c${icon} ${functionName} had an error! ${additionalMessage}`,
+		defaultConsoleLogStyle,
+		error
+	);
+};
+export const myLog = (
+	message: string,
+	functionName: string = '',
+	icon: string = '',
+	additionalParameters = null
+) => {
+	console.log(
+		`%c${icon} ${functionName ? `${functionName}:` : ''} ${message}`,
+		defaultConsoleLogStyle,
+		additionalParameters
+	);
+};
