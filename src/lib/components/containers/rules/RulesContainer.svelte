@@ -15,8 +15,7 @@
 	import RulesCategoryGrid from '$containers/rules/RulesCategoryGrid.svelte';
 	import { onDestroy } from 'svelte';
 	import Tabs from '$navigation/Tabs.svelte';
-	import { editing, windowWidth } from '$scripts/store';
-	import { mobileBreakpoint } from '$scripts/site';
+	import { editing } from '$scripts/store';
 	import type { WebUser } from '$scripts/classes/webUser';
 
 	// Dynamically pass a specific rules collection in

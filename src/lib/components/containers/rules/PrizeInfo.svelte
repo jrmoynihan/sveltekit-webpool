@@ -66,7 +66,7 @@
 		padding: 2vmin;
 		& > p {
 			width: 100%;
-			line-height: 2.5;
+			padding: 0.25rem;
 		}
 	}
 </style>

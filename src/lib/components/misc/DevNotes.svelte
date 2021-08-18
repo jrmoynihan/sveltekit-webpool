@@ -1,10 +1,12 @@
 <script lang="ts">
 	import { dev } from '$app/env';
 	import AccordionDetails from '$containers/AccordionDetails.svelte';
+
+	export let customStyles: string = '';
 </script>
 
 {#if dev}
-	<div class="dev-accordion">
+	<div class="dev-accordion" style={customStyles}>
 		<AccordionDetails>
 			<h4 slot="summary">Dev Notes (not visible in production)</h4>
 			<section class="dev-notes" slot="content">

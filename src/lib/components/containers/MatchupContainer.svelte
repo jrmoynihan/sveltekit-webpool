@@ -15,10 +15,11 @@
 	export let timestamp: Timestamp;
 	export let selectedTeam: string = '';
 	export let showIDs = false;
+	export let showTimestamps = false;
 	export let competitions = [];
 
-	let disabled: boolean = true;
-	$: isBeforeGameTime(timestamp).then((result) => (disabled = result));
+	let disabled: boolean = false;
+	$: isBeforeGameTime(timestamp).then((result) => (disabled = !result));
 
 	const getStatus = async (): Promise<any> => {
 		const httpGameStatusEndpoint: string = competitions[0].status.$ref;
@@ -148,6 +149,7 @@
 		{/if}
 		<div class="dateTime">
 			{showIDs ? id : ''}
+			{showTimestamps ? timestamp.toDate().getTime() : ''}
 			{#await promiseStatus}
 				{#if timestamp}
 					<GameTime {timestamp} />

@@ -33,6 +33,7 @@
 	} from '$scripts/classes/constants';
 
 	let showIDs = false;
+	let showTimestamps = false;
 	let selectedWeek = 1;
 	let gamesList: Game[] = [];
 	let currentPicks: WeeklyPickDoc[] = [];
@@ -117,8 +118,9 @@
 
 	const pickAllHome = async () => {
 		try {
-			currentPicks.forEach((pick) => {
-				if (isBeforeGameTime(pick.timestamp)) {
+			currentPicks.forEach(async (pick) => {
+				const ableToPick = await isBeforeGameTime(pick.timestamp);
+				if (ableToPick) {
 					const homeTeam = gamesList.find((game) => game.id === pick.id).homeTeam;
 					pick.pick = homeTeam.abbreviation;
 				}
@@ -131,8 +133,9 @@
 	};
 	const pickAllAway = async () => {
 		try {
-			currentPicks.forEach((pick) => {
-				if (isBeforeGameTime(pick.timestamp)) {
+			currentPicks.forEach(async (pick) => {
+				const ableToPick = await isBeforeGameTime(pick.timestamp);
+				if (ableToPick) {
 					const awayTeam = gamesList.find((game) => game.id === pick.id).awayTeam;
 					pick.pick = awayTeam.abbreviation;
 				}
@@ -145,9 +148,10 @@
 	};
 	const pickAllFavored = async () => {
 		try {
-			gamesList.forEach((game) => {
+			gamesList.forEach(async (game) => {
 				const pickToChange = currentPicks.find((pick) => pick.id === game.id);
-				if (isBeforeGameTime(pickToChange.timestamp)) {
+				const ableToPick = await isBeforeGameTime(pickToChange.timestamp);
+				if (ableToPick) {
 					if (game.spread < 0) {
 						pickToChange.pick = game.homeTeam.abbreviation;
 					} else if (game.spread > 0) {
@@ -175,8 +179,9 @@
 				}
 			});
 
-			currentPicks.forEach((pick, i) => {
-				if (isBeforeGameTime(pick.timestamp)) {
+			currentPicks.forEach(async (pick, i) => {
+				const ableToPick = await isBeforeGameTime(pick.timestamp);
+				if (ableToPick) {
 					if (underdogs[i] !== null) {
 						pick.pick = underdogs[i].abbreviation;
 					} else {
@@ -207,6 +212,9 @@
 			}
 		}
 	}
+	$: console.log(currentPicks);
+	let time = new Date();
+	$: now = time.getTime();
 </script>
 
 <PageTitle>Make Weekly Picks</PageTitle>
@@ -214,7 +222,10 @@
 	<div style="display:grid">
 		Show Game IDs
 		<ToggleSwitch bind:checked={showIDs} />
-		{$currentUser.uid}
+		Show Timestamps
+		<ToggleSwitch bind:checked={showTimestamps} />
+		<p>{$currentUser.uid}</p>
+		<p>{now}</p>
 	</div>
 </DevNotes>
 
@@ -251,6 +262,7 @@
 							<div class="game-container">
 								<MatchupContainer
 									bind:showIDs
+									bind:showTimestamps
 									id={game.id}
 									spread={game.spread}
 									homeTeam={game.homeTeam}
