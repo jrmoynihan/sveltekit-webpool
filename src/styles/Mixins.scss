@@ -44,7 +44,7 @@
 // ******************************************
 
 // Rounded Elements (border-radius)
-@mixin rounded($radius: 5vh) {
+@mixin rounded($radius: 3rem) {
 	border-radius: $radius;
 }
 @mixin fillAvailableWidth {

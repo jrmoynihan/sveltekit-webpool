@@ -21,7 +21,6 @@
 </script>
 
 <div id="rules-grid" class={$editing ? 'editing' : ''}>
-	<!-- <slot /> -->
 	{#if rules}
 		{#key rules}
 			<ol class={$editing ? 'editing' : ''}>
@@ -40,13 +39,8 @@
 <style lang="scss">
 	#rules-grid {
 		@include gridAndGap;
-		// grid-template-columns: repeat(auto-fit, clamp(45ch, 50%, 75ch));
 		justify-content: center;
 		align-items: start;
-		// column-gap: 2rem;
-		@media (max-width: 960px) {
-			// grid-template-columns: clamp(45ch, 50%, 75ch);
-		}
 		&.editing {
 			grid-template-columns: 1fr;
 		}

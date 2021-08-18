@@ -7,12 +7,12 @@ import { teamConverter } from './converters';
 export const teamsCollection = collection(firestoreDB, 'Teams');
 export const allTeams = writable<Team[]>([]);
 
-export const getTeams = onSnapshot(teamsCollection.withConverter(teamConverter), (snap) => {
-	snap.forEach((doc) => {
-		allTeams.set([...get(allTeams), doc.data()]);
-	});
-	getTeams();
-});
+// export const getTeams = onSnapshot(teamsCollection.withConverter(teamConverter), (snap) => {
+// 	snap.forEach((doc) => {
+// 		allTeams.set([...get(allTeams), doc.data()]);
+// 	});
+// 	getTeams();
+// });
 
 export default allTeams;
 

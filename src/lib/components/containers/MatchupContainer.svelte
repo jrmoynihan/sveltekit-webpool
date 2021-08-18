@@ -3,7 +3,7 @@
 
 	import type { Team } from '$scripts/classes/team';
 	import { isBeforeGameTime } from '$scripts/functions';
-	import { useDarkTheme } from '$scripts/store';
+	import { useDarkTheme, windowWidth } from '$scripts/store';
 	import type { Timestamp } from '@firebase/firestore';
 	import { faArrowCircleLeft, faArrowCircleRight, faLock } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
@@ -19,7 +19,8 @@
 	export let showIDs = false;
 	export let showTimestamps = false;
 	export let competitions = [];
-
+	let layoutBreakpoint = 500;
+	let fitNamesWithLogos = false;
 	let disabled: boolean = false;
 	$: isBeforeGameTime(timestamp).then((result) => (disabled = !result));
 
@@ -61,6 +62,14 @@
 	};
 	let promiseStatus = getStatus();
 	let promiseScores = getScores();
+
+	$: {
+		if ($windowWidth < layoutBreakpoint) {
+			fitNamesWithLogos = true;
+		} else {
+			fitNamesWithLogos = false;
+		}
+	}
 </script>
 
 <div class="matchup grid rounded">
@@ -83,31 +92,52 @@
 			team={awayTeam}
 			grayscaled={selectedTeam === homeTeam.abbreviation && selectedTeam !== ''}
 		/>
+		{#if fitNamesWithLogos}
+			<span class="rounded team-abbreviation" class:dark-mode={$useDarkTheme} class:disabled
+				>{awayTeam.abbreviation}
+				<p>
+					({awayTeam.wins}-{awayTeam.losses}{#if awayTeam.ties > 0}
+						-{awayTeam.ties}
+					{/if})
+				</p>
+			</span>
+		{/if}
 	</label>
 
 	<label class="game-info rounded" for="{id}-none">
-		<p class="grid info team-abbreviation">
-			<span
-				class="rounded"
-				class:selected={selectedTeam === awayTeam.abbreviation}
-				class:dark-mode={$useDarkTheme}
-				class:disabled
-				>{awayTeam.abbreviation}
-				({awayTeam.wins}-{awayTeam.losses}{#if awayTeam.ties > 0}
-					{awayTeam.ties}
-				{/if})</span
-			>
+		<p
+			class="grid info team-abbreviation"
+			style={fitNamesWithLogos ? 'grid-template-columns: 1fr' : ''}
+		>
+			{#if !fitNamesWithLogos}
+				<span
+					class="rounded team-abbreviation"
+					class:selected={selectedTeam === awayTeam.abbreviation}
+					class:dark-mode={$useDarkTheme}
+					class:disabled
+					>{awayTeam.abbreviation}
+					<p>
+						({awayTeam.wins}-{awayTeam.losses}{#if awayTeam.ties > 0}
+							-{awayTeam.ties}
+						{/if})
+					</p>
+				</span>
+			{/if}
 			<span> @ </span>
-			<span
-				class="rounded"
-				class:selected={selectedTeam === homeTeam.abbreviation}
-				class:dark-mode={$useDarkTheme}
-				class:disabled
-				>{homeTeam.abbreviation}
-				({homeTeam.wins}-{homeTeam.losses}{#if homeTeam.ties > 0}
-					{homeTeam.ties}
-				{/if})
-			</span>
+			{#if !fitNamesWithLogos}
+				<span
+					class="rounded team-abbreviation"
+					class:selected={selectedTeam === homeTeam.abbreviation}
+					class:dark-mode={$useDarkTheme}
+					class:disabled
+					>{homeTeam.abbreviation}
+					<p>
+						({homeTeam.wins}-{homeTeam.losses}{#if homeTeam.ties > 0}
+							-{homeTeam.ties}
+						{/if})
+					</p>
+				</span>
+			{/if}
 		</p>
 		<p class="grid info">
 			{#await promiseStatus}
@@ -207,6 +237,16 @@
 			team={homeTeam}
 			grayscaled={selectedTeam === awayTeam.abbreviation && selectedTeam !== ''}
 		/>
+		{#if fitNamesWithLogos}
+			<span class="rounded team-abbreviation" class:dark-mode={$useDarkTheme} class:disabled
+				>{homeTeam.abbreviation}
+				<p>
+					({homeTeam.wins}-{homeTeam.losses}{#if homeTeam.ties > 0}
+						-{homeTeam.ties}
+					{/if})
+				</p>
+			</span>
+		{/if}
 	</label>
 </div>
 
