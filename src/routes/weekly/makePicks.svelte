@@ -13,7 +13,7 @@
 	import { scheduleCollection } from '$scripts/collections';
 	import { mobileBreakpoint } from '$scripts/site';
 	import { useDarkTheme, windowWidth } from '$scripts/store';
-	import { getDocs, orderBy, query, updateDoc, where, writeBatch } from '@firebase/firestore';
+	import { getDocs, orderBy, query, updateDoc, where } from '@firebase/firestore';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
 	import Fa from 'svelte-fa';
@@ -23,16 +23,13 @@
 	import {
 		airplaneDeparture,
 		checkmark,
-		defaultConsoleLogStyle,
-		dog,
 		dogFace,
 		football,
 		home,
 		myError,
 		myLog,
 		okHand,
-		pick,
-		policeCarLight
+		pick
 	} from '$scripts/classes/constants';
 
 	let showIDs = false;
@@ -229,9 +226,6 @@
 			}
 		}
 	}
-	$: console.log(currentPicks);
-	let time = new Date();
-	$: now = time.getTime();
 </script>
 
 <PageTitle>Make Weekly Picks</PageTitle>
@@ -241,8 +235,9 @@
 		<ToggleSwitch bind:checked={showIDs} />
 		Show Timestamps
 		<ToggleSwitch bind:checked={showTimestamps} />
-		<p>{$currentUser.uid}</p>
-		<p>{now}</p>
+		{#if $currentUser}
+			<p>{$currentUser.uid}</p>
+		{/if}
 	</div>
 </DevNotes>
 

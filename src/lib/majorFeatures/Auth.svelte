@@ -7,6 +7,7 @@
 	import ModalButtonAndSlot from '$lib/components/ModalButtonAndSlot.svelte';
 	import GoogleLoginButton from '$lib/components/buttons/GoogleLoginButton.svelte';
 	import FacebookLoginButton from '$lib/components/buttons/FacebookLoginButton.svelte';
+	import { dev } from '$app/env';
 
 	export let useRedirect = true;
 	let modalID: string;
@@ -28,11 +29,13 @@
 		{:else}
 			<GoogleLoginButton on:click={() => startSignIn('Google', useRedirect, modalID)} />
 			<FacebookLoginButton on:click={() => startSignIn('Facebook', useRedirect, modalID)} />
-			<ToggleSwitch
-				bind:checked={useRedirect}
-				labelStyles={'color:white;'}
-				labelText={`Use ${useRedirect ? 'redirect' : 'popup'} login method`}
-			/>
+			{#if dev}
+				<ToggleSwitch
+					bind:checked={useRedirect}
+					labelStyles={'color:white;'}
+					labelText={`Use ${useRedirect ? 'redirect' : 'popup'} login method`}
+				/>
+			{/if}
 		{/if}
 	</svelte:fragment>
 

@@ -1,16 +1,14 @@
 <script lang="ts">
 	import type { Game } from '$scripts/classes/game';
 	import { gameConverter } from '$scripts/converters';
-
 	import { firestoreDB } from '$scripts/firebaseInit';
 	import { scheduleCollection } from '$scripts/collections';
 	import allTeams from '$scripts/teams';
-
 	import { doc, setDoc, Timestamp } from '@firebase/firestore';
 	import AccordionDetails from '../containers/AccordionDetails.svelte';
 	import WeekSelect from '../selects/WeekSelect.svelte';
 	import PageTitle from './PageTitle.svelte';
-import MatchupContainer from '../containers/MatchupContainer.svelte';
+	import { myLog } from '$scripts/classes/constants';
 
 	let message = '';
 	let submessage = '';
@@ -142,10 +140,13 @@ import MatchupContainer from '../containers/MatchupContainer.svelte';
 
 		// Set their records on the game document
 		for (const team of $allTeams) {
+			myLog('adding team...');
 			if (team.abbreviation === homeTeam) {
+				myLog('home team:', '', '', team.abbreviation);
 				gameFormatted.homeTeam = { ...team };
 			}
 			if (team.abbreviation === awayTeam) {
+				myLog('away team:', '', '', team.abbreviation);
 				gameFormatted.awayTeam = { ...team };
 			}
 		}

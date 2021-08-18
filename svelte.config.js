@@ -16,6 +16,7 @@ const config = {
 		scss: {
 			prependData: `@import 'src/styles/Mixins.scss';`
 		}
+		// postcss: true
 	}),
 	compilerOptions: {
 		css: false
@@ -40,7 +41,7 @@ const config = {
 				}
 			},
 			server: {
-				https: true,
+				https: true
 			},
 			plugins: [mkcert]
 		}
