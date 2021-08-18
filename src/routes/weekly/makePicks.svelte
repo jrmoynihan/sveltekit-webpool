@@ -148,16 +148,30 @@
 	};
 	const pickAllFavored = async () => {
 		try {
-			gamesList.forEach(async (game) => {
+			let spreadsMissing = false;
+			const favored = gamesList.map((game) => {
+				if (game.spread < 0) {
+					return game.homeTeam;
+				} else if (game.spread > 0) {
+					return game.awayTeam;
+				} else if (game.spread === 0) {
+					return null;
+				} else {
+					spreadsMissing = true;
+				}
+			});
+			if (spreadsMissing) {
+				alert(`Spreads not yet available for all games!`);
+				return;
+			}
+			gamesList.forEach(async (game, i) => {
 				const pickToChange = currentPicks.find((pick) => pick.id === game.id);
 				const ableToPick = await isBeforeGameTime(pickToChange.timestamp);
 				if (ableToPick) {
-					if (game.spread < 0) {
-						pickToChange.pick = game.homeTeam.abbreviation;
-					} else if (game.spread > 0) {
-						pickToChange.pick = game.awayTeam.abbreviation;
+					if (favored[i] !== null && favored[i] !== undefined) {
+						pickToChange.pick = favored[i].abbreviation;
 					} else {
-						return null;
+						pickToChange.pick = '';
 					}
 				}
 			});
@@ -169,23 +183,30 @@
 	};
 	const pickAllDogs = async () => {
 		try {
+			let spreadsMissing = false;
 			const underdogs = gamesList.map((game) => {
 				if (game.spread < 0) {
 					return game.awayTeam;
 				} else if (game.spread > 0) {
 					return game.homeTeam;
-				} else {
+				} else if (game.spread === 0) {
 					return null;
+				} else {
+					spreadsMissing = true;
 				}
 			});
-
-			currentPicks.forEach(async (pick, i) => {
-				const ableToPick = await isBeforeGameTime(pick.timestamp);
+			if (spreadsMissing) {
+				alert(`Spreads not yet available for all games!`);
+				return;
+			}
+			gamesList.forEach(async (game, i) => {
+				const pickToChange = currentPicks.find((pick) => pick.id === game.id);
+				const ableToPick = await isBeforeGameTime(pickToChange.timestamp);
 				if (ableToPick) {
-					if (underdogs[i] !== null) {
-						pick.pick = underdogs[i].abbreviation;
+					if (underdogs[i] !== null && underdogs[i] !== undefined) {
+						pickToChange.pick = underdogs[i].abbreviation;
 					} else {
-						pick.pick = '';
+						pickToChange.pick = '';
 					}
 				}
 			});

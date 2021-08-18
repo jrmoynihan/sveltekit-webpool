@@ -41,13 +41,13 @@ export const sortByWins = (firstPlayer: { wins: number }, secondPlayer: { wins: 
 export const isBeforeGameTime = async (timestamp: Timestamp): Promise<boolean> => {
 	const gameTime = timestamp.toDate().getTime();
 	const now = new Date().getTime();
-	console.log('gameTime', gameTime);
-	console.log('now', now);
+	// console.log('gameTime', gameTime);
+	// console.log('now', now);
 	if (now < gameTime) {
-		console.log(true);
+		// console.log(true);
 		return true;
 	} else {
-		console.log(false);
+		// console.log(false);
 		return false;
 	}
 };

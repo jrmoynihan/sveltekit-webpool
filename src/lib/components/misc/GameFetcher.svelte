@@ -10,6 +10,7 @@
 	import AccordionDetails from '../containers/AccordionDetails.svelte';
 	import WeekSelect from '../selects/WeekSelect.svelte';
 	import PageTitle from './PageTitle.svelte';
+import MatchupContainer from '../containers/MatchupContainer.svelte';
 
 	let message = '';
 	let submessage = '';
