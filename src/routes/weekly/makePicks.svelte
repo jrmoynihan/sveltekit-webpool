@@ -298,16 +298,16 @@
 	{/if}
 	{#if currentPicks !== undefined && gamesList !== undefined}
 		{#if currentPicks.length >= 0 && gamesList.length > 0}
-			<!-- {#key currentPickCount} -->
-			<div
-				class="pick-count {tiebreaker >= 10 ? 'invisible' : ''}"
-				in:fade={{ delay: 250, duration: 200 }}
-				out:fly={{ duration: 200 }}
-				style={tiebreaker >= 10 ? 'transform: translateX(-100%); opacity:0' : ''}
-			>
-				{currentPickCount} / {gamesList.length} Picks Made
-			</div>
-			<!-- {/key} -->
+			{#key currentPickCount}
+				<div
+					class="pick-count {tiebreaker >= 10 ? 'invisible' : ''}"
+					in:fly={{ delay: 250, duration: 200, x: 150 }}
+					out:fly={{ duration: 200, x: -150 }}
+					style={tiebreaker >= 10 ? 'transform: translateX(-100%); opacity:0' : ''}
+				>
+					{currentPickCount} / {gamesList.length} Picks Made
+				</div>
+			{/key}
 			{#if currentPickCount === gamesList.length}
 				<button
 					on:click={submitPicks}
@@ -389,9 +389,6 @@
 		z-index: 20;
 		font-weight: bold;
 	}
-	.padded {
-		padding: 1rem;
-	}
 	.bottom-left {
 		bottom: 0;
 		left: 0;
@@ -414,7 +411,8 @@
 	}
 	.tiebreaker {
 		grid-area: tiebreaker;
-		// height: 3.5rem;
+		background-color: white;
+		box-shadow: 0 0 4px 2px var(--accent-color);
 	}
 	input {
 		@include rounded;

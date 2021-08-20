@@ -27,6 +27,14 @@
 				{"fieldPath": "id","order": "ASCENDING"},
 				{"fieldPath": "timestamp","order": "ASCENDING"}
 			]
+		},
+		{
+			"collectionGroup": "Schedule",
+			"queryScope": "COLLECTION",
+			"fields": [
+				{"fieldPath": "week","order": "ASCENDING"},
+				{"fieldPath": "timestamp","order": "ASCENDING"}
+			]
 		}
 	],
 	"fieldOverrides": []

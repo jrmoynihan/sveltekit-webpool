@@ -9,6 +9,7 @@
 	import Fa from 'svelte-fa';
 	import GameTime from './micro/GameTime.svelte';
 	import TeamImage from './TeamImage.svelte';
+	import TeamNameImage from './TeamNameImage.svelte';
 
 	export let id = 'id';
 	export let spread = 0;
@@ -19,7 +20,7 @@
 	export let showIDs = false;
 	export let showTimestamps = false;
 	export let competitions = [];
-	let layoutBreakpoint = 500;
+	let layoutBreakpoint = 620;
 	let fitNamesWithLogos = false;
 	let disabled: boolean = false;
 	$: isBeforeGameTime(timestamp).then((result) => (disabled = !result));
@@ -90,7 +91,7 @@
 		/>
 		<TeamImage
 			team={awayTeam}
-			grayscaled={selectedTeam === homeTeam.abbreviation && selectedTeam !== ''}
+			grayscale={selectedTeam === homeTeam.abbreviation && selectedTeam !== ''}
 		/>
 		{#if fitNamesWithLogos}
 			<!-- TODO turn into a component!` -->
@@ -102,6 +103,18 @@
 					{/if})
 				</p>
 			</span>
+		{:else}
+			<TeamNameImage
+				team={awayTeam}
+				rounded={true}
+				whiteBg={true}
+				grayscale={selectedTeam === homeTeam.abbreviation && selectedTeam !== ''}
+			/>
+			<p style="font-weight: normal;">
+				({awayTeam.wins}-{awayTeam.losses}{#if awayTeam.ties > 0}
+					-{awayTeam.ties}
+				{/if})
+			</p>
 		{/if}
 	</label>
 
@@ -110,37 +123,44 @@
 			class="grid info team-abbreviation"
 			style={fitNamesWithLogos ? 'grid-template-columns: 1fr' : ''}
 		>
-			{#if !fitNamesWithLogos}
-				<span
-					class="rounded team-abbreviation"
-					class:selected={selectedTeam === awayTeam.abbreviation}
-					class:dark-mode={$useDarkTheme}
-					class:disabled
-					>{awayTeam.abbreviation}
+			<!-- {#if !fitNamesWithLogos}
+				<span class="rounded team-abbreviation" class:dark-mode={$useDarkTheme} class:disabled>
+						class:selected={selectedTeam === awayTeam.abbreviation} -->
+			<!-- <p>{awayTeam.city}</p>
+						<p>{awayTeam.name}</p> -->
+			<!-- <TeamNameImage
+						team={awayTeam}
+						rounded={true}
+						grayscale={selectedTeam === homeTeam.abbreviation && selectedTeam !== ''}
+					/>
 					<p style="font-weight: normal;">
 						({awayTeam.wins}-{awayTeam.losses}{#if awayTeam.ties > 0}
 							-{awayTeam.ties}
 						{/if})
-					</p>
-				</span>
-			{/if}
+					</p> -->
+			<!-- </span> -->
+			<!-- {/if} -->
 			<span class="at-symbol"> @ </span>
-			{#if !fitNamesWithLogos}
-				<span
-					class="rounded team-abbreviation"
-					class:selected={selectedTeam === homeTeam.abbreviation}
-					class:dark-mode={$useDarkTheme}
-					class:disabled
-					>{homeTeam.abbreviation}
+			<!-- {#if !fitNamesWithLogos}
+				<span class="rounded team-abbreviation" class:dark-mode={$useDarkTheme} class:disabled> -->
+			<!-- class:selected={selectedTeam === homeTeam.abbreviation} -->
+			<!-- <p>{homeTeam.city}</p>
+						<p>{homeTeam.name}</p> -->
+			<!-- <TeamNameImage
+						team={homeTeam}
+						rounded={true}
+						frosted={true}
+						grayscale={selectedTeam === awayTeam.abbreviation && selectedTeam !== ''}
+					/>
 					<p style="font-weight: normal;">
 						({homeTeam.wins}-{homeTeam.losses}{#if homeTeam.ties > 0}
 							-{homeTeam.ties}
 						{/if})
-					</p>
-				</span>
-			{/if}
+					</p> -->
+			<!-- </span>
+			{/if} -->
 		</p>
-		<p class="grid info">
+		<p class="grid status info">
 			{#await promiseStatus}
 				<span />
 				<span />
@@ -179,7 +199,7 @@
 		</p>
 
 		{#if spread}
-			<p style="line-height: 2;">
+			<p class="spread info" style="line-height: 2;">
 				{#if disabled}
 					<Fa icon={faLock} size="lg" />
 				{:else}
@@ -195,7 +215,7 @@
 		{:else}
 			No spread field set.
 		{/if}
-		<div class="dateTime">
+		<div class="dateTime info">
 			{showIDs ? id : ''}
 			{showTimestamps ? timestamp.toDate().getTime() : ''}
 			{#await promiseStatus}
@@ -236,7 +256,7 @@
 		/>
 		<TeamImage
 			team={homeTeam}
-			grayscaled={selectedTeam === awayTeam.abbreviation && selectedTeam !== ''}
+			grayscale={selectedTeam === awayTeam.abbreviation && selectedTeam !== ''}
 		/>
 		{#if fitNamesWithLogos}
 			<span class="rounded team-abbreviation" class:dark-mode={$useDarkTheme} class:disabled
@@ -247,6 +267,18 @@
 					{/if})
 				</p>
 			</span>
+		{:else}
+			<TeamNameImage
+				team={homeTeam}
+				rounded={true}
+				whiteBg={true}
+				grayscale={selectedTeam === awayTeam.abbreviation && selectedTeam !== ''}
+			/>
+			<p style="font-weight: normal;">
+				({homeTeam.wins}-{homeTeam.losses}{#if homeTeam.ties > 0}
+					-{homeTeam.ties}
+				{/if})
+			</p>
 		{/if}
 	</label>
 </div>
@@ -266,11 +298,12 @@
 		@include rounded;
 	}
 	.matchup {
-		grid-template-columns: repeat(3, minmax(30%, 1fr));
+		grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
 	}
 	label {
 		@include defaultTransition;
 		align-items: center;
+		justify-items: center;
 		display: grid;
 		padding: 0.5rem;
 		height: 100%;
@@ -298,6 +331,14 @@
 		}
 	}
 	.info {
+		width: auto;
+		justify-self: center;
+	}
+	.game-info {
+		display: grid;
+		align-items: end;
+	}
+	.status {
 		grid-template-columns: minmax(0, 1fr) minmax(0, auto) minmax(0, 1fr);
 	}
 </style>

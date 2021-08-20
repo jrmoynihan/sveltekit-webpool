@@ -1,27 +1,37 @@
-<script lang='ts'>
-import { dev } from "$app/env";
-import type { Team } from "$scripts/classes/team";
+<script lang="ts">
+	import { dev } from '$app/env';
+	import type { Team } from '$scripts/classes/team';
 
-export let team : Team = null
-
+	export let team: Team = null;
+	export let grayscale = false;
+	export let rounded = false;
+	export let topRounded = false;
+	export let bottomRounded = false;
+	export let frosted = false;
+	export let whiteBg = false;
 </script>
 
 <picture>
-    <!-- <source srcset={team.logoPath} type="image/webp" /> -->
-    <img
-        class="logo"
-        src={dev ? `../../../static/${team.fontPath}`: team.fontPath }
-        alt="{team.city}-{team.name}"
-        width="200rem"
-        height="auto"
-        loading="lazy"
-    />
+	<!-- <source srcset={team.logoPath} type="image/webp" /> -->
+	<img
+		class="logo"
+		class:grayscale
+		class:rounded
+		class:frosted
+		class:whiteBg
+		class:topRounded
+		class:bottomRounded
+		src={dev ? `../../../static/${team.fontPath}` : team.fontPath}
+		alt="{team.city}-{team.name}"
+		width="200rem"
+		height="auto"
+		loading="lazy"
+	/>
 </picture>
 
-<style lang='scss'>
-    	picture {
+<style lang="scss">
+	picture {
 		@include accelerate;
-		@include frostedGlass;
 		box-shadow: none;
 		display: flex;
 		align-items: center;
@@ -30,7 +40,26 @@ export let team : Team = null
 	}
 	img {
 		@include accelerate;
-		padding: 0 1rem;
+		padding: 1rem;
+		max-height: 7rem;
 	}
-
+	.grayscale {
+		filter: grayscale(100%);
+		opacity: 0.5;
+	}
+	.frosted {
+		@include frostedGlassHighContrast;
+	}
+	.rounded {
+		@include rounded;
+	}
+	.topRounded {
+		border-radius: 5vh 5vh 0 0;
+	}
+	.bottomRounded {
+		border-radius: 0 0 5vh 5vh;
+	}
+	.whiteBg {
+		background-color: white;
+	}
 </style>

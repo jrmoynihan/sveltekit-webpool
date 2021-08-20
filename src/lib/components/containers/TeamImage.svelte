@@ -1,30 +1,29 @@
-<script lang='ts'>
-import { dev } from "$app/env";
-import type { Team } from "$scripts/classes/team";
+<script lang="ts">
+	import { dev } from '$app/env';
+	import type { Team } from '$scripts/classes/team';
 
-export let team : Team = null
-export let width="auto"
-export let height="100rem"
-export let grayscaled = false
-export let frosted = false
-
+	export let team: Team = null;
+	export let width = 'auto';
+	export let height = '100rem';
+	export let grayscale = false;
+	export let frosted = false;
 </script>
 
 <picture>
-    <!-- <source srcset={team.logoPath} type="image/webp" /> -->
-    <img
-        src={dev ? `../../../static/${team.logoPath}` : team.logoPath}
-        alt="{team.city}-{team.name}"
-        width={width}
-        height={height}
-        loading="lazy"
-		class:grayscale={grayscaled}
-		class:frosted={frosted}
-    />
+	<!-- <source srcset={team.logoPath} type="image/webp" /> -->
+	<img
+		src={dev ? `../../../static/${team.logoPath}` : team.logoPath}
+		alt="{team.city}-{team.name}"
+		{width}
+		{height}
+		loading="lazy"
+		class:grayscale
+		class:frosted
+	/>
 </picture>
 
-<style lang='scss'>
-    	picture {
+<style lang="scss">
+	picture {
 		@include accelerate;
 		box-shadow: none;
 		display: flex;
@@ -36,17 +35,17 @@ export let frosted = false
 		@include accelerate;
 		@include defaultTransition;
 		padding: 0.5rem 1rem;
-		max-width: min(12rem,33vw);
+		max-width: min(12rem, 33vw);
 		max-height: 8rem;
-		&:hover{
+		&:hover {
 			transform: scale(1.1);
 		}
 	}
-	.grayscale{
-		filter:grayscale(100%);
+	.grayscale {
+		filter: grayscale(100%);
 		opacity: 0.5;
 	}
-	.frosted{
+	.frosted {
 		@include frostedGlass;
 	}
 </style>
