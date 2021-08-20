@@ -1,4 +1,4 @@
-import type { DocumentReference, Timestamp } from 'firebase/firestore';
+import type { DocumentReference, Timestamp } from '@firebase/firestore';
 import type { Game } from './game';
 
 export class WeeklyPickDoc {

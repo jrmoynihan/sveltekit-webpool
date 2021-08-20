@@ -314,18 +314,23 @@
 					class="submit flex {$useDarkTheme ? 'dark-mode' : 'light-mode'} {tiebreaker >= 10
 						? ''
 						: 'invisible'}"
+					tabindex={tiebreaker >= 10 ? 0 : -1}
 					in:fly={{ delay: 250, duration: 200, x: 100 }}
 					out:fly={{ x: 100, duration: 200 }}
 				>
 					Submit Picks <Fa icon={faCheckCircle} size="lg" />
 				</button>
-				<input
-					class="tiebreaker flex"
-					type="number"
-					bind:value={tiebreaker}
-					placeholder="tiebreaker"
-					in:fade={{ delay: 250, duration: 200 }}
-				/>
+				<span style="position:relative">
+					<input
+						class="tiebreaker flex"
+						type="number"
+						bind:value={tiebreaker}
+						placeholder="tiebreaker"
+						min="0"
+						in:fade={{ delay: 250, duration: 200 }}
+					/>
+					<span class="invalid" />
+				</span>
 			{:else}
 				<progress value={$progress} />
 			{/if}
@@ -421,7 +426,28 @@
 		text-align: center;
 		align-self: center;
 		width: unset;
-		// max-height: 90%;
+		&:invalid {
+			box-shadow: 0 0 20px -2px red;
+			color: red;
+			& ~ span.invalid::after {
+				@include rounded;
+				@include defaultTransition;
+				content: 'Please enter a number.';
+				color: red;
+				background-color: white;
+				top: -100%;
+				opacity: 1;
+			}
+		}
+		& ~ span.invalid::after {
+			opacity: 0;
+			width: 100%;
+			height: 100%;
+			top: 0%;
+			left: 0;
+			right: 0;
+			position: absolute;
+		}
 	}
 	.pick-count {
 		@include defaultTransition;
