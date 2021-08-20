@@ -247,14 +247,14 @@
 	</div>
 
 	<div class="second-row flex">
+		<button on:click={pickAllAway} class={$useDarkTheme ? 'dark-mode' : 'light-mode'}
+			>All Away</button
+		>
 		<button on:click={pickAllFavored} class={$useDarkTheme ? 'dark-mode' : 'light-mode'}
 			>All Favored</button
 		>
 		<button on:click={pickAllDogs} class={$useDarkTheme ? 'dark-mode' : 'light-mode'}
 			>All Underdogs</button
-		>
-		<button on:click={pickAllAway} class={$useDarkTheme ? 'dark-mode' : 'light-mode'}
-			>All Away</button
 		>
 		<button on:click={pickAllHome} class={$useDarkTheme ? 'dark-mode' : 'light-mode'}
 			>All Home</button
@@ -293,20 +293,19 @@
 </div>
 
 <div
-	class="fixed padded {$windowWidth > mobileBreakpoint ? 'bottom-left grid' : 'bottom-right flex'}"
-	style="{$windowWidth > mobileBreakpoint || tiebreaker === undefined || tiebreaker === null
-		? 'grid-template-columns: 1fr 1fr;'
-		: 'grid-template-columns: 0 1fr;'} {tiebreaker === undefined || tiebreaker === null
-		? 'padding-left: 0;'
-		: 'padding-left:14%'}"
+	class="fixed grid {$windowWidth > mobileBreakpoint ? 'bottom-left' : 'bottom-right'}"
+	style={$windowWidth > mobileBreakpoint || tiebreaker === undefined || tiebreaker === null
+		? 'grid-template-columns: 1fr auto;'
+		: ''}
 >
 	{#if $windowWidth > mobileBreakpoint}
 		<Clock />
 	{/if}
 	{#if currentPicks !== undefined && gamesList !== undefined}
 		{#if currentPicks.length >= 0 && gamesList.length > 0}
+			<!-- {#key currentPickCount} -->
 			<div
-				class="pick-count"
+				class="pick-count {tiebreaker > 10 ? 'invisible' : ''}"
 				in:fade={{ delay: 250, duration: 200 }}
 				out:fly={{ duration: 200 }}
 				style={$windowWidth > mobileBreakpoint || tiebreaker === undefined || tiebreaker === null
@@ -315,7 +314,18 @@
 			>
 				{currentPickCount} / {gamesList.length} Picks Made
 			</div>
+			<!-- {/key} -->
 			{#if currentPickCount === gamesList.length}
+				<button
+					on:click={submitPicks}
+					class="submit flex {$useDarkTheme ? 'dark-mode' : 'light-mode'} {tiebreaker > 10
+						? ''
+						: 'invisible'}"
+					in:fly={{ delay: 250, duration: 200, x: 100 }}
+					out:fly={{ x: 100, duration: 200 }}
+				>
+					Submit Picks <Fa icon={faCheckCircle} size="lg" />
+				</button>
 				<input
 					class="tiebreaker flex"
 					type="number"
@@ -323,16 +333,6 @@
 					placeholder="tiebreaker"
 					in:fade={{ delay: 250, duration: 200 }}
 				/>
-				{#if tiebreaker > 0}
-					<button
-						on:click={submitPicks}
-						class="submit flex {$useDarkTheme ? 'dark-mode' : 'light-mode'}"
-						in:fly={{ delay: 250, duration: 200, x: 100 }}
-						out:fly={{ x: 100, duration: 200 }}
-					>
-						Submit Picks <Fa icon={faCheckCircle} size="lg" />
-					</button>
-				{/if}
 			{:else}
 				<progress value={$progress} />
 			{/if}
@@ -382,10 +382,12 @@
 		&.submit {
 			gap: 0.5rem;
 			align-items: center;
-			max-height: 90%;
+			padding: max(2%, 1rem);
 			font-weight: bold;
 			margin: unset;
-			grid-area: submit;
+			grid-area: pickCount;
+			max-height: 5rem;
+			align-self: center;
 		}
 	}
 	.fixed {
@@ -401,32 +403,48 @@
 		bottom: 0;
 		left: 0;
 		border-radius: 0 1rem 1rem 0;
-		grid-template-rows: 1fr 1fr 1fr;
+		grid-template-rows: repeat(3, auto);
 		max-width: max-content;
-		grid-template-areas: 'clock clock' 'pickCount pickCount' 'tiebreaker submit';
+		grid-template-areas: 'clock ' 'pickCount' 'tiebreaker';
 		justify-items: center;
+		padding: 1rem 0.5rem;
 	}
 	.bottom-right {
 		bottom: 0;
 		right: 0;
+		gap: 1rem;
 		border-top: var(--accent-color) 2px inset;
 		width: 100%;
-		grid-template-rows: minmax(23px, 1.4rem);
+		grid-template-areas: 'pickCount tiebreaker';
+		grid-template-columns: 1fr 1fr;
+		padding: 0.5rem;
 	}
 	.tiebreaker {
 		grid-area: tiebreaker;
-		height: 3.5rem;
+		// height: 3.5rem;
 	}
 	input {
 		@include rounded;
 		@include editableInput;
+		padding: 2%;
 		text-align: center;
-		padding: 1rem;
-		width: 100%;
-		max-height: 90%;
+		align-self: center;
+		width: unset;
+		// max-height: 90%;
 	}
 	.pick-count {
 		@include defaultTransition;
 		grid-area: pickCount;
+		align-self: center;
+	}
+	progress {
+		grid-area: tiebreaker;
+		min-height: 2.6rem;
+	}
+	.invisible {
+		opacity: 0;
+		pointer-events: none;
+		transform: translateX(50%);
+		transition: all 300ms ease-in-out;
 	}
 </style>

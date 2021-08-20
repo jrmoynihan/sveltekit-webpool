@@ -54,7 +54,7 @@
 		</TransitionWrapper>
 	</main>
 
-	<ReturnToTop />
+	<ReturnToTop showButton={false} />
 </div>
 <!-- {/if} -->
 

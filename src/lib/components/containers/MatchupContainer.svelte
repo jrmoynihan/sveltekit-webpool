@@ -93,9 +93,10 @@
 			grayscaled={selectedTeam === homeTeam.abbreviation && selectedTeam !== ''}
 		/>
 		{#if fitNamesWithLogos}
+			<!-- TODO turn into a component!` -->
 			<span class="rounded team-abbreviation" class:dark-mode={$useDarkTheme} class:disabled
 				>{awayTeam.abbreviation}
-				<p>
+				<p style="font-weight: normal;">
 					({awayTeam.wins}-{awayTeam.losses}{#if awayTeam.ties > 0}
 						-{awayTeam.ties}
 					{/if})
@@ -116,14 +117,14 @@
 					class:dark-mode={$useDarkTheme}
 					class:disabled
 					>{awayTeam.abbreviation}
-					<p>
+					<p style="font-weight: normal;">
 						({awayTeam.wins}-{awayTeam.losses}{#if awayTeam.ties > 0}
 							-{awayTeam.ties}
 						{/if})
 					</p>
 				</span>
 			{/if}
-			<span> @ </span>
+			<span class="at-symbol"> @ </span>
 			{#if !fitNamesWithLogos}
 				<span
 					class="rounded team-abbreviation"
@@ -131,7 +132,7 @@
 					class:dark-mode={$useDarkTheme}
 					class:disabled
 					>{homeTeam.abbreviation}
-					<p>
+					<p style="font-weight: normal;">
 						({homeTeam.wins}-{homeTeam.losses}{#if homeTeam.ties > 0}
 							-{homeTeam.ties}
 						{/if})
@@ -291,6 +292,10 @@
 	}
 	span {
 		padding: 0.3rem 0.5rem;
+		align-self: center;
+		&.at-symbol {
+			font-size: x-large;
+		}
 	}
 	.info {
 		grid-template-columns: minmax(0, 1fr) minmax(0, auto) minmax(0, 1fr);

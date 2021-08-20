@@ -10,6 +10,7 @@
 	export let customStyles: string = '';
 	export let showProgressRadial = false;
 	export let showProgressBar = true;
+	export let showButton = true;
 
 	const returnToTop = () => {
 		if (browser) {
@@ -27,9 +28,11 @@
 </script>
 
 {#if $windowWidth < mobileBreakpoint && $scrollProgress > 0.15}
-	<button on:click={returnToTop} style={customStyles} transition:fade>
-		<Fa icon={faArrowUp} class="fa-icon" size="lg" />
-	</button>
+	{#if showButton}
+		<button on:click={returnToTop} style={customStyles} transition:fade>
+			<Fa icon={faArrowUp} class="fa-icon" size="lg" />
+		</button>
+	{/if}
 {/if}
 {#if showProgressBar}
 	<custom-progress style="width:{($scrollProgress * 100).toString()}%;" />

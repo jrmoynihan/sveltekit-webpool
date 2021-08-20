@@ -50,20 +50,28 @@
 	let gamePromise = getAllGames();
 
 	const createWeeklyPicksForAllUsers = async () => {
-		weeklyUsers.forEach((user) => {
-			weeklyGames.forEach((game) => {
-				const newWeeklyPickRef = doc(weeklyPicksCollection);
-				const pickDoc = new WeeklyPickDoc(
-					newWeeklyPickRef,
-					game.id,
-					'',
-					user.id,
-					game.week,
-					game.timestamp
-				);
-				setDoc(newWeeklyPickRef.withConverter(weeklyPickConverter), pickDoc);
+		try {
+			weeklyUsers.forEach((user) => {
+				weeklyGames.forEach((game) => {
+					const newWeeklyPickRef = doc(weeklyPicksCollection);
+					const pickDoc = new WeeklyPickDoc(
+						newWeeklyPickRef,
+						game.id,
+						'',
+						user.id,
+						game.week,
+						game.timestamp.toDate().getFullYear(),
+						game.timestamp,
+						{ ...game }
+					);
+					setDoc(newWeeklyPickRef.withConverter(weeklyPickConverter), pickDoc);
+				});
 			});
-		});
+			alert('created WeeklyPicks!!');
+		} catch (error) {
+			console.log(error);
+			alert(error);
+		}
 	};
 	const deleteWeeklyPicksForAllUsers = async () => {
 		const q = query(weeklyPicksCollection);
