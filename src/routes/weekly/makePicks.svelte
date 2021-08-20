@@ -247,16 +247,16 @@
 	</div>
 
 	<div class="second-row flex">
-		<button on:click={pickAllAway} class={$useDarkTheme ? 'dark-mode' : 'light-mode'}
+		<button on:click={pickAllAway} class="{$useDarkTheme ? 'dark-mode' : 'light-mode'} hotkeys"
 			>All Away</button
 		>
-		<button on:click={pickAllFavored} class={$useDarkTheme ? 'dark-mode' : 'light-mode'}
+		<button on:click={pickAllFavored} class="{$useDarkTheme ? 'dark-mode' : 'light-mode'} hotkeys"
 			>All Favored</button
 		>
-		<button on:click={pickAllDogs} class={$useDarkTheme ? 'dark-mode' : 'light-mode'}
+		<button on:click={pickAllDogs} class="{$useDarkTheme ? 'dark-mode' : 'light-mode'} hotkeys"
 			>All Underdogs</button
 		>
-		<button on:click={pickAllHome} class={$useDarkTheme ? 'dark-mode' : 'light-mode'}
+		<button on:click={pickAllHome} class="{$useDarkTheme ? 'dark-mode' : 'light-mode'} hotkeys"
 			>All Home</button
 		>
 	</div>
@@ -463,5 +463,13 @@
 		pointer-events: none;
 		transform: translateX(50%);
 		transition: all 300ms ease-in-out;
+	}
+	.hotkeys {
+		box-shadow: 4px 4px 15px 5px rgba(0, 0, 0, 0.5);
+		border: 4px solid rgba(var(--accentValue-color), 80%);
+		background: radial-gradient(
+			rgba(var(--accentValue-color), 90%),
+			rgba(var(--accentValue-color), 70%)
+		);
 	}
 </style>
