@@ -76,8 +76,6 @@
 <style lang="scss">
 	.positioning {
 		@include rounded;
-		@include frostedGlassHighContrast;
-		@include cloudyBackground;
 		position: relative;
 		z-index: 10;
 		width: max-content;
@@ -87,21 +85,17 @@
 	}
 	.clock-grid {
 		display: grid;
-		// position: relative;
 		grid-template-columns: repeat(4, minmax(0px, 1fr));
-		// max-width: calc(6.5 * var(--size));
 		width: calc(6.5 * var(--size));
 		grid-template-rows: 1fr;
 		padding: 0 0 0 0.5rem;
 	}
 	.counter-digits {
 		position: absolute;
-		// width: 100%;
 		height: 100%;
 		display: grid;
 	}
 	.counter-viewport {
-		// width: 100%;
 		height: 3em;
 		overflow: hidden;
 		text-align: center;
@@ -109,10 +103,8 @@
 		& strong {
 			position: absolute;
 			display: block;
-			// width: 100%;
 			height: 100%;
 			font-weight: 400;
-
 			font-size: var(--size);
 			display: flex;
 			align-items: center;
