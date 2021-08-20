@@ -16,8 +16,8 @@
 	"devDependencies": {
 		"@sveltejs/kit": "^1.0.0-next.1",
 		"@types/cookie": "^0.4.1",
-		"@typescript-eslint/eslint-plugin": "^4.29.1",
-		"@typescript-eslint/parser": "^4.29.1",
+		"@typescript-eslint/eslint-plugin": "^4.29.2",
+		"@typescript-eslint/parser": "^4.29.2",
 		"eslint": "^7.32.0",
 		"eslint-config-prettier": "^8.3.0",
 		"eslint-plugin-svelte3": "^3.2.0",
@@ -40,8 +40,8 @@
 		"@lukeed/uuid": "^2.0.0",
 		"cookie": "^0.4.1",
 		"firebase": "^9.0.0-beta.8",
-		"firebase-functions": "^3.15.3",
-		"sass": "^1.37.5",
+		"firebase-functions": "^3.15.4",
+		"sass": "^1.38.0",
 		"svelte-adapter-firebase": "next",
 		"svelte-fa": "^2.2.1",
 		"vite-plugin-mkcert": "^1.5.1"

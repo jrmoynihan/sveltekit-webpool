@@ -292,12 +292,7 @@
 	</div>
 </div>
 
-<div
-	class="fixed grid {$windowWidth > mobileBreakpoint ? 'bottom-left' : 'bottom-right'}"
-	style={$windowWidth > mobileBreakpoint || tiebreaker === undefined || tiebreaker === null
-		? 'grid-template-columns: 1fr auto;'
-		: ''}
->
+<div class="fixed grid {$windowWidth > mobileBreakpoint ? 'bottom-left' : 'bottom-right'}">
 	{#if $windowWidth > mobileBreakpoint}
 		<Clock />
 	{/if}
@@ -305,12 +300,10 @@
 		{#if currentPicks.length >= 0 && gamesList.length > 0}
 			<!-- {#key currentPickCount} -->
 			<div
-				class="pick-count {tiebreaker > 10 ? 'invisible' : ''}"
+				class="pick-count {tiebreaker >= 10 ? 'invisible' : ''}"
 				in:fade={{ delay: 250, duration: 200 }}
 				out:fly={{ duration: 200 }}
-				style={$windowWidth > mobileBreakpoint || tiebreaker === undefined || tiebreaker === null
-					? ''
-					: 'transform: translateX(-100%); opacity:0'}
+				style={tiebreaker >= 10 ? 'transform: translateX(-100%); opacity:0' : ''}
 			>
 				{currentPickCount} / {gamesList.length} Picks Made
 			</div>
@@ -318,7 +311,7 @@
 			{#if currentPickCount === gamesList.length}
 				<button
 					on:click={submitPicks}
-					class="submit flex {$useDarkTheme ? 'dark-mode' : 'light-mode'} {tiebreaker > 10
+					class="submit flex {$useDarkTheme ? 'dark-mode' : 'light-mode'} {tiebreaker >= 10
 						? ''
 						: 'invisible'}"
 					in:fly={{ delay: 250, duration: 200, x: 100 }}
