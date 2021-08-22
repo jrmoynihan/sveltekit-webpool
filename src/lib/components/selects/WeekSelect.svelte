@@ -1,16 +1,24 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, onMount } from 'svelte';
 
-	let weeks: number[] = [];
-	let currentWeek: number = 11; // @TODO find a function to determine the NFL week automatically
+	export let weeks: number[] = [];
+	let currentWeek: number = 1; // @TODO find a function to determine the NFL week automatically
 	export let selectedWeek: number = currentWeek;
 	export let gridArea = '';
 
-	for (let i = 1; i < 18; i++) {
-		weeks = [...weeks, i];
-	}
+	const setDefaultWeeks = () => {
+		if (weeks === undefined || weeks.length === 0) {
+			for (let i = 1; i < 18; i++) {
+				weeks = [...weeks, i];
+			}
+		}
+	};
 
 	const dispatch = createEventDispatcher();
+
+	onMount(() => {
+		setDefaultWeeks();
+	});
 </script>
 
 <select

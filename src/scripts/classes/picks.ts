@@ -10,6 +10,7 @@ export class WeeklyPickDoc {
 	year: number;
 	timestamp: Timestamp;
 	game: Game;
+	type: string;
 	constructor(
 		docRef: DocumentReference,
 		id: string,
@@ -18,7 +19,8 @@ export class WeeklyPickDoc {
 		week: number,
 		year: number,
 		timestamp: Timestamp,
-		game: Game
+		game: Game,
+		type: string
 	) {
 		(this.docRef = docRef),
 			(this.id = id),
@@ -28,5 +30,6 @@ export class WeeklyPickDoc {
 		this.year = year;
 		this.timestamp = timestamp;
 		this.game = game;
+		this.type = type;
 	}
 }

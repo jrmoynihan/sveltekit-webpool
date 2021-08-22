@@ -112,7 +112,9 @@ export const gameConverter = {
 			data.timestamp,
 			data.uid,
 			data.venues,
+			data.year,
 			data.week,
+			data.type,
 			data.homeTeam,
 			data.awayTeam
 		);
@@ -134,7 +136,8 @@ export const weeklyPickConverter = {
 			data.week,
 			data.year,
 			data.timestamp,
-			data.game
+			data.game,
+			data.type
 		);
 	}
 };

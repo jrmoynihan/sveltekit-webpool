@@ -77,8 +77,8 @@
 
 <!-- Allows admins to edit this text directly -->
 {#if editable}
-	<div id="editToggle">
-		<div id="editToggle-text">Edit (Admin Only)</div>
+	<div id="editToggle" class="editToggle">
+		<div class="editToggle-text">Edit (Admin Only)</div>
 		<div class="lock-switch ">
 			<ToggleSwitch on:toggle={() => ($editing = !$editing)} />
 			<Fa icon={$editing ? faUnlock : faLock} size="lg" />
@@ -100,15 +100,15 @@
 		align-items: center;
 		justify-content: center;
 	}
-	#editToggle {
+	.editToggle {
 		@include rounded;
 		display: grid;
 		padding: 1rem;
-		outline: 2px var(--accent-color) solid;
+		border: 2px var(--accent-color) solid;
 		margin: 1rem auto;
 		max-width: max-content;
 	}
-	#editToggle-text {
+	.editToggle-text {
 		width: 20vmin;
 	}
 	.lock-switch {

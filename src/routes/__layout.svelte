@@ -18,6 +18,7 @@
 	import SiteNavOptions from '$navigation/siteNavOptions.svelte';
 	import { usersCollection } from '$scripts/collections';
 	import ReturnToTop from '$lib/components/buttons/ReturnToTop.svelte';
+	import { SvelteToast } from '@zerodevx/svelte-toast';
 
 	export let refresh: any;
 
@@ -57,7 +58,9 @@
 	<ReturnToTop showButton={false} />
 </div>
 <!-- {/if} -->
-
+<div class="toastWrap">
+	<SvelteToast />
+</div>
 <svelte:window on:resize={() => ($windowWidth = window.innerWidth)} />
 
 <style lang="scss">
@@ -73,8 +76,22 @@
 	* {
 		box-sizing: border-box;
 	}
+	.toastWrap {
+		--toastContainerTop: 15%;
+		--toastWidth: 100%;
+		--toastContainerLeft: 2%;
+		--toastContainerRight: 2%;
+		& > ._toastBar {
+			height: 1rem;
+		}
+		@include responsive_desktop_only {
+			--toastContainerLeft: 70%;
+			--toastContainerRight: 5%;
+			--toastWidth: clamp(45ch, 25%, 75ch);
+		}
+	}
 	.app-wrapper {
-		padding: 0 5px;
+		padding: 0 5px 5px;
 		display: grid;
 		background: var(--alternate-color);
 		position: relative;

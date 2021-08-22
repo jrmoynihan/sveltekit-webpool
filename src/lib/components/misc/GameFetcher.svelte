@@ -4,28 +4,51 @@
 	import { firestoreDB } from '$scripts/firebaseInit';
 	import { scheduleCollection } from '$scripts/collections';
 	import allTeams from '$scripts/teams';
-	import { doc, setDoc, Timestamp } from '@firebase/firestore';
+	import { deleteDoc, doc, getDocs, query, setDoc, Timestamp } from '@firebase/firestore';
 	import AccordionDetails from '../containers/AccordionDetails.svelte';
 	import WeekSelect from '../selects/WeekSelect.svelte';
 	import PageTitle from './PageTitle.svelte';
-	import { myLog } from '$scripts/classes/constants';
+	import { myLog, seasonTypes, stopSign } from '$scripts/classes/constants';
+	import SeasonTypeSelect from '../selects/SeasonTypeSelect.svelte';
+	import type { SeasonType } from '$scripts/classes/seasonType';
+	import YearSelect from '../selects/YearSelect.svelte';
+	import { onMount } from 'svelte';
+	import { defaultToast } from '$scripts/toasts';
 
 	let message = '';
 	let submessage = '';
 	let promise: Promise<any[]>;
 	let weeks: number[] = [];
-	let selectedWeek: number;
 	let selectedYear: number = 2021;
+	let selectedSeasonType: SeasonType = seasonTypes[1];
+	let selectedWeek: number;
 	let games = [];
 
-	for (let i = 1; i < 17; i++) {
-		weeks.push(i);
-	}
+	const setRegularSeasonWeeks = () => {
+		weeks = [];
+		for (let i = 1; i < 18; i++) {
+			weeks.push(i);
+		}
+		console.log('setRegularSeasonWeeks');
+	};
+	const setPreSeasonWeeks = () => {
+		weeks = [];
+		for (let i = 1; i < 5; i++) {
+			weeks.push(i);
+		}
+		console.log('setPreSeasonWeeks');
+	};
 
-	const fetchWeek = async (selectedWeek: number) => {
+	const fetchWeek = async (
+		selectedYear: number,
+		selectedSeasonType: SeasonType,
+		selectedWeek: number
+	) => {
 		try {
+			// types/1 = preseason;
+			// types/2 = regular season
 			const response = await fetch(
-				`https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/${selectedYear}/types/2/weeks/${selectedWeek}/events?lang=en&region=us`
+				`https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/${selectedYear}/types/${selectedSeasonType.id}/weeks/${selectedWeek}/events?lang=en&region=us`
 			);
 			const data = await response.json();
 
@@ -61,8 +84,12 @@
 		}
 	};
 
-	const getData = async (selectedWeek: number) => {
-		const weekReferences = await fetchWeek(selectedWeek);
+	const getData = async (
+		selectedYear: number,
+		selectedSeasonType: SeasonType,
+		selectedWeek: number
+	) => {
+		const weekReferences = await fetchWeek(selectedYear, selectedSeasonType, selectedWeek);
 		const gameUrls = await unpackReferenceURLs(weekReferences);
 		const gameDataObjects = await fetchGameData(gameUrls);
 		games = gameDataObjects;
@@ -70,11 +97,20 @@
 		return gameDataObjects;
 	};
 
-	function weekChanged(selectedWeek: number) {
+	// selectedYear:number,selectedSeasonType:number,selectedWeek: number
+	const queryChanged = () => {
 		message = '';
 		games = [];
-		promise = getData(selectedWeek);
-	}
+		promise = getData(selectedYear, selectedSeasonType, selectedWeek);
+	};
+	const changeWeeksAvailable = () => {
+		console.log('change weeks available');
+		if (selectedSeasonType.text === 'Regular Season') {
+			setRegularSeasonWeeks();
+		} else if (selectedSeasonType.text === 'Pre-Season') {
+			setPreSeasonWeeks();
+		}
+	};
 
 	const getConsensusSpread = async (gameID: string) => {
 		try {
@@ -118,8 +154,10 @@
 		// Load the game to a new object that will gain Firebase-friendly formatting changes
 		const gameFormatted = game;
 
-		// Start by adding the numeric week, instead of ESPN's week reference object
+		// Start by adding the numeric year/week, instead of using ESPN's nested reference object
 		gameFormatted.week = selectedWeek;
+		gameFormatted.year = selectedYear;
+		gameFormatted.type = selectedSeasonType.text;
 
 		// Get the spread by querying the game id on the spread API
 		const consensus = await getConsensusSpread(game.id);
@@ -154,11 +192,41 @@
 		// Set/update the game document with the formatted data
 		setDoc(gameDocRef.withConverter(gameConverter), gameFormatted);
 	};
+	const deleteAllGames = async () => {
+		const continueDelete = confirm(
+			'Are you sure you want to delete all games from the Schedule collection?'
+		);
+		if (continueDelete) {
+			const q = query(scheduleCollection);
+			const allScheduleDocs = await getDocs(q);
+			allScheduleDocs.forEach((game) => {
+				deleteDoc(game.ref);
+			});
+			defaultToast(
+				`${stopSign} Spreads not yet available!`,
+				`You can use this button when spreads are updated.`,
+				5000
+			);
+			// alert('All games deleted from Schedule collection!');
+		}
+	};
+	onMount(() => {
+		setRegularSeasonWeeks();
+	});
 </script>
 
 <div>
-	<PageTitle>Fetch Game Data</PageTitle>
-	<WeekSelect bind:selectedWeek on:weekChanged={() => weekChanged(selectedWeek)} />
+	<PageTitle>Fetch ESPN Game Data</PageTitle>
+	<SeasonTypeSelect
+		bind:selectedSeasonType
+		on:seasonTypeChanged={() => {
+			queryChanged();
+			changeWeeksAvailable();
+		}}
+	/>
+	<YearSelect bind:selectedYear on:yearChanged={queryChanged} />
+	<WeekSelect bind:selectedWeek bind:weeks on:weekChanged={queryChanged} />
+	<button on:click={deleteAllGames}>Delete All Games</button>
 	{#if games}
 		{#if games.length > 0}
 			<span class="padded">

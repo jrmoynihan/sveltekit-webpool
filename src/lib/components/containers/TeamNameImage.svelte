@@ -60,6 +60,6 @@
 		border-radius: 0 0 5vh 5vh;
 	}
 	.whiteBg {
-		background-color: white;
+		background: radial-gradient(white 40%, transparent);
 	}
 </style>

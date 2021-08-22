@@ -18,7 +18,9 @@ export class Game {
 	timestamp: Timestamp;
 	uid: string;
 	venues: Record<string, unknown>[];
+	year: number;
 	week: number;
+	type: string;
 	homeTeam: Team;
 	awayTeam: Team;
 
@@ -39,7 +41,9 @@ export class Game {
 		timestamp: Timestamp,
 		uid: string,
 		venues: Record<string, unknown>[],
+		year: number,
 		week: number,
+		type: string,
 		homeTeam: Team,
 		awayTeam: Team
 	) {
@@ -59,7 +63,9 @@ export class Game {
 		this.timestamp = timestamp;
 		this.uid = uid;
 		this.venues = venues;
+		this.year = year;
 		this.week = week;
+		this.type = type;
 		this.homeTeam = homeTeam;
 		this.awayTeam = awayTeam;
 	}

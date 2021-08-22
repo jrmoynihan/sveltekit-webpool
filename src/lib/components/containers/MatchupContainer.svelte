@@ -6,6 +6,7 @@
 	import { useDarkTheme, windowWidth } from '$scripts/store';
 	import type { Timestamp } from '@firebase/firestore';
 	import { faArrowCircleLeft, faArrowCircleRight, faLock } from '@fortawesome/free-solid-svg-icons';
+	import { onMount } from 'svelte';
 	import Fa from 'svelte-fa';
 	import GameTime from './micro/GameTime.svelte';
 	import TeamImage from './TeamImage.svelte';
@@ -71,6 +72,11 @@
 			fitNamesWithLogos = false;
 		}
 	}
+	onMount(() => {
+		const interval = setInterval(() => {
+			promiseStatus = getStatus();
+		}, 60000);
+	});
 </script>
 
 <div class="matchup grid rounded">
@@ -167,9 +173,23 @@
 				<span />
 			{:then status}
 				{#if status.type.description === 'Final'}
-					<span />
+					{#await promiseScores}
+						--
+					{:then { awayScoreData }}
+						<span class="score">{awayScoreData.value}</span>
+					{:catch}
+						--
+					{/await}
+
 					<span>Final</span>
-					<span />
+
+					{#await promiseScores}
+						--
+					{:then { homeScoreData }}
+						<span class="score">{homeScoreData.value}</span>
+					{:catch}
+						--
+					{/await}
 				{:else if status.type.description === 'Scheduled'}
 					<span />
 					<span />
@@ -177,18 +197,18 @@
 				{:else}
 					{#await promiseScores}
 						--
-					{:then { homeScoreData }}
-						<span>{homeScoreData.value}</span>
+					{:then { awayScoreData }}
+						<span class="score">{awayScoreData.value}</span>
 					{:catch}
 						--
 					{/await}
 
-					<span>Q{status.period}</span>
+					<span>&nbsp;&nbsp;&#8212;&nbsp;&nbsp;</span>
 
 					{#await promiseScores}
 						--
-					{:then { awayScoreData }}
-						<span>{awayScoreData.value}</span>
+					{:then { homeScoreData }}
+						<span class="score">{homeScoreData.value}</span>
 					{:catch}
 						--
 					{/await}
@@ -232,7 +252,8 @@
 						No timestamp field set.
 					{/if}
 				{:else if status.type.completed === false}
-					{status.displayClock}
+					<span>Q{status.period}</span>
+					<span>{status.displayClock}</span>
 				{/if}
 			{/await}
 		</div>
@@ -340,5 +361,9 @@
 	}
 	.status {
 		grid-template-columns: minmax(0, 1fr) minmax(0, auto) minmax(0, 1fr);
+	}
+	.score {
+		font-weight: bold;
+		font-size: clamp(1rem, 5vw, 3rem);
 	}
 </style>

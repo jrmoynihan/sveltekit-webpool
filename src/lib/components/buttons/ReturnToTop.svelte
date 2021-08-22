@@ -4,6 +4,7 @@
 	import { windowWidth } from '$scripts/store';
 	import { faArrowUp } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
+	import { spring } from 'svelte/motion';
 	import { writable } from 'svelte/store';
 	import { fade } from 'svelte/transition';
 
@@ -24,7 +25,7 @@
 			$scrollProgress = windowScroll / height;
 		}
 	};
-	export const scrollProgress = writable<number>();
+	export const scrollProgress = spring<number>(0, { damping: 0.5, stiffness: 0.1 });
 </script>
 
 {#if $windowWidth < mobileBreakpoint && $scrollProgress > 0.15}

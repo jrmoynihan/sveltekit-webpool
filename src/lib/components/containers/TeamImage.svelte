@@ -34,7 +34,7 @@
 	img {
 		@include accelerate;
 		@include defaultTransition;
-		padding: 0.5rem 1rem;
+		padding: clamp(0.2rem, 5vw, 0.5rem) clamp(1rem, 5vw, 2rem);
 		max-width: min(12rem, 33vw);
 		max-height: 8rem;
 		&:hover {

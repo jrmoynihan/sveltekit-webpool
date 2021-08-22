@@ -29,12 +29,21 @@
 		myError,
 		myLog,
 		okHand,
-		pick
+		pick,
+		policeCarLight,
+		seasonTypes
 	} from '$scripts/classes/constants';
+	import { onMount } from 'svelte';
+	import { defaultToast } from '$scripts/toasts';
+	import SeasonTypeSelect from '$lib/components/selects/SeasonTypeSelect.svelte';
+	import YearSelect from '$lib/components/selects/YearSelect.svelte';
 
 	let showIDs = false;
 	let showTimestamps = false;
+	let editingToast = false;
 	let selectedWeek = 1;
+	let selectedYear = new Date().getFullYear();
+	let selectedSeasonType = seasonTypes[1];
 	let gamesList: Game[] = [];
 	let currentPicks: WeeklyPickDoc[] = [];
 	let currentPickCount = 0;
@@ -46,8 +55,15 @@
 
 	const getGames = async (selectedWeek: number) => {
 		try {
+			myLog(`getting ${selectedSeasonType.text} games for Week ${selectedWeek}, ${selectedYear}`);
 			const games: Game[] = [];
-			const q = query(scheduleCollection, where('week', '==', selectedWeek), orderBy('timestamp'));
+			const q = query(
+				scheduleCollection,
+				where('year', '==', selectedYear),
+				where('type', '==', selectedSeasonType.text),
+				where('week', '==', selectedWeek),
+				orderBy('timestamp')
+			);
 			const querySnapshot = await getDocs(q.withConverter(gameConverter));
 			querySnapshot.forEach((doc) => {
 				games.push(doc.data());
@@ -65,6 +81,8 @@
 			const picks: WeeklyPickDoc[] = [];
 			const q = query(
 				weeklyPicksCollection,
+				where('year', '==', selectedYear),
+				where('type', '==', selectedSeasonType.text),
 				where('week', '==', selectedWeek),
 				where('uid', '==', $currentUser.uid),
 				orderBy('timestamp')
@@ -101,9 +119,14 @@
 			});
 			myLog('submitted picks!', '', okHand, currentPicks);
 			picksPromise = getPicks(selectedWeek);
-			alert(
-				`${checkmark} Picks submitted! \n You can return to change any game's pick up until gametime.`
+			defaultToast(
+				`${checkmark} Picks submitted!`,
+				`You can change any game's pick prior to that game's start time.`,
+				10000
 			);
+			// alert(
+			// 	`${checkmark} Picks submitted! \n You can change any game's pick prior to that game's start time.`
+			// );
 		} catch (error) {
 			myError('submitPicks', error);
 		}
@@ -154,7 +177,12 @@
 				}
 			});
 			if (spreadsMissing) {
-				alert(`Spreads not yet available for all games!`);
+				defaultToast(
+					`${policeCarLight} Spreads not yet available!`,
+					`You can use this button when spreads are updated.`,
+					10000
+				);
+				// alert(`Spreads not yet available for all games!`);
 				return;
 			}
 			gamesList.forEach(async (game, i) => {
@@ -189,7 +217,12 @@
 				}
 			});
 			if (spreadsMissing) {
-				alert(`Spreads not yet available for all games!`);
+				defaultToast(
+					`${policeCarLight} Spreads not yet available!`,
+					`You can use this button when spreads are updated.`,
+					10000
+				);
+				// alert(`Spreads not yet available for all games!`);
 				return;
 			}
 			gamesList.forEach(async (game, i) => {
@@ -213,7 +246,7 @@
 	let gamesPromise = getGames(selectedWeek);
 	let picksPromise = getPicks(selectedWeek);
 
-	const changedWeek = async () => {
+	const changedQuery = async () => {
 		gamesPromise = getGames(selectedWeek);
 		picksPromise = getPicks(selectedWeek);
 	};
@@ -226,24 +259,43 @@
 			}
 		}
 	}
+	let toastTitle = 'New!';
+	let toastMsg = `<br>Looking for the Submit Picks button?<br> <br> Make sure you make <em>all</em> of your picks!  The tiebreaker score and button to submit picks will only appear after you've selected a pick for every game. <br><br>  You can always come back to change them later!`;
+	onMount(() => {
+		defaultToast(toastTitle, toastMsg, 20000);
+	});
+	const toasted = () => defaultToast(toastTitle, toastMsg, 200000);
 </script>
 
 <PageTitle>Make Weekly Picks</PageTitle>
 <DevNotes>
-	<div style="display:grid">
+	<div style="display:grid; grid-template-columns: repeat(auto-fit,minmax(20rem, 1fr));">
 		Show Game IDs
 		<ToggleSwitch bind:checked={showIDs} />
 		Show Timestamps
 		<ToggleSwitch bind:checked={showTimestamps} />
-		{#if $currentUser}
+		Edit Toast
+		<ToggleSwitch bind:checked={editingToast} />
+		{#if $currentUser.uid}
+			Current User ID
 			<p>{$currentUser.uid}</p>
+		{/if}
+		Select Season Type
+		<SeasonTypeSelect bind:selectedSeasonType on:seasonTypeChanged={changedQuery} />
+		Select Year
+		<YearSelect bind:selectedYear on:yearChanged={changedQuery} />
+		<button on:click={toasted}>Toast It!</button>
+		{#if editingToast}
+			<textarea style="resize:both;" contenteditable bind:value={toastMsg} />
+		{:else}
+			<code>{@html toastMsg}</code>
 		{/if}
 	</div>
 </DevNotes>
 
 <div class="grid positioning">
 	<div class="first-row grid">
-		<WeekSelect bind:selectedWeek on:weekChanged={changedWeek} />
+		<WeekSelect bind:selectedWeek on:weekChanged={changedQuery} />
 	</div>
 
 	<div class="second-row flex">
@@ -374,6 +426,7 @@
 	}
 	button {
 		@include defaultButtonStyles;
+		@include defaultTransition;
 		@include accentedContainer(80%);
 		color: white;
 		text-shadow: none;
@@ -471,5 +524,12 @@
 			rgba(var(--accentValue-color), 90%),
 			rgba(var(--accentValue-color), 70%)
 		);
+		&.dark-mode {
+			border: 4px solid rgba(var(--accentValue-color), 40%);
+			background: radial-gradient(
+				rgba(var(--accentValue-color), 10%),
+				rgba(var(--accentValue-color), 50%)
+			);
+		}
 	}
 </style>

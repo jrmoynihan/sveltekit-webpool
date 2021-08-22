@@ -27,68 +27,67 @@
 	}
 </script>
 
-<div class="positioning">
-	<div class="clock-grid" style="--size:{size}">
-		<div class="counter-viewport">
-			<div class="counter-digits" style="transform: translate(0,{100 * hour_offset}%);">
-				<strong style="top:-100%" aria-hidden="true"
-					>{$displayed_hour < 9 ? '0' : ''}{Math.floor($displayed_hour + 1)}:</strong
-				>
-				<strong
-					>{Math.floor($displayed_hour) > 12
-						? Math.floor($displayed_hour) - 12 < 10
-							? '0'
-							: ''
-						: Math.floor($displayed_hour) < 10
+<!-- <div class="positioning"> -->
+<div class="clock-grid" style="--size:{size}">
+	<div class="counter-viewport">
+		<div class="counter-digits" style="transform: translate(0,{100 * hour_offset}%);">
+			<strong style="top:-100%" aria-hidden="true"
+				>{$displayed_hour < 9 ? '0' : ''}{Math.floor($displayed_hour + 1)}:</strong
+			>
+			<strong
+				>{Math.floor($displayed_hour) > 12
+					? Math.floor($displayed_hour) - 12 < 10
 						? '0'
-						: ''}{Math.floor($displayed_hour) > 12
-						? Math.floor($displayed_hour) - 12
-						: Math.floor($displayed_hour)}:</strong
-				>
-			</div>
+						: ''
+					: Math.floor($displayed_hour) < 10
+					? '0'
+					: ''}{Math.floor($displayed_hour) > 12
+					? Math.floor($displayed_hour) - 12
+					: Math.floor($displayed_hour)}:</strong
+			>
 		</div>
-		<div class="counter-viewport">
-			<div class="counter-digits" style="transform: translate(0,{100 * minute_offset}%);">
-				<strong style="top:-100%" aria-hidden="true"
-					>{$displayed_minute < 9 ? '0' : ''}{Math.floor($displayed_minute + 1)}:</strong
-				>
-				<strong>{$displayed_minute < 10 ? '0' : ''}{Math.floor($displayed_minute)}:</strong>
-			</div>
+	</div>
+	<div class="counter-viewport">
+		<div class="counter-digits" style="transform: translate(0,{100 * minute_offset}%);">
+			<strong style="top:-100%" aria-hidden="true"
+				>{$displayed_minute < 9 ? '0' : ''}{Math.floor($displayed_minute + 1)}:</strong
+			>
+			<strong>{$displayed_minute < 10 ? '0' : ''}{Math.floor($displayed_minute)}:</strong>
 		</div>
-		<div class="counter-viewport">
-			<div class="counter-digits" style="transform: translate(0,{100 * second_offset}%);">
-				<strong style="top:-100%" aria-hidden="true"
-					>{Math.floor($displayed_second + 1) < 10 ? '0' : ''}{Math.floor(
-						$displayed_second + 1
-					)}</strong
-				>
-				<strong
-					>{Math.floor($displayed_second) < 10 ? '0' : ''}{Math.floor($displayed_second)}</strong
-				>
-			</div>
+	</div>
+	<div class="counter-viewport">
+		<div class="counter-digits" style="transform: translate(0,{100 * second_offset}%);">
+			<strong style="top:-100%" aria-hidden="true"
+				>{Math.floor($displayed_second + 1) < 10 ? '0' : ''}{Math.floor(
+					$displayed_second + 1
+				)}</strong
+			>
+			<strong>{Math.floor($displayed_second) < 10 ? '0' : ''}{Math.floor($displayed_second)}</strong
+			>
 		</div>
-		<div class="AM-PM">
-			{Math.floor($displayed_hour) >= 12 ? 'PM' : 'AM'}
-		</div>
+	</div>
+	<div class="AM-PM">
+		{Math.floor($displayed_hour) >= 12 ? 'PM' : 'AM'}
 	</div>
 </div>
 
+<!-- </div> -->
 <style lang="scss">
-	.positioning {
-		@include rounded;
-		position: relative;
-		z-index: 10;
-		width: max-content;
-		align-items: center;
-		display: flex;
-		grid-area: clock;
-	}
+	// .positioning {
+	// 	@include rounded;
+	// 	position: relative;
+	// 	z-index: 10;
+	// 	width: max-content;
+	// 	align-items: center;
+	// 	display: flex;
+	// 	grid-area: clock;
+	// }
 	.clock-grid {
 		display: grid;
 		grid-template-columns: repeat(4, minmax(0px, 1fr));
 		width: calc(6.5 * var(--size));
 		grid-template-rows: 1fr;
-		padding: 0 0 0 0.5rem;
+		padding: 0 0 0 1.5rem;
 	}
 	.counter-digits {
 		position: absolute;

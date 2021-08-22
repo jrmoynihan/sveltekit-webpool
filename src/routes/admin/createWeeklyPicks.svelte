@@ -6,6 +6,7 @@
 	import type { WebUser } from '$scripts/classes/webUser';
 	import { scheduleCollection, usersCollection, weeklyPicksCollection } from '$scripts/collections';
 	import { gameConverter, userConverter, weeklyPickConverter } from '$scripts/converters';
+	import { defaultToast } from '$scripts/toasts';
 	import { faSync } from '@fortawesome/free-solid-svg-icons';
 	import { deleteDoc, doc, getDocs, query, setDoc, where } from 'firebase/firestore';
 	import Fa from 'svelte-fa';
@@ -62,12 +63,17 @@
 						game.week,
 						game.timestamp.toDate().getFullYear(),
 						game.timestamp,
-						{ ...game }
+						{ ...game },
+						game.type
 					);
 					setDoc(newWeeklyPickRef.withConverter(weeklyPickConverter), pickDoc);
 				});
 			});
-			alert('created WeeklyPicks!!');
+			defaultToast(
+				'Created Weekly Picks!',
+				'Pick documents were created for every game, for every Weekly pool user.'
+			);
+			// alert('created WeeklyPicks!!');
 		} catch (error) {
 			console.log(error);
 			alert(error);
@@ -79,7 +85,8 @@
 		allWeeklyDocs.forEach((doc) => {
 			deleteDoc(doc.ref);
 		});
-		alert('deleted WeeklyPicks!!');
+		defaultToast('Deleted Weekly Picks!', 'All pick documents were deleted.');
+		// alert('deleted WeeklyPicks!!');
 	};
 </script>
 

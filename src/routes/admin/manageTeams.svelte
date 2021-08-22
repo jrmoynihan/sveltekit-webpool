@@ -5,6 +5,7 @@
 	import type { Team } from '$scripts/classes/team';
 	import { conferences, divisions } from '$scripts/classes/constants';
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
+	import { defaultToast } from '$scripts/toasts';
 
 	let selectedTeam = $allTeams[0];
 
@@ -29,8 +30,9 @@
 			// Write the defined properties to the document in the Team collection
 			setDoc(docRef.withConverter(teamConverter), definedKeys);
 
+			defaultToast('Team Updated!', `${team.city} ${team.name} team document was updated.`);
 			// Since this is admin-only, the alert interface is sufficient for success/error notification
-			alert('success!');
+			// alert('success!');
 		} catch (err) {
 			alert(err);
 		}

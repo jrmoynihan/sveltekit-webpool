@@ -1,3 +1,5 @@
+import type { SeasonType } from './seasonType';
+
 export enum Conference {
 	NFC = 'NFC',
 	AFC = 'AFC'
@@ -10,6 +12,11 @@ export enum Division {
 }
 export const conferences: Conference[] = [Conference.AFC, Conference.NFC];
 export const divisions: Division[] = [Division.East, Division.West, Division.North, Division.South];
+export const startingYear = 2020;
+export const seasonTypes: SeasonType[] = [
+	{ id: 1, text: 'Pre-Season' },
+	{ id: 2, text: 'Regular Season' }
+];
 
 // CSS emoji for console logging (https://unicode.org/emoji/charts/full-emoji-list.html)
 export const okHand = String.fromCodePoint(0x1f44c);
@@ -25,8 +32,9 @@ export const dog = String.fromCodePoint(0x1f415);
 export const dogFace = String.fromCodePoint(0x1f436);
 export const airplaneDeparture = String.fromCodePoint(0x1f6eb);
 export const home = String.fromCodePoint(0x1f3e0);
+export const stopSign = String.fromCodePoint(0x1f6d1);
 
-// console.log(home)
+// console.log(stopSign)
 
 export const defaultConsoleLogStyle = [
 	'align-items:center',

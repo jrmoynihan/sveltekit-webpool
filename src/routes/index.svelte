@@ -15,8 +15,6 @@
 	import { getWindowSize } from '$scripts/functions';
 	import { browser } from '$app/env';
 	import { windowWidth } from '$scripts/store';
-	import GameFetcher from '$lib/components/misc/GameFetcher.svelte';
-	import { football } from '$scripts/classes/constants';
 
 	let drawing = true;
 	const widthContainment = '100%';
