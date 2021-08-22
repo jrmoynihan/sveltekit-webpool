@@ -14,6 +14,7 @@
 	import YearSelect from '../selects/YearSelect.svelte';
 	import { onMount } from 'svelte';
 	import { defaultToast } from '$scripts/toasts';
+	import { setPreSeasonWeeks, setRegularSeasonWeeks } from '$scripts/functions';
 
 	let message = '';
 	let submessage = '';
@@ -23,21 +24,6 @@
 	let selectedSeasonType: SeasonType = seasonTypes[1];
 	let selectedWeek: number;
 	let games = [];
-
-	const setRegularSeasonWeeks = () => {
-		weeks = [];
-		for (let i = 1; i < 18; i++) {
-			weeks.push(i);
-		}
-		console.log('setRegularSeasonWeeks');
-	};
-	const setPreSeasonWeeks = () => {
-		weeks = [];
-		for (let i = 1; i < 5; i++) {
-			weeks.push(i);
-		}
-		console.log('setPreSeasonWeeks');
-	};
 
 	const fetchWeek = async (
 		selectedYear: number,
@@ -104,11 +90,10 @@
 		promise = getData(selectedYear, selectedSeasonType, selectedWeek);
 	};
 	const changeWeeksAvailable = () => {
-		console.log('change weeks available');
 		if (selectedSeasonType.text === 'Regular Season') {
-			setRegularSeasonWeeks();
+			weeks = setRegularSeasonWeeks();
 		} else if (selectedSeasonType.text === 'Pre-Season') {
-			setPreSeasonWeeks();
+			weeks = setPreSeasonWeeks();
 		}
 	};
 
@@ -203,15 +188,14 @@
 				deleteDoc(game.ref);
 			});
 			defaultToast(
-				`${stopSign} Spreads not yet available!`,
-				`You can use this button when spreads are updated.`,
+				`${stopSign} All games deleted!`,
+				`Please remember to re-create the game documents.`,
 				5000
 			);
-			// alert('All games deleted from Schedule collection!');
 		}
 	};
 	onMount(() => {
-		setRegularSeasonWeeks();
+		weeks = setRegularSeasonWeeks();
 	});
 </script>
 

@@ -88,7 +88,7 @@
 			height: 1rem;
 		}
 		@include responsive_desktop_only {
-			--toastContainerLeft: 70%;
+			--toastContainerLeft: max(5%, 2rem);
 			--toastContainerRight: 5%;
 			--toastWidth: clamp(45ch, 25%, 75ch);
 		}

@@ -4,10 +4,10 @@
 			"collectionGroup": "WeeklyPicks",
 			"queryScope": "COLLECTION",
 			"fields": [
-				{"fieldPath": "type","order": "ASCENDING"}
+				{"fieldPath": "type","order": "ASCENDING"},
 				{"fieldPath": "uid", "order": "ASCENDING"},
 				{"fieldPath": "week","order": "ASCENDING"},
-				{"fieldPath": "year","order": "ASCENDING"}
+				{"fieldPath": "year","order": "ASCENDING"},
 				{"fieldPath": "id","order": "ASCENDING"},
 				{"fieldPath": "timestamp","order": "ASCENDING"}
 			]

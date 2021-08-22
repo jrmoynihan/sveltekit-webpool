@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { browser } from '$app/env';
+
 	import { home, policeCarLight } from '$scripts/classes/constants';
 
 	import type { Team } from '$scripts/classes/team';
@@ -9,10 +11,12 @@
 	import { onMount } from 'svelte';
 	import Fa from 'svelte-fa';
 	import GameTime from './micro/GameTime.svelte';
+	import TeamRecord from './micro/TeamRecord.svelte';
 	import TeamImage from './TeamImage.svelte';
 	import TeamNameImage from './TeamNameImage.svelte';
 
 	export let id = 'id';
+	export let index;
 	export let spread = 0;
 	export let homeTeam: Team;
 	export let awayTeam: Team;
@@ -22,7 +26,7 @@
 	export let showTimestamps = false;
 	export let competitions = [];
 	let layoutBreakpoint = 620;
-	let fitNamesWithLogos = false;
+	let showTeamNameImages = false;
 	let disabled: boolean = false;
 	$: isBeforeGameTime(timestamp).then((result) => (disabled = !result));
 
@@ -62,28 +66,43 @@
 			console.error(`%c${policeCarLight} error getting scores!`);
 		}
 	};
+
+	const scrollToNext = () => {
+		if (browser) {
+			const yOffset = -150;
+			const element = document.getElementById(`game-${index + 1}`);
+			if (element) {
+				const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+				window.scrollTo({ top: y, behavior: 'smooth' });
+			} else {
+				window.scrollTo({ top: 0, behavior: 'smooth' });
+			}
+		}
+	};
+
 	let promiseStatus = getStatus();
 	let promiseScores = getScores();
 
 	$: {
 		if ($windowWidth < layoutBreakpoint) {
-			fitNamesWithLogos = true;
+			showTeamNameImages = false;
 		} else {
-			fitNamesWithLogos = false;
+			showTeamNameImages = true;
 		}
 	}
 	onMount(() => {
+		// Every 60 seconds, update the game status
 		const interval = setInterval(() => {
 			promiseStatus = getStatus();
 		}, 60000);
 	});
 </script>
 
-<div class="matchup grid rounded">
+<div class="matchup grid rounded" id="game-{index}">
 	<label
 		for="{id}-away"
-		class:pressed={selectedTeam === awayTeam.abbreviation}
 		class="rounded"
+		class:pressed={selectedTeam === awayTeam.abbreviation}
 		class:selected={selectedTeam === awayTeam.abbreviation}
 		class:dark-mode={$useDarkTheme}
 		class:disabled
@@ -92,6 +111,7 @@
 			id="{id}-away"
 			type="radio"
 			bind:group={selectedTeam}
+			on:input={scrollToNext}
 			value={awayTeam.abbreviation}
 			{disabled}
 		/>
@@ -99,72 +119,23 @@
 			team={awayTeam}
 			grayscale={selectedTeam === homeTeam.abbreviation && selectedTeam !== ''}
 		/>
-		{#if fitNamesWithLogos}
-			<!-- TODO turn into a component!` -->
-			<span class="rounded team-abbreviation" class:dark-mode={$useDarkTheme} class:disabled
-				>{awayTeam.abbreviation}
-				<p style="font-weight: normal;">
-					({awayTeam.wins}-{awayTeam.losses}{#if awayTeam.ties > 0}
-						-{awayTeam.ties}
-					{/if})
-				</p>
-			</span>
-		{:else}
+		{#if showTeamNameImages}
 			<TeamNameImage
 				team={awayTeam}
 				rounded={true}
 				whiteBg={true}
 				grayscale={selectedTeam === homeTeam.abbreviation && selectedTeam !== ''}
 			/>
-			<p style="font-weight: normal;">
-				({awayTeam.wins}-{awayTeam.losses}{#if awayTeam.ties > 0}
-					-{awayTeam.ties}
-				{/if})
-			</p>
 		{/if}
+		<TeamRecord showTeamAbbreviation={!showTeamNameImages} team={awayTeam} />
 	</label>
 
 	<label class="game-info rounded" for="{id}-none">
 		<p
 			class="grid info team-abbreviation"
-			style={fitNamesWithLogos ? 'grid-template-columns: 1fr' : ''}
+			style={showTeamNameImages ? 'grid-template-columns: 1fr' : ''}
 		>
-			<!-- {#if !fitNamesWithLogos}
-				<span class="rounded team-abbreviation" class:dark-mode={$useDarkTheme} class:disabled>
-						class:selected={selectedTeam === awayTeam.abbreviation} -->
-			<!-- <p>{awayTeam.city}</p>
-						<p>{awayTeam.name}</p> -->
-			<!-- <TeamNameImage
-						team={awayTeam}
-						rounded={true}
-						grayscale={selectedTeam === homeTeam.abbreviation && selectedTeam !== ''}
-					/>
-					<p style="font-weight: normal;">
-						({awayTeam.wins}-{awayTeam.losses}{#if awayTeam.ties > 0}
-							-{awayTeam.ties}
-						{/if})
-					</p> -->
-			<!-- </span> -->
-			<!-- {/if} -->
 			<span class="at-symbol"> @ </span>
-			<!-- {#if !fitNamesWithLogos}
-				<span class="rounded team-abbreviation" class:dark-mode={$useDarkTheme} class:disabled> -->
-			<!-- class:selected={selectedTeam === homeTeam.abbreviation} -->
-			<!-- <p>{homeTeam.city}</p>
-						<p>{homeTeam.name}</p> -->
-			<!-- <TeamNameImage
-						team={homeTeam}
-						rounded={true}
-						frosted={true}
-						grayscale={selectedTeam === awayTeam.abbreviation && selectedTeam !== ''}
-					/>
-					<p style="font-weight: normal;">
-						({homeTeam.wins}-{homeTeam.losses}{#if homeTeam.ties > 0}
-							-{homeTeam.ties}
-						{/if})
-					</p> -->
-			<!-- </span>
-			{/if} -->
 		</p>
 		<p class="grid status info">
 			{#await promiseStatus}
@@ -259,11 +230,11 @@
 		</div>
 		<input id="{id}-none" type="radio" bind:group={selectedTeam} value="" {disabled} />
 	</label>
-	<!-- <div class="home"> -->
+
 	<label
 		for="{id}-home"
-		class:pressed={selectedTeam === homeTeam.abbreviation}
 		class="rounded"
+		class:pressed={selectedTeam === homeTeam.abbreviation}
 		class:selected={selectedTeam === homeTeam.abbreviation}
 		class:dark-mode={$useDarkTheme}
 		class:disabled
@@ -272,6 +243,7 @@
 			id="{id}-home"
 			type="radio"
 			bind:group={selectedTeam}
+			on:input={scrollToNext}
 			value={homeTeam.abbreviation}
 			{disabled}
 		/>
@@ -279,28 +251,15 @@
 			team={homeTeam}
 			grayscale={selectedTeam === awayTeam.abbreviation && selectedTeam !== ''}
 		/>
-		{#if fitNamesWithLogos}
-			<span class="rounded team-abbreviation" class:dark-mode={$useDarkTheme} class:disabled
-				>{homeTeam.abbreviation}
-				<p>
-					({homeTeam.wins}-{homeTeam.losses}{#if homeTeam.ties > 0}
-						-{homeTeam.ties}
-					{/if})
-				</p>
-			</span>
-		{:else}
+		{#if showTeamNameImages}
 			<TeamNameImage
 				team={homeTeam}
 				rounded={true}
 				whiteBg={true}
 				grayscale={selectedTeam === awayTeam.abbreviation && selectedTeam !== ''}
 			/>
-			<p style="font-weight: normal;">
-				({homeTeam.wins}-{homeTeam.losses}{#if homeTeam.ties > 0}
-					-{homeTeam.ties}
-				{/if})
-			</p>
 		{/if}
+		<TeamRecord showTeamAbbreviation={!showTeamNameImages} team={homeTeam} />
 	</label>
 </div>
 

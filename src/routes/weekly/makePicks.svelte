@@ -268,9 +268,9 @@
 	}
 
 	onMount(() => {
-		defaultToast(toastTitle, toastMsg, 20000);
+		defaultToast(toastTitle, toastMsg, 15_000);
 	});
-	const toasted = () => defaultToast(toastTitle, toastMsg, 200000);
+	const toasted = () => defaultToast(toastTitle, toastMsg, 200_000);
 </script>
 
 <PageTitle>Make Weekly Picks</PageTitle>
@@ -301,7 +301,7 @@
 
 <div class="grid positioning">
 	<div class="first-row grid">
-		<WeekSelect bind:selectedWeek on:weekChanged={changedQuery} />
+		<WeekSelect bind:selectedWeek bind:selectedSeasonType on:weekChanged={changedQuery} />
 	</div>
 
 	<div class="second-row flex">
@@ -326,7 +326,7 @@
 			{#await picksPromise}
 				Loading picks...
 			{:then picks}
-				{#each games as game}
+				{#each games as game, i}
 					{#each currentPicks as pick}
 						{#if pick.id === game.id}
 							<div class="game-container">
@@ -334,6 +334,7 @@
 									bind:showIDs
 									bind:showTimestamps
 									id={game.id}
+									index={i}
 									spread={game.spread}
 									homeTeam={game.homeTeam}
 									awayTeam={game.awayTeam}
@@ -369,16 +370,16 @@
 			{#if currentPickCount === gamesList.length}
 				<button
 					on:click={submitPicks}
-					class="submit flex {$useDarkTheme ? 'dark-mode' : 'light-mode'} {tiebreaker >= 10
-						? ''
-						: 'invisible'}"
+					class="submit flex {$useDarkTheme ? 'dark-mode' : 'light-mode'}"
+					class:invisible={tiebreaker < 10}
+					class:pulse={tiebreaker >= 10}
 					tabindex={tiebreaker >= 10 ? 0 : -1}
 					in:fly={{ delay: 250, duration: 200, x: 100 }}
 					out:fly={{ x: 100, duration: 200 }}
 				>
 					Submit Picks <Fa icon={faCheckCircle} size="lg" />
 				</button>
-				<span style="position:relative">
+				<span style="position:relative" class="tiebreaker-container" class:pulse={tiebreaker < 10}>
 					<input
 						class="tiebreaker flex"
 						type="number"
@@ -418,6 +419,7 @@
 	.weekGames {
 		justify-content: center;
 		padding: 1rem;
+		padding-bottom: 3rem;
 		grid-template-columns: repeat(
 			auto-fit,
 			minmax(min(100%, 30em), 1fr)
@@ -476,7 +478,17 @@
 	.tiebreaker {
 		grid-area: tiebreaker;
 		background-color: white;
+	}
+	.tiebreaker-container {
+		@include rounded;
 		box-shadow: 0 0 4px 2px var(--accent-color);
+	}
+	.pulse {
+		@include pulse($pulseDistance: 20px, $opacity: 80%);
+		&:hover,
+		&:focus-within {
+			animation: none;
+		}
 	}
 	input {
 		@include rounded;

@@ -51,3 +51,20 @@ export const isBeforeGameTime = async (timestamp: Timestamp): Promise<boolean> =
 		return false;
 	}
 };
+
+export const setRegularSeasonWeeks = () => {
+	const weeks = [];
+	for (let i = 1; i < 18; i++) {
+		weeks.push(i);
+	}
+	// console.log('setRegularSeasonWeeks');
+	return weeks;
+};
+export const setPreSeasonWeeks = () => {
+	const weeks = [];
+	for (let i = 1; i < 5; i++) {
+		weeks.push(i);
+	}
+	// console.log('setPreSeasonWeeks');
+	return weeks;
+};
