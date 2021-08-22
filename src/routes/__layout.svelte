@@ -27,6 +27,9 @@
 			const userDocRef = doc(usersCollection, $currentUser.uid);
 			const unsubscribe = onSnapshot(userDocRef.withConverter(userConverter), async (querySnap) => {
 				$userData = { ...querySnap.data() };
+				for (const property in $userData) {
+					localStorage.setItem(property, $userData[property]);
+				}
 				unsubscribe(); // stop listening for user data; prevents memmory leaking
 			});
 		}

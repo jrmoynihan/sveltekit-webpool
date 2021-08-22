@@ -53,6 +53,10 @@
 		easing: cubicOut
 	});
 
+	const getUserInfo = async () => {
+		return localStorage.getItem('id');
+	};
+
 	const getGames = async (selectedWeek: number) => {
 		try {
 			myLog(`getting ${selectedSeasonType.text} games for Week ${selectedWeek}, ${selectedYear}`);
@@ -78,13 +82,14 @@
 
 	const getPicks = async (selectedWeek: number) => {
 		try {
+			const uid = await getUserInfo();
 			const picks: WeeklyPickDoc[] = [];
 			const q = query(
 				weeklyPicksCollection,
 				where('year', '==', selectedYear),
 				where('type', '==', selectedSeasonType.text),
 				where('week', '==', selectedWeek),
-				where('uid', '==', $currentUser.uid),
+				where('uid', '==', uid),
 				orderBy('timestamp')
 			);
 			const querySnapshot = await getDocs(q.withConverter(weeklyPickConverter));
@@ -243,8 +248,10 @@
 		}
 	};
 
-	let gamesPromise = getGames(selectedWeek);
-	let picksPromise = getPicks(selectedWeek);
+	let gamesPromise: Promise<Game[]> = getGames(selectedWeek);
+	let picksPromise: Promise<WeeklyPickDoc[]> = getPicks(selectedWeek);
+	let toastTitle = 'New!';
+	let toastMsg = `<br>Looking for the Submit Picks button?<br> <br> Make sure you make <em>all</em> of your picks!  The tiebreaker score and button to submit picks will only appear after you've selected a pick for every game. <br><br>  You can always come back to change them later!`;
 
 	const changedQuery = async () => {
 		gamesPromise = getGames(selectedWeek);
@@ -259,8 +266,7 @@
 			}
 		}
 	}
-	let toastTitle = 'New!';
-	let toastMsg = `<br>Looking for the Submit Picks button?<br> <br> Make sure you make <em>all</em> of your picks!  The tiebreaker score and button to submit picks will only appear after you've selected a pick for every game. <br><br>  You can always come back to change them later!`;
+
 	onMount(() => {
 		defaultToast(toastTitle, toastMsg, 20000);
 	});
@@ -276,7 +282,7 @@
 		<ToggleSwitch bind:checked={showTimestamps} />
 		Edit Toast
 		<ToggleSwitch bind:checked={editingToast} />
-		{#if $currentUser.uid}
+		{#if $currentUser}
 			Current User ID
 			<p>{$currentUser.uid}</p>
 		{/if}
