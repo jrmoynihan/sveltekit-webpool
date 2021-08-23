@@ -4,6 +4,7 @@
 	export let invisible = false;
 	export let currentPickCount = 0;
 	export let totalGameCount = 0;
+	export let upcomingGamesCount = 0;
 </script>
 
 <div
@@ -12,7 +13,11 @@
 	in:fly={{ delay: 250, duration: 200, x: 150 }}
 	out:fly={{ duration: 200, x: -150 }}
 >
-	{currentPickCount} / {totalGameCount} Picks Made
+	{#if upcomingGamesCount === totalGameCount}
+		{currentPickCount} / {totalGameCount} Picks Made
+	{:else}
+		{currentPickCount} / {totalGameCount} Picks Made ({upcomingGamesCount} Left to Play)
+	{/if}
 </div>
 
 <style lang="scss">

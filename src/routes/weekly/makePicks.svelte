@@ -6,14 +6,19 @@
 	import WeekSelect from '$lib/components/selects/WeekSelect.svelte';
 	import ToggleSwitch from '$lib/components/switches/ToggleSwitch.svelte';
 	import { currentUser } from '$scripts/auth';
-	import type { Game } from '$scripts/classes/game';
 	import type { WeeklyPickDoc } from '$scripts/classes/picks';
-	import { weeklyPicksCollection } from '$scripts/collections';
-	import { gameConverter, weeklyPickConverter } from '$scripts/converters';
-	import { scheduleCollection } from '$scripts/collections';
+	import { weeklyPicksCollection, weeklyTiebreakersCollection } from '$scripts/collections';
+	import { weeklyPickConverter, weeklyTiebreakerConverter } from '$scripts/converters';
 	import { mobileBreakpoint } from '$scripts/site';
 	import { useDarkTheme, windowWidth } from '$scripts/store';
-	import { getDocs, orderBy, query, updateDoc, where } from '@firebase/firestore';
+	import {
+		DocumentReference,
+		getDocs,
+		orderBy,
+		query,
+		updateDoc,
+		where
+	} from '@firebase/firestore';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
 	import { isBeforeGameTime } from '$scripts/functions';
@@ -21,7 +26,6 @@
 		airplaneDeparture,
 		checkmark,
 		dogFace,
-		football,
 		home,
 		myError,
 		myLog,
@@ -37,6 +41,7 @@
 	import TiebreakerInput from '$lib/components/inputs/TiebreakerInput.svelte';
 	import PickCounter from '$lib/components/containers/micro/PickCounter.svelte';
 	import SubmitPicks from '$lib/components/buttons/SubmitPicks.svelte';
+	import { WeeklyTiebreaker } from '$scripts/classes/tiebreaker';
 
 	let showIDs = false;
 	let showTimestamps = false;
@@ -44,47 +49,32 @@
 	let selectedWeek = 1;
 	let selectedYear = new Date().getFullYear();
 	let selectedSeasonType = seasonTypes[1];
-	// let gamesList: Game[] = [];
 	let currentPicks: WeeklyPickDoc[] = [];
 	let currentPickCount = 0;
-	let totalGameCount = 0;
-	let tiebreaker: number;
+	let upcomingGamesCount = 0;
+	let totalGameCount = 16;
+	let tiebreakerDocRef: DocumentReference;
+	let tiebreaker: number = 0;
+	let toastMsg = `<br>Looking for the Submit Picks button?<br> <br> Make sure you make <em>all</em> of your picks!  The tiebreaker score and button to submit picks will only appear after you've selected a pick for every game. <br><br>  You can always come back to change them later!`;
+	const toastTitle = 'New!';
 	const progress = tweened(0, {
 		duration: 400,
 		easing: cubicOut
 	});
 
-	const getUserInfo = async () => {
+	onMount(() => {
+		defaultToast(toastTitle, toastMsg, 15_000);
+	});
+
+	const getUserId = async () => {
 		return localStorage.getItem('id');
 	};
 
-	// const getGames = async (selectedWeek: number) => {
-	// 	try {
-	// 		myLog(`getting ${selectedSeasonType.text} games for Week ${selectedWeek}, ${selectedYear}`);
-	// 		const games: Game[] = [];
-	// 		const q = query(
-	// 			scheduleCollection,
-	// 			where('year', '==', selectedYear),
-	// 			where('type', '==', selectedSeasonType.text),
-	// 			where('week', '==', selectedWeek),
-	// 			orderBy('timestamp')
-	// 		);
-	// 		const querySnapshot = await getDocs(q.withConverter(gameConverter));
-	// 		querySnapshot.forEach((doc) => {
-	// 			games.push(doc.data());
-	// 		});
-	// 		myLog('got games!', '', football, games);
-	// 		gamesList = games;
-	// 		totalGameCount = games.length;
-	// 		return games;
-	// 	} catch (error) {
-	// 		myError('getGames', error);
-	// 	}
-	// };
+	const toastIt = () => defaultToast(toastTitle, toastMsg, 200_000);
 
 	const getPicks = async (selectedWeek: number) => {
 		try {
-			const uid = await getUserInfo();
+			const uid = await getUserId();
 			const picks: WeeklyPickDoc[] = [];
 			const q = query(
 				weeklyPicksCollection,
@@ -102,9 +92,44 @@
 			myLog('got picks!', '', pick, picks);
 			currentPicks = picks;
 			totalGameCount = picks.length;
+			upcomingGamesCount = 0;
+			picks.forEach(async (pick) => {
+				const ableToPick = await isBeforeGameTime(pick.timestamp);
+				if (ableToPick) {
+					upcomingGamesCount++;
+				}
+			});
 			return picks;
 		} catch (error) {
+			defaultToast(
+				'Error!',
+				'Unable to get picks. Contact the admin.  You can find more information about the error by pressing Ctrl+Shift+I and then inspecting the error in the Console tab.'
+			);
 			myError('getPicks', error);
+		}
+	};
+	const getTiebreaker = async (selectedWeek: number) => {
+		try {
+			let tiebreakerData: WeeklyTiebreaker;
+			const uid = await getUserId();
+			const q = query(
+				weeklyTiebreakersCollection,
+				where('year', '==', selectedYear),
+				where('week', '==', selectedWeek),
+				where('uid', '==', uid)
+			);
+			const querySnapshot = await getDocs(q.withConverter(weeklyTiebreakerConverter));
+			querySnapshot.forEach((doc) => {
+				if (doc.exists()) {
+					const data = doc.data();
+					tiebreakerData = data;
+				}
+			});
+			tiebreaker = tiebreakerData.tiebreaker;
+			tiebreakerDocRef = tiebreakerData.docRef;
+			return tiebreakerData;
+		} catch (error) {
+			myError('getTiebreaker', error);
 		}
 	};
 
@@ -119,14 +144,36 @@
 					await updateDoc(docRef.withConverter(weeklyPickConverter), { pick: pick });
 				} catch (error) {
 					myError(
-						'submitPicks->updateDoc',
+						'submitPicks->updatePicks',
 						error,
 						`unable to update game pick ${currentPick.docRef} for user ${currentPick.uid}`
 					);
+					defaultToast(
+						`${policeCarLight} Unable To Update Picks!`,
+						`We encountered an error while trying to submit your picks.  Please contact your admin with the following information: <br> ${error}`
+					);
 				}
 			});
-			myLog('submitted picks!', '', okHand, currentPicks);
+			myLog('updated/submitted picks!', '', okHand, currentPicks);
 			picksPromise = getPicks(selectedWeek);
+			const docRef = tiebreakerDocRef;
+			const uid = await getUserId();
+			try {
+				await updateDoc(docRef.withConverter(weeklyTiebreakerConverter), {
+					tiebreaker: tiebreaker
+				});
+				myLog('updated/submitted tiebreaker!', '', okHand, tiebreaker);
+			} catch (error) {
+				myError(
+					'submitPicks->updateTiebreaker',
+					error,
+					`unable to update tiebreaker ${tiebreakerDocRef.path} for user ${uid}`
+				);
+				defaultToast(
+					`${policeCarLight} Unable To Update Tiebreaker!`,
+					`We encountered an error while trying to submit your tiebreaker.  Please contact your admin with the following information: <br> ${error}`
+				);
+			}
 			defaultToast(
 				`${checkmark} Picks submitted!`,
 				`You can change any game's pick prior to that game's start time.`,
@@ -251,29 +298,26 @@
 		}
 	};
 
-	// let gamesPromise: Promise<Game[]> = getGames(selectedWeek);
 	let picksPromise: Promise<WeeklyPickDoc[]> = getPicks(selectedWeek);
-	let toastTitle = 'New!';
-	let toastMsg = `<br>Looking for the Submit Picks button?<br> <br> Make sure you make <em>all</em> of your picks!  The tiebreaker score and button to submit picks will only appear after you've selected a pick for every game. <br><br>  You can always come back to change them later!`;
+	let tiebreakerPromise: Promise<WeeklyTiebreaker> = getTiebreaker(selectedWeek);
 
 	const changedQuery = async () => {
-		// gamesPromise = getGames(selectedWeek);
 		picksPromise = getPicks(selectedWeek);
+		tiebreakerPromise = getTiebreaker(selectedWeek);
 	};
 
 	$: {
 		if (currentPicks !== undefined) {
-			if (currentPickCount > 0 && totalGameCount > 0) {
+			if (currentPickCount >= 0 && totalGameCount > 0) {
 				currentPickCount = currentPicks.filter((pick) => pick.pick !== '').length;
-				$progress = currentPickCount / totalGameCount;
+				if (upcomingGamesCount === totalGameCount) {
+					$progress = currentPickCount / totalGameCount;
+				} else if (upcomingGamesCount > 0) {
+					$progress = currentPickCount / upcomingGamesCount;
+				}
 			}
 		}
 	}
-
-	onMount(() => {
-		defaultToast(toastTitle, toastMsg, 15_000);
-	});
-	const toasted = () => defaultToast(toastTitle, toastMsg, 200_000);
 </script>
 
 <PageTitle>Make Weekly Picks</PageTitle>
@@ -293,12 +337,18 @@
 		<SeasonTypeSelect bind:selectedSeasonType on:seasonTypeChanged={changedQuery} />
 		Select Year
 		<YearSelect bind:selectedYear on:yearChanged={changedQuery} />
-		<button on:click={toasted}>Toast It!</button>
+		<button on:click={toastIt}>Toast It!</button>
 		{#if editingToast}
 			<textarea style="resize:both;" contenteditable bind:value={toastMsg} />
 		{:else}
 			<code>{@html toastMsg}</code>
 		{/if}
+		Upcoming Games Count
+		<p>{upcomingGamesCount}</p>
+		Total Games/Picks Count
+		<p>{totalGameCount}</p>
+		Current Pick Count
+		<p>{currentPickCount}</p>
 	</div>
 </DevNotes>
 
@@ -316,15 +366,10 @@
 	</div>
 
 	<div class="grid weekGames" style={$windowWidth > mobileBreakpoint ? 'max-width:60%;' : ''}>
-		<!-- {#await gamesPromise}
-			Loading games...
-		{:then games} -->
 		{#await picksPromise}
 			Loading games and picks...
 		{:then picks}
-			<!-- {#each games as game, i} -->
 			{#each currentPicks as pick, i}
-				<!-- {#if pick.id === game.id} -->
 				<div class="game-container">
 					<MatchupContainer
 						bind:totalGameCount
@@ -341,11 +386,8 @@
 						competitions={pick.game.competitions}
 					/>
 				</div>
-				<!-- {/if} -->
 			{/each}
-			<!-- {/each} -->
 		{/await}
-		<!-- {/await} -->
 	</div>
 </div>
 
@@ -355,16 +397,23 @@
 	{/if}
 	{#if currentPickCount >= 0 && totalGameCount > 0}
 		{#key currentPickCount}
-			<PickCounter invisible={tiebreaker >= 10} {currentPickCount} {totalGameCount} />
+			<PickCounter
+				invisible={tiebreaker >= 10 && currentPickCount >= upcomingGamesCount}
+				bind:currentPickCount
+				bind:totalGameCount
+				bind:upcomingGamesCount
+			/>
 		{/key}
-		{#if currentPickCount === totalGameCount}
+		{#if currentPickCount === upcomingGamesCount}
 			<SubmitPicks
 				on:click={submitPicks}
 				ableToTab={tiebreaker >= 10 ? 0 : -1}
 				pulse={tiebreaker >= 10}
 				invisible={tiebreaker < 10 || tiebreaker === undefined}
 			/>
-			<TiebreakerInput bind:tiebreaker />
+			{#if upcomingGamesCount > 0}
+				<TiebreakerInput bind:tiebreaker />
+			{/if}
 		{:else}
 			<progress value={$progress} />
 		{/if}

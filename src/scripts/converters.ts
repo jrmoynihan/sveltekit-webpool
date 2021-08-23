@@ -4,6 +4,7 @@ import { Team } from '$scripts/classes/team';
 import { RuleCategory } from '$scripts/classes/rules';
 import { Game } from './classes/game';
 import { WeeklyPickDoc } from './classes/picks';
+import { WeeklyTiebreaker } from './classes/tiebreaker';
 
 export const userConverter = {
 	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -139,5 +140,15 @@ export const weeklyPickConverter = {
 			data.game,
 			data.type
 		);
+	}
+};
+export const weeklyTiebreakerConverter = {
+	toFirestore: (tiebreaker: WeeklyTiebreaker) => {
+		return { ...tiebreaker };
+	},
+	fromFirestore: (snapshot: QueryDocumentSnapshot): WeeklyTiebreaker => {
+		const docRef = snapshot.ref;
+		const data = snapshot.data();
+		return new WeeklyTiebreaker(docRef, data.tiebreaker, data.uid, data.week, data.year);
 	}
 };
