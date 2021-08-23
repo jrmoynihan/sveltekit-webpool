@@ -35,13 +35,13 @@
 		seasonTypes
 	} from '$scripts/classes/constants';
 	import { onMount } from 'svelte';
-	import { defaultToast } from '$scripts/toasts';
+	import { defaultToast, errorToast } from '$scripts/toasts';
 	import SeasonTypeSelect from '$lib/components/selects/SeasonTypeSelect.svelte';
 	import YearSelect from '$lib/components/selects/YearSelect.svelte';
 	import TiebreakerInput from '$lib/components/inputs/TiebreakerInput.svelte';
 	import PickCounter from '$lib/components/containers/micro/PickCounter.svelte';
 	import SubmitPicks from '$lib/components/buttons/SubmitPicks.svelte';
-	import { WeeklyTiebreaker } from '$scripts/classes/tiebreaker';
+	import type { WeeklyTiebreaker } from '$scripts/classes/tiebreaker';
 
 	let showIDs = false;
 	let showTimestamps = false;
@@ -71,6 +71,8 @@
 	};
 
 	const toastIt = () => defaultToast(toastTitle, toastMsg, 200_000);
+	const errorToastIt = () =>
+		errorToast(`${policeCarLight} This is a test error. Try to avoid the real thing.`);
 
 	const getPicks = async (selectedWeek: number) => {
 		try {
@@ -349,6 +351,7 @@
 		<p>{totalGameCount}</p>
 		Current Pick Count
 		<p>{currentPickCount}</p>
+		<button on:click={errorToastIt}>Error Toast!</button>
 	</div>
 </DevNotes>
 

@@ -34,3 +34,6 @@ export const defaultToast = (
 		}
 	});
 };
+
+export const errorToast = (msg: string) =>
+	defaultToast('Error!', msg, 30_000, undefined, 'white', 'darkred');
