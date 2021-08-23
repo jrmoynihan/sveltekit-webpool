@@ -1,13 +1,18 @@
 <script lang="ts">
 	import { browser } from '$app/env';
 
-	import { home, policeCarLight } from '$scripts/classes/constants';
+	import { checkmark, home, policeCarLight } from '$scripts/classes/constants';
 
 	import type { Team } from '$scripts/classes/team';
 	import { isBeforeGameTime } from '$scripts/functions';
 	import { useDarkTheme, windowWidth } from '$scripts/store';
 	import type { Timestamp } from '@firebase/firestore';
-	import { faArrowCircleLeft, faArrowCircleRight, faLock } from '@fortawesome/free-solid-svg-icons';
+	import {
+		faArrowCircleLeft,
+		faArrowCircleRight,
+		faCheckCircle,
+		faLock
+	} from '@fortawesome/free-solid-svg-icons';
 	import { onMount } from 'svelte';
 	import Fa from 'svelte-fa';
 	import GameTime from './micro/GameTime.svelte';
@@ -25,6 +30,8 @@
 	export let showIDs = false;
 	export let showTimestamps = false;
 	export let competitions = [];
+	export let currentPickCount = 0;
+	export let totalGameCount = 0;
 	let layoutBreakpoint = 620;
 	let showTeamNameImages = false;
 	let disabled: boolean = false;
@@ -32,11 +39,18 @@
 
 	const getStatus = async (): Promise<any> => {
 		const httpGameStatusEndpoint: string = competitions[0].status.$ref;
-		const httpsGameStatusEndpoint = httpGameStatusEndpoint.replace('http', 'https');
+		const httpsGameStatusEndpoint: string = httpGameStatusEndpoint.replace('http', 'https');
 		// console.log(httpsGameStatusEndpoint)
 		const statusResponse = await fetch(httpsGameStatusEndpoint);
 		const statusData = statusResponse.json();
 		return statusData;
+	};
+	const getSituation = async (): Promise<any> => {
+		const httpGameSituationEndpoint: string = competitions[0].situation.$ref;
+		const httpsGameSituationEndpoint: string = httpGameSituationEndpoint.replace('http', 'https');
+		const situationResponse = await fetch(httpsGameSituationEndpoint);
+		const situationData = situationResponse.json();
+		return situationData;
 	};
 
 	// TODO move this to a web worker to avoid slowdown?
@@ -71,7 +85,11 @@
 		if (browser) {
 			const yOffset = -150;
 			const element = document.getElementById(`game-${index + 1}`);
-			if (element) {
+			console.log('currentPickCount', currentPickCount);
+			console.log('gameCount', totalGameCount);
+			// The minus 1 accounts for this function running before the parent passes in the newly updated currentPickCount
+			// I.E. -- When making the 16th pick, currentPickCount will still be 15
+			if (currentPickCount < totalGameCount - 1 && element) {
 				const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
 				window.scrollTo({ top: y, behavior: 'smooth' });
 			} else {
@@ -82,6 +100,7 @@
 
 	let promiseStatus = getStatus();
 	let promiseScores = getScores();
+	let promiseSituation = getSituation();
 
 	$: {
 		if ($windowWidth < layoutBreakpoint) {
@@ -94,6 +113,7 @@
 		// Every 60 seconds, update the game status
 		const interval = setInterval(() => {
 			promiseStatus = getStatus();
+			promiseSituation = getSituation();
 		}, 60000);
 	});
 </script>
@@ -131,11 +151,34 @@
 	</label>
 
 	<label class="game-info rounded" for="{id}-none">
-		<p
-			class="grid info team-abbreviation"
-			style={showTeamNameImages ? 'grid-template-columns: 1fr' : ''}
-		>
+		<p class="grid info pick-at-pick">
+			{#await promiseStatus}
+				<span />
+			{:then status}
+				<span>
+					{#if status.type.description === 'Final'}
+						{#await promiseScores then { homeScoreData, awayScoreData }}
+							{#if selectedTeam === awayTeam.abbreviation && awayScoreData.value > homeScoreData.value}
+								<Fa icon={faCheckCircle} size="2x" color="green" />
+							{/if}
+						{/await}
+					{/if}</span
+				>
+			{/await}
 			<span class="at-symbol"> @ </span>
+			{#await promiseStatus}
+				<span />
+			{:then status}
+				<span>
+					{#if status.type.description === 'Final'}
+						{#await promiseScores then { homeScoreData, awayScoreData }}
+							{#if selectedTeam === homeTeam.abbreviation && homeScoreData.value > awayScoreData.value}
+								<Fa icon={faCheckCircle} size="2x" color="green" />
+							{/if}
+						{/await}
+					{/if}</span
+				>
+			{/await}
 		</p>
 		<p class="grid status info">
 			{#await promiseStatus}
@@ -223,8 +266,25 @@
 						No timestamp field set.
 					{/if}
 				{:else if status.type.completed === false}
-					<span>Q{status.period}</span>
-					<span>{status.displayClock}</span>
+					{#if status.type.description === 'Halftime'}
+						<p>{status.type.description}</p>
+					{:else}
+						<p>
+							<span>Q{status.period}</span>
+							<span>{status.displayClock}</span>
+						</p>
+					{/if}
+					{#await promiseSituation then situation}
+						{#if situation.downDistanceText !== undefined}
+							<p>
+								<span
+									style={situation.yardLine <= 20
+										? 'background:radial-gradient(firebrick 50%,transparent 70%);'
+										: ''}>{situation.downDistanceText}</span
+								>
+							</p>
+						{/if}
+					{/await}
 				{/if}
 			{/await}
 		</div>
@@ -324,5 +384,10 @@
 	.score {
 		font-weight: bold;
 		font-size: clamp(1rem, 5vw, 3rem);
+		min-width: 2ch;
+	}
+	.pick-at-pick {
+		grid-template-columns: 1fr 1fr 1fr;
+		width: 100%;
 	}
 </style>
