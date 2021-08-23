@@ -1,8 +1,6 @@
 <script lang="ts">
 	import { browser } from '$app/env';
-
-	import { checkmark, home, policeCarLight } from '$scripts/classes/constants';
-
+	import { policeCarLight } from '$scripts/classes/constants';
 	import type { Team } from '$scripts/classes/team';
 	import { isBeforeGameTime } from '$scripts/functions';
 	import { useDarkTheme, windowWidth } from '$scripts/store';

@@ -1,13 +1,20 @@
 <script lang="ts">
+	import { createEventDispatcher } from 'svelte';
+
 	import { fade } from 'svelte/transition';
 
 	export let tiebreaker: number;
+	const dispatch = createEventDispatcher();
+	function changed(event: { detail: any }): void {
+		dispatch('change', event.detail);
+	}
 </script>
 
 <span class="tiebreaker-container" class:pulse={tiebreaker < 10 || tiebreaker === undefined}>
 	<input
 		type="number"
 		bind:value={tiebreaker}
+		on:input={() => changed}
 		placeholder="tiebreaker"
 		min="0"
 		in:fade={{ delay: 250, duration: 200 }}
