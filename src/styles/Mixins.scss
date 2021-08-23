@@ -239,6 +239,10 @@
 			box-shadow: 0 0 0 0 rgba($color, 0%);
 		}
 	}
+	&:hover,
+	&:focus-within {
+		animation: none;
+	}
 }
 @mixin defaultContainerStyles {
 	width: auto;

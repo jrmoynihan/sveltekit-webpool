@@ -19,20 +19,21 @@
 	import { usersCollection } from '$scripts/collections';
 	import ReturnToTop from '$lib/components/buttons/ReturnToTop.svelte';
 	import { SvelteToast } from '@zerodevx/svelte-toast';
+	import { getDoc } from '@firebase/firestore';
 
 	export let refresh: any;
 
-	$: {
-		if ($currentUser && userConverter) {
-			const userDocRef = doc(usersCollection, $currentUser.uid);
-			const unsubscribe = onSnapshot(userDocRef.withConverter(userConverter), async (querySnap) => {
-				$userData = { ...querySnap.data() };
-				for (const property in $userData) {
-					localStorage.setItem(property, $userData[property]);
-				}
-				unsubscribe(); // stop listening for user data; prevents memmory leaking
-			});
+	const saveUserData = async () => {
+		const userDocRef = doc(usersCollection, $currentUser.uid);
+		const snapshot = await getDoc(userDocRef.withConverter(userConverter));
+		$userData = snapshot.data();
+		for (const property in $userData) {
+			localStorage.setItem(property, $userData[property]);
 		}
+	};
+
+	$: if ($currentUser && userConverter) {
+		saveUserData();
 	}
 </script>
 

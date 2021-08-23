@@ -16,10 +16,7 @@
 	import { getDocs, orderBy, query, updateDoc, where } from '@firebase/firestore';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
-	import Fa from 'svelte-fa';
-	import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 	import { isBeforeGameTime } from '$scripts/functions';
-	import { fade, fly } from 'svelte/transition';
 	import {
 		airplaneDeparture,
 		checkmark,
@@ -37,6 +34,9 @@
 	import { defaultToast } from '$scripts/toasts';
 	import SeasonTypeSelect from '$lib/components/selects/SeasonTypeSelect.svelte';
 	import YearSelect from '$lib/components/selects/YearSelect.svelte';
+	import TiebreakerInput from '$lib/components/inputs/TiebreakerInput.svelte';
+	import PickCounter from '$lib/components/containers/micro/PickCounter.svelte';
+	import SubmitPicks from '$lib/components/buttons/SubmitPicks.svelte';
 
 	let showIDs = false;
 	let showTimestamps = false;
@@ -44,9 +44,10 @@
 	let selectedWeek = 1;
 	let selectedYear = new Date().getFullYear();
 	let selectedSeasonType = seasonTypes[1];
-	let gamesList: Game[] = [];
+	// let gamesList: Game[] = [];
 	let currentPicks: WeeklyPickDoc[] = [];
 	let currentPickCount = 0;
+	let totalGameCount = 0;
 	let tiebreaker: number;
 	const progress = tweened(0, {
 		duration: 400,
@@ -57,28 +58,29 @@
 		return localStorage.getItem('id');
 	};
 
-	const getGames = async (selectedWeek: number) => {
-		try {
-			myLog(`getting ${selectedSeasonType.text} games for Week ${selectedWeek}, ${selectedYear}`);
-			const games: Game[] = [];
-			const q = query(
-				scheduleCollection,
-				where('year', '==', selectedYear),
-				where('type', '==', selectedSeasonType.text),
-				where('week', '==', selectedWeek),
-				orderBy('timestamp')
-			);
-			const querySnapshot = await getDocs(q.withConverter(gameConverter));
-			querySnapshot.forEach((doc) => {
-				games.push(doc.data());
-			});
-			myLog('got games!', '', football, games);
-			gamesList = games;
-			return games;
-		} catch (error) {
-			myError('getGames', error);
-		}
-	};
+	// const getGames = async (selectedWeek: number) => {
+	// 	try {
+	// 		myLog(`getting ${selectedSeasonType.text} games for Week ${selectedWeek}, ${selectedYear}`);
+	// 		const games: Game[] = [];
+	// 		const q = query(
+	// 			scheduleCollection,
+	// 			where('year', '==', selectedYear),
+	// 			where('type', '==', selectedSeasonType.text),
+	// 			where('week', '==', selectedWeek),
+	// 			orderBy('timestamp')
+	// 		);
+	// 		const querySnapshot = await getDocs(q.withConverter(gameConverter));
+	// 		querySnapshot.forEach((doc) => {
+	// 			games.push(doc.data());
+	// 		});
+	// 		myLog('got games!', '', football, games);
+	// 		gamesList = games;
+	// 		totalGameCount = games.length;
+	// 		return games;
+	// 	} catch (error) {
+	// 		myError('getGames', error);
+	// 	}
+	// };
 
 	const getPicks = async (selectedWeek: number) => {
 		try {
@@ -99,6 +101,7 @@
 
 			myLog('got picks!', '', pick, picks);
 			currentPicks = picks;
+			totalGameCount = picks.length;
 			return picks;
 		} catch (error) {
 			myError('getPicks', error);
@@ -139,11 +142,11 @@
 
 	const pickAllHome = async () => {
 		try {
-			currentPicks.forEach(async (pick) => {
-				const ableToPick = await isBeforeGameTime(pick.timestamp);
+			currentPicks.forEach(async (pickDoc) => {
+				const ableToPick = await isBeforeGameTime(pickDoc.timestamp);
 				if (ableToPick) {
-					const homeTeam = gamesList.find((game) => game.id === pick.id).homeTeam;
-					pick.pick = homeTeam.abbreviation;
+					const homeTeam = pickDoc.game.homeTeam;
+					pickDoc.pick = homeTeam.abbreviation;
 				}
 			});
 			myLog('picked all home teams!', '', home);
@@ -154,11 +157,11 @@
 	};
 	const pickAllAway = async () => {
 		try {
-			currentPicks.forEach(async (pick) => {
-				const ableToPick = await isBeforeGameTime(pick.timestamp);
+			currentPicks.forEach(async (pickDoc) => {
+				const ableToPick = await isBeforeGameTime(pickDoc.timestamp);
 				if (ableToPick) {
-					const awayTeam = gamesList.find((game) => game.id === pick.id).awayTeam;
-					pick.pick = awayTeam.abbreviation;
+					const awayTeam = pickDoc.game.awayTeam;
+					pickDoc.pick = awayTeam.abbreviation;
 				}
 			});
 			myLog('picks all away teams!', '', airplaneDeparture);
@@ -170,7 +173,8 @@
 	const pickAllFavored = async () => {
 		try {
 			let spreadsMissing = false;
-			const favored = gamesList.map((game) => {
+			const favored = currentPicks.map((pickDoc) => {
+				const game = pickDoc.game;
 				if (game.spread < 0) {
 					return game.homeTeam;
 				} else if (game.spread > 0) {
@@ -190,14 +194,13 @@
 				// alert(`Spreads not yet available for all games!`);
 				return;
 			}
-			gamesList.forEach(async (game, i) => {
-				const pickToChange = currentPicks.find((pick) => pick.id === game.id);
-				const ableToPick = await isBeforeGameTime(pickToChange.timestamp);
+			currentPicks.forEach(async (pickDoc, i) => {
+				const ableToPick = await isBeforeGameTime(pickDoc.timestamp);
 				if (ableToPick) {
 					if (favored[i] !== null && favored[i] !== undefined) {
-						pickToChange.pick = favored[i].abbreviation;
+						pickDoc.pick = favored[i].abbreviation;
 					} else {
-						pickToChange.pick = '';
+						pickDoc.pick = '';
 					}
 				}
 			});
@@ -210,7 +213,8 @@
 	const pickAllDogs = async () => {
 		try {
 			let spreadsMissing = false;
-			const underdogs = gamesList.map((game) => {
+			const underdogs = currentPicks.map((pickDoc) => {
+				const game = pickDoc.game;
 				if (game.spread < 0) {
 					return game.awayTeam;
 				} else if (game.spread > 0) {
@@ -230,14 +234,13 @@
 				// alert(`Spreads not yet available for all games!`);
 				return;
 			}
-			gamesList.forEach(async (game, i) => {
-				const pickToChange = currentPicks.find((pick) => pick.id === game.id);
-				const ableToPick = await isBeforeGameTime(pickToChange.timestamp);
+			currentPicks.forEach(async (pickDoc, i) => {
+				const ableToPick = await isBeforeGameTime(pickDoc.timestamp);
 				if (ableToPick) {
 					if (underdogs[i] !== null && underdogs[i] !== undefined) {
-						pickToChange.pick = underdogs[i].abbreviation;
+						pickDoc.pick = underdogs[i].abbreviation;
 					} else {
-						pickToChange.pick = '';
+						pickDoc.pick = '';
 					}
 				}
 			});
@@ -248,21 +251,21 @@
 		}
 	};
 
-	let gamesPromise: Promise<Game[]> = getGames(selectedWeek);
+	// let gamesPromise: Promise<Game[]> = getGames(selectedWeek);
 	let picksPromise: Promise<WeeklyPickDoc[]> = getPicks(selectedWeek);
 	let toastTitle = 'New!';
 	let toastMsg = `<br>Looking for the Submit Picks button?<br> <br> Make sure you make <em>all</em> of your picks!  The tiebreaker score and button to submit picks will only appear after you've selected a pick for every game. <br><br>  You can always come back to change them later!`;
 
 	const changedQuery = async () => {
-		gamesPromise = getGames(selectedWeek);
+		// gamesPromise = getGames(selectedWeek);
 		picksPromise = getPicks(selectedWeek);
 	};
 
 	$: {
-		if (currentPicks !== undefined && gamesList !== undefined) {
-			if (currentPicks.length > 0 && gamesList.length > 0) {
+		if (currentPicks !== undefined) {
+			if (currentPickCount > 0 && totalGameCount > 0) {
 				currentPickCount = currentPicks.filter((pick) => pick.pick !== '').length;
-				$progress = currentPickCount / gamesList.length;
+				$progress = currentPickCount / totalGameCount;
 			}
 		}
 	}
@@ -304,50 +307,45 @@
 		<WeekSelect bind:selectedWeek bind:selectedSeasonType on:weekChanged={changedQuery} />
 	</div>
 
+	<!-- prettier-ignore -->
 	<div class="second-row flex">
-		<button on:click={pickAllAway} class="{$useDarkTheme ? 'dark-mode' : 'light-mode'} hotkeys"
-			>All Away</button
-		>
-		<button on:click={pickAllFavored} class="{$useDarkTheme ? 'dark-mode' : 'light-mode'} hotkeys"
-			>All Favored</button
-		>
-		<button on:click={pickAllDogs} class="{$useDarkTheme ? 'dark-mode' : 'light-mode'} hotkeys"
-			>All Underdogs</button
-		>
-		<button on:click={pickAllHome} class="{$useDarkTheme ? 'dark-mode' : 'light-mode'} hotkeys"
-			>All Home</button
-		>
+		<button on:click={pickAllAway} class:dark-mode={$useDarkTheme} class="hotkeys">All Away</button>
+		<button on:click={pickAllFavored} class:dark-mode={$useDarkTheme} class="hotkeys">All Favored</button>
+		<button on:click={pickAllDogs} class:dark-mode={$useDarkTheme} class="hotkeys">All Underdogs</button>
+		<button on:click={pickAllHome} class:dark-mode={$useDarkTheme} class="hotkeys">All Home</button>
 	</div>
 
 	<div class="grid weekGames" style={$windowWidth > mobileBreakpoint ? 'max-width:60%;' : ''}>
-		{#await gamesPromise}
+		<!-- {#await gamesPromise}
 			Loading games...
-		{:then games}
-			{#await picksPromise}
-				Loading picks...
-			{:then picks}
-				{#each games as game, i}
-					{#each currentPicks as pick}
-						{#if pick.id === game.id}
-							<div class="game-container">
-								<MatchupContainer
-									bind:showIDs
-									bind:showTimestamps
-									id={game.id}
-									index={i}
-									spread={game.spread}
-									homeTeam={game.homeTeam}
-									awayTeam={game.awayTeam}
-									timestamp={game.timestamp}
-									competitions={game.competitions}
-									bind:selectedTeam={pick.pick}
-								/>
-							</div>
-						{/if}
-					{/each}
-				{/each}
-			{/await}
+		{:then games} -->
+		{#await picksPromise}
+			Loading games and picks...
+		{:then picks}
+			<!-- {#each games as game, i} -->
+			{#each currentPicks as pick, i}
+				<!-- {#if pick.id === game.id} -->
+				<div class="game-container">
+					<MatchupContainer
+						bind:totalGameCount
+						bind:selectedTeam={pick.pick}
+						bind:showIDs
+						bind:showTimestamps
+						bind:currentPickCount
+						id={pick.game.id}
+						index={i}
+						spread={pick.game.spread}
+						homeTeam={pick.game.homeTeam}
+						awayTeam={pick.game.awayTeam}
+						timestamp={pick.game.timestamp}
+						competitions={pick.game.competitions}
+					/>
+				</div>
+				<!-- {/if} -->
+			{/each}
+			<!-- {/each} -->
 		{/await}
+		<!-- {/await} -->
 	</div>
 </div>
 
@@ -355,44 +353,20 @@
 	{#if $windowWidth > mobileBreakpoint}
 		<Clock />
 	{/if}
-	{#if currentPicks !== undefined && gamesList !== undefined}
-		{#if currentPicks.length >= 0 && gamesList.length > 0}
-			{#key currentPickCount}
-				<div
-					class="pick-count {tiebreaker >= 10 ? 'invisible' : ''}"
-					in:fly={{ delay: 250, duration: 200, x: 150 }}
-					out:fly={{ duration: 200, x: -150 }}
-					style={tiebreaker >= 10 ? 'transform: translateX(-100%); opacity:0' : ''}
-				>
-					{currentPickCount} / {gamesList.length} Picks Made
-				</div>
-			{/key}
-			{#if currentPickCount === gamesList.length}
-				<button
-					on:click={submitPicks}
-					class="submit flex {$useDarkTheme ? 'dark-mode' : 'light-mode'}"
-					class:invisible={tiebreaker < 10}
-					class:pulse={tiebreaker >= 10}
-					tabindex={tiebreaker >= 10 ? 0 : -1}
-					in:fly={{ delay: 250, duration: 200, x: 100 }}
-					out:fly={{ x: 100, duration: 200 }}
-				>
-					Submit Picks <Fa icon={faCheckCircle} size="lg" />
-				</button>
-				<span style="position:relative" class="tiebreaker-container" class:pulse={tiebreaker < 10}>
-					<input
-						class="tiebreaker flex"
-						type="number"
-						bind:value={tiebreaker}
-						placeholder="tiebreaker"
-						min="0"
-						in:fade={{ delay: 250, duration: 200 }}
-					/>
-					<span class="invalid" />
-				</span>
-			{:else}
-				<progress value={$progress} />
-			{/if}
+	{#if currentPickCount >= 0 && totalGameCount > 0}
+		{#key currentPickCount}
+			<PickCounter invisible={tiebreaker >= 10} {currentPickCount} {totalGameCount} />
+		{/key}
+		{#if currentPickCount === totalGameCount}
+			<SubmitPicks
+				on:click={submitPicks}
+				ableToTab={tiebreaker >= 10 ? 0 : -1}
+				pulse={tiebreaker >= 10}
+				invisible={tiebreaker < 10 || tiebreaker === undefined}
+			/>
+			<TiebreakerInput bind:tiebreaker />
+		{:else}
+			<progress value={$progress} />
 		{/if}
 	{/if}
 </div>
@@ -438,16 +412,16 @@
 		@include accentedContainer(80%);
 		color: white;
 		text-shadow: none;
-		&.submit {
-			gap: 0.5rem;
-			align-items: center;
-			padding: max(2%, 1rem);
-			font-weight: bold;
-			margin: unset;
-			grid-area: pickCount;
-			max-height: 5rem;
-			align-self: center;
-		}
+		// &.submit {
+		// 	gap: 0.5rem;
+		// 	align-items: center;
+		// 	padding: max(2%, 1rem);
+		// 	font-weight: bold;
+		// 	margin: unset;
+		// 	grid-area: pickCount;
+		// 	max-height: 5rem;
+		// 	align-self: center;
+		// }
 	}
 	.fixed {
 		background-color: var(--alternate-color);
@@ -475,66 +449,19 @@
 		grid-template-columns: 1fr 1fr;
 		padding: 0.5rem;
 	}
-	.tiebreaker {
-		grid-area: tiebreaker;
-		background-color: white;
-	}
-	.tiebreaker-container {
-		@include rounded;
-		box-shadow: 0 0 4px 2px var(--accent-color);
-	}
-	.pulse {
-		@include pulse($pulseDistance: 20px, $opacity: 80%);
-		&:hover,
-		&:focus-within {
-			animation: none;
-		}
-	}
-	input {
-		@include rounded;
-		@include editableInput;
-		padding: 2%;
-		text-align: center;
-		align-self: center;
-		width: unset;
-		&:invalid {
-			box-shadow: 0 0 20px -2px red;
-			color: red;
-			& ~ span.invalid::after {
-				@include rounded;
-				@include defaultTransition;
-				content: 'Please enter a number.';
-				color: red;
-				background-color: white;
-				top: -100%;
-				opacity: 1;
-			}
-		}
-		& ~ span.invalid::after {
-			opacity: 0;
-			width: 100%;
-			height: 100%;
-			top: 0%;
-			left: 0;
-			right: 0;
-			position: absolute;
-		}
-	}
-	.pick-count {
-		@include defaultTransition;
-		grid-area: pickCount;
-		align-self: center;
-	}
+
+	// .pulse {
+	// 	@include pulse($pulseDistance: 20px, $opacity: 80%);
+	// 	&:hover,
+	// 	&:focus-within {
+	// 		animation: none;
+	// 	}
+	// }
 	progress {
 		grid-area: tiebreaker;
 		min-height: 2.6rem;
 	}
-	.invisible {
-		opacity: 0;
-		pointer-events: none;
-		transform: translateX(50%);
-		transition: all 300ms ease-in-out;
-	}
+
 	.hotkeys {
 		box-shadow: 4px 4px 15px 5px rgba(0, 0, 0, 0.5);
 		border: 4px solid rgba(var(--accentValue-color), 80%);
