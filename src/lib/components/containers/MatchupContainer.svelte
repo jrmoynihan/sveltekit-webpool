@@ -11,7 +11,7 @@
 		faCheckCircle,
 		faLock
 	} from '@fortawesome/free-solid-svg-icons';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import Fa from 'svelte-fa';
 	import { fly } from 'svelte/transition';
 	import GameTime from './micro/GameTime.svelte';
@@ -83,7 +83,7 @@
 
 	const scrollToNext = () => {
 		if (browser) {
-			const yOffset = -150;
+			const yOffset = -250;
 			const element = document.getElementById(`game-${index + 1}`);
 			console.log('currentPickCount', currentPickCount);
 			console.log('gameCount', totalGameCount);
@@ -109,13 +109,16 @@
 			showTeamNameImages = true;
 		}
 	}
+	let interval: NodeJS.Timer;
+
 	onMount(() => {
 		// Every 60 seconds, update the game status
-		const interval = setInterval(() => {
+		interval = setInterval(() => {
 			promiseStatus = getStatus();
 			promiseSituation = getSituation();
 		}, 60000);
 	});
+	onDestroy(() => clearInterval(interval)); // Prevent memory leak
 </script>
 
 <div
@@ -248,7 +251,7 @@
 							<Tooltip
 								tooltipHorizontalPosition="-50%"
 								tooltipTop="-220%"
-								tooltipWidth="clamp(5rem,45ch,25rem)"
+								tooltipWidth="clamp(5rem,40ch,25rem)"
 							>
 								<Fa slot="content" icon={faArrowCircleLeft} size="lg" />
 								<span slot="text" class="tooltip"
@@ -263,7 +266,7 @@
 							<Tooltip
 								tooltipHorizontalPosition="-50%"
 								tooltipTop="-220%"
-								tooltipWidth="clamp(5rem,45ch,25rem)"
+								tooltipWidth="clamp(5rem,40ch,25rem)"
 							>
 								<Fa slot="content" icon={faArrowCircleRight} size="lg" />
 								<span slot="text" class="tooltip"

@@ -1,6 +1,8 @@
 <script lang="ts">
+	import { browser } from '$app/env';
+
 	import type { IconDefinition } from '@fortawesome/fontawesome-common-types';
-	import { createEventDispatcher, onMount } from 'svelte';
+	import { createEventDispatcher, onDestroy, onMount } from 'svelte';
 	import Fa from 'svelte-fa';
 
 	export let expandTitle: string = '';
@@ -136,10 +138,21 @@
 	}
 
 	onMount(() => {
-		document.querySelectorAll('details').forEach((el) => {
-			new Accordion(el);
-		});
+		if (browser) {
+			document.querySelectorAll('details').forEach((el) => {
+				new Accordion(el);
+			});
+		}
 	});
+
+	onDestroy(() => {
+		if (browser) {
+			document.querySelectorAll('summary').forEach((el) => {
+				removeEventListener('click', el.onclick);
+			});
+		}
+	});
+
 	const dispatch = createEventDispatcher();
 
 	function clicked() {

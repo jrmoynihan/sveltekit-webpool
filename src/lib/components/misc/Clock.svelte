@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { spring } from 'svelte/motion';
 
 	export let size = '2rem';
@@ -13,12 +13,17 @@
 	$: hour_offset = modulo($displayed_hour, 1);
 	$: minute_offset = modulo($displayed_minute, 1);
 	$: second_offset = modulo($displayed_second, 1);
+	let interval: NodeJS.Timer;
 
 	onMount(() => {
 		// Make a clock timer that updates every 1000ms (1 second)
-		const interval = setInterval(() => {
+		interval = setInterval(() => {
 			currentTime = new Date();
 		}, 1000);
+	});
+
+	onDestroy(() => {
+		clearInterval(interval); // Prevent memory leak
 	});
 
 	function modulo(n: number, m: number) {

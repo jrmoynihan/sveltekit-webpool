@@ -48,6 +48,7 @@
 	import SubmitPicks from '$lib/components/buttons/SubmitPicks.svelte';
 	import type { WeeklyTiebreaker } from '$scripts/classes/tiebreaker';
 	import { flip } from 'svelte/animate';
+	import { doc, setDoc } from 'firebase/firestore';
 
 	let showIDs = false;
 	let showTimestamps = false;
@@ -188,11 +189,21 @@
 			});
 			myLog('updated/submitted picks!', '', okHand, currentPicks);
 			picksPromise = getPicks(selectedWeek);
-			const docRef = tiebreakerDocRef;
+			let docRef: DocumentReference;
+			if (tiebreakerDocRef) {
+				docRef = tiebreakerDocRef;
+			} else {
+				docRef = doc(weeklyTiebreakersCollection);
+			}
+
 			const uid = await getUserId();
 			try {
-				await updateDoc(docRef.withConverter(weeklyTiebreakerConverter), {
-					tiebreaker: tiebreaker
+				await setDoc(docRef.withConverter(weeklyTiebreakerConverter), {
+					docRef: docRef,
+					tiebreaker: tiebreaker,
+					uid: uid,
+					week: selectedWeek,
+					year: selectedYear
 				});
 				myLog('updated/submitted tiebreaker!', '', okHand, tiebreaker);
 			} catch (error) {
