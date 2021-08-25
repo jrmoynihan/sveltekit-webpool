@@ -1,7 +1,11 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
+	import { mobileBreakpoint } from '$scripts/site';
 
-	import { fade } from 'svelte/transition';
+	import { windowWidth } from '$scripts/store';
+
+	import { createEventDispatcher } from 'svelte';
+	import { fade, fly, slide } from 'svelte/transition';
+	import Tooltip from '../containers/Tooltip.svelte';
 
 	export let tiebreaker: number;
 	const dispatch = createEventDispatcher();
@@ -11,15 +15,27 @@
 </script>
 
 <span class="tiebreaker-container" class:pulse={tiebreaker < 10 || tiebreaker === undefined}>
-	<input
-		type="number"
-		bind:value={tiebreaker}
-		on:input={() => changed}
-		placeholder="tiebreaker"
-		min="0"
-		in:fade={{ delay: 250, duration: 200 }}
-	/>
-	<span class="invalid" />
+	<Tooltip
+		arrowhorizontalPosition={$windowWidth > mobileBreakpoint ? '23%' : '50%'}
+		tooltipHorizontalPosition={$windowWidth > mobileBreakpoint ? '0' : '-7%'}
+		tooltipWidth={$windowWidth > mobileBreakpoint ? '200%' : 'auto'}
+		tooltipTop={$windowWidth > mobileBreakpoint ? '-300%' : '-350%'}
+	>
+		<svelte:fragment slot="content">
+			<input
+				type="number"
+				bind:value={tiebreaker}
+				on:input={() => changed}
+				placeholder="tiebreaker"
+				min="0"
+				in:fade={{ delay: 250, duration: 200 }}
+			/>
+			<span class="invalid" />
+		</svelte:fragment>
+		<span slot="text" transition:slide class="tooltip"
+			>Enter a tiebreaker score -- the total scores of both teams in the last game of the week.</span
+		>
+	</Tooltip>
 </span>
 
 <style lang="scss">

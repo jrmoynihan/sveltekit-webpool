@@ -13,6 +13,7 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import { onMount } from 'svelte';
 	import Fa from 'svelte-fa';
+	import { fly } from 'svelte/transition';
 	import GameTime from './micro/GameTime.svelte';
 	import TeamRecord from './micro/TeamRecord.svelte';
 	import TeamImage from './TeamImage.svelte';
@@ -116,7 +117,12 @@
 	});
 </script>
 
-<div class="matchup grid rounded" id="game-{index}">
+<div
+	class="matchup grid rounded"
+	id="game-{index}"
+	in:fly={{ x: -200, duration: 200, delay: 50 }}
+	out:fly={{ x: 200, duration: 200 }}
+>
 	<label
 		for="{id}-away"
 		class="rounded"

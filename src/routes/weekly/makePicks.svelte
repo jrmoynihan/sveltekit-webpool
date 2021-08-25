@@ -42,6 +42,7 @@
 	import PickCounter from '$lib/components/containers/micro/PickCounter.svelte';
 	import SubmitPicks from '$lib/components/buttons/SubmitPicks.svelte';
 	import type { WeeklyTiebreaker } from '$scripts/classes/tiebreaker';
+	import { flip } from 'svelte/animate';
 
 	let showIDs = false;
 	let showTimestamps = false;
@@ -127,9 +128,14 @@
 					tiebreakerData = data;
 				}
 			});
-			tiebreaker = tiebreakerData.tiebreaker;
-			tiebreakerDocRef = tiebreakerData.docRef;
-			return tiebreakerData;
+			if (tiebreakerData) {
+				tiebreaker = tiebreakerData.tiebreaker;
+				tiebreakerDocRef = tiebreakerData.docRef;
+				return tiebreakerData;
+			} else {
+				tiebreaker = null;
+				tiebreakerDocRef = null;
+			}
 		} catch (error) {
 			myError('getTiebreaker', error);
 		}
@@ -372,8 +378,8 @@
 		{#await picksPromise}
 			Loading games and picks...
 		{:then picks}
-			{#each currentPicks as pick, i}
-				<div class="game-container">
+			{#each currentPicks as pick, i (pick.id)}
+				<div class="game-container" animate:flip={{ duration: 200 }}>
 					<MatchupContainer
 						bind:totalGameCount
 						bind:selectedTeam={pick.pick}
@@ -407,7 +413,7 @@
 				bind:upcomingGamesCount
 			/>
 		{/key}
-		{#if currentPickCount === upcomingGamesCount}
+		{#if currentPickCount >= upcomingGamesCount}
 			<SubmitPicks
 				on:click={submitPicks}
 				ableToTab={tiebreaker >= 10 ? 0 : -1}

@@ -19,7 +19,7 @@
 		new PageOption({ navigationText: 'Toggle Roles', path: '/admin/toggleRoles' }),
 		new PageOption({ navigationText: 'Manage Teams', path: '/admin/manageTeams' }),
 		new PageOption({ navigationText: 'Game Data', path: '/admin/setGames' }),
-		new PageOption({ navigationText: 'Create Weekly Picks', path: '/admin/createWeeklyPicks' })
+		new PageOption({ navigationText: 'Weekly Pool Admin', path: '/admin/weeklyPoolAdmin' })
 	];
 
 	const textLengths: number[] = adminTabs.map((tab) => {
@@ -33,7 +33,7 @@
 	{#each adminTabs as tab, index}
 		{#if dev}
 			<NavLink {index} pageOption={tab} fullyRounded={true} />
-		{:else if tab.navigationText !== 'Toggle Roles'}}
+		{:else if tab.navigationText !== 'Toggle Roles'}
 			<NavLink {index} pageOption={tab} fullyRounded={true} />
 		{/if}
 	{/each}
