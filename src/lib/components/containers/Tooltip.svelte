@@ -31,13 +31,18 @@
 			width: $widthTip;
 			height: auto;
 			z-index: 1;
-			left: $leftTip;
+			left: 50%;
 			font-weight: normal;
 			font-size: 0.8rem;
 			background: var(--alternate-color);
 			box-shadow: 0 0 10px 0px var(--accent-color);
 			border-radius: 0.75rem;
 			padding: 1rem;
+			scale: 0;
+			text-align: center;
+			transform: translateX($leftTip);
+			transform-origin: left;
+			z-index: 10;
 		}
 
 		.tooltip-arrow {
@@ -71,6 +76,7 @@
 		:hover > span.tooltip-arrow {
 			visibility: visible;
 			opacity: 1;
+			scale: 1;
 		}
 	}
 </style>

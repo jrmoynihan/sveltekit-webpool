@@ -33,8 +33,9 @@ export const dogFace = String.fromCodePoint(0x1f436);
 export const airplaneDeparture = String.fromCodePoint(0x1f6eb);
 export const home = String.fromCodePoint(0x1f3e0);
 export const stopSign = String.fromCodePoint(0x1f6d1);
+export const bread = String.fromCodePoint(0x1f35e);
 
-// console.log(stopSign)
+// console.log(bread)
 
 export const defaultConsoleLogStyle = [
 	'align-items:center',

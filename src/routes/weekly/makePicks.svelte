@@ -7,7 +7,11 @@
 	import ToggleSwitch from '$lib/components/switches/ToggleSwitch.svelte';
 	import { currentUser } from '$scripts/auth';
 	import type { WeeklyPickDoc } from '$scripts/classes/picks';
-	import { weeklyPicksCollection, weeklyTiebreakersCollection } from '$scripts/collections';
+	import {
+		toastsCollection,
+		weeklyPicksCollection,
+		weeklyTiebreakersCollection
+	} from '$scripts/collections';
 	import { weeklyPickConverter, weeklyTiebreakerConverter } from '$scripts/converters';
 	import { mobileBreakpoint } from '$scripts/site';
 	import { useDarkTheme, windowWidth } from '$scripts/store';
@@ -24,6 +28,7 @@
 	import { isBeforeGameTime } from '$scripts/functions';
 	import {
 		airplaneDeparture,
+		bread,
 		checkmark,
 		dogFace,
 		home,
@@ -56,16 +61,35 @@
 	let totalGameCount = 16;
 	let tiebreakerDocRef: DocumentReference;
 	let tiebreaker: number = 0;
-	let toastMsg = `<br>Looking for the Submit Picks button?<br> <br> Make sure you make <em>all</em> of your picks!  The tiebreaker score and button to submit picks will only appear after you've selected a pick for every game. <br><br>  You can always come back to change them later!`;
-	const toastTitle = 'New!';
+	let toastMsg = ``;
+	let toastTitle = '';
 	const progress = tweened(0, {
 		duration: 400,
 		easing: cubicOut
 	});
 
-	onMount(() => {
+	onMount(async () => {
+		const promisedToast = await getToast('Make Picks');
+		toastMsg = promisedToast.msg;
+		toastTitle = promisedToast.title;
 		defaultToast(toastTitle, toastMsg, 15_000);
 	});
+	const getToast = async (page: string) => {
+		try {
+			let msg: string;
+			let title: string;
+			const q = query(toastsCollection, where('page', '==', page));
+			const querySnapshot = await getDocs(q);
+			querySnapshot.forEach((doc) => {
+				msg = doc.data().message;
+				title = doc.data().title;
+			});
+			myLog('got toast', null, bread);
+			return { msg: msg, title: title };
+		} catch (error) {
+			myError('getToast', error, null, bread);
+		}
+	};
 
 	const getUserId = async () => {
 		return localStorage.getItem('id');

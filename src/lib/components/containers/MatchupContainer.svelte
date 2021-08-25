@@ -18,6 +18,7 @@
 	import TeamRecord from './micro/TeamRecord.svelte';
 	import TeamImage from './TeamImage.svelte';
 	import TeamNameImage from './TeamNameImage.svelte';
+	import Tooltip from './Tooltip.svelte';
 
 	export let id = 'id';
 	export let index;
@@ -125,11 +126,12 @@
 >
 	<label
 		for="{id}-away"
-		class="rounded"
+		class="rounded dayShadow nightShadow"
 		class:pressed={selectedTeam === awayTeam.abbreviation}
 		class:selected={selectedTeam === awayTeam.abbreviation}
 		class:dark-mode={$useDarkTheme}
 		class:disabled
+		tabindex="0"
 	>
 		<input
 			id="{id}-away"
@@ -242,11 +244,33 @@
 					<Fa icon={faLock} size="lg" />
 				{:else}
 					{#if spread > 0}
-						<Fa icon={faArrowCircleLeft} size="lg" />
+						<div class="arrow-container">
+							<Tooltip
+								tooltipHorizontalPosition="-50%"
+								tooltipTop="-220%"
+								tooltipWidth="clamp(5rem,45ch,25rem)"
+							>
+								<Fa slot="content" icon={faArrowCircleLeft} size="lg" />
+								<span slot="text" class="tooltip"
+									>Away Team ({awayTeam.abbreviation}) is favored by {spread}.</span
+								>
+							</Tooltip>
+						</div>
 					{/if}
 					{spread > 0 ? `+${spread}` : spread}
 					{#if spread < 0}
-						<Fa icon={faArrowCircleRight} size="lg" />
+						<div class="arrow-container">
+							<Tooltip
+								tooltipHorizontalPosition="-50%"
+								tooltipTop="-220%"
+								tooltipWidth="clamp(5rem,45ch,25rem)"
+							>
+								<Fa slot="content" icon={faArrowCircleRight} size="lg" />
+								<span slot="text" class="tooltip"
+									>Home Team ({homeTeam.abbreviation}) is favored by {spread}.</span
+								>
+							</Tooltip>
+						</div>
 					{/if}
 				{/if}
 			</p>
@@ -297,11 +321,12 @@
 
 	<label
 		for="{id}-home"
-		class="rounded"
+		class="rounded dayShadow nightShadow"
 		class:pressed={selectedTeam === homeTeam.abbreviation}
 		class:selected={selectedTeam === homeTeam.abbreviation}
 		class:dark-mode={$useDarkTheme}
 		class:disabled
+		tabindex="0"
 	>
 		<input
 			id="{id}-home"
@@ -393,5 +418,14 @@
 	.pick-at-pick {
 		grid-template-columns: 1fr 1fr 1fr;
 		width: 100%;
+	}
+	.dayShadow:hover {
+		@include nightShadow;
+	}
+	.nightShadow:focus {
+		@include nightShadow;
+	}
+	.arrow-container {
+		position: relative;
 	}
 </style>
