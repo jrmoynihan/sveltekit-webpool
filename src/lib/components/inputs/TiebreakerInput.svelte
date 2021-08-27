@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { mobileBreakpoint } from '$scripts/site';
 
-	import { windowWidth } from '$scripts/store';
+	import { largerThanMobile, windowWidth } from '$scripts/store';
 
 	import { createEventDispatcher } from 'svelte';
 	import { fade, fly, slide } from 'svelte/transition';
@@ -16,10 +16,10 @@
 
 <span class="tiebreaker-container" class:pulse={tiebreaker < 10 || tiebreaker === undefined}>
 	<Tooltip
-		arrowhorizontalPosition={$windowWidth > mobileBreakpoint ? '23%' : '50%'}
-		tooltipHorizontalPosition={$windowWidth > mobileBreakpoint ? '-25%' : '-55%'}
-		tooltipWidth={$windowWidth > mobileBreakpoint ? '200%' : 'clamp(10rem,50ch,100%)'}
-		tooltipTop={$windowWidth > mobileBreakpoint ? '-300%' : '-410%'}
+		arrowhorizontalPosition={$largerThanMobile ? '23%' : '50%'}
+		tooltipHorizontalPosition={$largerThanMobile ? '-25%' : '-55%'}
+		tooltipWidth={$largerThanMobile ? '200%' : 'clamp(10rem,50ch,100%)'}
+		tooltipTop={$largerThanMobile ? '-300%' : '-410%'}
 	>
 		<svelte:fragment slot="content">
 			<input

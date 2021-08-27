@@ -14,7 +14,7 @@
 	} from '$scripts/collections';
 	import { weeklyPickConverter, weeklyTiebreakerConverter } from '$scripts/converters';
 	import { mobileBreakpoint } from '$scripts/site';
-	import { useDarkTheme, windowWidth } from '$scripts/store';
+	import { largerThanMobile, useDarkTheme, windowWidth } from '$scripts/store';
 	import {
 		DocumentReference,
 		getDocs,
@@ -189,44 +189,46 @@
 			});
 			myLog('updated/submitted picks!', '', okHand, currentPicks);
 			picksPromise = getPicks(selectedWeek);
-			let docRef: DocumentReference;
-			if (tiebreakerDocRef) {
-				docRef = tiebreakerDocRef;
-			} else {
-				docRef = doc(weeklyTiebreakersCollection);
-			}
 
-			const uid = await getUserId();
-			try {
-				await setDoc(docRef.withConverter(weeklyTiebreakerConverter), {
-					docRef: docRef,
-					tiebreaker: tiebreaker,
-					uid: uid,
-					week: selectedWeek,
-					year: selectedYear
-				});
-				myLog('updated/submitted tiebreaker!', '', okHand, tiebreaker);
-			} catch (error) {
-				myError(
-					'submitPicks->updateTiebreaker',
-					error,
-					`unable to update tiebreaker ${tiebreakerDocRef.path} for user ${uid}`
-				);
-				defaultToast(
-					`${policeCarLight} Unable To Update Tiebreaker!`,
-					`We encountered an error while trying to submit your tiebreaker.  Please contact your admin with the following information: <br> ${error}`
-				);
-			}
+			setTiebreakerDoc();
+
 			defaultToast(
 				`${checkmark} Picks submitted!`,
 				`You can change any game's pick prior to that game's start time.`,
 				10000
 			);
-			// alert(
-			// 	`${checkmark} Picks submitted! \n You can change any game's pick prior to that game's start time.`
-			// );
 		} catch (error) {
 			myError('submitPicks', error);
+		}
+	};
+	const setTiebreakerDoc = async () => {
+		let docRef: DocumentReference;
+		if (tiebreakerDocRef) {
+			docRef = tiebreakerDocRef;
+		} else {
+			docRef = doc(weeklyTiebreakersCollection);
+		}
+
+		const uid = await getUserId();
+		try {
+			await setDoc(docRef.withConverter(weeklyTiebreakerConverter), {
+				docRef: docRef,
+				tiebreaker: tiebreaker,
+				uid: uid,
+				week: selectedWeek,
+				year: selectedYear
+			});
+			myLog('updated/submitted tiebreaker!', '', okHand, tiebreaker);
+		} catch (error) {
+			myError(
+				'setTiebreakerDoc',
+				error,
+				`unable to update tiebreaker ${tiebreakerDocRef.path} for user ${uid}`
+			);
+			defaultToast(
+				`${policeCarLight} Unable To Update Tiebreaker!`,
+				`We encountered an error while trying to submit your tiebreaker.  Please contact your admin with the following information: <br> ${error}`
+			);
 		}
 	};
 
@@ -409,7 +411,7 @@
 		<button on:click={pickAllHome} class:dark-mode={$useDarkTheme} class="hotkeys">All Home</button>
 	</div>
 
-	<div class="grid weekGames" style={$windowWidth > mobileBreakpoint ? 'max-width:60%;' : ''}>
+	<div class="grid weekGames" style={$largerThanMobile ? 'max-width:60%;' : ''}>
 		{#await picksPromise}
 			Loading games and picks...
 		{:then picks}
@@ -435,7 +437,7 @@
 	</div>
 </div>
 
-<div class="fixed grid {$windowWidth > mobileBreakpoint ? 'bottom-left' : 'bottom-right'}">
+<div class="fixed grid {$largerThanMobile ? 'bottom-left' : 'bottom-right'}">
 	{#if $windowWidth > mobileBreakpoint}
 		<Clock />
 	{/if}

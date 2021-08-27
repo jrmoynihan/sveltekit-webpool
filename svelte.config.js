@@ -27,6 +27,7 @@ const config = {
 		adapter: firebase(),
 		ssr: true,
 		vite: {
+			define: {},
 			resolve: {
 				alias: {
 					$scripts: path.resolve('./src/scripts'),

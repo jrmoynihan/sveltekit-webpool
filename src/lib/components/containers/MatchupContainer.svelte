@@ -101,6 +101,7 @@
 	let promiseStatus = getStatus();
 	let promiseScores = getScores();
 	let promiseSituation = getSituation();
+	let interval: NodeJS.Timer;
 
 	$: {
 		if ($windowWidth < layoutBreakpoint) {
@@ -109,7 +110,6 @@
 			showTeamNameImages = true;
 		}
 	}
-	let interval: NodeJS.Timer;
 
 	onMount(() => {
 		// Every 60 seconds, update the game status

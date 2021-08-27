@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { browser } from '$app/env';
 	import { mobileBreakpoint } from '$scripts/site';
-	import { windowWidth } from '$scripts/store';
+	import { largerThanMobile, windowWidth } from '$scripts/store';
 	import { faArrowUp } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import { spring } from 'svelte/motion';
@@ -28,7 +28,7 @@
 	export const scrollProgress = spring<number>(0, { damping: 0.5, stiffness: 0.1 });
 </script>
 
-{#if $windowWidth < mobileBreakpoint && $scrollProgress > 0.15}
+{#if !$largerThanMobile && $scrollProgress > 0.15}
 	{#if showButton}
 		<button on:click={returnToTop} style={customStyles} transition:fade>
 			<Fa icon={faArrowUp} class="fa-icon" size="lg" />
@@ -63,9 +63,6 @@
 		justify-content: center;
 		opacity: 50%;
 		max-height: 3.1rem;
-		&:hover,
-		&:focus {
-		}
 	}
 	custom-progress {
 		position: fixed;

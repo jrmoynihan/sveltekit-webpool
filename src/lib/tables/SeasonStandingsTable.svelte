@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { mobileBreakpoint } from '$scripts/site';
-	import { useDarkTheme, windowWidth } from '$scripts/store';
+	import { largerThanMobile, useDarkTheme, windowWidth } from '$scripts/store';
 
 	export let playerData = [];
 </script>
@@ -28,7 +28,7 @@
 			: 'light'}"
 	>
 		{((player.wins / (player.wins + player.losses)) * 100).toFixed(2)}%
-		{#if $windowWidth > mobileBreakpoint}
+		{#if $largerThanMobile}
 			<span
 				style="--win-radii:{((player.wins / (player.wins + player.losses)) * 100).toString()}%"
 			/>

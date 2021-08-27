@@ -2,12 +2,12 @@ import { FirebaseApp, initializeApp } from '@firebase/app';
 import { getAuth } from '@firebase/auth';
 import { getStorage } from '@firebase/storage';
 import { getFirestore } from '@firebase/firestore';
-// import { enableIndexedDbPersistence } from '@firebase/firestore';
-// import { browser, dev } from '$app/env';
 import { getApp, getApps } from '@firebase/app';
+import { browser, dev } from '$app/env';
+import { enableIndexedDbPersistence } from 'firebase/firestore';
 
 // TODO: API key should be stored in a environment variable (see: privateStuff.env) so it is not exposed publicly
-// const API_KEY: string = import.meta.env['VITE_API_KEY'] as string;
+// export const API_KEY: string = import.meta.env.VITE_API_KEY as string;
 // console.log(API_KEY);
 
 const firebaseConfig = {
@@ -35,17 +35,17 @@ export const firestoreDB = getFirestore(firebaseApp);
 export const firestoreAuth = getAuth(firebaseApp);
 export const firestoreStorage = getStorage(firebaseApp);
 
-// if (browser && !dev) {
-// 	enableIndexedDbPersistence(firestoreDB).catch((err) => {
-// 		if (err.code == 'failed-precondition') {
-// 			// Multiple tabs open, persistence can only be enabled
-// 			// in one tab at a a time.
-// 			// ...
-// 		} else if (err.code == 'unimplemented') {
-// 			console.warn(
-// 				`🔥 The current browser does not support all of the features required to enable persistence. 🔥`
-// 			);
-// 		}
-// 	});
-// Subsequent queries will use persistence, if it was enabled successfully
-// }
+if (browser && !dev) {
+	enableIndexedDbPersistence(firestoreDB).catch((err) => {
+		if (err.code == 'failed-precondition') {
+			// Multiple tabs open, persistence can only be enabled
+			// in one tab at a a time.
+			// ...
+		} else if (err.code == 'unimplemented') {
+			console.warn(
+				`🔥 The current browser does not support all of the features required to enable persistence. 🔥`
+			);
+		}
+	});
+	// Subsequent queries will use persistence, if it was enabled successfully
+}

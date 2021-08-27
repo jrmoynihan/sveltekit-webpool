@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { navChecked, windowWidth } from '$scripts/store';
+	import { largerThanMobile, navChecked, windowWidth } from '$scripts/store';
 	import { faBars, faCog } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import Auth from '$lib/majorFeatures/Auth.svelte';
@@ -18,7 +18,7 @@
 	<button
 		id="nav-label"
 		on:click={toggleNav}
-		class="nav-label {$navChecked && $windowWidth < mobileBreakpoint ? 'mobile-nav-open' : ''}"
+		class="nav-label {$navChecked && !$largerThanMobile ? 'mobile-nav-open' : ''}"
 	>
 		<Fa icon={faBars} class="fa-bars" size="lg" />
 		<input type="checkbox" id="nav-toggle" on:click={toggleNav} />

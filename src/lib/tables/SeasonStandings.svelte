@@ -44,7 +44,8 @@
 	}
 
 	.header {
-		// grid-template-rows: 1fr;
 		font-weight: bold;
+		padding-bottom: 0.5rem;
+		border-bottom: 2px solid rgba(var(--accentValue-color), 50%);
 	}
 </style>

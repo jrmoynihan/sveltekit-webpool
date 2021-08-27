@@ -10,7 +10,13 @@
 	import '../app.css';
 	import { userConverter } from '$scripts/converters';
 	import { currentUser, userData } from '$scripts/auth';
-	import { chosenMixBlendMode, navChecked, useDarkTheme, windowWidth } from '$scripts/store';
+	import {
+		chosenMixBlendMode,
+		largerThanMobile,
+		navChecked,
+		useDarkTheme,
+		windowWidth
+	} from '$scripts/store';
 	import { doc, onSnapshot } from '@firebase/firestore';
 	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
 	import Navigator from '$navigation/Navigator.svelte';
@@ -20,6 +26,7 @@
 	import ReturnToTop from '$lib/components/buttons/ReturnToTop.svelte';
 	import { SvelteToast } from '@zerodevx/svelte-toast';
 	import { getDoc } from '@firebase/firestore';
+	import { mobileBreakpoint } from '$scripts/site';
 
 	export let refresh: any;
 
@@ -65,7 +72,16 @@
 <div class="toastWrap">
 	<SvelteToast />
 </div>
-<svelte:window on:resize={() => ($windowWidth = window.innerWidth)} />
+<svelte:window
+	on:resize={() => {
+		$windowWidth = window.innerWidth;
+		if ($windowWidth > mobileBreakpoint) {
+			$largerThanMobile = true;
+		} else {
+			$largerThanMobile = false;
+		}
+	}}
+/>
 
 <style lang="scss">
 	:root {
