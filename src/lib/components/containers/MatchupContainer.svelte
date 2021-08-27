@@ -13,7 +13,6 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import { onDestroy, onMount } from 'svelte';
 	import Fa from 'svelte-fa';
-	import { fly } from 'svelte/transition';
 	import GameTime from './micro/GameTime.svelte';
 	import TeamRecord from './micro/TeamRecord.svelte';
 	import TeamImage from './TeamImage.svelte';
@@ -35,7 +34,8 @@
 	let layoutBreakpoint = 620;
 	let showTeamNameImages = false;
 	let disabled: boolean = false;
-	$: isBeforeGameTime(timestamp).then((result) => (disabled = !result));
+	let gameIsOver = false;
+	let beforeGameTime = false;
 
 	const getStatus = async (): Promise<any> => {
 		const httpGameStatusEndpoint: string = competitions[0].status.$ref;
@@ -83,7 +83,7 @@
 
 	const scrollToNext = () => {
 		if (browser) {
-			const yOffset = -250;
+			const yOffset = -500;
 			const element = document.getElementById(`game-${index + 1}`);
 			console.log('currentPickCount', currentPickCount);
 			console.log('gameCount', totalGameCount);
@@ -101,7 +101,8 @@
 	let promiseStatus = getStatus();
 	let promiseScores = getScores();
 	let promiseSituation = getSituation();
-	let interval: NodeJS.Timer;
+	let statusInterval: NodeJS.Timer;
+	let checkGameTimeInterval: NodeJS.Timer;
 
 	$: {
 		if ($windowWidth < layoutBreakpoint) {
@@ -110,23 +111,43 @@
 			showTeamNameImages = true;
 		}
 	}
+	$: promiseStatus.then((status) => {
+		if (status?.type?.description === 'Final') {
+			gameIsOver = true;
+		}
+	});
 
-	onMount(() => {
-		// Every 60 seconds, update the game status
-		interval = setInterval(() => {
+	$: if (gameIsOver || beforeGameTime) {
+		clearInterval(statusInterval);
+	}
+
+	onMount(async () => {
+		checkGameTimeInterval = setInterval(async () => {
+			const now = new Date().getTime();
+			beforeGameTime = await isBeforeGameTime(timestamp, now);
+			if (beforeGameTime) {
+				disabled = false;
+			} else {
+				disabled = true;
+				clearInterval(checkGameTimeInterval);
+			}
+		}, 60000);
+
+		// Every 60 seconds, update the game status if the game has started, but hasn't ended
+		statusInterval = setInterval(() => {
 			promiseStatus = getStatus();
 			promiseSituation = getSituation();
 		}, 60000);
 	});
-	onDestroy(() => clearInterval(interval)); // Prevent memory leak
+
+	// Prevent memory leak
+	onDestroy(() => {
+		clearInterval(statusInterval);
+		clearInterval(checkGameTimeInterval);
+	});
 </script>
 
-<div
-	class="matchup grid rounded"
-	id="game-{index}"
-	in:fly={{ x: -200, duration: 200, delay: 50 }}
-	out:fly={{ x: 200, duration: 200 }}
->
+<div class="matchup grid rounded" id="game-{index}">
 	<label
 		for="{id}-away"
 		class="rounded dayShadow nightShadow"
@@ -174,7 +195,7 @@
 					{/if}</span
 				>
 			{/await}
-			<span class="at-symbol"> @ </span>
+			<span class="at-symbol"> AT </span>
 			{#await promiseStatus}
 				<span />
 			{:then status}

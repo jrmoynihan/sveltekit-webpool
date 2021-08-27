@@ -13,8 +13,7 @@
 		weeklyTiebreakersCollection
 	} from '$scripts/collections';
 	import { weeklyPickConverter, weeklyTiebreakerConverter } from '$scripts/converters';
-	import { mobileBreakpoint } from '$scripts/site';
-	import { largerThanMobile, useDarkTheme, windowWidth } from '$scripts/store';
+	import { largerThanMobile, useDarkTheme } from '$scripts/store';
 	import {
 		DocumentReference,
 		getDocs,
@@ -49,6 +48,7 @@
 	import type { WeeklyTiebreaker } from '$scripts/classes/tiebreaker';
 	import { flip } from 'svelte/animate';
 	import { doc, setDoc } from 'firebase/firestore';
+	import { fly } from 'svelte/transition';
 
 	let showIDs = false;
 	let showTimestamps = false;
@@ -122,7 +122,8 @@
 			totalGameCount = picks.length;
 			upcomingGamesCount = 0;
 			picks.forEach(async (pick) => {
-				const ableToPick = await isBeforeGameTime(pick.timestamp);
+				const now = new Date().getTime();
+				const ableToPick = await isBeforeGameTime(pick.timestamp, now);
 				if (ableToPick) {
 					upcomingGamesCount++;
 				}
@@ -235,7 +236,8 @@
 	const pickAllHome = async () => {
 		try {
 			currentPicks.forEach(async (pickDoc) => {
-				const ableToPick = await isBeforeGameTime(pickDoc.timestamp);
+				const now = new Date().getTime();
+				const ableToPick = await isBeforeGameTime(pickDoc.timestamp, now);
 				if (ableToPick) {
 					const homeTeam = pickDoc.game.homeTeam;
 					pickDoc.pick = homeTeam.abbreviation;
@@ -250,7 +252,8 @@
 	const pickAllAway = async () => {
 		try {
 			currentPicks.forEach(async (pickDoc) => {
-				const ableToPick = await isBeforeGameTime(pickDoc.timestamp);
+				const now = new Date().getTime();
+				const ableToPick = await isBeforeGameTime(pickDoc.timestamp, now);
 				if (ableToPick) {
 					const awayTeam = pickDoc.game.awayTeam;
 					pickDoc.pick = awayTeam.abbreviation;
@@ -287,7 +290,8 @@
 				return;
 			}
 			currentPicks.forEach(async (pickDoc, i) => {
-				const ableToPick = await isBeforeGameTime(pickDoc.timestamp);
+				const now = new Date().getTime();
+				const ableToPick = await isBeforeGameTime(pickDoc.timestamp, now);
 				if (ableToPick) {
 					if (favored[i] !== null && favored[i] !== undefined) {
 						pickDoc.pick = favored[i].abbreviation;
@@ -327,7 +331,8 @@
 				return;
 			}
 			currentPicks.forEach(async (pickDoc, i) => {
-				const ableToPick = await isBeforeGameTime(pickDoc.timestamp);
+				const now = new Date().getTime();
+				const ableToPick = await isBeforeGameTime(pickDoc.timestamp, now);
 				if (ableToPick) {
 					if (underdogs[i] !== null && underdogs[i] !== undefined) {
 						pickDoc.pick = underdogs[i].abbreviation;
@@ -362,6 +367,12 @@
 				}
 			}
 		}
+	}
+
+	let m = { x: 0, y: 0 };
+	function handleMouseMove(event) {
+		m.x = event.clientX;
+		m.y = event.clientY;
 	}
 </script>
 
@@ -398,6 +409,13 @@
 	</div>
 </DevNotes>
 
+<div
+	class="mouseWatch"
+	on:mousemove={(e) => (m = { x: e.clientX, y: e.clientY })}
+	style="width:100%; height: 100%; position:fixed;opacity:1;text-align: left;"
+>
+	x:{m.x},y:{m.y}
+</div>
 <div class="grid positioning">
 	<div class="first-row grid">
 		<WeekSelect bind:selectedWeek bind:selectedSeasonType on:weekChanged={changedQuery} />
@@ -416,7 +434,12 @@
 			Loading games and picks...
 		{:then picks}
 			{#each currentPicks as pick, i (pick.id)}
-				<div class="game-container" animate:flip={{ duration: 200 }}>
+				<div
+					class="game-container"
+					animate:flip={{ duration: 200 }}
+					in:fly={{ x: -100, duration: 300, delay: 0 }}
+					out:fly={{ x: 100, duration: 300 }}
+				>
 					<MatchupContainer
 						bind:totalGameCount
 						bind:selectedTeam={pick.pick}

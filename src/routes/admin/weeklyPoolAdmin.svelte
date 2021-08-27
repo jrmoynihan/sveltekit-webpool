@@ -1,7 +1,7 @@
 <script lang="ts">
 	import AccordionDetails from '$lib/components/containers/AccordionDetails.svelte';
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
-	import { myError, myLog, policeCarLight } from '$scripts/classes/constants';
+	import { myError, myLog } from '$scripts/classes/constants';
 	import type { Game } from '$scripts/classes/game';
 	import { WeeklyPickDoc } from '$scripts/classes/picks';
 	import type { WebUser } from '$scripts/classes/webUser';

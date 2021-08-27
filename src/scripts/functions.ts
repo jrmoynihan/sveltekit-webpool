@@ -38,9 +38,9 @@ export const hideModal = async (modalID: string): Promise<void> => {
 export const sortByWins = (firstPlayer: { wins: number }, secondPlayer: { wins: number }): number =>
 	secondPlayer.wins - firstPlayer.wins;
 
-export const isBeforeGameTime = async (timestamp: Timestamp): Promise<boolean> => {
+export const isBeforeGameTime = async (timestamp: Timestamp, now: number): Promise<boolean> => {
 	const gameTime = timestamp.toDate().getTime();
-	const now = new Date().getTime();
+	// const now = new Date().getTime();
 	// console.log('gameTime', gameTime);
 	// console.log('now', now);
 	if (now < gameTime) {

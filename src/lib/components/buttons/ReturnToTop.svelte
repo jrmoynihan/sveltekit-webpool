@@ -1,11 +1,9 @@
 <script lang="ts">
 	import { browser } from '$app/env';
-	import { mobileBreakpoint } from '$scripts/site';
-	import { largerThanMobile, windowWidth } from '$scripts/store';
+	import { largerThanMobile } from '$scripts/store';
 	import { faArrowUp } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import { spring } from 'svelte/motion';
-	import { writable } from 'svelte/store';
 	import { fade } from 'svelte/transition';
 
 	export let customStyles: string = '';

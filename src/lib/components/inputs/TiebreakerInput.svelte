@@ -1,10 +1,7 @@
 <script lang="ts">
-	import { mobileBreakpoint } from '$scripts/site';
-
-	import { largerThanMobile, windowWidth } from '$scripts/store';
-
+	import { largerThanMobile } from '$scripts/store';
 	import { createEventDispatcher } from 'svelte';
-	import { fade, fly, slide } from 'svelte/transition';
+	import { fade, slide } from 'svelte/transition';
 	import Tooltip from '../containers/Tooltip.svelte';
 
 	export let tiebreaker: number;

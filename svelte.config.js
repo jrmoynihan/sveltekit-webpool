@@ -2,6 +2,7 @@ import preprocess from 'svelte-preprocess';
 import firebase from 'svelte-adapter-firebase';
 import path from 'path';
 import mkcert from 'vite-plugin-mkcert';
+import autoprefixer from 'autoprefixer';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -12,11 +13,13 @@ const config = {
 			script: 'ts',
 			style: 'scss'
 		},
+		postcss: {
+			plugins: [autoprefixer()]
+		},
 		sourceMap: true,
 		scss: {
 			prependData: `@import 'src/styles/Mixins.scss';`
 		}
-		// postcss: true
 	}),
 	compilerOptions: {
 		css: false

@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { browser } from '$app/env';
-
 	import type { IconDefinition } from '@fortawesome/fontawesome-common-types';
 	import { createEventDispatcher, onDestroy, onMount } from 'svelte';
 	import Fa from 'svelte-fa';

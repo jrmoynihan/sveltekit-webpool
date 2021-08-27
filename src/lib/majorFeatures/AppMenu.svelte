@@ -1,12 +1,11 @@
 <script lang="ts">
-	import { largerThanMobile, navChecked, windowWidth } from '$scripts/store';
+	import { largerThanMobile, navChecked } from '$scripts/store';
 	import { faBars, faCog } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import Auth from '$lib/majorFeatures/Auth.svelte';
 	import ModalButtonAndSlot from '$lib/components/ModalButtonAndSlot.svelte';
 	import LightDarkToggle from '$lib/components/switches/LightDarkToggle.svelte';
 	import ThemeSelector from '$lib/components/switches/ThemeSelector.svelte';
-	import { mobileBreakpoint } from '$scripts/site';
 
 	function toggleNav(): void {
 		$navChecked = !$navChecked;

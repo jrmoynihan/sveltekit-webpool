@@ -1,7 +1,5 @@
 <script lang="ts">
-	import { mobileBreakpoint } from '$scripts/site';
-	import { largerThanMobile, useDarkTheme, windowWidth } from '$scripts/store';
-
+	import { largerThanMobile, useDarkTheme } from '$scripts/store';
 	import TransitionWrapper from '../TransitionWrapper.svelte';
 
 	export let tabs = [];
