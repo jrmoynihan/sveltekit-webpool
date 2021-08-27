@@ -438,7 +438,7 @@
 </div>
 
 <div class="fixed grid {$largerThanMobile ? 'bottom-left' : 'bottom-right'}">
-	{#if $windowWidth > mobileBreakpoint}
+	{#if $largerThanMobile}
 		<Clock />
 	{/if}
 	{#if currentPickCount >= 0 && totalGameCount > 0}

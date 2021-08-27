@@ -4,7 +4,7 @@ import { getStorage } from '@firebase/storage';
 import { getFirestore } from '@firebase/firestore';
 import { getApp, getApps } from '@firebase/app';
 import { browser, dev } from '$app/env';
-import { enableIndexedDbPersistence } from 'firebase/firestore';
+import { enableIndexedDbPersistence } from '@firebase/firestore';
 
 // TODO: API key should be stored in a environment variable (see: privateStuff.env) so it is not exposed publicly
 // export const API_KEY: string = import.meta.env.VITE_API_KEY as string;

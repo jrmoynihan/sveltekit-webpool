@@ -27,8 +27,17 @@
 	import { SvelteToast } from '@zerodevx/svelte-toast';
 	import { getDoc } from '@firebase/firestore';
 	import { mobileBreakpoint } from '$scripts/site';
+	import { onMount } from 'svelte';
 
 	export let refresh: any;
+
+	const checkWindowWidth = () => {
+		if ($windowWidth > mobileBreakpoint) {
+			$largerThanMobile = true;
+		} else {
+			$largerThanMobile = false;
+		}
+	};
 
 	const saveUserData = async () => {
 		const userDocRef = doc(usersCollection, $currentUser.uid);
@@ -42,6 +51,8 @@
 	$: if ($currentUser && userConverter) {
 		saveUserData();
 	}
+
+	onMount(() => checkWindowWidth());
 </script>
 
 <!-- {#if $navChecked && $useDarkTheme && $chosenMixBlendMode} -->
@@ -75,11 +86,7 @@
 <svelte:window
 	on:resize={() => {
 		$windowWidth = window.innerWidth;
-		if ($windowWidth > mobileBreakpoint) {
-			$largerThanMobile = true;
-		} else {
-			$largerThanMobile = false;
-		}
+		checkWindowWidth();
 	}}
 />
 

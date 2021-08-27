@@ -19,7 +19,7 @@ export const chosenMixBlendMode = writable('normal');
 export const navChecked = writable(true);
 export const sidePanelChecked = writable(true);
 export const windowWidth = writable(browser ? window.innerWidth : null);
-export const largerThanMobile = writable(false);
+export const largerThanMobile = writable(true);
 export const editing = writable(false);
 
 export const queryAsStore = (
