@@ -9,6 +9,7 @@
 		faArrowCircleLeft,
 		faArrowCircleRight,
 		faCheckCircle,
+		faFootballBall,
 		faLock
 	} from '@fortawesome/free-solid-svg-icons';
 	import { onDestroy, onMount } from 'svelte';
@@ -50,6 +51,7 @@
 		const httpsGameSituationEndpoint: string = httpGameSituationEndpoint.replace('http', 'https');
 		const situationResponse = await fetch(httpsGameSituationEndpoint);
 		const situationData = situationResponse.json();
+		console.table(situationData);
 		return situationData;
 	};
 
@@ -135,6 +137,7 @@
 
 		// Every 60 seconds, update the game status if the game has started, but hasn't ended
 		statusInterval = setInterval(() => {
+			promiseScores = getScores();
 			promiseStatus = getStatus();
 			promiseSituation = getSituation();
 		}, 60000);
@@ -218,21 +221,21 @@
 			{:then status}
 				{#if status.type.description === 'Final'}
 					{#await promiseScores}
-						--
+						<span>--</span>
 					{:then { awayScoreData }}
 						<span class="score">{awayScoreData.value}</span>
 					{:catch}
-						--
+						<span>--</span>
 					{/await}
 
 					<span>Final</span>
 
 					{#await promiseScores}
-						--
+						<span>--</span>
 					{:then { homeScoreData }}
 						<span class="score">{homeScoreData.value}</span>
 					{:catch}
-						--
+						<span>--</span>
 					{/await}
 				{:else if status.type.description === 'Scheduled'}
 					<span />
@@ -240,32 +243,66 @@
 					<span />
 				{:else}
 					{#await promiseScores}
-						--
+						<span>--</span>
 					{:then { awayScoreData }}
 						<span class="score">{awayScoreData.value}</span>
 					{:catch}
-						--
+						<span>--</span>
 					{/await}
 
 					<span>&nbsp;&nbsp;&#8212;&nbsp;&nbsp;</span>
 
 					{#await promiseScores}
-						--
+						<span>--</span>
 					{:then { homeScoreData }}
 						<span class="score">{homeScoreData.value}</span>
 					{:catch}
-						--
+						<span>--</span>
 					{/await}
 				{/if}
 			{:catch}
 				unable to get game status...
 			{/await}
 		</p>
+		{#await promiseStatus then status}
+			{#if status.type.description === 'Final'}
+				<p style="display:grid; grid-template-columns: repeat(3,minmax(0,1fr));">
+					X{spread}
+					{#if spread > 0}
+						<span>(+{spread})</span>
+						<span />
+						<span />
+					{:else if spread < 0}
+						<span />
+						<span />
+						<span>(-{spread})</span>
+					{/if}
+				</p>
+			{/if}
+		{/await}
 
 		{#if spread}
-			<p class="spread info" style="line-height: 2;">
+			<p class="spread info" class:active-game={disabled} style="line-height: 2;">
 				{#if disabled}
-					<Fa icon={faLock} size="lg" />
+					{#await promiseSituation then situation}
+						{#if situation.possessionText}
+							{#if situation.possessionText.indexOf(awayTeam.abbreviation) >= 0}
+								<Fa icon={faFootballBall} size="lg" rotate={45} />
+								<Fa icon={faLock} size="lg" />
+								<span />
+							{/if}
+						{/if}
+					{/await}
+
+					{#await promiseSituation then situation}
+						{#if situation.possessionText}
+							{#if situation.possessionText.indexOf(homeTeam.abbreviation) >= 0}
+								<span />
+								<Fa icon={faLock} size="lg" />
+								<Fa icon={faFootballBall} size="lg" rotate={45} />
+							{/if}
+						{/if}
+					{/await}
 				{:else}
 					{#if spread > 0}
 						<div class="arrow-container">
@@ -281,7 +318,7 @@
 							</Tooltip>
 						</div>
 					{/if}
-					{spread > 0 ? `+${spread}` : spread}
+					<span>{spread > 0 ? `+${spread}` : spread}</span>
 					{#if spread < 0}
 						<div class="arrow-container">
 							<Tooltip
@@ -329,11 +366,7 @@
 					{#await promiseSituation then situation}
 						{#if situation.downDistanceText !== undefined}
 							<p>
-								<span
-									style={situation.yardLine <= 20
-										? 'background:radial-gradient(firebrick 50%,transparent 70%);'
-										: ''}>{situation.downDistanceText}</span
-								>
+								<span class:red-zone={situation.yardLine <= 20}>{situation.downDistanceText}</span>
 							</p>
 						{/if}
 					{/await}
@@ -391,17 +424,18 @@
 		@include rounded;
 	}
 	.matchup {
-		grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+		grid-template-columns: repeat(3, minmax(0, 1fr));
 	}
 	label {
 		@include defaultTransition;
 		align-items: center;
 		justify-items: center;
 		display: grid;
-		padding: 0.5rem;
+		padding: 0.7rem;
 		height: 100%;
 		width: 100%;
 		grid-template-columns: minmax(0, 1fr);
+		gap: 10px;
 	}
 	.selected {
 		@include defaultTransition;
@@ -451,5 +485,19 @@
 	}
 	.arrow-container {
 		position: relative;
+	}
+	.red-zone {
+		background: darkred;
+		border-radius: 1rem;
+		color: white;
+	}
+	.dateTime {
+		@include gridAndGap;
+	}
+	.active-game {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		width: 100%;
+		justify-items: center;
 	}
 </style>

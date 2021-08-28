@@ -368,12 +368,6 @@
 			}
 		}
 	}
-
-	let m = { x: 0, y: 0 };
-	function handleMouseMove(event) {
-		m.x = event.clientX;
-		m.y = event.clientY;
-	}
 </script>
 
 <PageTitle>Make Weekly Picks</PageTitle>
@@ -409,13 +403,6 @@
 	</div>
 </DevNotes>
 
-<div
-	class="mouseWatch"
-	on:mousemove={(e) => (m = { x: e.clientX, y: e.clientY })}
-	style="width:100%; height: 100%; position:fixed;opacity:1;text-align: left;"
->
-	x:{m.x},y:{m.y}
-</div>
 <div class="grid positioning">
 	<div class="first-row grid">
 		<WeekSelect bind:selectedWeek bind:selectedSeasonType on:weekChanged={changedQuery} />
