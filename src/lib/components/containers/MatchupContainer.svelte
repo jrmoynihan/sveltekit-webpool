@@ -51,7 +51,7 @@
 		const httpsGameSituationEndpoint: string = httpGameSituationEndpoint.replace('http', 'https');
 		const situationResponse = await fetch(httpsGameSituationEndpoint);
 		const situationData = situationResponse.json();
-		console.table(situationData);
+		// console.table(situationData);
 		return situationData;
 	};
 
@@ -177,6 +177,7 @@
 				team={awayTeam}
 				rounded={true}
 				whiteBg={true}
+				width="300rem"
 				grayscale={selectedTeam === homeTeam.abbreviation && selectedTeam !== ''}
 			/>
 		{/if}
@@ -241,7 +242,7 @@
 					<span />
 					<span />
 					<span />
-				{:else}
+				{:else if status.type.description !== 'Canceled'}
 					{#await promiseScores}
 						<span>--</span>
 					{:then { awayScoreData }}
@@ -250,7 +251,18 @@
 						<span>--</span>
 					{/await}
 
-					<span>&nbsp;&nbsp;&#8212;&nbsp;&nbsp;</span>
+					<span>
+						{#if status.type.completed === false}
+							{#if status.type.description === 'Halftime'}
+								<p>{status.type.description}</p>
+							{:else if status.type.description !== 'Canceled'}
+								<p>Q{status.period}</p>
+								<p>{status.displayClock}</p>
+							{:else}
+								<p><strong>Canceled</strong></p>
+							{/if}
+						{/if}
+					</span>
 
 					{#await promiseScores}
 						<span>--</span>
@@ -267,16 +279,17 @@
 		{#await promiseStatus then status}
 			{#if status.type.description === 'Final'}
 				<p style="display:grid; grid-template-columns: repeat(3,minmax(0,1fr));">
-					X{spread}
-					{#if spread > 0}
-						<span>(+{spread})</span>
-						<span />
-						<span />
-					{:else if spread < 0}
-						<span />
-						<span />
-						<span>(-{spread})</span>
-					{/if}
+					{#await promiseScores then scores}
+						{#if spread > 0}
+							<span>({scores.awayScoreData.value})</span>
+							<span>ATS</span>
+							<span>({scores.homeScoreData.value + spread})</span>
+						{:else if spread < 0}
+							<span>({scores.awayScoreData.value + spread * -1})</span>
+							<span>ATS</span>
+							<span>({scores.homeScoreData.value})</span>
+						{/if}
+					{/await}
 				</p>
 			{/if}
 		{/await}
@@ -355,17 +368,19 @@
 						No timestamp field set.
 					{/if}
 				{:else if status.type.completed === false}
-					{#if status.type.description === 'Halftime'}
+					<!-- {#if status.type.description === 'Halftime'}
 						<p>{status.type.description}</p>
-					{:else}
+					{:else if status.type.description !== 'Canceled'}
 						<p>
 							<span>Q{status.period}</span>
 							<span>{status.displayClock}</span>
 						</p>
-					{/if}
+					{:else}
+						<p><strong>Canceled</strong></p>
+					{/if} -->
 					{#await promiseSituation then situation}
 						{#if situation.downDistanceText !== undefined}
-							<p>
+							<p style="font-size: 0.8rem;">
 								<span class:red-zone={situation.yardLine <= 20}>{situation.downDistanceText}</span>
 							</p>
 						{/if}
@@ -403,6 +418,7 @@
 				rounded={true}
 				whiteBg={true}
 				grayscale={selectedTeam === awayTeam.abbreviation && selectedTeam !== ''}
+				width="300rem"
 			/>
 		{/if}
 		<TeamRecord showTeamAbbreviation={!showTeamNameImages} team={homeTeam} />
@@ -425,6 +441,7 @@
 	}
 	.matchup {
 		grid-template-columns: repeat(3, minmax(0, 1fr));
+		height: 100%;
 	}
 	label {
 		@include defaultTransition;
@@ -435,7 +452,8 @@
 		height: 100%;
 		width: 100%;
 		grid-template-columns: minmax(0, 1fr);
-		gap: 10px;
+		grid-template-rows: minmax(0, 1fr) minmax(0, 1fr) auto;
+		gap: 5px;
 	}
 	.selected {
 		@include defaultTransition;
@@ -446,9 +464,6 @@
 		&.disabled {
 			@include accentedContainer(70%, 10%);
 		}
-	}
-	.team-abbreviation {
-		font-weight: bold;
 	}
 	span {
 		padding: 0.3rem 0.5rem;

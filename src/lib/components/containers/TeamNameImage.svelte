@@ -9,9 +9,11 @@
 	export let bottomRounded = false;
 	export let frosted = false;
 	export let whiteBg = false;
+	export let width = 'auto';
+	export let height = 'auto';
 </script>
 
-<picture>
+<picture style="height: {height};">
 	<!-- <source srcset={team.logoPath} type="image/webp" /> -->
 	<img
 		class="logo"
@@ -23,8 +25,8 @@
 		class:bottomRounded
 		src={dev ? `../../../static/${team.fontPath}` : team.fontPath}
 		alt="{team.city}-{team.name}"
-		width="200rem"
-		height="auto"
+		{width}
+		{height}
 		loading="lazy"
 	/>
 </picture>
@@ -42,6 +44,7 @@
 		@include accelerate;
 		padding: 1rem;
 		max-height: 7rem;
+		max-width: 100%;
 	}
 	.grayscale {
 		filter: grayscale(100%);

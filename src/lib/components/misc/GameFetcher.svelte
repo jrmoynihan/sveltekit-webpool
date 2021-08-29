@@ -4,7 +4,7 @@
 	import { firestoreDB } from '$scripts/firebaseInit';
 	import { scheduleCollection } from '$scripts/collections';
 	import allTeams from '$scripts/teams';
-	import { deleteDoc, doc, getDocs, query, setDoc, Timestamp } from '@firebase/firestore';
+	import { deleteDoc, doc, getDocs, query, setDoc, Timestamp, where } from '@firebase/firestore';
 	import AccordionDetails from '../containers/AccordionDetails.svelte';
 	import WeekSelect from '../selects/WeekSelect.svelte';
 	import PageTitle from './PageTitle.svelte';
@@ -194,6 +194,28 @@
 			);
 		}
 	};
+	const deleteGameWeek = async (week: number, year: number, seasonType: SeasonType) => {
+		const continueDelete = confirm(
+			`Are you sure you want to delete all games from week ${week} of the ${seasonType.text}, ${year}`
+		);
+		if (continueDelete) {
+			const q = query(
+				scheduleCollection,
+				where('year', '==', year),
+				where('week', '==', week),
+				where('type', '==', seasonType.text)
+			);
+			const matchingDocs = await getDocs(q);
+			matchingDocs.forEach((game) => {
+				deleteDoc(game.ref);
+			});
+			defaultToast(
+				`${stopSign} Week of Games Deleted!`,
+				`${week} (${seasonType.text}, ${year}) games deleted!`,
+				5000
+			);
+		}
+	};
 	onMount(() => {
 		weeks = setRegularSeasonWeeks();
 	});
@@ -211,6 +233,9 @@
 	<YearSelect bind:selectedYear on:yearChanged={queryChanged} />
 	<WeekSelect bind:selectedWeek bind:weeks on:weekChanged={queryChanged} />
 	<button on:click={deleteAllGames}>Delete All Games</button>
+	<button on:click={() => deleteGameWeek(selectedWeek, selectedYear, selectedSeasonType)}
+		>Delete Selected Week</button
+	>
 	{#if games}
 		{#if games.length > 0}
 			<span class="padded">

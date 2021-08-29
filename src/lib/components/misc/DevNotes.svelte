@@ -23,8 +23,13 @@
 		display: grid;
 		grid-template-columns: 1fr;
 		justify-items: center;
+		max-height: 50vh;
+		overflow-y: scroll;
+		scrollbar-width: thin;
 	}
 	.dev-accordion {
+		@include frostedGlassHighContrast;
 		margin: 1rem;
+		border-radius: 3vh;
 	}
 </style>

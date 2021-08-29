@@ -49,6 +49,7 @@
 	import { flip } from 'svelte/animate';
 	import { doc, setDoc } from 'firebase/firestore';
 	import { fly } from 'svelte/transition';
+	import { dev } from '$app/env';
 
 	let showIDs = false;
 	let showTimestamps = false;
@@ -64,12 +65,26 @@
 	let tiebreaker: number = 0;
 	let toastMsg = ``;
 	let toastTitle = '';
+	let gridColumns = 2;
+	let widthMeasure = 100;
+	let offsetRightPercentage = 15;
 	const progress = tweened(0, {
 		duration: 400,
 		easing: cubicOut
 	});
 
+	const checkWidth = async () => {
+		if ($largerThanMobile) {
+			gridColumns = 2;
+		} else {
+			gridColumns = 1;
+		}
+	};
+
+	$: $largerThanMobile, checkWidth();
+
 	onMount(async () => {
+		checkWidth();
 		const promisedToast = await getToast('Make Picks');
 		toastMsg = promisedToast.msg;
 		toastTitle = promisedToast.title;
@@ -371,52 +386,111 @@
 </script>
 
 <PageTitle>Make Weekly Picks</PageTitle>
-<DevNotes>
-	<div style="display:grid; grid-template-columns: repeat(auto-fit,minmax(20rem, 1fr));">
-		Show Game IDs
-		<ToggleSwitch bind:checked={showIDs} />
-		Show Timestamps
-		<ToggleSwitch bind:checked={showTimestamps} />
-		Edit Toast
-		<ToggleSwitch bind:checked={editingToast} />
-		{#if $currentUser}
-			Current User ID
-			<p>{$currentUser.uid}</p>
-		{/if}
-		Select Season Type
-		<SeasonTypeSelect bind:selectedSeasonType on:seasonTypeChanged={changedQuery} />
-		Select Year
-		<YearSelect bind:selectedYear on:yearChanged={changedQuery} />
-		<button on:click={toastIt}>Toast It!</button>
-		{#if editingToast}
-			<textarea style="resize:both;" contenteditable bind:value={toastMsg} />
-		{:else}
-			<code>{@html toastMsg}</code>
-		{/if}
-		Upcoming Games Count
-		<p>{upcomingGamesCount}</p>
-		Total Games/Picks Count
-		<p>{totalGameCount}</p>
-		Current Pick Count
-		<p>{currentPickCount}</p>
-		<button on:click={errorToastIt}>Error Toast!</button>
-	</div>
-</DevNotes>
 
-<div class="grid positioning">
-	<div class="first-row grid">
+<section class="grid positioning">
+	<div class="dev-notes">
+		<DevNotes>
+			<div style="display:grid; grid-template-columns: repeat(auto-fit,minmax(20rem, 1fr));">
+				Show Game IDs
+				<ToggleSwitch bind:checked={showIDs} />
+				Show Timestamps
+				<ToggleSwitch bind:checked={showTimestamps} />
+				Edit Toast
+				<ToggleSwitch bind:checked={editingToast} />
+				{#if $currentUser}
+					<p>Current User ID: {$currentUser.uid}</p>
+				{/if}
+				Select Season Type
+				<SeasonTypeSelect bind:selectedSeasonType on:seasonTypeChanged={changedQuery} />
+				Select Year
+				<YearSelect bind:selectedYear on:yearChanged={changedQuery} />
+				<p>
+					<span>Game Columns</span>
+					<input
+						type="range"
+						bind:value={gridColumns}
+						min="1"
+						max="4"
+						step="1"
+						style="max-width:100%;"
+					/>{gridColumns}
+				</p>
+				<p>
+					<span>Container Max-Width</span>
+					<input
+						type="range"
+						bind:value={widthMeasure}
+						min="1"
+						max="100"
+						step="1"
+						style="max-width:100%;"
+					/>{widthMeasure}
+				</p>
+				<button on:click={toastIt}>Toast It!</button>
+				{#if editingToast}
+					<textarea style="resize:both;" contenteditable bind:value={toastMsg} />
+				{:else}
+					<code>{@html toastMsg}</code>
+				{/if}
+				Upcoming Games Count
+				<p>{upcomingGamesCount}</p>
+				Total Games/Picks Count
+				<p>{totalGameCount}</p>
+				Current Pick Count
+				<p>{currentPickCount}</p>
+				<button on:click={errorToastIt}>Error Toast!</button>
+			</div>
+		</DevNotes>
+	</div>
+	<div class="pick-status fixed grid {$largerThanMobile ? 'bottom-left' : 'bottom-right'}">
+		{#if $largerThanMobile}
+			<Clock />
+		{/if}
+		{#if currentPickCount >= 0 && totalGameCount > 0}
+			{#key currentPickCount}
+				<PickCounter
+					invisible={tiebreaker >= 10 && currentPickCount >= upcomingGamesCount}
+					bind:currentPickCount
+					bind:totalGameCount
+					bind:upcomingGamesCount
+				/>
+			{/key}
+			{#if currentPickCount >= upcomingGamesCount}
+				<SubmitPicks
+					on:click={submitPicks}
+					ableToTab={tiebreaker >= 10 ? 0 : -1}
+					pulse={tiebreaker >= 10}
+					invisible={tiebreaker < 10 || tiebreaker === undefined}
+				/>
+				{#if upcomingGamesCount > 0}
+					<TiebreakerInput bind:tiebreaker />
+				{/if}
+			{:else}
+				<progress value={$progress} />
+			{/if}
+		{/if}
+	</div>
+	<div
+		class="first-row grid"
+		style={$largerThanMobile ? `margin-right:${offsetRightPercentage}%;` : ''}
+	>
 		<WeekSelect bind:selectedWeek bind:selectedSeasonType on:weekChanged={changedQuery} />
 	</div>
 
 	<!-- prettier-ignore -->
-	<div class="second-row flex">
+	<div class="second-row grid" style="{$largerThanMobile ? `margin-right:${offsetRightPercentage}%;`:''}">
 		<button on:click={pickAllAway} class:dark-mode={$useDarkTheme} class="hotkeys">All Away</button>
 		<button on:click={pickAllFavored} class:dark-mode={$useDarkTheme} class="hotkeys">All Favored</button>
 		<button on:click={pickAllDogs} class:dark-mode={$useDarkTheme} class="hotkeys">All Underdogs</button>
 		<button on:click={pickAllHome} class:dark-mode={$useDarkTheme} class="hotkeys">All Home</button>
 	</div>
 
-	<div class="grid weekGames" style={$largerThanMobile ? 'max-width:60%;' : ''}>
+	<div
+		class="grid weekGames"
+		style="{$largerThanMobile
+			? `max-width:${widthMeasure}%; margin-right:${offsetRightPercentage}%;`
+			: ''} grid-template-columns:repeat({gridColumns},1fr)"
+	>
 		{#await picksPromise}
 			Loading games and picks...
 		{:then picks}
@@ -445,64 +519,70 @@
 			{/each}
 		{/await}
 	</div>
-</div>
-
-<div class="fixed grid {$largerThanMobile ? 'bottom-left' : 'bottom-right'}">
-	{#if $largerThanMobile}
-		<Clock />
-	{/if}
-	{#if currentPickCount >= 0 && totalGameCount > 0}
-		{#key currentPickCount}
-			<PickCounter
-				invisible={tiebreaker >= 10 && currentPickCount >= upcomingGamesCount}
-				bind:currentPickCount
-				bind:totalGameCount
-				bind:upcomingGamesCount
-			/>
-		{/key}
-		{#if currentPickCount >= upcomingGamesCount}
-			<SubmitPicks
-				on:click={submitPicks}
-				ableToTab={tiebreaker >= 10 ? 0 : -1}
-				pulse={tiebreaker >= 10}
-				invisible={tiebreaker < 10 || tiebreaker === undefined}
-			/>
-			{#if upcomingGamesCount > 0}
-				<TiebreakerInput bind:tiebreaker />
-			{/if}
-		{:else}
-			<progress value={$progress} />
-		{/if}
-	{/if}
-</div>
+</section>
 
 <style lang="scss">
 	.grid {
 		@include gridAndGap;
 		justify-items: center;
 		align-items: center;
-		justify-items: center;
 	}
 	.flex {
 		display: flex;
 	}
 	.positioning {
-		grid-template-columns: 1fr;
-		grid-template-rows: min-content 1fr;
+		grid-template-columns: minmax(100%, 1fr);
+		grid-template-areas:
+			'devNotes'
+			'firstRow'
+			'secondRow'
+			'main';
+		@include responsive_desktop_only {
+			grid-template-columns: 15% 1fr;
+			grid-template-rows: min-content min-content 1fr;
+			grid-template-areas:
+				'devNotes firstRow'
+				'devNotes secondRow'
+				'devNotes main';
+		}
+	}
+	.dev-notes {
+		@include defaultTransition;
+		position: fixed;
+		left: 0;
+		top: 20%;
+		grid-area: devNotes;
+		align-self: start;
+		justify-self: left;
+		z-index: 50;
+		border-radius: 5vh;
+		min-width: min-content;
+		max-width: 35%;
 	}
 	.game-container {
 		@include defaultContainerStyles;
 		cursor: initial;
 		width: 100%;
+		height: 100%;
 	}
 	.weekGames {
-		justify-content: center;
 		padding: 1rem;
 		padding-bottom: 3rem;
-		grid-template-columns: repeat(
-			auto-fit,
-			minmax(min(100%, 30em), 1fr)
-		); // min function prevents grid blowout
+		grid-area: main;
+		// grid-template-columns: repeat(
+		// 	auto-fit,
+		// 	minmax(min(100%, 30em), 1fr));
+		// min function prevents grid blowout
+	}
+	.first-row {
+		grid-area: firstRow;
+	}
+	.second-row {
+		grid-area: secondRow;
+		grid-template-columns: 1fr 1fr;
+		@include responsive_desktop_only {
+			grid-template-columns: repeat(4, minmax(0, max-content));
+		}
 	}
 	.first-row,
 	.second-row {
@@ -539,7 +619,7 @@
 		left: 0;
 		border-radius: 0 1rem 1rem 0;
 		grid-template-rows: repeat(3, auto);
-		max-width: max-content;
+		max-width: 15%;
 		grid-template-areas: 'clock ' 'pickCount' 'tiebreaker';
 		justify-items: center;
 		padding: 1rem 0.5rem;
@@ -554,20 +634,13 @@
 		grid-template-columns: 1fr 1fr;
 		padding: 0.5rem;
 	}
-
-	// .pulse {
-	// 	@include pulse($pulseDistance: 20px, $opacity: 80%);
-	// 	&:hover,
-	// 	&:focus-within {
-	// 		animation: none;
-	// 	}
-	// }
 	progress {
 		grid-area: tiebreaker;
 		min-height: 2.6rem;
 	}
 
 	.hotkeys {
+		width: 100%;
 		box-shadow: 4px 4px 15px 5px rgba(0, 0, 0, 0.5);
 		border: 4px solid rgba(var(--accentValue-color), 80%);
 		background: radial-gradient(
@@ -581,5 +654,8 @@
 				rgba(var(--accentValue-color), 50%)
 			);
 		}
+	}
+	input[type='range'] {
+		display: inline-block;
 	}
 </style>

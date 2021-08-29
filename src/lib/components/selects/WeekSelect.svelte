@@ -8,6 +8,7 @@
 	export let selectedWeek: number = currentWeek;
 	export let gridArea = '';
 	export let selectedSeasonType: SeasonType = { id: 2, text: 'Regular Season' };
+	export let customStyles = '';
 
 	const setDefaultWeeks = () => {
 		if (weeks === undefined || weeks.length === 0) {
@@ -37,7 +38,7 @@
 <select
 	bind:value={selectedWeek}
 	on:change={() => dispatch('weekChanged', selectedWeek)}
-	style={gridArea ? gridArea : ''}
+	style="{customStyles};{gridArea ? gridArea : ''}"
 >
 	{#each weeks as week}
 		<option value={week}>Week {week}</option>

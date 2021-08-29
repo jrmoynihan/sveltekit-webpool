@@ -47,5 +47,8 @@
 		font-weight: bold;
 		padding-bottom: 0.5rem;
 		border-bottom: 2px solid rgba(var(--accentValue-color), 50%);
+		// position: sticky;
+		// top: 0;
+		// z-index: 15;
 	}
 </style>

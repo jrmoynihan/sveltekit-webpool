@@ -1,7 +1,6 @@
 <script lang="ts">
 	import WeekSelect from '$lib/components/selects/WeekSelect.svelte';
 	import WeeklyStandingsTable from '$lib/tables/WeeklyStandingsTable.svelte';
-	import { sortByWins } from '$scripts/functions';
 	import { mobileBreakpoint } from '$scripts/site';
 	import { windowWidth } from '$scripts/store';
 
@@ -16,6 +15,9 @@
 		{ nickname: 'winston', wins: 7, losses: 9, tiebreaker: 38 },
 		{ nickname: 'moynihan', wins: 9, losses: 7, tiebreaker: 35 }
 	];
+	playerData = [...playerData, ...playerData];
+	playerData = [...playerData, ...playerData];
+	playerData = [...playerData, ...playerData];
 
 	// Sort players in order of # of wins
 	playerData.sort((firstPlayer, secondPlayer) => secondPlayer.wins - firstPlayer.wins);
@@ -59,5 +61,11 @@
 	.header {
 		// grid-template-rows: 1fr;
 		font-weight: bold;
+		padding-bottom: 0.5rem;
+		border-bottom: 2px solid rgba(var(--accentValue-color), 50%);
+		// position: sticky;
+		// top: 0;
+		// z-index: 20;
+		// background-color: var(--alternate-color);
 	}
 </style>
