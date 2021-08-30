@@ -266,3 +266,17 @@
 		box-shadow: 0 0 6px 3px rgba(var(--accentValue-color), 30%);
 	}
 }
+@mixin spin {
+	animation: spin 0.3s infinite cubic-bezier(0.6, 0.04, 0.98, 0.335);
+	@keyframes spin {
+		0% {
+			transform: rotateX(0deg);
+		}
+		50% {
+			transform: rotateX(180deg);
+		}
+		100% {
+			transform: rotate3d(360deg);
+		}
+	}
+}

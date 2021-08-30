@@ -15,6 +15,7 @@
 	import { getWindowSize } from '$scripts/functions';
 	import { browser } from '$app/env';
 	import { windowWidth } from '$scripts/store';
+	import LoadingSpinner from '$lib/components/misc/LoadingSpinner.svelte';
 
 	let drawing = true;
 	const widthContainment = '100%';
@@ -41,6 +42,7 @@
 		</picture>
 	</div>-->
 </h1>
+<LoadingSpinner />
 <section>
 	<div class="football-wrapper">
 		<AmericanFootball bind:drawing bind:width />

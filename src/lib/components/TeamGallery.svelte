@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { dev } from '$app/env';
 	import { allTeams } from '$scripts/teams';
-import TeamImage from './containers/TeamImage.svelte';
-import TeamNameImage from './containers/TeamNameImage.svelte';
+	import TeamImage from './containers/TeamImage.svelte';
+	import TeamNameImage from './containers/TeamNameImage.svelte';
 </script>
 
 <div class="team-gallery">
@@ -11,8 +10,8 @@ import TeamNameImage from './containers/TeamNameImage.svelte';
     {:then teams} -->
 	{#each $allTeams as team}
 		<div class="team-image-container">
-			<TeamImage {team}/>
-			<TeamNameImage {team}/>
+			<TeamImage {team} />
+			<TeamNameImage {team} />
 		</div>
 	{/each}
 	<!-- {:catch}

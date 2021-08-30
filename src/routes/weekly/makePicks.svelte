@@ -49,7 +49,7 @@
 	import { flip } from 'svelte/animate';
 	import { doc, setDoc } from 'firebase/firestore';
 	import { fly } from 'svelte/transition';
-	import { dev } from '$app/env';
+	import LoadingSpinner from '$lib/components/misc/LoadingSpinner.svelte';
 
 	let showIDs = false;
 	let showTimestamps = false;
@@ -492,7 +492,7 @@
 			: ''} grid-template-columns:repeat({gridColumns},1fr)"
 	>
 		{#await picksPromise}
-			Loading games and picks...
+			<LoadingSpinner msg="Loading games and picks..." />
 		{:then picks}
 			{#each currentPicks as pick, i (pick.id)}
 				<div
@@ -507,6 +507,7 @@
 						bind:showIDs
 						bind:showTimestamps
 						bind:currentPickCount
+						{gridColumns}
 						id={pick.game.id}
 						index={i}
 						spread={pick.game.spread}

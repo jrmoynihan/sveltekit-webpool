@@ -32,6 +32,7 @@
 	export let competitions = [];
 	export let currentPickCount = 0;
 	export let totalGameCount = 0;
+	export let gridColumns = 1;
 	let layoutBreakpoint = 620;
 	let showTeamNameImages = false;
 	let disabled: boolean = false;
@@ -107,7 +108,7 @@
 	let checkGameTimeInterval: NodeJS.Timer;
 
 	$: {
-		if ($windowWidth < layoutBreakpoint) {
+		if ($windowWidth < layoutBreakpoint * gridColumns) {
 			showTeamNameImages = false;
 		} else {
 			showTeamNameImages = true;

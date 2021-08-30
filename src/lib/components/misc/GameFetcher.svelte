@@ -15,6 +15,7 @@
 	import { onMount } from 'svelte';
 	import { defaultToast } from '$scripts/toasts';
 	import { setPreSeasonWeeks, setRegularSeasonWeeks } from '$scripts/functions';
+	import LoadingSpinner from './LoadingSpinner.svelte';
 
 	let message = '';
 	let submessage = '';
@@ -246,7 +247,9 @@
 		{/if}
 	{/if}
 	{#await promise}
-		<div class="padded">Loading...</div>
+		<div class="padded">
+			<LoadingSpinner />
+		</div>
 	{:then gameData}
 		<div class="padded">
 			{#if gameData}

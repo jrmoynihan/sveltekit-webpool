@@ -1,5 +1,6 @@
 <script lang="ts">
 	import AccordionDetails from '$lib/components/containers/AccordionDetails.svelte';
+	import LoadingSpinner from '$lib/components/misc/LoadingSpinner.svelte';
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
 	import { myError, myLog } from '$scripts/classes/constants';
 	import type { Game } from '$scripts/classes/game';
@@ -206,7 +207,7 @@
 <button on:click={deleteWeeklyPicksForAllUsers}>Delete All Picks for All Users</button>
 
 {#await userPromise}
-	Loading Users...
+	<LoadingSpinner msg="Loading users..." />
 {:then weeklyUsers}
 	<AccordionDetails expandTitle="Weekly Users">
 		<svelte:fragment slot="content">
@@ -218,7 +219,7 @@
 {/await}
 
 {#await gamePromise}
-	Loading Games...
+	<LoadingSpinner msg="Loading games..." />
 {:then games}
 	<AccordionDetails expandTitle="Weekly Games">
 		<svelte:fragment slot="content">
