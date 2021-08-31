@@ -9,15 +9,29 @@
 	let weekHeaders: string[] = initialWeekHeaders;
 
 	// TODO query the collection by week, and sort by wins, then net tiebreaker
-	let playerData = [
-		{ nickname: 'daphne', wins: 4, losses: 12, tiebreaker: 49 },
-		{ nickname: 'jrmoynihan', wins: 10, losses: 6, tiebreaker: 42 },
-		{ nickname: 'winston', wins: 7, losses: 9, tiebreaker: 38 },
-		{ nickname: 'moynihan', wins: 9, losses: 7, tiebreaker: 35 }
+	let names = [
+		'Daphne',
+		'Winston',
+		'Jamie',
+		'Emma',
+		'Dad',
+		'RidinWithBiden',
+		'Luca',
+		'TheCheese',
+		'AllenDiggs2024',
+		'WatsonTradeBlockchain'
 	];
-	playerData = [...playerData, ...playerData];
-	playerData = [...playerData, ...playerData];
-	playerData = [...playerData, ...playerData];
+	let playerData = [];
+	for (const name of names) {
+		const getRandomInt = (max: number, min = 0) => {
+			return Math.max(Math.floor(Math.random() * max), min);
+		};
+		const wins = getRandomInt(16);
+		const losses = 16 - wins;
+		const tiebreaker = getRandomInt(63, 10);
+		const playerDatum = { nickname: name, wins: wins, losses: losses, tiebreaker: tiebreaker };
+		playerData = [...playerData, playerDatum];
+	}
 
 	// Sort players in order of # of wins
 	playerData.sort((firstPlayer, secondPlayer) => secondPlayer.wins - firstPlayer.wins);

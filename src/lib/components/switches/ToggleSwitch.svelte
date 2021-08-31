@@ -93,6 +93,7 @@
 	input:checked + .slider {
 		background-color: $toggle-background-color-active;
 		&:before {
+			@include accelerate;
 			-webkit-transform: translateX($slider-transform);
 			-ms-transform: translateX($slider-transform);
 			transform: translateX($slider-transform); /* or 26px */

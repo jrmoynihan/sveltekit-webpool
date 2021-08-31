@@ -39,8 +39,8 @@
 		height: $width;
 		overflow: clip;
 		background-color: transparent;
-		border: 1px rgba(0, 0, 0, 0.1) solid;
 		border-radius: 5vh;
+		// border: 1px rgba(0, 0, 0, 0.1) solid;
 		& > p {
 			display: inline-grid;
 			color: var(--main-color);
@@ -52,6 +52,7 @@
 		}
 	}
 	.football {
+		@include accelerate;
 		display: grid;
 		position: relative;
 		background: radial-gradient(#9e704f, saddlebrown);

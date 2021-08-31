@@ -186,6 +186,7 @@
 		&[open] {
 			// box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.137);
 			& summary ~ * {
+				@include accelerate;
 				animation: sweep 0.5s ease-in-out;
 			}
 		}

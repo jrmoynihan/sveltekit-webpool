@@ -41,9 +41,9 @@
 			font-size: 1.5rem;
 			margin-top: 0.5rem;
 		}
-		
 	}
 	.collapsed {
+		@include accelerate;
 		margin: 0;
 		max-height: 0.2em;
 		opacity: 0;

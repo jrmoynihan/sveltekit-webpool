@@ -42,7 +42,7 @@
 		</picture>
 	</div>-->
 </h1>
-<LoadingSpinner />
+<LoadingSpinner msg="" />
 <section>
 	<div class="football-wrapper">
 		<AmericanFootball bind:drawing bind:width />

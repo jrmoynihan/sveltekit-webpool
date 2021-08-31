@@ -24,6 +24,7 @@
 	.tooltip-parent {
 		& > span.tooltip {
 			@include defaultTransition;
+			@include accelerate;
 			visibility: hidden;
 			opacity: 0;
 			position: absolute;
@@ -46,6 +47,7 @@
 		}
 
 		.tooltip-arrow {
+			@include accelerate;
 			width: 50px;
 			height: 25px;
 			position: absolute;
@@ -55,6 +57,7 @@
 			overflow: hidden;
 
 			&::after {
+				@include accelerate;
 				content: '';
 				position: absolute;
 				width: 25px;

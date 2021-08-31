@@ -27,6 +27,7 @@
 		align-self: center;
 	}
 	.invisible {
+		@include accelerate;
 		opacity: 0;
 		pointer-events: none;
 		transform: translateX(-100%);
