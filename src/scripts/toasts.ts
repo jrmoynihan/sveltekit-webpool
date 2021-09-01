@@ -1,8 +1,9 @@
 import { toast } from '@zerodevx/svelte-toast';
+import SeenToast from '$lib/components/switches/SeenToast.svelte';
 
-export const defaultToast = (
-	title: string,
-	msg: string,
+export const defaultToast = ({
+	title = '',
+	msg = '',
 	duration = 5000,
 	toastContainerTop = '21rem',
 	toastColor = 'var(--alternate-color)',
@@ -10,9 +11,11 @@ export const defaultToast = (
 	toastProgressBackground = 'var(--main-color)',
 	toastBoxShadow = '0 0 4px 6px rgba(0,0,0,0.4)',
 	toastBorderRadius = '5vh',
-	toastMsgPadding = '1.5rem 2rem'
-) => {
-	let msgBuilder = `<div style="display:grid;text-align:center;">
+	toastMsgPadding = '1.5rem 2rem',
+	useSeenToastComponent = false,
+	localStorageKey = 'toast'
+}) => {
+	const msgBuilder = `<div style="display:grid;text-align:center;">
 						<h3>
 							${title}
 						</h3>
@@ -20,20 +23,39 @@ export const defaultToast = (
 							${msg}
 						</section>
 					</div>`;
-	toast.push(msgBuilder, {
-		duration: duration,
-		pausable: true,
-		theme: {
-			'--toastContainerTop': `${toastContainerTop}`,
-			'--toastColor': `${toastColor}`,
-			'--toastBackground': `${toastBackground}`,
-			'--toastProgressBackground': `${toastProgressBackground}`,
-			'--toastBoxShadow': `${toastBoxShadow}`,
-			'--toastBorderRadius': `${toastBorderRadius}`,
-			'--toastMsgPadding': `${toastMsgPadding}`
-		}
-	});
+	const theme = {
+		'--toastContainerTop': `${toastContainerTop}`,
+		'--toastColor': `${toastColor}`,
+		'--toastBackground': `${toastBackground}`,
+		'--toastProgressBackground': `${toastProgressBackground}`,
+		'--toastBoxShadow': `${toastBoxShadow}`,
+		'--toastBorderRadius': `${toastBorderRadius}`,
+		'--toastMsgPadding': `${toastMsgPadding}`
+	};
+	if (useSeenToastComponent) {
+		toast.push({
+			component: {
+				src: SeenToast,
+				props: { msgMarkup: msgBuilder, localStorageKey: localStorageKey }
+			},
+			duration: duration,
+			pausable: true,
+			theme: theme
+		});
+	} else {
+		toast.push(msgBuilder, {
+			duration: duration,
+			pausable: true,
+			theme: theme
+		});
+	}
 };
 
 export const errorToast = (msg: string) =>
-	defaultToast('Error!', msg, 30_000, undefined, 'white', 'darkred');
+	defaultToast({
+		title: 'Error!',
+		msg,
+		duration: 30_000,
+		toastColor: 'white',
+		toastBackground: 'darkred'
+	});

@@ -37,7 +37,7 @@
 		position: relative;
 		margin: auto;
 		width: $width;
-		min-height: $minHeight;
+		min-height: 25vh;
 		overflow: clip;
 		background-color: transparent;
 		border-radius: 5vh;

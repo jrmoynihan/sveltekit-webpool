@@ -306,3 +306,19 @@
 @mixin relative($args...) {
 	@include position(relative, $args...);
 }
+@mixin styledButton {
+	width: 100%;
+	box-shadow: 4px 4px 15px 5px rgba(0, 0, 0, 0.5);
+	border: 4px solid rgba(var(--accentValue-color), 80%);
+	background: radial-gradient(
+		rgba(var(--accentValue-color), 90%),
+		rgba(var(--accentValue-color), 70%)
+	);
+	&.dark-mode {
+		border: 4px solid rgba(var(--accentValue-color), 40%);
+		background: radial-gradient(
+			rgba(var(--accentValue-color), 10%),
+			rgba(var(--accentValue-color), 50%)
+		);
+	}
+}

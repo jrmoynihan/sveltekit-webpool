@@ -188,11 +188,11 @@
 			allScheduleDocs.forEach((game) => {
 				deleteDoc(game.ref);
 			});
-			defaultToast(
-				`${stopSign} All games deleted!`,
-				`Please remember to re-create the game documents.`,
-				5000
-			);
+			defaultToast({
+				title: `${stopSign} All games deleted!`,
+				msg: `Please remember to re-create the game documents.`,
+				duration: 5000
+			});
 		}
 	};
 	const deleteGameWeek = async (week: number, year: number, seasonType: SeasonType) => {
@@ -210,11 +210,11 @@
 			matchingDocs.forEach((game) => {
 				deleteDoc(game.ref);
 			});
-			defaultToast(
-				`${stopSign} Week of Games Deleted!`,
-				`${week} (${seasonType.text}, ${year}) games deleted!`,
-				5000
-			);
+			defaultToast({
+				title: `${stopSign} Week of Games Deleted!`,
+				msg: `${week} (${seasonType.text}, ${year}) games deleted!`,
+				duration: 5000
+			});
 		}
 	};
 	onMount(() => {
@@ -222,7 +222,7 @@
 	});
 </script>
 
-<div>
+<section>
 	<PageTitle>Fetch ESPN Game Data</PageTitle>
 	<SeasonTypeSelect
 		bind:selectedSeasonType
@@ -266,11 +266,15 @@
 	{:catch}
 		An error occurred
 	{/await}
-</div>
+</section>
 
 <style lang="scss">
 	button {
 		@include defaultButtonStyles;
+		@include styledButton;
+		color: white;
+		margin: 0.5rem;
+		max-width: max-content;
 	}
 	.padded {
 		padding: 1rem;

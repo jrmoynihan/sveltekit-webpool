@@ -68,6 +68,7 @@
 	let gridColumns = 2;
 	let widthMeasure = 85;
 	let offsetRightPercentage = 15;
+	let toastSeenKey = 'makeWeeklyPicks_NewTiebreakerAndSubmit';
 	const progress = tweened(0, {
 		duration: 400,
 		easing: cubicOut
@@ -88,7 +89,16 @@
 		const promisedToast = await getToast('Make Picks');
 		toastMsg = promisedToast.msg;
 		toastTitle = promisedToast.title;
-		defaultToast(toastTitle, toastMsg, 15_000);
+		const toastSeen = localStorage.getItem(toastSeenKey);
+		if (toastSeen !== 'true') {
+			defaultToast({
+				title: toastTitle,
+				msg: toastMsg,
+				duration: 15_000,
+				useSeenToastComponent: true,
+				localStorageKey: toastSeenKey
+			});
+		}
 	});
 	const getToast = async (page: string) => {
 		try {
@@ -111,7 +121,7 @@
 		return localStorage.getItem('id');
 	};
 
-	const toastIt = () => defaultToast(toastTitle, toastMsg, 200_000);
+	const toastIt = () => defaultToast({ title: toastTitle, msg: toastMsg, duration: 200_000 });
 	const errorToastIt = () =>
 		errorToast(`${policeCarLight} This is a test error. Try to avoid the real thing.`);
 
@@ -145,8 +155,7 @@
 			});
 			return picks;
 		} catch (error) {
-			defaultToast(
-				'Error!',
+			errorToast(
 				'Unable to get picks. Contact the admin.  You can find more information about the error by pressing Ctrl+Shift+I and then inspecting the error in the Console tab.'
 			);
 			myError('getPicks', error);
@@ -197,10 +206,10 @@
 						error,
 						`unable to update game pick ${currentPick.docRef} for user ${currentPick.uid}`
 					);
-					defaultToast(
-						`${policeCarLight} Unable To Update Picks!`,
-						`We encountered an error while trying to submit your picks.  Please contact your admin with the following information: <br> ${error}`
-					);
+					defaultToast({
+						title: `${policeCarLight} Unable To Update Picks!`,
+						msg: `We encountered an error while trying to submit your picks.  Please contact the site admin with the following information: <br> ${error}`
+					});
 				}
 			});
 			myLog('updated/submitted picks!', '', okHand, currentPicks);
@@ -208,11 +217,11 @@
 
 			setTiebreakerDoc();
 
-			defaultToast(
-				`${checkmark} Picks submitted!`,
-				`You can change any game's pick prior to that game's start time.`,
-				10000
-			);
+			defaultToast({
+				title: `${checkmark} Picks submitted!`,
+				msg: `You can change any game's pick prior to that game's start time.`,
+				duration: 10000
+			});
 		} catch (error) {
 			myError('submitPicks', error);
 		}
@@ -241,10 +250,10 @@
 				error,
 				`unable to update tiebreaker ${tiebreakerDocRef.path} for user ${uid}`
 			);
-			defaultToast(
-				`${policeCarLight} Unable To Update Tiebreaker!`,
-				`We encountered an error while trying to submit your tiebreaker.  Please contact your admin with the following information: <br> ${error}`
-			);
+			defaultToast({
+				title: `${policeCarLight} Unable To Update Tiebreaker!`,
+				msg: `We encountered an error while trying to submit your tiebreaker.  Please contact your admin with the following information: <br> ${error}`
+			});
 		}
 	};
 
@@ -296,11 +305,11 @@
 				}
 			});
 			if (spreadsMissing) {
-				defaultToast(
-					`${policeCarLight} Spreads not yet available!`,
-					`You can use this button when spreads are updated.`,
-					10000
-				);
+				defaultToast({
+					title: `${policeCarLight} Spreads not yet available!`,
+					msg: `You can use this button when spreads are updated.`,
+					duration: 10000
+				});
 				// alert(`Spreads not yet available for all games!`);
 				return;
 			}
@@ -337,11 +346,11 @@
 				}
 			});
 			if (spreadsMissing) {
-				defaultToast(
-					`${policeCarLight} Spreads not yet available!`,
-					`You can use this button when spreads are updated.`,
-					10000
-				);
+				defaultToast({
+					title: `${policeCarLight} Spreads not yet available!`,
+					msg: `You can use this button when spreads are updated.`,
+					duration: 10000
+				});
 				// alert(`Spreads not yet available for all games!`);
 				return;
 			}
@@ -466,7 +475,7 @@
 					<TiebreakerInput bind:tiebreaker />
 				{/if}
 			{:else}
-				<progress value={$progress} />
+				<progress value={$progress || 0} />
 			{/if}
 		{/if}
 	</div>
@@ -640,20 +649,21 @@
 	}
 
 	.hotkeys {
-		width: 100%;
-		box-shadow: 4px 4px 15px 5px rgba(0, 0, 0, 0.5);
-		border: 4px solid rgba(var(--accentValue-color), 80%);
-		background: radial-gradient(
-			rgba(var(--accentValue-color), 90%),
-			rgba(var(--accentValue-color), 70%)
-		);
-		&.dark-mode {
-			border: 4px solid rgba(var(--accentValue-color), 40%);
-			background: radial-gradient(
-				rgba(var(--accentValue-color), 10%),
-				rgba(var(--accentValue-color), 50%)
-			);
-		}
+		@include styledButton;
+		// width: 100%;
+		// box-shadow: 4px 4px 15px 5px rgba(0, 0, 0, 0.5);
+		// border: 4px solid rgba(var(--accentValue-color), 80%);
+		// background: radial-gradient(
+		// 	rgba(var(--accentValue-color), 90%),
+		// 	rgba(var(--accentValue-color), 70%)
+		// );
+		// &.dark-mode {
+		// 	border: 4px solid rgba(var(--accentValue-color), 40%);
+		// 	background: radial-gradient(
+		// 		rgba(var(--accentValue-color), 10%),
+		// 		rgba(var(--accentValue-color), 50%)
+		// 	);
+		// }
 	}
 	input[type='range'] {
 		display: inline-block;
