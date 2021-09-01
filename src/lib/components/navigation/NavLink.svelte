@@ -82,14 +82,12 @@
 		}
 	}
 	a {
-		align-items: center;
+		@include flexCenter;
 		color: var(--main-color);
-		display: flex;
 		font-weight: 700;
 		font-size: 0.8rem;
 		gap: 0.7em;
 		height: 100%;
-		justify-content: center;
 		letter-spacing: 10%;
 		padding: 0 1em;
 		text-decoration: none;

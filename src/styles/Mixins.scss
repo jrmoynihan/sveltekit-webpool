@@ -52,10 +52,18 @@
 	width: -webkit-fill-available;
 	width: -moz-available;
 }
-@mixin flexCenter {
-	display: flex;
+@mixin centerAIJC {
 	align-items: center;
 	justify-content: center;
+}
+@mixin flexCenter {
+	@include centerAIJC;
+	display: flex;
+}
+@mixin gridCenter($grid: grid, $gap: null) {
+	@include centerAIJC;
+	display: $grid;
+	gap: $gap;
 }
 @mixin stickyToTop {
 	position: sticky;
@@ -66,18 +74,17 @@
 	gap: $gap;
 }
 @mixin cell {
-	font-family: 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Open Sans', 'Helvetica Neue',
-		'sans-serif';
-	border-radius: 2vh; // or 20px?
-	padding: 0.5em;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	box-sizing: border-box;
-	font-size: 1rem;
+	@include centerAIJC;
 	@include defaultTransition;
 	@include fillAvailableWidth;
+	font-family: 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Open Sans', 'Helvetica Neue',
+		'sans-serif';
+	font-size: 1rem;
+	padding: 0.5em;
+	display: flex;
 	border: none;
+	border-radius: 2vh; // or 20px?
+	box-sizing: border-box;
 }
 @mixin editableCell {
 	@include cell;
@@ -105,7 +112,7 @@
 	padding: 1em;
 }
 @mixin centeredButton {
-	justify-self: center;
+	@include centerAIJC;
 	margin: auto;
 }
 
@@ -279,4 +286,23 @@
 			transform: rotate3d(360deg);
 		}
 	}
+}
+
+@mixin position($position, $top: null, $right: null, $bottom: null, $left: null) {
+	position: $position;
+	top: $top;
+	right: $right;
+	bottom: $bottom;
+	left: $left;
+}
+@mixin absolute($args...) {
+	@include position(absolute, $args...);
+}
+
+@mixin fixed($args...) {
+	@include position(fixed, $args...);
+}
+
+@mixin relative($args...) {
+	@include position(relative, $args...);
 }

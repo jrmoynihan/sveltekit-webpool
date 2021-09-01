@@ -25,6 +25,7 @@
 
 <style lang="scss">
 	$width: var(--width);
+	$minHeight: $width;
 	$left: var(--left);
 	$middleX: var(--middleX);
 	$middleY: var(--middleY);
@@ -36,11 +37,11 @@
 		position: relative;
 		margin: auto;
 		width: $width;
-		height: $width;
+		min-height: $minHeight;
 		overflow: clip;
 		background-color: transparent;
 		border-radius: 5vh;
-		// border: 1px rgba(0, 0, 0, 0.1) solid;
+		// border: 2px white(0.2) solid;
 		& > p {
 			display: inline-grid;
 			color: var(--main-color);
@@ -101,8 +102,7 @@
 		display: inline-flex;
 		position: relative;
 		background-color: white;
-		justify-self: center;
-		align-self: center;
+		place-self: center;
 		width: 65%;
 		height: 4px;
 		border-radius: 4px;

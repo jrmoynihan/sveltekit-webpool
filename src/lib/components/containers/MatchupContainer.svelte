@@ -446,8 +446,7 @@
 	}
 	label {
 		@include defaultTransition;
-		align-items: center;
-		justify-items: center;
+		place-items: center;
 		display: grid;
 		padding: 0.7rem;
 		height: 100%;

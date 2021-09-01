@@ -95,10 +95,8 @@
 
 <style lang="scss">
 	div {
+		@include flexCenter;
 		padding: 1%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
 	}
 	.editToggle {
 		@include rounded;

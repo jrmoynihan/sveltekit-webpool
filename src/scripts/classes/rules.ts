@@ -22,39 +22,17 @@ export class RuleCategory {
 	weeklyThird?: number;
 	hasWeeklyPayout?: boolean;
 	rules?: CollectionReference;
-	constructor({
-		docRef,
-		docID,
-		order,
-		title,
-		endOfSeason,
-		prizeTBDmessage,
-		weeklyFirst,
-		weeklySecond,
-		weeklyThird,
-		hasWeeklyPayout
-	}: {
-		docRef?: DocumentReference<DocumentData>;
-		docID?: string;
-		order?: number;
-		title?: string;
-		endOfSeason?: string;
-		prizeTBDmessage?: string;
-		weeklyFirst?: number;
-		weeklySecond?: number;
-		weeklyThird?: number;
-		hasWeeklyPayout?: boolean;
-	} = {}) {
-		(this.docRef = docRef),
-			(this.docID = docID),
-			(this.order = order),
-			(this.title = title),
-			(this.endOfSeason = endOfSeason),
-			(this.prizeTBDmessage = prizeTBDmessage),
-			(this.weeklyFirst = weeklyFirst),
-			(this.weeklySecond = weeklySecond),
-			(this.weeklyThird = weeklyThird),
-			(this.hasWeeklyPayout = hasWeeklyPayout),
-			(this.rules = collection(docRef, 'Rules'));
+	constructor({ ...args }) {
+		(this.docRef = args.docRef),
+			(this.docID = args.docID),
+			(this.order = args.order),
+			(this.title = args.title),
+			(this.endOfSeason = args.endOfSeason),
+			(this.prizeTBDmessage = args.prizeTBDmessage),
+			(this.weeklyFirst = args.weeklyFirst),
+			(this.weeklySecond = args.weeklySecond),
+			(this.weeklyThird = args.weeklyThird),
+			(this.hasWeeklyPayout = args.hasWeeklyPayout),
+			(this.rules = collection(args.docRef, 'Rules'));
 	}
 }

@@ -11,25 +11,15 @@ export class WeeklyPickDoc {
 	timestamp: Timestamp;
 	game: Game;
 	type: string;
-	constructor(
-		docRef: DocumentReference,
-		id: string,
-		pick: string,
-		uid: string,
-		week: number,
-		year: number,
-		timestamp: Timestamp,
-		game: Game,
-		type: string
-	) {
-		(this.docRef = docRef),
-			(this.id = id),
-			(this.pick = pick),
-			(this.uid = uid),
-			(this.week = week);
-		this.year = year;
-		this.timestamp = timestamp;
-		this.game = game;
-		this.type = type;
+	constructor({ ...args }) {
+		(this.docRef = args.docRef),
+			(this.id = args.id),
+			(this.pick = args.pick),
+			(this.uid = args.uid),
+			(this.week = args.week);
+		this.year = args.year;
+		this.timestamp = args.timestamp;
+		this.game = args.game;
+		this.type = args.type;
 	}
 }

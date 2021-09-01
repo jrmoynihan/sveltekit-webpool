@@ -43,11 +43,10 @@
 	}
 
 	.counter button {
+		@include centerAIJC;
 		width: 2em;
 		padding: 0;
 		display: flex;
-		align-items: center;
-		justify-content: center;
 		border: 0;
 		background-color: transparent;
 		color: var(--text-color);
@@ -78,16 +77,13 @@
 	}
 
 	.counter-viewport strong {
+		@include flexCenter;
 		position: absolute;
-		display: block;
 		width: 100%;
 		height: 100%;
 		font-weight: 400;
 		color: var(--accent-color);
 		font-size: 4rem;
-		display: flex;
-		align-items: center;
-		justify-content: center;
 	}
 
 	.counter-digits {

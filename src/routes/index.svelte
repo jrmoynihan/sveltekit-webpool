@@ -42,7 +42,7 @@
 		</picture>
 	</div>-->
 </h1>
-<LoadingSpinner msg="" />
+<!-- <LoadingSpinner msg="" /> -->
 <section>
 	<div class="football-wrapper">
 		<AmericanFootball bind:drawing bind:width />
@@ -59,43 +59,30 @@
 />
 
 <style lang="scss">
-	* {
+	:global(body) {
 		box-sizing: border-box;
 	}
 	section {
 		@include frostedGlass;
 		@include rounded;
+		@include gridCenter($gap: 10px);
 		backdrop-filter: initial;
-		display: grid;
 		position: relative;
-		gap: 10px;
 		grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
-		justify-items: center;
 		justify-content: center;
-		align-items: center;
 		max-height: 100%;
 		overflow: auto;
 	}
-
 	h1 {
 		width: 100%;
 	}
 	.football-wrapper,
 	.nfl-logo-wrapper {
-		// position: absolute;
-		// max-height: min-content;
-		// min-height: max-content;
-		// width: 100%;
-		// top: 0;
-		// bottom: 0;
 		display: grid;
-		align-items: center;
-		justify-items: center;
-		// z-index: -1;
+		place-items: center;
 		width: 90%;
 	}
 	.football-wrapper {
-		// opacity: 0.5;
 		filter: saturate(0.6);
 		z-index: 0;
 	}

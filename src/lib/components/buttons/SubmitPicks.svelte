@@ -39,7 +39,6 @@
 			gap: 0.5rem;
 			align-items: center;
 			align-self: center;
-			// justify-self: start;
 			padding: max(2%, 1rem);
 			font-weight: bold;
 			margin: unset;

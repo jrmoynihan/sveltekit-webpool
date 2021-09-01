@@ -35,15 +35,13 @@
 	{/if}
 </div>
 
-<style>
+<style lang="scss">
 	.order-input {
 		max-width: 50px;
 	}
 	.rule-item {
+		@include gridCenter;
 		align-content: center;
-		align-items: center;
-		justify-content: center;
-		display: grid;
 		grid-template-columns: 1fr max-content;
 		gap: 10px;
 		width: 100%;

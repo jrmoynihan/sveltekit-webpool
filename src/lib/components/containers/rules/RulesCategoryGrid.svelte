@@ -38,9 +38,7 @@
 
 <style lang="scss">
 	#rules-grid {
-		@include gridAndGap;
-		justify-content: center;
-		align-items: start;
+		@include gridCenter($gap: 10px);
 		&.editing {
 			grid-template-columns: 1fr;
 		}

@@ -144,8 +144,7 @@
 		display: grid;
 		grid-template-columns: 1fr 1fr;
 		grid-template-rows: 1fr 2fr;
-		align-items: center;
-		justify-items: center;
+		place-items: center;
 	}
 	label {
 		text-transform: capitalize;

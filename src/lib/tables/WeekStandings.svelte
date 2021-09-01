@@ -1,4 +1,5 @@
 <script lang="ts">
+	import ReturnToTop from '$lib/components/buttons/ReturnToTop.svelte';
 	import WeekSelect from '$lib/components/selects/WeekSelect.svelte';
 	import WeeklyStandingsTable from '$lib/tables/WeeklyStandingsTable.svelte';
 	import { mobileBreakpoint } from '$scripts/site';
@@ -21,6 +22,11 @@
 		'AllenDiggs2024',
 		'WatsonTradeBlockchain'
 	];
+	names = [...names, ...names];
+	names = [...names, ...names];
+	names = [...names, ...names];
+	names = [...names, ...names];
+
 	let playerData = [];
 	for (const name of names) {
 		const getRandomInt = (max: number, min = 0) => {
@@ -36,6 +42,28 @@
 	// Sort players in order of # of wins
 	playerData.sort((firstPlayer, secondPlayer) => secondPlayer.wins - firstPlayer.wins);
 
+	var possibleWins: { wins: number; count: number }[] = [];
+
+	for (let i = 1; i < 17; i++) {
+		possibleWins.push({ wins: i, count: 0 });
+	}
+
+	for (const possibleWinCount of possibleWins) {
+		for (const player of playerData) {
+			if (player.wins === possibleWinCount.wins) {
+				possibleWinCount.count++;
+			}
+		}
+	}
+	let maxCount;
+
+	$: maxCount = Math.max.apply(
+		Math,
+		possibleWins.map((obj) => {
+			return obj.count;
+		})
+	);
+
 	$: {
 		if ($windowWidth < mobileBreakpoint - 500) {
 			weekHeaders = abbreviatedWeekHeaders;
@@ -46,6 +74,17 @@
 </script>
 
 <div class="week grid">
+	<div class="histogram" style="height:20rem; width:{possibleWins.length * 4}rem;">
+		{#each possibleWins as outcome}
+			<div class="outcome" style="width:3.5rem;height:100%;">
+				<div class="bar" style="height:{(outcome.count / maxCount) * 100}%;">
+					<div class="count">{outcome.count}</div>
+				</div>
+				<div>{outcome.wins}</div>
+			</div>
+		{/each}
+		<span style="grid-column: span 16;">Wins (max:{maxCount})</span>
+	</div>
 	<WeekSelect gridArea="selector" />
 	<div class="table grid">
 		{#each weekHeaders as header}
@@ -54,6 +93,7 @@
 		<WeeklyStandingsTable {playerData} />
 	</div>
 </div>
+<ReturnToTop />
 
 <style lang="scss">
 	.grid {
@@ -73,13 +113,36 @@
 	}
 
 	.header {
-		// grid-template-rows: 1fr;
 		font-weight: bold;
 		padding-bottom: 0.5rem;
 		border-bottom: 2px solid rgba(var(--accentValue-color), 50%);
-		// position: sticky;
-		// top: 0;
-		// z-index: 20;
-		// background-color: var(--alternate-color);
+	}
+	.histogram {
+		position: sticky;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: var(--accent-color);
+		display: grid;
+		grid-template-columns: repeat(16, 1fr);
+		grid-template-rows: 1fr auto;
+		color: white;
+		align-items: flex-end;
+		padding: 0.5rem 1rem;
+	}
+	.outcome {
+		display: grid;
+		align-items: flex-end;
+		grid-template-rows: 1fr auto;
+	}
+	.bar {
+		display: grid;
+		align-content: flex-start;
+		color: black;
+		background-color: white;
+		border: 1px black solid;
+	}
+	.count {
+		align-self: flex-end;
 	}
 </style>

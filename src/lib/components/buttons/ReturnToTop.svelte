@@ -26,7 +26,7 @@
 	export const scrollProgress = spring<number>(0, { damping: 0.5, stiffness: 0.1 });
 </script>
 
-{#if !$largerThanMobile && $scrollProgress > 0.15}
+{#if !$largerThanMobile && $scrollProgress > 0.1}
 	{#if showButton}
 		<button on:click={returnToTop} style={customStyles} transition:fade>
 			<Fa icon={faArrowUp} class="fa-icon" size="lg" />
@@ -46,9 +46,11 @@
 
 	button {
 		@include pulse;
-		position: fixed;
-		bottom: 5px;
-		left: 0;
+		@include flexCenter;
+		@include fixed($bottom: 5px, $left: 0);
+		// position: fixed;
+		// bottom: 5px;
+		// left: 0;
 		// border-radius: 0 25% 0 0;
 		width: 10.4%;
 		aspect-ratio: 1/1.35;
@@ -56,9 +58,6 @@
 		color: var(--alternate-color);
 		border: 2px inset rgba(100, 148, 237, 0.295);
 		z-index: 30;
-		display: flex;
-		align-items: center;
-		justify-content: center;
 		opacity: 50%;
 		max-height: 3.1rem;
 	}

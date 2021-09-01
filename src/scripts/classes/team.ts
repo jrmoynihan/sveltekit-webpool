@@ -13,31 +13,18 @@ export class Team {
 	ties: number;
 	docRef?: DocumentReference;
 	docID?: string;
-	constructor(
-		city: string,
-		abbreviation: string,
-		name: string,
-		conference: string,
-		division: string,
-		logoPath?: string,
-		fontPath?: string,
-		wins?: number,
-		losses?: number,
-		ties?: number,
-		docRef?: DocumentReference,
-		docID?: string
-	) {
-		this.name = name;
-		this.abbreviation = abbreviation;
-		this.city = city;
-		this.conference = conference;
-		this.division = division;
-		this.logoPath = logoPath;
-		this.fontPath = fontPath;
-		this.wins = wins;
-		this.losses = losses;
-		this.ties = ties;
-		this.docRef = docRef;
-		this.docID = docID;
+	constructor({ ...args }) {
+		this.name = args.name;
+		this.abbreviation = args.abbreviation;
+		this.city = args.city;
+		this.conference = args.conference;
+		this.division = args.division;
+		this.logoPath = args.logoPath;
+		this.fontPath = args.fontPath;
+		this.wins = args.wins;
+		this.losses = args.losses;
+		this.ties = args.ties;
+		this.docRef = args.docRef;
+		this.docID = args.docID;
 	}
 }

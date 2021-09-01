@@ -2,23 +2,19 @@ import preprocess from 'svelte-preprocess';
 import firebase from 'svelte-adapter-firebase';
 import path from 'path';
 import mkcert from 'vite-plugin-mkcert';
-import autoprefixer from 'autoprefixer';
+// import autoprefixer from 'autoprefixer';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
 	// Consult https://github.com/sveltejs/svelte-preprocess
 	// for more information about preprocessors
 	preprocess: preprocess({
-		defaults: {
-			script: 'ts',
-			style: 'scss'
-		},
-		postcss: {
-			plugins: [autoprefixer()]
-		},
+		// postcss: {
+		// 	plugins: [autoprefixer()]
+		// },
 		sourceMap: true,
 		scss: {
-			prependData: `@import 'src/styles/Mixins.scss';`
+			prependData: `@import 'src/styles/mixins.scss', 'src/styles/functions.scss';`
 		}
 	}),
 	compilerOptions: {

@@ -28,6 +28,7 @@
 	import { getDoc } from '@firebase/firestore';
 	import { mobileBreakpoint } from '$scripts/site';
 	import { onMount } from 'svelte';
+	import { WebUser } from '$scripts/classes/webUser';
 
 	export let refresh: any;
 
@@ -42,7 +43,8 @@
 	const saveUserData = async () => {
 		const userDocRef = doc(usersCollection, $currentUser.uid);
 		const snapshot = await getDoc(userDocRef.withConverter(userConverter));
-		$userData = snapshot.data();
+		const user = new WebUser(snapshot.data());
+		$userData = user;
 		for (const property in $userData) {
 			localStorage.setItem(property, $userData[property]);
 		}
@@ -151,8 +153,7 @@
 		}
 	}
 	main {
-		align-self: start;
-		justify-self: center;
+		place-self: start;
 		width: 100%;
 		box-sizing: border-box;
 		padding-bottom: 2rem;

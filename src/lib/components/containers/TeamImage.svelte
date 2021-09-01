@@ -25,10 +25,8 @@
 <style lang="scss">
 	picture {
 		@include accelerate;
+		@include flexCenter;
 		box-shadow: none;
-		display: flex;
-		align-items: center;
-		justify-content: center;
 		z-index: 2;
 	}
 	img {

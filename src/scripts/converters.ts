@@ -15,45 +15,18 @@ export const userConverter = {
 		const data = snapshot.data(options);
 		const docRef = snapshot.ref;
 		const docID = snapshot.id;
-		return new WebUser(
-			docID,
-			docRef,
-			data.name,
-			data.nickname,
-			data.email,
-			data.admin,
-			data.college,
-			data.pick6,
-			data.playoffs,
-			data.survivor,
-			data.weekly
-		);
+		return new WebUser({ id: docID, ref: docRef, ...data });
 	}
 };
 export const teamConverter = {
 	toFirestore: (team: Partial<Team>): Partial<Team> => {
-		return {
-			...team
-		};
+		return { ...team };
 	},
 	fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): Team => {
 		const data = snapshot.data(options);
 		const docRef = snapshot.ref;
 		const docID = snapshot.id;
-		return new Team(
-			data.city,
-			data.abbreviation,
-			data.name,
-			data.conference,
-			data.division,
-			data.logoPath,
-			data.fontPath,
-			data.wins,
-			data.losses,
-			data.ties,
-			docRef,
-			docID
-		);
+		return new Team({ docID: docID, docRef: docRef, ...data });
 	}
 };
 export const rulesConverter = {
@@ -61,31 +34,10 @@ export const rulesConverter = {
 		return { ...rule };
 	},
 	fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): RuleCategory => {
-		const {
-			order,
-			title,
-			endOfSeason = undefined,
-			prizeTBDmessage = undefined,
-			weeklyFirst = undefined,
-			weeklySecond = undefined,
-			weeklyThird = undefined,
-			hasWeeklyPayout = undefined
-		} = snapshot.data(options);
 		const docRef = snapshot.ref;
 		const docID = snapshot.id;
-
-		return new RuleCategory({
-			docRef,
-			docID,
-			order,
-			title,
-			endOfSeason,
-			prizeTBDmessage,
-			weeklyFirst,
-			weeklySecond,
-			weeklyThird,
-			hasWeeklyPayout
-		});
+		const data = snapshot.data(options);
+		return new RuleCategory({ docRef: docRef, docID: docID, ...data });
 	}
 };
 
@@ -96,29 +48,7 @@ export const gameConverter = {
 	fromFirestore: (snapshot: QueryDocumentSnapshot): Game => {
 		const docRef = snapshot.ref;
 		const data = snapshot.data();
-		return new Game(
-			docRef,
-			data.$ref,
-			data.competitions,
-			data.date,
-			data.id,
-			data.league,
-			data.links,
-			data.name,
-			data.season,
-			data.seasonType,
-			data.shortName,
-			data.spread,
-			data.timeValid,
-			data.timestamp,
-			data.uid,
-			data.venues,
-			data.year,
-			data.week,
-			data.type,
-			data.homeTeam,
-			data.awayTeam
-		);
+		return new Game({ docRef: docRef, ...data });
 	}
 };
 
@@ -129,17 +59,7 @@ export const weeklyPickConverter = {
 	fromFirestore: (snapshot: QueryDocumentSnapshot): WeeklyPickDoc => {
 		const docRef = snapshot.ref;
 		const data = snapshot.data();
-		return new WeeklyPickDoc(
-			docRef,
-			data.id,
-			data.pick,
-			data.uid,
-			data.week,
-			data.year,
-			data.timestamp,
-			data.game,
-			data.type
-		);
+		return new WeeklyPickDoc({ docRef: docRef, ...data });
 	}
 };
 export const weeklyTiebreakerConverter = {
@@ -149,6 +69,6 @@ export const weeklyTiebreakerConverter = {
 	fromFirestore: (snapshot: QueryDocumentSnapshot): WeeklyTiebreaker => {
 		const docRef = snapshot.ref;
 		const data = snapshot.data();
-		return new WeeklyTiebreaker(docRef, data.tiebreaker, data.uid, data.week, data.year);
+		return new WeeklyTiebreaker({ docRef, ...data });
 	}
 };

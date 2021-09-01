@@ -21,14 +21,13 @@
 	}
 	.navigationList {
 		@include gridAndGap(0.5rem);
-		align-items: center;
+		place-items: center;
+		text-align: center;
 		font-weight: bold;
 		grid-area: nav;
 		grid-template-columns: repeat(auto-fit, minmax($minItemSize, $maxItemSize));
-		justify-items: center;
 		max-width: 100%;
 		padding: 0.2rem 0;
-		text-align: center;
 		top: 0;
 		transition: all 300ms ease-in-out;
 		width: 100%;

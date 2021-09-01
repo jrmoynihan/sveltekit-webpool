@@ -98,8 +98,6 @@
 		color: var(--main-color);
 		&:hover,
 		&:focus {
-			// color: white;
-			// background-color: rgba(0, 0, 0, 0.5);
 			background-color: rgba(var(--mainValue-color), 10%);
 		}
 	}
@@ -110,11 +108,8 @@
 	#settings-wrapper {
 		display: grid;
 		gap: 0.5em;
-		align-items: center;
-		justify-items: center;
-		// width: auto;
+		place-items: center;
 		@include responsive_mobile_only {
-			// grid-template-columns: repeat(auto-fit,minmax(0px,min-content));
 			grid-template-columns: 1fr 1fr;
 			justify-self: end;
 		}

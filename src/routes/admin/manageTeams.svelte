@@ -132,18 +132,17 @@
 		grid-template-rows: min-content auto;
 		align-items: start;
 		justify-items: center;
+		justify-content: center;
 		text-align: center;
 		text-transform: capitalize;
 		margin: 1rem;
 		padding: 1rem;
 		width: 100%;
-		justify-content: center;
 	}
 	.images {
 		@include frostedGlass;
 		grid-template-columns: 1fr 1fr;
-		align-items: center;
-		justify-items: center;
+		place-items: center;
 		padding: 0.5rem;
 	}
 	img {
@@ -153,8 +152,7 @@
 		width: 100%;
 		grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
 		grid-template-areas: 'conference division image' 'city name abbreviation' 'wins losses ties' 'fontPath logoPath docID' '. update .';
-		align-items: center;
-		justify-items: center;
+		place-items: center;
 		justify-content: center;
 	}
 	.team-select {

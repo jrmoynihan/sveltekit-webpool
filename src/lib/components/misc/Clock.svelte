@@ -105,14 +105,12 @@
 		text-align: center;
 		position: relative;
 		& strong {
+			@include flexCenter;
 			position: absolute;
 			display: block;
 			height: 100%;
 			font-weight: 400;
 			font-size: var(--size);
-			display: flex;
-			align-items: center;
-			justify-content: center;
 		}
 	}
 	.AM-PM {

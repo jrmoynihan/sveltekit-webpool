@@ -12,29 +12,17 @@ export class WebUser {
 	playoffs: boolean;
 	survivor: boolean;
 	weekly: boolean;
-	constructor(
-		id?: string,
-		ref?: DocumentReference,
-		name?: string,
-		nickname?: string,
-		email?: string,
-		admin?: boolean,
-		college?: boolean,
-		pick6?: boolean,
-		playoffs?: boolean,
-		survivor?: boolean,
-		weekly?: boolean
-	) {
-		(this.id = id),
-			(this.ref = ref),
-			(this.name = name),
-			(this.nickname = nickname),
-			(this.email = email),
-			(this.admin = admin);
-		this.college = college;
-		this.pick6 = pick6;
-		this.playoffs = playoffs;
-		this.survivor = survivor;
-		this.weekly = weekly;
+	constructor({ ...args }) {
+		(this.id = args.id),
+			(this.ref = args.ref),
+			(this.name = args.name),
+			(this.nickname = args.nickname),
+			(this.email = args.email),
+			(this.admin = args.admin);
+		this.college = args.college;
+		this.pick6 = args.pick6;
+		this.playoffs = args.playoffs;
+		this.survivor = args.survivor;
+		this.weekly = args.weekly;
 	}
 }

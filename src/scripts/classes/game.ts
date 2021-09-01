@@ -24,49 +24,27 @@ export class Game {
 	homeTeam: Team;
 	awayTeam: Team;
 
-	constructor(
-		docRef: DocumentReference,
-		$ref: string,
-		competitions: Record<string, unknown>[],
-		date: string,
-		id: string,
-		league: { $ref: string },
-		links: Record<string, unknown>[],
-		name: string,
-		season: { $ref: string },
-		seasonType: { $ref: string },
-		shortName: string,
-		spread: number,
-		timeValid: boolean,
-		timestamp: Timestamp,
-		uid: string,
-		venues: Record<string, unknown>[],
-		year: number,
-		week: number,
-		type: string,
-		homeTeam: Team,
-		awayTeam: Team
-	) {
-		this.docRef = docRef;
-		this.$ref = $ref;
-		this.competitions = competitions;
-		this.date = date;
-		this.id = id;
-		this.league = league;
-		this.links = links;
-		this.name = name;
-		this.season = season;
-		this.seasonType = seasonType;
-		this.shortName = shortName;
-		this.spread = spread;
-		this.timeValid = timeValid;
-		this.timestamp = timestamp;
-		this.uid = uid;
-		this.venues = venues;
-		this.year = year;
-		this.week = week;
-		this.type = type;
-		this.homeTeam = homeTeam;
-		this.awayTeam = awayTeam;
+	constructor({ ...args }) {
+		this.docRef = args.docRef;
+		this.$ref = args.$ref;
+		this.competitions = args.competitions;
+		this.date = args.date;
+		this.id = args.id;
+		this.league = args.league;
+		this.links = args.links;
+		this.name = args.name;
+		this.season = args.season;
+		this.seasonType = args.seasonType;
+		this.shortName = args.shortName;
+		this.spread = args.spread;
+		this.timeValid = args.timeValid;
+		this.timestamp = args.timestamp;
+		this.uid = args.uid;
+		this.venues = args.venues;
+		this.year = args.year;
+		this.week = args.week;
+		this.type = args.type;
+		this.homeTeam = args.homeTeam;
+		this.awayTeam = args.awayTeam;
 	}
 }

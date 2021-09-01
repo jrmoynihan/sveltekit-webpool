@@ -1,0 +1,31 @@
+/// Generates the color white, with, optionally, a set opacity.
+/// @access public
+/// @param {Float} $opacity - Opacity
+/// @example scss - Usage
+///   .foo {
+///     border-color: white(0.1);
+///   }
+/// @example css - Result
+///   .foo {
+///     border-color: rgba(255, 255, 255, 0.1);
+///   }
+///
+@function white($opacity) {
+	@return rgba(255, 255, 255, $opacity);
+}
+
+/// Generates the color black, with, optionally, a set opacity.
+/// @access public
+/// @param {Float} $opacity - Opacity
+/// @example scss - Usage
+///   .foo {
+///     border-color: black(0.1);
+///   }
+/// @example css - Result
+///   .foo {
+///     border-color: rgba(0, 0, 0, 0.1);
+///   }
+///
+@function black($opacity) {
+	@return rgba(0, 0, 0, $opacity);
+}

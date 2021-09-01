@@ -66,7 +66,7 @@
 	let toastMsg = ``;
 	let toastTitle = '';
 	let gridColumns = 2;
-	let widthMeasure = 100;
+	let widthMeasure = 85;
 	let offsetRightPercentage = 15;
 	const progress = tweened(0, {
 		duration: 400,
@@ -488,11 +488,11 @@
 	<div
 		class="grid weekGames"
 		style="{$largerThanMobile
-			? `max-width:${widthMeasure}%; margin-right:${offsetRightPercentage}%;`
+			? `width:${widthMeasure}%; margin-right:${offsetRightPercentage}%;`
 			: ''} grid-template-columns:repeat({gridColumns},1fr)"
 	>
 		{#await picksPromise}
-			<LoadingSpinner msg="Loading games and picks..." />
+			<LoadingSpinner msg="Loading games and picks..." width="100%" />
 		{:then picks}
 			{#each currentPicks as pick, i (pick.id)}
 				<div
@@ -525,8 +525,7 @@
 <style lang="scss">
 	.grid {
 		@include gridAndGap;
-		justify-items: center;
-		align-items: center;
+		place-items: center;
 	}
 	.flex {
 		display: flex;

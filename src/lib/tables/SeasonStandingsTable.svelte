@@ -54,11 +54,8 @@
 		}
 	}
 	.percentage {
-		display: inline-grid;
-		gap: 10px;
+		@include gridCenter($grid: inline-grid, $gap: 10px);
 		grid-template-columns: min-content min-content;
-		align-items: center;
-		justify-content: center;
 	}
 	span {
 		aspect-ratio: 1/1;
