@@ -21,6 +21,7 @@ export const sidePanelChecked = writable(true);
 export const windowWidth = writable(browser ? window.innerWidth : null);
 export const largerThanMobile = writable(true);
 export const editing = writable(false);
+export const showPickWarning = writable(false);
 
 export const queryAsStore = (
 	query: Query,

@@ -22,6 +22,7 @@
 	$leftTip: var(--leftTip);
 	$leftArrow: var(--leftArrow);
 	.tooltip-parent {
+		position: relative;
 		& > span.tooltip {
 			@include defaultTransition;
 			@include accelerate;

@@ -10,8 +10,8 @@
 	}
 }
 //** Text Effects **
-@mixin textWithShadow($color: var(--alternate-color)) {
-	text-shadow: 0px 0px 5px $color;
+@mixin textWithShadow($color: var(--alternate-color), $shadowWidth: 2px) {
+	text-shadow: 0px 0px $shadowWidth $color;
 }
 //********************************************************************************
 
@@ -56,9 +56,10 @@
 	align-items: center;
 	justify-content: center;
 }
-@mixin flexCenter {
+@mixin flexCenter($gap: null) {
 	@include centerAIJC;
 	display: flex;
+	gap: $gap;
 }
 @mixin gridCenter($grid: grid, $gap: null) {
 	@include centerAIJC;
@@ -154,10 +155,11 @@
 }
 
 @mixin defaultButtonStyles {
+	display: flex;
 	width: auto;
 	font-size: 1rem;
 	color: var(--main-color);
-	@include textWithShadow;
+	// @include textWithShadow;
 	@include frostedGlass;
 	@include glassShadow;
 	@include rounded(5vh);
@@ -307,6 +309,8 @@
 	@include position(relative, $args...);
 }
 @mixin styledButton {
+	@include defaultButtonStyles;
+	color: white;
 	width: 100%;
 	box-shadow: 4px 4px 15px 5px rgba(0, 0, 0, 0.5);
 	border: 4px solid rgba(var(--accentValue-color), 80%);

@@ -29,12 +29,8 @@
 
 <style lang="scss">
 	button {
-		@include defaultButtonStyles;
 		@include defaultTransition;
-		@include accentedContainer(80%);
-		display: flex;
-		color: white;
-		text-shadow: none;
+		@include styledButton;
 		&.submit {
 			gap: 0.5rem;
 			align-items: center;

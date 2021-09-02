@@ -48,10 +48,6 @@
 		@include pulse;
 		@include flexCenter;
 		@include fixed($bottom: 5px, $left: 0);
-		// position: fixed;
-		// bottom: 5px;
-		// left: 0;
-		// border-radius: 0 25% 0 0;
 		width: 10.4%;
 		aspect-ratio: 1/1.35;
 		background-color: rgba(var(--accentValue-color), 80%);

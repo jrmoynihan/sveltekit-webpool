@@ -235,7 +235,7 @@
 		}
 	}
 	details {
-		border-radius: 25px;
+		@include rounded;
 		&:hover {
 			@include dayShadow;
 		}

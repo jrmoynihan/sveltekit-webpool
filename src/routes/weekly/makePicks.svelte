@@ -86,11 +86,11 @@
 
 	onMount(async () => {
 		checkWidth();
-		const promisedToast = await getToast('Make Picks');
-		toastMsg = promisedToast.msg;
-		toastTitle = promisedToast.title;
 		const toastSeen = localStorage.getItem(toastSeenKey);
 		if (toastSeen !== 'true') {
+			const promisedToast = await getToast('Make Picks');
+			toastMsg = promisedToast.msg;
+			toastTitle = promisedToast.title;
 			defaultToast({
 				title: toastTitle,
 				msg: toastMsg,
@@ -459,6 +459,7 @@
 			{#key currentPickCount}
 				<PickCounter
 					invisible={tiebreaker >= 10 && currentPickCount >= upcomingGamesCount}
+					bind:currentPicks
 					bind:currentPickCount
 					bind:totalGameCount
 					bind:upcomingGamesCount
@@ -603,19 +604,8 @@
 	button {
 		@include defaultButtonStyles;
 		@include defaultTransition;
-		@include accentedContainer(80%);
 		color: white;
 		text-shadow: none;
-		// &.submit {
-		// 	gap: 0.5rem;
-		// 	align-items: center;
-		// 	padding: max(2%, 1rem);
-		// 	font-weight: bold;
-		// 	margin: unset;
-		// 	grid-area: pickCount;
-		// 	max-height: 5rem;
-		// 	align-self: center;
-		// }
 	}
 	.fixed {
 		background-color: var(--alternate-color);
@@ -650,20 +640,6 @@
 
 	.hotkeys {
 		@include styledButton;
-		// width: 100%;
-		// box-shadow: 4px 4px 15px 5px rgba(0, 0, 0, 0.5);
-		// border: 4px solid rgba(var(--accentValue-color), 80%);
-		// background: radial-gradient(
-		// 	rgba(var(--accentValue-color), 90%),
-		// 	rgba(var(--accentValue-color), 70%)
-		// );
-		// &.dark-mode {
-		// 	border: 4px solid rgba(var(--accentValue-color), 40%);
-		// 	background: radial-gradient(
-		// 		rgba(var(--accentValue-color), 10%),
-		// 		rgba(var(--accentValue-color), 50%)
-		// 	);
-		// }
 	}
 	input[type='range'] {
 		display: inline-block;
