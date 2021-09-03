@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { browser } from '$app/env';
 	import type { WeeklyPickDoc } from '$scripts/classes/picks';
+	import { scrollToNextGame } from '$scripts/functions';
 	import { showPickWarning } from '$scripts/store';
 	import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
@@ -13,31 +13,17 @@
 	export let upcomingGamesCount = 0;
 	export let currentPicks: WeeklyPickDoc[] = [];
 
-	const findMissedPick = () => {
-		if (browser) {
-			const yOffset = -200;
-			-for(const [i, value] of currentPicks.entries()){
-				if(value.pick === ''){
-					return i
-				}
-			}
-			console.log(index);
-			const element = document.getElementById(`game-${index}`);
-
-			// The minus 1 accounts for this function running before the parent passes in the newly updated currentPickCount
-			// I.E. -- When making the 16th pick, currentPickCount will still be 15
-			if (currentPickCount < totalGameCount - 1 && element) {
-				const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-				window.scrollTo({ top: y, behavior: 'smooth' });
-			} else {
-				setTimeout(() => {
-					if (currentPickCount < totalGameCount) {
-						$showPickWarning = true;
-					}
-				}, 1000);
-				window.scrollTo({ top: 0, behavior: 'smooth' });
+	const findMissedPick = async () => {
+		for (const [i, value] of currentPicks.entries()) {
+			if (value.pick === '') {
+				return i;
 			}
 		}
+	};
+	const goToMissedPick = async () => {
+		const pickIndex = await findMissedPick();
+		console.log(pickIndex);
+		scrollToNextGame(pickIndex, 0, 2); // Force it to run the scroll to game instead of scroll to top;
 	};
 </script>
 
@@ -52,7 +38,9 @@
 		{#if $showPickWarning}
 			<Tooltip tooltipTop="-500%">
 				<svelte:fragment slot="text">You missed a pick! Click the icon to find it!</svelte:fragment>
-				<Fa on:click={findMissedPick} slot="content" icon={faExclamationCircle} />
+				<div on:click={goToMissedPick} slot="content">
+					<Fa icon={faExclamationCircle} />
+				</div>
 			</Tooltip>
 		{/if}
 	{:else}

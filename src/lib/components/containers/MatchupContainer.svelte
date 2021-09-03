@@ -2,7 +2,7 @@
 	import { browser } from '$app/env';
 	import { policeCarLight } from '$scripts/classes/constants';
 	import type { Team } from '$scripts/classes/team';
-	import { isBeforeGameTime } from '$scripts/functions';
+	import { isBeforeGameTime, scrollToNextGame } from '$scripts/functions';
 	import { showPickWarning, useDarkTheme, windowWidth } from '$scripts/store';
 	import type { Timestamp } from '@firebase/firestore';
 	import {
@@ -84,26 +84,6 @@
 		}
 	};
 
-	const scrollToNext = () => {
-		if (browser) {
-			const yOffset = -200;
-			const element = document.getElementById(`game-${index + 1}`);
-			// The minus 1 accounts for this function running before the parent passes in the newly updated currentPickCount
-			// I.E. -- When making the 16th pick, currentPickCount will still be 15
-			if (currentPickCount < totalGameCount - 1 && element) {
-				const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-				window.scrollTo({ top: y, behavior: 'smooth' });
-			} else {
-				setTimeout(() => {
-					if (currentPickCount < totalGameCount) {
-						$showPickWarning = true;
-					}
-				}, 1000);
-				window.scrollTo({ top: 0, behavior: 'smooth' });
-			}
-		}
-	};
-
 	let promiseStatus = getStatus();
 	let promiseScores = getScores();
 	let promiseSituation = getSituation();
@@ -168,7 +148,7 @@
 			id="{id}-away"
 			type="radio"
 			bind:group={selectedTeam}
-			on:input={scrollToNext}
+			on:input={() => scrollToNextGame(index, currentPickCount, totalGameCount)}
 			value={awayTeam.abbreviation}
 			{disabled}
 		/>
@@ -408,7 +388,7 @@
 			id="{id}-home"
 			type="radio"
 			bind:group={selectedTeam}
-			on:input={scrollToNext}
+			on:input={() => scrollToNextGame(index, currentPickCount, totalGameCount)}
 			value={homeTeam.abbreviation}
 			{disabled}
 		/>

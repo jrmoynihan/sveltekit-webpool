@@ -1,5 +1,6 @@
+import { browser } from '$app/env';
 import type { Timestamp } from '@firebase/firestore';
-import type { Game } from './classes/game';
+import { showPickWarning } from './store';
 
 export const isPropertyOf = <T>(
 	varToBeChecked: unknown,
@@ -67,4 +68,32 @@ export const setPreSeasonWeeks = () => {
 	}
 	// console.log('setPreSeasonWeeks');
 	return weeks;
+};
+
+export const scrollToNextGame = (
+	index: number,
+	currentPickCount: number,
+	totalGameCount: number
+) => {
+	if (browser) {
+		const element = document.getElementById(`game-${index + 1}`);
+		// The minus 1 accounts for this function running before the parent passes in the newly updated currentPickCount
+		// I.E. -- When making the 16th pick, currentPickCount will still be 15
+		if (currentPickCount < totalGameCount - 1 && element) {
+			element.scrollIntoView({ behavior: 'smooth' });
+			showPickWarning.set(false);
+		} else {
+			setTimeout(() => {
+				if (currentPickCount < totalGameCount) {
+					showPickWarning.set(true);
+				}
+			}, 1000);
+			scrollToTopSmooth();
+		}
+	}
+};
+export const scrollToTopSmooth = () => {
+	if (browser) {
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	}
 };
