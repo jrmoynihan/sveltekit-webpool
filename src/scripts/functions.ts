@@ -80,7 +80,9 @@ export const scrollToNextGame = (
 		// The minus 1 accounts for this function running before the parent passes in the newly updated currentPickCount
 		// I.E. -- When making the 16th pick, currentPickCount will still be 15
 		if (currentPickCount < totalGameCount - 1 && element) {
-			element.scrollIntoView({ behavior: 'smooth' });
+			const yOffset = -200;
+			const y = element.getBoundingClientRect().top + window.scrollY + yOffset;
+			scrollToTopSmooth(y);
 			showPickWarning.set(false);
 		} else {
 			setTimeout(() => {
@@ -92,8 +94,8 @@ export const scrollToNextGame = (
 		}
 	}
 };
-export const scrollToTopSmooth = () => {
+export const scrollToTopSmooth = (top = 0) => {
 	if (browser) {
-		window.scrollTo({ top: 0, behavior: 'smooth' });
+		window.scrollTo({ top, behavior: 'smooth' });
 	}
 };

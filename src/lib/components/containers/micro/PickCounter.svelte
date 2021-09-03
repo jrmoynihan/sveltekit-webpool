@@ -22,8 +22,7 @@
 	};
 	const goToMissedPick = async () => {
 		const pickIndex = await findMissedPick();
-		console.log(pickIndex);
-		scrollToNextGame(pickIndex, 0, 2); // Force it to run the scroll to game instead of scroll to top;
+		scrollToNextGame(pickIndex - 1, 0, 2); // Force it to run the scroll to game instead of scroll to top;
 	};
 </script>
 
@@ -37,7 +36,7 @@
 		{currentPickCount} / {totalGameCount} Picks Made
 		{#if $showPickWarning}
 			<Tooltip tooltipTop="-500%">
-				<svelte:fragment slot="text">You missed a pick! Click the icon to find it!</svelte:fragment>
+				<svelte:fragment slot="text">You missed a pick! Click here to find it!</svelte:fragment>
 				<div on:click={goToMissedPick} slot="content">
 					<Fa icon={faExclamationCircle} />
 				</div>

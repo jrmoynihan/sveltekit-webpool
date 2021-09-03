@@ -41,7 +41,7 @@
 	img {
 		@include accelerate;
 		padding: 1rem;
-		max-height: 7rem;
+		max-height: 6rem;
 		max-width: 100%;
 	}
 	.grayscale {
