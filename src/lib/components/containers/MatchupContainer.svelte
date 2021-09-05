@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { browser } from '$app/env';
 	import { policeCarLight } from '$scripts/classes/constants';
 	import type { Team } from '$scripts/classes/team';
 	import { isBeforeGameTime, scrollToNextGame } from '$scripts/functions';
@@ -19,6 +18,7 @@
 	import TeamImage from './TeamImage.svelte';
 	import TeamNameImage from './TeamNameImage.svelte';
 	import Tooltip from './Tooltip.svelte';
+	import IntersectionObserver from 'svelte-intersection-observer';
 
 	export let id = 'id';
 	export let index: number;
@@ -38,6 +38,8 @@
 	let disabled: boolean = false;
 	let gameIsOver = false;
 	let beforeGameTime = false;
+	let element;
+	let showGameContainer = false;
 
 	const getStatus = async (): Promise<any> => {
 		const httpGameStatusEndpoint: string = competitions[0].status.$ref;
@@ -90,6 +92,7 @@
 	let statusInterval: NodeJS.Timer;
 	let checkGameTimeInterval: NodeJS.Timer;
 
+	// Show additional images in larger layout sizes
 	$: {
 		if ($windowWidth < layoutBreakpoint * gridColumns) {
 			showTeamNameImages = false;
@@ -97,15 +100,16 @@
 			showTeamNameImages = true;
 		}
 	}
+	// Re-check if the game is over periodically, preventing additional API calls for game statuses
 	$: promiseStatus.then((status) => {
 		if (status?.type?.description === 'Final') {
 			gameIsOver = true;
 		}
 	});
-
 	$: if (gameIsOver || beforeGameTime) {
 		clearInterval(statusInterval);
 	}
+	// **************
 
 	onMount(async () => {
 		checkGameTimeInterval = setInterval(async () => {
@@ -134,7 +138,7 @@
 	});
 </script>
 
-<div class="matchup grid rounded" id="game-{index}">
+<div bind:this={element} class="matchup grid rounded" id="game-{index}">
 	<label
 		for="{id}-away"
 		class="rounded dayShadow nightShadow"
@@ -152,20 +156,30 @@
 			value={awayTeam.abbreviation}
 			{disabled}
 		/>
-		<TeamImage
-			team={awayTeam}
-			grayscale={selectedTeam === homeTeam.abbreviation && selectedTeam !== ''}
-		/>
-		{#if showTeamNameImages}
-			<TeamNameImage
-				team={awayTeam}
-				rounded={true}
-				whiteBg={true}
-				width="300rem"
-				grayscale={selectedTeam === homeTeam.abbreviation && selectedTeam !== ''}
-			/>
-		{/if}
-		<TeamRecord showTeamAbbreviation={!showTeamNameImages} team={awayTeam} />
+		<IntersectionObserver
+			once={true}
+			{element}
+			on:intersect={() => {
+				showGameContainer = true;
+			}}
+		>
+			{#if showGameContainer}
+				<TeamImage
+					team={awayTeam}
+					grayscale={selectedTeam === homeTeam.abbreviation && selectedTeam !== ''}
+				/>
+				{#if showTeamNameImages}
+					<TeamNameImage
+						team={awayTeam}
+						rounded={true}
+						whiteBg={true}
+						width="300rem"
+						grayscale={selectedTeam === homeTeam.abbreviation && selectedTeam !== ''}
+					/>
+				{/if}
+			{/if}
+			<TeamRecord showTeamAbbreviation={!showTeamNameImages} team={awayTeam} />
+		</IntersectionObserver>
 	</label>
 
 	<label class="game-info rounded" for="{id}-none">
@@ -325,7 +339,7 @@
 							>
 								<Fa slot="content" icon={faArrowCircleRight} size="lg" />
 								<span slot="text" class="tooltip"
-									>Home Team ({homeTeam.abbreviation}) is favored by {spread}.</span
+									>Home Team ({homeTeam.abbreviation}) is favored by {Math.abs(spread)}.</span
 								>
 							</Tooltip>
 						</div>
@@ -392,19 +406,29 @@
 			value={homeTeam.abbreviation}
 			{disabled}
 		/>
-		<TeamImage
-			team={homeTeam}
-			grayscale={selectedTeam === awayTeam.abbreviation && selectedTeam !== ''}
-		/>
-		{#if showTeamNameImages}
-			<TeamNameImage
-				team={homeTeam}
-				rounded={true}
-				whiteBg={true}
-				grayscale={selectedTeam === awayTeam.abbreviation && selectedTeam !== ''}
-				width="300rem"
-			/>
-		{/if}
+		<IntersectionObserver
+			once={true}
+			{element}
+			on:intersect={() => {
+				showGameContainer = true;
+			}}
+		>
+			{#if showGameContainer}
+				<TeamImage
+					team={homeTeam}
+					grayscale={selectedTeam === awayTeam.abbreviation && selectedTeam !== ''}
+				/>
+				{#if showTeamNameImages}
+					<TeamNameImage
+						team={homeTeam}
+						rounded={true}
+						whiteBg={true}
+						grayscale={selectedTeam === awayTeam.abbreviation && selectedTeam !== ''}
+						width="300rem"
+					/>
+				{/if}
+			{/if}
+		</IntersectionObserver>
 		<TeamRecord showTeamAbbreviation={!showTeamNameImages} team={homeTeam} />
 	</label>
 </div>

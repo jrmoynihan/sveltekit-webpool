@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { dev } from '$app/env';
 	import type { Team } from '$scripts/classes/team';
+	import { fade } from 'svelte/transition';
 
 	export let team: Team = null;
 	export let width = 'auto';
@@ -9,7 +10,7 @@
 	export let frosted = false;
 </script>
 
-<picture>
+<picture transition:fade={{ duration: 400 }}>
 	<!-- <source srcset={team.logoPath} type="image/webp" /> -->
 	<img
 		src={dev ? `../../../static/${team.logoPath}` : team.logoPath}

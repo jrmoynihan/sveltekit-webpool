@@ -77,7 +77,8 @@ export const scrollToNextGame = (
 ) => {
 	if (browser) {
 		const element = document.getElementById(`game-${index + 1}`);
-		// The minus 1 accounts for this function running before the parent passes in the newly updated currentPickCount
+
+		// NOTE: The minus 1 accounts for this function running before the parent passes in the newly updated currentPickCount
 		// I.E. -- When making the 16th pick, currentPickCount will still be 15
 		if (currentPickCount < totalGameCount - 1 && element) {
 			const yOffset = -200;
@@ -86,12 +87,23 @@ export const scrollToNextGame = (
 			showPickWarning.set(false);
 		} else {
 			setTimeout(() => {
-				if (currentPickCount < totalGameCount) {
+				if (currentPickCount < totalGameCount - 1) {
 					showPickWarning.set(true);
 				}
 			}, 1000);
 			scrollToTopSmooth();
+			focusTiebreaker();
 		}
+	}
+};
+export const focusTiebreaker = () => {
+	if (browser) {
+		setTimeout(() => {
+			const tiebreakerInput = document.getElementById('tiebreaker-input');
+			if (tiebreakerInput) {
+				tiebreakerInput.focus();
+			}
+		}, 200);
 	}
 };
 export const scrollToTopSmooth = (top = 0) => {

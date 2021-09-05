@@ -20,6 +20,7 @@
 	>
 		<svelte:fragment slot="content">
 			<input
+				id="tiebreaker-input"
 				type="number"
 				bind:value={tiebreaker}
 				on:input={() => changed}

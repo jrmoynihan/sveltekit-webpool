@@ -24,7 +24,7 @@
 	} from '@firebase/firestore';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
-	import { isBeforeGameTime } from '$scripts/functions';
+	import { focusTiebreaker, isBeforeGameTime } from '$scripts/functions';
 	import {
 		airplaneDeparture,
 		bread,
@@ -269,6 +269,7 @@
 			});
 			myLog('picked all home teams!', '', home);
 			currentPicks = currentPicks;
+			focusTiebreaker();
 		} catch (error) {
 			myError('pickAllHome', error);
 		}
@@ -285,6 +286,7 @@
 			});
 			myLog('picks all away teams!', '', airplaneDeparture);
 			currentPicks = currentPicks;
+			focusTiebreaker();
 		} catch (error) {
 			myError('pickAllAway', error);
 		}
@@ -326,6 +328,7 @@
 			});
 			myLog('picked favored teams!', '', okHand);
 			currentPicks = currentPicks;
+			focusTiebreaker();
 		} catch (error) {
 			myError('pickAllFavored', error);
 		}
@@ -367,6 +370,7 @@
 			});
 			myLog('picked all underdogs!', '', dogFace);
 			currentPicks = currentPicks;
+			focusTiebreaker();
 		} catch (error) {
 			myError('pickAllFavored', error);
 		}
@@ -636,6 +640,7 @@
 	progress {
 		grid-area: tiebreaker;
 		min-height: 2.6rem;
+		accent-color: var(--accent-color);
 	}
 
 	.hotkeys {

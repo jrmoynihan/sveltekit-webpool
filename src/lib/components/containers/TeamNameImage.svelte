@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { dev } from '$app/env';
 	import type { Team } from '$scripts/classes/team';
+	import { fade } from 'svelte/transition';
 
 	export let team: Team = null;
 	export let grayscale = false;
@@ -13,7 +14,7 @@
 	export let height = 'auto';
 </script>
 
-<picture style="height: {height};">
+<picture style="height: {height};" transition:fade={{ duration: 400 }}>
 	<!-- <source srcset={team.logoPath} type="image/webp" /> -->
 	<img
 		class="logo"
