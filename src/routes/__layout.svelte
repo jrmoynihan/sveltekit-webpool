@@ -17,7 +17,7 @@
 		useDarkTheme,
 		windowWidth
 	} from '$scripts/store';
-	import { doc, onSnapshot } from '@firebase/firestore';
+	import { doc } from '@firebase/firestore';
 	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
 	import Navigator from '$navigation/Navigator.svelte';
 	import AppMenu from '$lib/majorFeatures/AppMenu.svelte';
@@ -29,6 +29,7 @@
 	import { mobileBreakpoint } from '$scripts/site';
 	import { onMount } from 'svelte';
 	import { WebUser } from '$scripts/classes/webUser';
+	import { browser } from '$app/env';
 
 	export let refresh: any;
 
@@ -37,6 +38,15 @@
 			$largerThanMobile = true;
 		} else {
 			$largerThanMobile = false;
+		}
+	};
+	const lookupUserThemePreference = async () => {
+		let foundTheme: boolean;
+		if (browser) {
+			foundTheme = JSON.parse(localStorage.getItem('useDarkTheme'));
+		}
+		if (foundTheme) {
+			$useDarkTheme = foundTheme;
 		}
 	};
 
@@ -54,7 +64,10 @@
 		saveUserData();
 	}
 
-	onMount(() => checkWindowWidth());
+	onMount(() => {
+		checkWindowWidth();
+		lookupUserThemePreference();
+	});
 </script>
 
 <!-- {#if $navChecked && $useDarkTheme && $chosenMixBlendMode} -->
@@ -120,7 +133,7 @@
 		}
 	}
 	.app-wrapper {
-		padding: 0 5px 5px;
+		padding: 0 5px 5px 5px;
 		display: grid;
 		background: var(--alternate-color);
 		position: relative;

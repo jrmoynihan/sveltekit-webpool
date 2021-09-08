@@ -1,13 +1,18 @@
 <script lang="ts">
 	import ReturnToTop from '$lib/components/buttons/ReturnToTop.svelte';
+	import AccordionDetails from '$lib/components/containers/AccordionDetails.svelte';
 	import WeekSelect from '$lib/components/selects/WeekSelect.svelte';
-	import WeeklyStandingsTable from '$lib/tables/WeeklyStandingsTable.svelte';
+	import WeeklyStandingsRow from '$lib/tables/WeeklyStandingsRow.svelte';
 	import { mobileBreakpoint } from '$scripts/site';
 	import { windowWidth } from '$scripts/store';
+	import { onMount } from 'svelte';
 
 	let initialWeekHeaders: string[] = ['Rank', 'Player', 'Wins', 'Losses', 'Tiebreaker'];
 	let abbreviatedWeekHeaders: string[] = ['#', 'Name', 'W', 'L', 'T'];
 	let weekHeaders: string[] = initialWeekHeaders;
+	// let playerData = [];
+	// let possibleWins: { wins: number; count: number }[] = [];
+	// let maxCount: number = 1;
 
 	// TODO query the collection by week, and sort by wins, then net tiebreaker
 	let names = [
@@ -27,42 +32,52 @@
 	names = [...names, ...names];
 	names = [...names, ...names];
 
-	let playerData = [];
-	for (const name of names) {
-		const getRandomInt = (max: number, min = 0) => {
-			return Math.max(Math.floor(Math.random() * max), min);
-		};
-		const wins = getRandomInt(16);
-		const losses = 16 - wins;
-		const tiebreaker = getRandomInt(63, 10);
-		const playerDatum = { nickname: name, wins: wins, losses: losses, tiebreaker: tiebreaker };
-		playerData = [...playerData, playerDatum];
-	}
+	const getRandomWins = async () => {
+		let data = [];
+		for await (const name of names) {
+			const wins = await getRandomInt(16);
+			const losses = 16 - wins;
+			const tiebreaker = await getRandomInt(63, 10);
+			const playerDatum = { nickname: name, wins: wins, losses: losses, tiebreaker: tiebreaker };
+			data = [...data, playerDatum];
+		}
+		return data;
+	};
+	const getRandomInt = async (max: number, min = 0) => {
+		return Math.max(Math.floor(Math.random() * max), min);
+	};
 
-	// Sort players in order of # of wins
-	playerData.sort((firstPlayer, secondPlayer) => secondPlayer.wins - firstPlayer.wins);
+	const sortPlayersByWins = (playerData: any[]) => {
+		const tempArr = playerData;
+		tempArr.sort((firstPlayer, secondPlayer) => secondPlayer.wins - firstPlayer.wins);
+		return tempArr;
+	};
 
-	var possibleWins: { wins: number; count: number }[] = [];
+	const setPossibleWins = async () => {
+		let arr: { wins: number; count: number }[] = [];
+		for (let i = 1; i < 17; i++) {
+			arr.push({ wins: i, count: 0 });
+		}
+		return arr;
+	};
 
-	for (let i = 1; i < 17; i++) {
-		possibleWins.push({ wins: i, count: 0 });
-	}
+	const countWins = async (possibleWins: { wins: number; count: number }[], playerData: any[]) => {
+		let countedWins = possibleWins;
 
-	for (const possibleWinCount of possibleWins) {
-		for (const player of playerData) {
-			if (player.wins === possibleWinCount.wins) {
-				possibleWinCount.count++;
+		for await (const possibleWinCount of countedWins) {
+			for await (const player of playerData) {
+				if (player.wins === possibleWinCount.wins) {
+					possibleWinCount.count++;
+				}
 			}
 		}
-	}
-	let maxCount;
-
-	$: maxCount = Math.max.apply(
-		Math,
-		possibleWins.map((obj) => {
-			return obj.count;
-		})
-	);
+		return countedWins;
+	};
+	const updateMaxCount = async (countedWins: any[]) => {
+		const counts = countedWins.map((obj) => obj.count);
+		const maxCount = Math.max.apply(Math, counts);
+		return maxCount;
+	};
 
 	$: {
 		if ($windowWidth < mobileBreakpoint - 500) {
@@ -74,23 +89,51 @@
 </script>
 
 <div class="week grid">
-	<div class="histogram" style="height:20rem; width:{possibleWins.length * 4}rem;">
-		{#each possibleWins as outcome}
-			<div class="outcome" style="width:3.5rem;height:100%;">
-				<div class="bar" style="height:{(outcome.count / maxCount) * 100}%;">
-					<div class="count">{outcome.count}</div>
-				</div>
-				<div>{outcome.wins}</div>
-			</div>
-		{/each}
-		<span style="grid-column: span 16;">Wins (max:{maxCount})</span>
-	</div>
+	<!-- <AccordionDetails>
+		<svelte:fragment slot="summary">Histogram</svelte:fragment>
+		<svelte:fragment slot="content">
+			{#await setPossibleWins()}
+				getting possible wins...
+			{:then possibleWins}
+				{#await getRandomWins() then playerData}
+					{#await countWins(possibleWins, playerData)}
+						counting wins...
+					{:then countedWins}
+						{#await updateMaxCount(countedWins) then maxCount}
+							<div class="histogram" style="height:20rem; width:100%">
+								{#each countedWins as outcome}
+									<div class="outcome" style="max-width:3rem;height:100%;">
+										<div class="bar" style="height:{(outcome.count / maxCount) * 100}%;">
+											<div class="count">{outcome.count}</div>
+										</div>
+										<div>{outcome.wins}</div>
+									</div>
+								{/each}
+
+								<span style="grid-column: span 16;">Wins (max:{maxCount})</span>
+							</div>
+						{/await}
+					{/await}
+				{/await}
+			{/await}
+		</svelte:fragment>
+	</AccordionDetails> -->
 	<WeekSelect gridArea="selector" />
 	<div class="table grid">
 		{#each weekHeaders as header}
 			<div class="header">{header}</div>
 		{/each}
-		<WeeklyStandingsTable {playerData} />
+		{#await getRandomWins()}
+			Loading data...
+		{:then playerData}
+			{#await sortPlayersByWins(playerData)}
+				Sorting by wins...
+			{:then sortedData}
+				{#each sortedData as player, i}
+					<WeeklyStandingsRow {player} {i} />
+				{/each}
+			{/await}
+		{/await}
 	</div>
 </div>
 <ReturnToTop />

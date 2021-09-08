@@ -21,7 +21,6 @@ import { goto } from '$app/navigation';
 
 export const currentUser = writable<User>(firestoreAuth.currentUser);
 export const userData = writable<WebUser>();
-export let userDocSnapshot: DocumentSnapshot;
 
 export const getProvider = async (loginPlatform: string): Promise<AuthProvider> => {
 	let provider: AuthProvider;
@@ -95,7 +94,7 @@ export const startSignIn = async (
 		const _currentUser = get(currentUser);
 
 		// Find if the user document already exists before trying to write a new one
-		userDocSnapshot = await getDoc(doc(usersCollection, _currentUser.uid));
+		const userDocSnapshot = await getDoc(doc(usersCollection, _currentUser.uid));
 
 		// Log if the user doc exists
 		if (userDocSnapshot.exists()) {

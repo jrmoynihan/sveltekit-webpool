@@ -8,7 +8,7 @@
 	export let showArrow: boolean = true;
 	export let customExpandIcon: IconDefinition = null;
 	export let iconClass: string = 'fa-CaretDown';
-
+	export let expandDuration: number = 300;
 	export class Accordion {
 		el: HTMLDetailsElement;
 		summary: HTMLElement;
@@ -71,7 +71,7 @@
 					height: [startHeight, endHeight]
 				},
 				{
-					duration: 400,
+					duration: expandDuration,
 					easing: 'ease-out'
 				}
 			);
@@ -112,7 +112,7 @@
 					height: [startHeight, endHeight]
 				},
 				{
-					duration: 400,
+					duration: expandDuration,
 					easing: 'ease-out'
 				}
 			);
@@ -180,6 +180,7 @@
 	summary {
 		outline: none;
 		transition: all 100ms ease-in-out;
+		width: 100%;
 	}
 	details {
 		@include cloudyBackground;
@@ -242,5 +243,6 @@
 	}
 	.content {
 		padding: 1rem;
+		width: 100%;
 	}
 </style>

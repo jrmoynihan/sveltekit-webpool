@@ -28,6 +28,7 @@
 		grid-template-columns: repeat(auto-fit, minmax(min(30rem, 100%), 1fr));
 		width: 87%;
 		overflow: clip;
+		row-gap: 1rem;
 	}
 	.team-image-container {
 		display: grid;

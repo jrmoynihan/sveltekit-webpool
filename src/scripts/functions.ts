@@ -92,7 +92,7 @@ export const scrollToNextGame = (
 				}
 			}, 1000);
 			scrollToTopSmooth();
-			focusTiebreaker();
+			// focusTiebreaker();
 		}
 	}
 };

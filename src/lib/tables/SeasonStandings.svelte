@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { mobileBreakpoint } from '$scripts/site';
-	import SeasonStandingsTable from '$tables/SeasonStandingsTable.svelte';
 	import { windowWidth } from '$scripts/store';
+	import SeasonStandingsRow from './SeasonStandingsRow.svelte';
 
 	let initialSeasonHeaders = ['Rank', 'Player', 'Wins', 'Losses', '% Won'];
 	let abbreviatedSeasonHeaders = ['#', 'Name', 'W', 'L', '%'];
@@ -27,7 +27,9 @@
 	{#each seasonHeaders as header}
 		<div class="header">{header}</div>
 	{/each}
-	<SeasonStandingsTable {playerData} />
+	{#each playerData as player, i}
+		<SeasonStandingsRow {player} {i} />
+	{/each}
 </div>
 
 <style lang="scss">
@@ -47,8 +49,5 @@
 		font-weight: bold;
 		padding-bottom: 0.5rem;
 		border-bottom: 2px solid rgba(var(--accentValue-color), 50%);
-		// position: sticky;
-		// top: 0;
-		// z-index: 15;
 	}
 </style>

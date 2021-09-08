@@ -15,7 +15,6 @@
 	import { getWindowSize } from '$scripts/functions';
 	import { browser } from '$app/env';
 	import { windowWidth } from '$scripts/store';
-	import LoadingSpinner from '$lib/components/misc/LoadingSpinner.svelte';
 
 	let drawing = true;
 	const widthContainment = '100%';

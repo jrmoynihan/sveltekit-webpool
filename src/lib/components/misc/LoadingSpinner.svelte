@@ -1,5 +1,5 @@
 <script lang="ts">
-	export let width = '25%';
+	export let width = '100%';
 	export let left = '-5%';
 	export let middleX = '40%';
 	export let middleY = '40%';

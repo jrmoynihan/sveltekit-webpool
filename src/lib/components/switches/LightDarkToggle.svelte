@@ -1,7 +1,13 @@
 <script lang="ts">
+	import { browser } from '$app/env';
+
 	import { useDarkTheme } from '$scripts/store';
 
-	// export let checked = false;
+	const storeDarkThemePreference = async () => {
+		if (browser) {
+			localStorage.setItem('useDarkTheme', JSON.stringify($useDarkTheme));
+		}
+	};
 </script>
 
 <label
@@ -11,7 +17,7 @@
 		$useDarkTheme = !$useDarkTheme;
 	}}
 >
-	<input type="checkbox" bind:checked={$useDarkTheme} />
+	<input type="checkbox" bind:checked={$useDarkTheme} on:change={storeDarkThemePreference} />
 	<div>
 		<span />
 	</div>
