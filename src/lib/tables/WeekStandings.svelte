@@ -160,32 +160,32 @@
 		padding-bottom: 0.5rem;
 		border-bottom: 2px solid rgba(var(--accentValue-color), 50%);
 	}
-	.histogram {
-		position: sticky;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		background-color: var(--accent-color);
-		display: grid;
-		grid-template-columns: repeat(16, 1fr);
-		grid-template-rows: 1fr auto;
-		color: white;
-		align-items: flex-end;
-		padding: 0.5rem 1rem;
-	}
-	.outcome {
-		display: grid;
-		align-items: flex-end;
-		grid-template-rows: 1fr auto;
-	}
-	.bar {
-		display: grid;
-		align-content: flex-start;
-		color: black;
-		background-color: white;
-		border: 1px black solid;
-	}
-	.count {
-		align-self: flex-end;
-	}
+	// .histogram {
+	// 	position: sticky;
+	// 	left: 0;
+	// 	right: 0;
+	// 	bottom: 0;
+	// 	background-color: var(--accent-color);
+	// 	display: grid;
+	// 	grid-template-columns: repeat(16, 1fr);
+	// 	grid-template-rows: 1fr auto;
+	// 	color: white;
+	// 	align-items: flex-end;
+	// 	padding: 0.5rem 1rem;
+	// }
+	// .outcome {
+	// 	display: grid;
+	// 	align-items: flex-end;
+	// 	grid-template-rows: 1fr auto;
+	// }
+	// .bar {
+	// 	display: grid;
+	// 	align-content: flex-start;
+	// 	color: black;
+	// 	background-color: white;
+	// 	border: 1px black solid;
+	// }
+	// .count {
+	// 	align-self: flex-end;
+	// }
 </style>

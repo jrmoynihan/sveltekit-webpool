@@ -29,7 +29,6 @@
 	import { mobileBreakpoint } from '$scripts/site';
 	import { onMount } from 'svelte';
 	import { WebUser } from '$scripts/classes/webUser';
-	import { browser } from '$app/env';
 	import { getLocalStorageItem, setLocalStorageItem } from '$scripts/functions';
 
 	export let refresh: any;
@@ -77,9 +76,11 @@
 	style="--mix-blend-mode:{$chosenMixBlendMode};"
 >
 	<AppMenu />
-	<Navigator customStyles={'transform: translateY(-3px);'}>
-		<SiteNavOptions />
-	</Navigator>
+	{#if $largerThanMobile}
+		<Navigator offsetTop={true}>
+			<SiteNavOptions />
+		</Navigator>
+	{/if}
 
 	<main>
 		<TransitionWrapper
@@ -93,9 +94,7 @@
 	<ReturnToTop showButton={false} />
 </div>
 <!-- {/if} -->
-<div class="toastWrap">
-	<SvelteToast />
-</div>
+<SvelteToast />
 <svelte:window
 	on:resize={() => {
 		$windowWidth = window.innerWidth;
@@ -112,23 +111,18 @@
 		color: var(--main-color);
 		scrollbar-width: thin;
 		scrollbar-color: var(--accent-color) var(--alternate-color);
-	}
-	* {
-		box-sizing: border-box;
-	}
-	.toastWrap {
 		--toastContainerTop: 15%;
 		--toastWidth: 100%;
 		--toastContainerLeft: 2%;
 		--toastContainerRight: 2%;
-		& > ._toastBar {
-			height: 1rem;
-		}
 		@include responsive_desktop_only {
 			--toastContainerLeft: max(5%, 2rem);
 			--toastContainerRight: 5%;
 			--toastWidth: clamp(45ch, 25%, 75ch);
 		}
+	}
+	* {
+		box-sizing: border-box;
 	}
 	.app-wrapper {
 		padding: 0 5px 5px 5px;
@@ -140,7 +134,7 @@
 		width: 100%;
 		grid-template-areas:
 			'menu'
-			'nav'
+			// 'nav'
 			'main';
 		grid-template-columns: 100%;
 		grid-template-rows: repeat(3, minmax(min(0px, 100%), max-content));

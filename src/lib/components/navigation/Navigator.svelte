@@ -1,13 +1,20 @@
 <script lang="ts">
-	import { navChecked } from '$scripts/store';
+	import { largerThanMobile, navChecked } from '$scripts/store';
 
 	export let minItemSize = '200px';
 	export let maxItemSize = '1fr';
-	export let customStyles: string[];
+	export let customStyles: string = '';
+	export let useModal = false;
+	export let offsetTop = false;
 </script>
 
 <nav
-	class="navigationList {$navChecked ? 'expanded' : 'collapsed'}"
+	class:offsetTop
+	class="navigationList {$navChecked ? 'expanded' : 'collapsed'} {$largerThanMobile
+		? null
+		: useModal
+		? 'modal'
+		: null}"
 	style="--minItemSize:{minItemSize}; --maxItemSize: {maxItemSize}; {customStyles}"
 >
 	<slot />
@@ -44,31 +51,28 @@
 	.collapsed {
 		@include accelerate;
 		margin: 0;
-		max-height: 0.2em;
+		// max-height: 0.2em;
 		opacity: 0;
 		pointer-events: none;
-		transform: rotateX(90deg);
+		// transform: rotateX(90deg);
 	}
-
-	// &:checked + label {
-	// 	color: var(--main-color);
-	// 	text-shadow: 0px 0px 5px var(--alternate-color);
-	// 	transition: all 300ms ease-in-out;
-	// 	&:hover {
-	// 		text-decoration: underline 2px var(--main-color);
-	// 	}
-	// 	&.dark-mode {
-	// 		background: radial-gradient(rgba(var(--accentValue-color), 0.5), transparent);
-	// 	}
-	// 	&.light-mode {
-	// 		background: radial-gradient(transparent, rgba(var(--accentValue-color), 0.5));
-	// 	}
-	// }
-
 	nav {
 		display: flex;
 		justify-content: center;
 		width: 100%;
-		// --background: rgba(255, 255, 255, 0.7);
+	}
+	.modal {
+		grid-area: unset;
+		// position: fixed;
+		// width: 90%;
+		// left: 5%;
+		// right: 5%;
+		// height: auto;
+		// top: 25%;
+		border-radius: 2rem;
+		padding: 1rem;
+	}
+	.offsetTop {
+		transform: translateY(-3px);
 	}
 </style>

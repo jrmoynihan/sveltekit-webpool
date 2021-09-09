@@ -14,9 +14,9 @@
 </script>
 
 <ModalButtonAndSlot
-	useDefaultButtonStyles={true}
+	defaultButton={true}
 	displayModalButtonText={$currentUser ? '' : 'Login'}
-	displayModalButtonStyles={$currentUser
+	modalButtonStyles={$currentUser
 		? 'padding:0;border-radius:50%;'
 		: 'height: 100%; background:none; display:grid; align-content:center;'}
 	dialogStyles="align-items:center; justify-content:center; background-color:#00000078;margin: auto;

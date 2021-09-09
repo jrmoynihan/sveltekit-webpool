@@ -6,6 +6,10 @@
 	import ModalButtonAndSlot from '$lib/components/ModalButtonAndSlot.svelte';
 	import LightDarkToggle from '$lib/components/switches/LightDarkToggle.svelte';
 	import ThemeSelector from '$lib/components/switches/ThemeSelector.svelte';
+	import Navigator from '$lib/components/navigation/Navigator.svelte';
+	import SiteNavOptions from '$lib/components/navigation/siteNavOptions.svelte';
+
+	let navModalID: string;
 
 	function toggleNav(): void {
 		$navChecked = !$navChecked;
@@ -14,24 +18,38 @@
 
 <menu />
 <aside id="app-menu">
-	<button
-		id="nav-label"
-		on:click={toggleNav}
-		class="nav-label {$navChecked && !$largerThanMobile ? 'mobile-nav-open' : ''}"
-	>
-		<Fa icon={faBars} class="fa-bars" size="lg" />
-		<input type="checkbox" id="nav-toggle" on:click={toggleNav} />
-	</button>
+	{#if $largerThanMobile}
+		<button
+			id="nav-label"
+			on:click={toggleNav}
+			class="nav-label {$navChecked && !$largerThanMobile ? 'mobile-nav-open' : ''}"
+		>
+			<Fa icon={faBars} class="fa-bars" size="lg" />
+			<!-- <input type="checkbox" id="nav-toggle" on:click={toggleNav} />  button makes this redundant -->
+		</button>
+	{:else}
+		<ModalButtonAndSlot
+			bind:modalID={navModalID}
+			modalButtonStyles={'background:transparent'}
+			discreetButton={true}
+		>
+			<Fa slot="button-icon" icon={faBars} class="fa-bars" size="lg" />
+			<Navigator
+				slot="modal-content"
+				useModal={true}
+				customStyles="background:var(--alternate-color)"
+			>
+				<SiteNavOptions />
+			</Navigator>
+		</ModalButtonAndSlot>
+	{/if}
 
 	<Auth />
 
 	<div id="settings-wrapper">
 		<LightDarkToggle />
 
-		<ModalButtonAndSlot
-			displayModalButtonStyles={'background:transparent'}
-			useDiscreetButtonStyles={true}
-		>
+		<ModalButtonAndSlot discreetButton={true} modalButtonStyles={'background:transparent;'}>
 			<svelte:fragment slot="button-icon">
 				<Fa icon={faCog} class="fa-Cog" size="lg" />
 			</svelte:fragment>
@@ -86,12 +104,12 @@
 			padding: 0.5rem;
 		}
 	}
-	#nav-toggle {
-		display: none;
-		opacity: 0;
-	}
+	// #nav-toggle {
+	// 	display: none;
+	// 	opacity: 0;
+	// }
 
-	.nav-label {
+	button {
 		@include defaultButtonStyles;
 		@include discreetButtonStyles;
 		width: 100%;

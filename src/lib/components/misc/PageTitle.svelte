@@ -10,6 +10,7 @@
 	h1 {
 		text-decoration: underline;
 		padding: 2rem;
+		padding-top: 0;
 	}
 	.highlight {
 		text-shadow: 0 0 10px var(--accent-color);

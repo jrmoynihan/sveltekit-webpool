@@ -22,14 +22,14 @@
 		new PageOption({ navigationText: 'Rules', path: '/weekly/rules' })
 	];
 
-	const textLengths: number[] = weeklyTabs.map((tab) => {
-		return tab.navigationText.length;
-	});
+	// const textLengths: number[] = weeklyTabs.map((tab) => {
+	// 	return tab.navigationText.length;
+	// });
 
-	const maxLengthText: number = Math.max(...textLengths);
+	// const maxLengthText: number = Math.max(...textLengths);
 </script>
 
-<Navigator minItemSize="{maxLengthText}ch" maxItemSize="max-content">
+<Navigator minItemSize="10rem" maxItemSize="max-content">
 	{#each weeklyTabs as tab, index}
 		<NavLink {index} pageOption={tab} fullyRounded={true} />
 	{/each}
