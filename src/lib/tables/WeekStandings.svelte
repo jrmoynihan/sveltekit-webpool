@@ -141,7 +141,7 @@
 <style lang="scss">
 	.grid {
 		display: grid;
-		gap: 0.5em;
+		// gap: 0.5em;
 		width: 100%;
 	}
 	.week {

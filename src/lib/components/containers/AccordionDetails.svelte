@@ -184,6 +184,7 @@
 	}
 	details {
 		@include cloudyBackground;
+		@include frostedGlass;
 		&[open] {
 			// box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.137);
 			& summary ~ * {

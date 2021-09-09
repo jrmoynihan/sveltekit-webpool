@@ -30,6 +30,7 @@
 	import { onMount } from 'svelte';
 	import { WebUser } from '$scripts/classes/webUser';
 	import { browser } from '$app/env';
+	import { getLocalStorageItem, setLocalStorageItem } from '$scripts/functions';
 
 	export let refresh: any;
 
@@ -41,10 +42,7 @@
 		}
 	};
 	const lookupUserThemePreference = async () => {
-		let foundTheme: boolean;
-		if (browser) {
-			foundTheme = JSON.parse(localStorage.getItem('useDarkTheme'));
-		}
+		const foundTheme: boolean = await getLocalStorageItem('useDarkTheme');
 		if (foundTheme) {
 			$useDarkTheme = foundTheme;
 		}
@@ -56,7 +54,7 @@
 		const user = new WebUser(snapshot.data());
 		$userData = user;
 		for (const property in $userData) {
-			localStorage.setItem(property, $userData[property]);
+			setLocalStorageItem(property, $userData[property]);
 		}
 	};
 

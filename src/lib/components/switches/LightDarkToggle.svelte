@@ -1,12 +1,9 @@
 <script lang="ts">
-	import { browser } from '$app/env';
-
+	import { setLocalStorageItem } from '$scripts/functions';
 	import { useDarkTheme } from '$scripts/store';
 
 	const storeDarkThemePreference = async () => {
-		if (browser) {
-			localStorage.setItem('useDarkTheme', JSON.stringify($useDarkTheme));
-		}
+		await setLocalStorageItem('useDarkTheme', JSON.stringify($useDarkTheme));
 	};
 </script>
 

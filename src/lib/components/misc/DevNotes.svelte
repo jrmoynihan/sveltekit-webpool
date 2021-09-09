@@ -28,7 +28,7 @@
 		scrollbar-width: thin;
 	}
 	.dev-accordion {
-		@include frostedGlassHighContrast;
+		// @include frostedGlassHighContrast;
 		margin: 1rem;
 		border-radius: 3vh;
 	}

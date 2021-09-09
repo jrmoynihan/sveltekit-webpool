@@ -24,7 +24,7 @@
 	} from '@firebase/firestore';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
-	import { focusTiebreaker, isBeforeGameTime } from '$scripts/functions';
+	import { focusTiebreaker, getLocalStorageItem, isBeforeGameTime } from '$scripts/functions';
 	import {
 		airplaneDeparture,
 		bread,
@@ -50,6 +50,7 @@
 	import { doc, setDoc } from 'firebase/firestore';
 	import { fly } from 'svelte/transition';
 	import LoadingSpinner from '$lib/components/misc/LoadingSpinner.svelte';
+	import { browser } from '$app/env';
 
 	let showIDs = false;
 	let showTimestamps = false;
@@ -68,7 +69,7 @@
 	let gridColumns = 2;
 	let widthMeasure = 85;
 	let offsetRightPercentage = 15;
-	let toastSeenKey = 'makeWeeklyPicks_NewTiebreakerAndSubmit';
+	let toastSeenKey = 'toast_makeWeeklyPicks_NewTiebreakerAndSubmit';
 	const progress = tweened(0, {
 		duration: 400,
 		easing: cubicOut
@@ -86,7 +87,7 @@
 
 	onMount(async () => {
 		checkWidth();
-		const toastSeen = localStorage.getItem(toastSeenKey);
+		const toastSeen = await getLocalStorageItem(toastSeenKey);
 		if (toastSeen !== 'true') {
 			const promisedToast = await getToast('Make Picks');
 			toastMsg = promisedToast.msg;
@@ -118,10 +119,12 @@
 	};
 
 	const getUserId = async () => {
-		return localStorage.getItem('id');
+		const id = await getLocalStorageItem('id');
+		return id;
 	};
 
-	const toastIt = () => defaultToast({ title: toastTitle, msg: toastMsg, duration: 200_000 });
+	const toastIt = () =>
+		defaultToast({ title: toastTitle, msg: toastMsg, duration: 200_000, textFontWeight: '600' });
 	const errorToastIt = () =>
 		errorToast(`${policeCarLight} This is a test error. Try to avoid the real thing.`);
 
@@ -439,9 +442,9 @@
 						style="max-width:100%;"
 					/>{widthMeasure}
 				</p>
-				<button on:click={toastIt}>Toast It!</button>
+				<button style="color:black;" on:click={toastIt}>Toast It!</button>
 				{#if editingToast}
-					<textarea style="resize:both;" contenteditable bind:value={toastMsg} />
+					<textarea style="resize:both;min-height:5rem;" contenteditable bind:value={toastMsg} />
 				{:else}
 					<code>{@html toastMsg}</code>
 				{/if}
@@ -541,9 +544,6 @@
 		@include gridAndGap;
 		place-items: center;
 	}
-	.flex {
-		display: flex;
-	}
 	.positioning {
 		grid-template-columns: minmax(100%, 1fr);
 		grid-template-areas:
@@ -606,9 +606,8 @@
 		max-width: min(100%, 35em);
 	}
 	button {
-		@include defaultButtonStyles;
+		@include styledButton;
 		@include defaultTransition;
-		color: white;
 		text-shadow: none;
 	}
 	.fixed {

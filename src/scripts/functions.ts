@@ -1,5 +1,6 @@
 import { browser } from '$app/env';
 import type { Timestamp } from '@firebase/firestore';
+import { myLog } from './classes/constants';
 import { showPickWarning } from './store';
 
 export const isPropertyOf = <T>(
@@ -109,5 +110,21 @@ export const focusTiebreaker = () => {
 export const scrollToTopSmooth = (top = 0) => {
 	if (browser) {
 		window.scrollTo({ top, behavior: 'smooth' });
+	}
+};
+
+export const getLocalStorageItem = async (key: string) => {
+	if (browser) {
+		const item = JSON.parse(localStorage.getItem(key));
+		return item;
+	} else {
+		myLog('unable to check for local storage');
+	}
+};
+export const setLocalStorageItem = async (key: string, value: string) => {
+	if (browser) {
+		localStorage.setItem(key, JSON.stringify(value));
+	} else {
+		myLog('unable to set item in local storage');
 	}
 };

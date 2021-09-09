@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { setLocalStorageItem } from '$scripts/functions';
+
 	import ToggleSwitch from './ToggleSwitch.svelte';
 
 	export let msgMarkup = '';
@@ -6,9 +8,9 @@
 	let checked = false;
 
 	$: if (checked) {
-		localStorage.setItem(localStorageKey, 'true');
+		setLocalStorageItem(localStorageKey, 'true');
 	} else {
-		localStorage.setItem(localStorageKey, 'false');
+		setLocalStorageItem(localStorageKey, 'false');
 	}
 </script>
 

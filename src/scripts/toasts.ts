@@ -13,9 +13,14 @@ export const defaultToast = ({
 	toastBorderRadius = '5vh',
 	toastMsgPadding = '1.5rem 2rem',
 	useSeenToastComponent = false,
-	localStorageKey = 'toast'
+	localStorageKey = 'toast',
+	textFontWeight = '600',
+	toastBarWidth = '90%',
+	toastBarLeft = '5%',
+	toastProgressBorderRadius = '5rem',
+	toastBarHeight = '4px'
 }) => {
-	const msgBuilder = `<div style="display:grid;text-align:center;">
+	const msgBuilder = `<div style="display:grid;text-align:center;font-weight:${textFontWeight}">
 						<h3>
 							${title}
 						</h3>
@@ -30,7 +35,11 @@ export const defaultToast = ({
 		'--toastProgressBackground': `${toastProgressBackground}`,
 		'--toastBoxShadow': `${toastBoxShadow}`,
 		'--toastBorderRadius': `${toastBorderRadius}`,
-		'--toastMsgPadding': `${toastMsgPadding}`
+		'--toastMsgPadding': `${toastMsgPadding}`,
+		'--toastBarLeft': `${toastBarLeft}`,
+		'--toastBarWidth': `${toastBarWidth}`,
+		'--toastBarHeight': `${toastBarHeight}`,
+		'--toastProgressBorderRadius': `${toastProgressBorderRadius}`
 	};
 	if (useSeenToastComponent) {
 		toast.push({
