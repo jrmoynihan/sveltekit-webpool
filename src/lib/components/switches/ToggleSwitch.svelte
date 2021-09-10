@@ -37,7 +37,7 @@
 	$toggle-width: min(3em, 15vmin);
 	$slider-height: min(1.2em, 10vmin); //3.5
 	$slider-width: min(1.2em, 10vmin); //3.5
-	$slider-transform: min(1.3em, 6vmin);
+	$slider-transform: 105%; //min(1.3em, 6vmin)
 	$toggle-background-color-active: #2196f3;
 	$toggle-background-color-inactive: #ccc;
 	$slider-color: white;
@@ -77,7 +77,7 @@
 			/* These new responsive sizes allow for asymmetrical toggle sliders when resizing the window*/
 			height: $slider-height; /* or 26px */
 			width: $slider-width; /* or 26px */
-			left: max(3px, 0.5vmin); //5px
+			left: 10%; //5px or max(3px, 0.5vmin)
 			top: 0.2em; /* or 4px */
 			background-color: $slider-color;
 			-webkit-transition: all 300ms ease-in-out;

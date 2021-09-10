@@ -580,6 +580,7 @@
 	}
 	.game-container {
 		@include defaultContainerStyles;
+		// background-color: black(30%); // for use with background images
 		cursor: initial;
 		width: 100%;
 		height: 100%;

@@ -36,7 +36,7 @@ const config = {
 					$navigation: path.resolve('./src/lib/components/navigation'),
 					$selects: path.resolve('./src/lib/components/selects'),
 					$switches: path.resolve('./src/lib/components/switches'),
-					$tables: path.resolve('./src/lib/tables'),
+					$tables: path.resolve('./src/lib/components/tables'),
 					$majorFeatures: path.resolve('./src/lib/majorFeatures'),
 					$static: path.resolve('./static/')
 				}

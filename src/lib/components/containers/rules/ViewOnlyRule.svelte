@@ -37,6 +37,7 @@
 		display: inline-block;
 		padding: 0.5rem 2rem;
 		text-align: start;
+		// align-self: center;
 
 		&::marker {
 			color: var(--accent-color);

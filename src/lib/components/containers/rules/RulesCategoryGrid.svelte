@@ -45,7 +45,7 @@
 	}
 	ol {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, clamp(45ch, 100%, 75ch));
+		grid-template-columns: repeat(auto-fit, clamp(40ch, 100%, 60ch));
 		justify-items: start;
 		justify-content: center;
 		&.editing {

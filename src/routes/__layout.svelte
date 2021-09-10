@@ -154,6 +154,7 @@
 			width: 100%;
 			z-index: -2;
 			mix-blend-mode: var(--mix-blend-mode);
+			filter: blur(3px);
 			// background-image: url('/static/friday-night-lights-high-res.jpg');
 		}
 	}

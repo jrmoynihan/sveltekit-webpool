@@ -20,6 +20,8 @@
 	import TeamNameImage from './TeamNameImage.svelte';
 	import Tooltip from './Tooltip.svelte';
 	import IntersectionObserver from 'svelte-intersection-observer';
+	import StatusInfo from './micro/StatusInfo.svelte';
+	import GameInfo from './micro/GameInfo.svelte';
 
 	export let id = 'id';
 	export let index: number;
@@ -191,8 +193,18 @@
 			<TeamRecord showTeamAbbreviation={!showTeamNameImages} team={awayTeam} />
 		</IntersectionObserver>
 	</label>
-
-	<label class="game-info rounded" for="{id}-none">
+	<GameInfo
+		{promiseScores}
+		{promiseStatus}
+		{promiseSituation}
+		{selectedTeam}
+		{timestamp}
+		{homeTeam}
+		{awayTeam}
+		{spread}
+		{disabled}
+	/>
+	<!-- <label class="game-info rounded" for="{id}-none">
 		<p class="grid info pick-at-pick">
 			{#await promiseStatus}
 				<span />
@@ -202,6 +214,8 @@
 						{#await promiseScores then { homeScoreData, awayScoreData }}
 							{#if selectedTeam === awayTeam.abbreviation}
 								{#if (spread < 0 && homeScoreData.value + spread < awayScoreData.value) || (spread > 0 && awayScoreData.value - spread > homeScoreData.value)}
+									<Fa icon={faCheckCircle} size="2x" color="green" />
+								{:else if spread === 0 && awayScoreData.value > homeScoreData.value}
 									<Fa icon={faCheckCircle} size="2x" color="green" />
 								{:else}
 									<Fa icon={faTimesCircle} size="2x" color="red" />
@@ -221,6 +235,8 @@
 							{#if selectedTeam === homeTeam.abbreviation}
 								{#if (spread < 0 && homeScoreData.value + spread > awayScoreData.value) || (spread > 0 && awayScoreData.value - spread < homeScoreData.value)}
 									<Fa icon={faCheckCircle} size="2x" color="green" />
+								{:else if spread === 0 && homeScoreData.value > awayScoreData.value}
+									<Fa icon={faCheckCircle} size="2x" color="green" />
 								{:else}
 									<Fa icon={faTimesCircle} size="2x" color="red" />
 								{/if}
@@ -230,7 +246,8 @@
 				>
 			{/await}
 		</p>
-		<p class="grid status info">
+		<StatusInfo {promiseStatus} {promiseScores} />
+		 <p class="grid status info">
 			{#await promiseStatus}
 				<span />
 				<span />
@@ -388,7 +405,7 @@
 						No timestamp field set.
 					{/if}
 				{:else if status.type.completed === false}
-					<!-- {#if status.type.description === 'Halftime'}
+					 {#if status.type.description === 'Halftime'}
 						<p>{status.type.description}</p>
 					{:else if status.type.description !== 'Canceled'}
 						<p>
@@ -397,7 +414,7 @@
 						</p>
 					{:else}
 						<p><strong>Canceled</strong></p>
-					{/if} -->
+					{/if}
 					{#await promiseSituation then situation}
 						{#if situation.downDistanceText !== undefined}
 							<p style="font-size: 0.8rem;">
@@ -409,7 +426,7 @@
 			{/await}
 		</div>
 		<input id="{id}-none" type="radio" bind:group={selectedTeam} value="" {disabled} />
-	</label>
+	</label> -->
 
 	<label
 		for="{id}-home"
