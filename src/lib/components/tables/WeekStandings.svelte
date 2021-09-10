@@ -2,7 +2,7 @@
 	import ReturnToTop from '$lib/components/buttons/ReturnToTop.svelte';
 	import AccordionDetails from '$lib/components/containers/AccordionDetails.svelte';
 	import WeekSelect from '$lib/components/selects/WeekSelect.svelte';
-	import WeeklyStandingsRow from '$lib/tables/WeeklyStandingsRow.svelte';
+	import WeeklyStandingsRow from '$lib/components/tables/WeeklyStandingsRow.svelte';
 	import { mobileBreakpoint } from '$scripts/site';
 	import { windowWidth } from '$scripts/store';
 	import { onMount } from 'svelte';

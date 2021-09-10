@@ -18,7 +18,7 @@
 		}
 	};
 	const changeWeeksAvailable = (selectedSeasonType) => {
-		console.log('changed weeks available');
+		// console.log('changed weeks available');
 		if (selectedSeasonType.text === 'Regular Season') {
 			weeks = setRegularSeasonWeeks();
 		} else if (selectedSeasonType.text === 'Pre-Season') {

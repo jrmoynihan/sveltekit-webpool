@@ -14,7 +14,7 @@
 	import YearSelect from '../selects/YearSelect.svelte';
 	import { onMount } from 'svelte';
 	import { defaultToast } from '$scripts/toasts';
-	import { setPreSeasonWeeks, setRegularSeasonWeeks } from '$scripts/functions';
+	import { convertToHttps, setPreSeasonWeeks, setRegularSeasonWeeks } from '$scripts/functions';
 	import LoadingSpinner from './LoadingSpinner.svelte';
 
 	let message = '';
@@ -60,7 +60,7 @@
 
 			for await (const url of referenceURLs) {
 				const httpUrl = url;
-				const httpsUrl = httpUrl.replace('http', 'https');
+				const httpsUrl = await convertToHttps(httpUrl);
 				const response = await fetch(httpsUrl);
 				const data = await response.json();
 				gameData.push(data);

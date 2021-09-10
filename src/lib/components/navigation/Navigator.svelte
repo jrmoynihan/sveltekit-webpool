@@ -6,6 +6,7 @@
 	export let customStyles: string = '';
 	export let useModal = false;
 	export let offsetTop = false;
+	export let modalID: string = '';
 </script>
 
 <nav
@@ -17,7 +18,7 @@
 		: null}"
 	style="--minItemSize:{minItemSize}; --maxItemSize: {maxItemSize}; {customStyles}"
 >
-	<slot />
+	<slot {modalID} />
 </nav>
 
 <style lang="scss">

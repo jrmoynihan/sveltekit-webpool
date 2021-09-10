@@ -50,7 +50,6 @@
 	import { doc, setDoc } from 'firebase/firestore';
 	import { fly } from 'svelte/transition';
 	import LoadingSpinner from '$lib/components/misc/LoadingSpinner.svelte';
-	import { browser } from '$app/env';
 
 	let showIDs = false;
 	let showTimestamps = false;
@@ -66,7 +65,7 @@
 	let tiebreaker: number = 0;
 	let toastMsg = ``;
 	let toastTitle = '';
-	let gridColumns = 2;
+	let gridColumns = 1;
 	let widthMeasure = 85;
 	let offsetRightPercentage = 15;
 	let toastSeenKey = 'toast_makeWeeklyPicks_NewTiebreakerAndSubmit';
@@ -83,10 +82,10 @@
 		}
 	};
 
-	$: $largerThanMobile, checkWidth();
+	// $: $largerThanMobile, checkWidth();
 
 	onMount(async () => {
-		checkWidth();
+		// checkWidth();
 		const toastSeen = await getLocalStorageItem(toastSeenKey);
 		if (toastSeen !== 'true') {
 			const promisedToast = await getToast('Make Picks');
@@ -124,7 +123,13 @@
 	};
 
 	const toastIt = () =>
-		defaultToast({ title: toastTitle, msg: toastMsg, duration: 200_000, textFontWeight: '600' });
+		defaultToast({
+			title: toastTitle,
+			msg: toastMsg,
+			duration: 200_000,
+			textFontWeight: '600',
+			useSeenToastComponent: true
+		});
 	const errorToastIt = () =>
 		errorToast(`${policeCarLight} This is a test error. Try to avoid the real thing.`);
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { nanoid } from 'nanoid';
 	import { largerThanMobile, navChecked } from '$scripts/store';
 	import { faBars, faCog } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
@@ -9,7 +10,7 @@
 	import Navigator from '$lib/components/navigation/Navigator.svelte';
 	import SiteNavOptions from '$lib/components/navigation/siteNavOptions.svelte';
 
-	let navModalID: string;
+	let modalID = nanoid();
 
 	function toggleNav(): void {
 		$navChecked = !$navChecked;
@@ -29,7 +30,7 @@
 		</button>
 	{:else}
 		<ModalButtonAndSlot
-			bind:modalID={navModalID}
+			bind:modalID
 			modalButtonStyles={'background:transparent'}
 			discreetButton={true}
 		>
@@ -39,7 +40,7 @@
 				useModal={true}
 				customStyles="background:var(--alternate-color)"
 			>
-				<SiteNavOptions />
+				<SiteNavOptions bind:modalID />
 			</Navigator>
 		</ModalButtonAndSlot>
 	{/if}

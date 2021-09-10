@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { policeCarLight } from '$scripts/classes/constants';
+	import { myLog, policeCarLight } from '$scripts/classes/constants';
 	import type { Team } from '$scripts/classes/team';
-	import { isBeforeGameTime, scrollToNextGame } from '$scripts/functions';
+	import { convertToHttps, isBeforeGameTime, scrollToNextGame } from '$scripts/functions';
 	import { showPickWarning, useDarkTheme, windowWidth } from '$scripts/store';
 	import type { Timestamp } from '@firebase/firestore';
 	import {
@@ -9,7 +9,8 @@
 		faArrowCircleRight,
 		faCheckCircle,
 		faFootballBall,
-		faLock
+		faLock,
+		faTimesCircle
 	} from '@fortawesome/free-solid-svg-icons';
 	import { onDestroy, onMount } from 'svelte';
 	import Fa from 'svelte-fa';
@@ -38,12 +39,12 @@
 	let disabled: boolean = false;
 	let gameIsOver = false;
 	let beforeGameTime = false;
-	let element;
+	let element: HTMLElement;
 	let showGameContainer = false;
 
 	const getStatus = async (): Promise<any> => {
 		const httpGameStatusEndpoint: string = competitions[0].status.$ref;
-		const httpsGameStatusEndpoint: string = httpGameStatusEndpoint.replace('http', 'https');
+		const httpsGameStatusEndpoint: string = await convertToHttps(httpGameStatusEndpoint);
 		// console.log(httpsGameStatusEndpoint)
 		const statusResponse = await fetch(httpsGameStatusEndpoint);
 		const statusData = statusResponse.json();
@@ -51,7 +52,7 @@
 	};
 	const getSituation = async (): Promise<any> => {
 		const httpGameSituationEndpoint: string = competitions[0].situation.$ref;
-		const httpsGameSituationEndpoint: string = httpGameSituationEndpoint.replace('http', 'https');
+		const httpsGameSituationEndpoint: string = await convertToHttps(httpGameSituationEndpoint);
 		const situationResponse = await fetch(httpsGameSituationEndpoint);
 		const situationData = situationResponse.json();
 		// console.table(situationData);
@@ -61,12 +62,12 @@
 	// TODO move this to a web worker to avoid slowdown?
 	const getScores = async (): Promise<{ homeScoreData: any; awayScoreData: any }> => {
 		try {
-			let homeScoreData;
-			let awayScoreData;
+			let homeScoreData: any;
+			let awayScoreData: any;
 			const httpHomeEndpoint = competitions[0].competitors[0].score.$ref;
 			const httpAwayEndpoint = competitions[0].competitors[1].score.$ref;
-			const httpsHomeEndpoint = httpHomeEndpoint.replace('http', 'https');
-			const httpsAwayEndpoint = httpAwayEndpoint.replace('http', 'https');
+			const httpsHomeEndpoint = await convertToHttps(httpHomeEndpoint);
+			const httpsAwayEndpoint = await convertToHttps(httpAwayEndpoint);
 			const homeScoreResponse = await fetch(httpsHomeEndpoint);
 			const awayScoreResponse = await fetch(httpsAwayEndpoint);
 
@@ -85,12 +86,24 @@
 			console.error(`%c${policeCarLight} error getting scores!`);
 		}
 	};
+	const checkGameTime = async () => {
+		const now = new Date().getTime();
+		beforeGameTime = await isBeforeGameTime(timestamp, now);
+		if (beforeGameTime) {
+			disabled = false;
+			// myLog(`game ${id} hasn't started`);
+		} else {
+			disabled = true;
+			// myLog(`game ${id} has started`);
+			clearInterval(recheckGameTimeInterval);
+		}
+	};
 
 	let promiseStatus = getStatus();
 	let promiseScores = getScores();
 	let promiseSituation = getSituation();
 	let statusInterval: NodeJS.Timer;
-	let checkGameTimeInterval: NodeJS.Timer;
+	let recheckGameTimeInterval: NodeJS.Timer;
 
 	// Show additional images in larger layout sizes
 	$: {
@@ -112,15 +125,12 @@
 	// **************
 
 	onMount(async () => {
-		checkGameTimeInterval = setInterval(async () => {
-			const now = new Date().getTime();
-			beforeGameTime = await isBeforeGameTime(timestamp, now);
-			if (beforeGameTime) {
-				disabled = false;
-			} else {
-				disabled = true;
-				clearInterval(checkGameTimeInterval);
-			}
+		checkGameTime();
+		getScores();
+		getStatus();
+		getSituation();
+		recheckGameTimeInterval = setInterval(async () => {
+			checkGameTime();
 		}, 60000);
 
 		// Every 60 seconds, update the game status if the game has started, but hasn't ended
@@ -128,13 +138,13 @@
 			promiseScores = getScores();
 			promiseStatus = getStatus();
 			promiseSituation = getSituation();
-		}, 60000);
+		}, 30000);
 	});
 
 	// Prevent memory leak
 	onDestroy(() => {
 		clearInterval(statusInterval);
-		clearInterval(checkGameTimeInterval);
+		clearInterval(recheckGameTimeInterval);
 	});
 </script>
 
@@ -190,8 +200,12 @@
 				<span>
 					{#if status.type.description === 'Final'}
 						{#await promiseScores then { homeScoreData, awayScoreData }}
-							{#if selectedTeam === awayTeam.abbreviation && awayScoreData.value > homeScoreData.value}
-								<Fa icon={faCheckCircle} size="2x" color="green" />
+							{#if selectedTeam === awayTeam.abbreviation}
+								{#if (spread < 0 && homeScoreData.value + spread < awayScoreData.value) || (spread > 0 && awayScoreData.value - spread > homeScoreData.value)}
+									<Fa icon={faCheckCircle} size="2x" color="green" />
+								{:else}
+									<Fa icon={faTimesCircle} size="2x" color="red" />
+								{/if}
 							{/if}
 						{/await}
 					{/if}</span
@@ -204,8 +218,12 @@
 				<span>
 					{#if status.type.description === 'Final'}
 						{#await promiseScores then { homeScoreData, awayScoreData }}
-							{#if selectedTeam === homeTeam.abbreviation && homeScoreData.value > awayScoreData.value}
-								<Fa icon={faCheckCircle} size="2x" color="green" />
+							{#if selectedTeam === homeTeam.abbreviation}
+								{#if (spread < 0 && homeScoreData.value + spread > awayScoreData.value) || (spread > 0 && awayScoreData.value - spread < homeScoreData.value)}
+									<Fa icon={faCheckCircle} size="2x" color="green" />
+								{:else}
+									<Fa icon={faTimesCircle} size="2x" color="red" />
+								{/if}
 							{/if}
 						{/await}
 					{/if}</span
@@ -221,8 +239,10 @@
 				{#if status.type.description === 'Final'}
 					{#await promiseScores}
 						<span>--</span>
-					{:then { awayScoreData }}
-						<span class="score">{awayScoreData.value}</span>
+					{:then { awayScoreData, homeScoreData }}
+						<span class="score" class:higherScore={awayScoreData.value > homeScoreData.value}
+							>{awayScoreData.value}</span
+						>
 					{:catch}
 						<span>--</span>
 					{/await}
@@ -231,8 +251,10 @@
 
 					{#await promiseScores}
 						<span>--</span>
-					{:then { homeScoreData }}
-						<span class="score">{homeScoreData.value}</span>
+					{:then { awayScoreData, homeScoreData }}
+						<span class="score" class:higherScore={homeScoreData.value > awayScoreData.value}
+							>{homeScoreData.value}</span
+						>
 					{:catch}
 						<span>--</span>
 					{/await}
@@ -279,13 +301,13 @@
 				<p style="display:grid; grid-template-columns: repeat(3,minmax(0,1fr));">
 					{#await promiseScores then scores}
 						{#if spread > 0}
-							<span>({scores.awayScoreData.value})</span>
-							<span>ATS</span>
-							<span>({scores.homeScoreData.value + spread})</span>
-						{:else if spread < 0}
-							<span>({scores.awayScoreData.value + spread * -1})</span>
+							<span>({scores.awayScoreData.value - spread})</span>
 							<span>ATS</span>
 							<span>({scores.homeScoreData.value})</span>
+						{:else if spread < 0}
+							<span>({scores.awayScoreData.value})</span>
+							<span>ATS</span>
+							<span>({scores.homeScoreData.value - spread * -1})</span>
 						{/if}
 					{/await}
 				</p>
@@ -521,5 +543,8 @@
 		grid-template-columns: repeat(3, 1fr);
 		width: 100%;
 		justify-items: center;
+	}
+	.higherScore {
+		text-decoration: underline 2px solid;
 	}
 </style>

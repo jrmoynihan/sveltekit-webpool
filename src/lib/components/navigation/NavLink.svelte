@@ -4,11 +4,13 @@
 	import type { PageOption } from '$scripts/classes/pageOption';
 	import Fa from 'svelte-fa';
 	import { faFootballBall } from '@fortawesome/free-solid-svg-icons';
-	import { matchPath } from '$scripts/functions';
+	import { hideModal, matchPath } from '$scripts/functions';
+	import { toast } from '@zerodevx/svelte-toast';
 
 	export let index = 0;
 	export let pageOption: PageOption;
 	export let fullyRounded = false;
+	export let modalID = '';
 	let active = false;
 
 	$: {
@@ -18,11 +20,18 @@
 		// TODO fix the regeex so the index path ('/') doesn't match when it's
 		active = pageOption.path === '/' && $page.path !== '/' ? false : active;
 	}
+	const cleanupToNavigate = () => {
+		if (modalID) {
+			hideModal(modalID);
+		}
+		toast.pop(0);
+	};
 </script>
 
 <label
 	for={pageOption.navigationText}
 	tabindex={1 + index}
+	on:click={cleanupToNavigate}
 	class:active
 	class="{$navChecked ? 'expanded' : 'collapsed'} {$useDarkTheme
 		? 'dark-mode'

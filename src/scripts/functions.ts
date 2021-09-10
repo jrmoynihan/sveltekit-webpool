@@ -128,3 +128,6 @@ export const setLocalStorageItem = async (key: string, value: string) => {
 		myLog('unable to set item in local storage');
 	}
 };
+export const convertToHttps = async (httpAddress: string) => {
+	return httpAddress.replace('http', 'https');
+};
