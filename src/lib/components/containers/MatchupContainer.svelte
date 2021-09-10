@@ -30,8 +30,6 @@
 	export let awayTeam: Team;
 	export let timestamp: Timestamp;
 	export let selectedTeam: string = '';
-	export let showIDs = false;
-	export let showTimestamps = false;
 	export let competitions = [];
 	export let currentPickCount = 0;
 	export let totalGameCount = 0;

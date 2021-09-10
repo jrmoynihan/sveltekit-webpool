@@ -13,7 +13,7 @@
 		weeklyTiebreakersCollection
 	} from '$scripts/collections';
 	import { weeklyPickConverter, weeklyTiebreakerConverter } from '$scripts/converters';
-	import { largerThanMobile, useDarkTheme } from '$scripts/store';
+	import { largerThanMobile, showIDs, showTimestamps, useDarkTheme } from '$scripts/store';
 	import {
 		DocumentReference,
 		getDocs,
@@ -50,9 +50,8 @@
 	import { doc, setDoc } from 'firebase/firestore';
 	import { fly } from 'svelte/transition';
 	import LoadingSpinner from '$lib/components/misc/LoadingSpinner.svelte';
+	import { writable } from 'svelte/store';
 
-	let showIDs = false;
-	let showTimestamps = false;
 	let editingToast = false;
 	let selectedWeek = 1;
 	let selectedYear = new Date().getFullYear();
@@ -413,9 +412,9 @@
 		<DevNotes>
 			<div style="display:grid; grid-template-columns: repeat(auto-fit,minmax(20rem, 1fr));">
 				Show Game IDs
-				<ToggleSwitch bind:checked={showIDs} />
+				<ToggleSwitch bind:checked={$showIDs} />
 				Show Timestamps
-				<ToggleSwitch bind:checked={showTimestamps} />
+				<ToggleSwitch bind:checked={$showTimestamps} />
 				Edit Toast
 				<ToggleSwitch bind:checked={editingToast} />
 				{#if $currentUser}
@@ -526,8 +525,6 @@
 					<MatchupContainer
 						bind:totalGameCount
 						bind:selectedTeam={pick.pick}
-						bind:showIDs
-						bind:showTimestamps
 						bind:currentPickCount
 						{gridColumns}
 						id={pick.game.id}

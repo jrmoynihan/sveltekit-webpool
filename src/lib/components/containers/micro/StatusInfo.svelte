@@ -3,7 +3,7 @@
 	export let promiseScores: Promise<any>;
 </script>
 
-<p class="grid status info">
+<div class="grid status-info">
 	{#await promiseStatus}
 		<span />
 		<span />
@@ -44,18 +44,18 @@
 				<span>--</span>
 			{/await}
 
-			<span>
+			<div class="grid period-clock">
 				{#if status.type.completed === false}
 					{#if status.type.description === 'Halftime'}
-						<p>{status.type.description}</p>
+						<div>{status.type.description}</div>
 					{:else if status.type.description !== 'Canceled'}
-						<p>Q{status.period}</p>
-						<p>{status.displayClock}</p>
+						<div>Q{status.period}</div>
+						<div>{status.displayClock}</div>
 					{:else}
-						<p><strong>Canceled</strong></p>
+						<div><strong>Canceled</strong></div>
 					{/if}
 				{/if}
-			</span>
+			</div>
 
 			{#await promiseScores}
 				<span>--</span>
@@ -68,26 +68,29 @@
 	{:catch}
 		unable to get game status...
 	{/await}
-</p>
+</div>
 
 <style lang="scss">
 	.grid {
-		@include gridAndGap;
+		display: grid;
 		justify-items: center;
+	}
+	.period-clock {
+		grid-template-columns: 1fr;
+		grid-template-rows: repeat(auto-fit, minmax(1rem, 1fr));
 	}
 	span {
 		padding: 0.3rem 0.5rem;
 		align-self: center;
-		&.at-symbol {
-			font-size: x-large;
-		}
+		// &.at-symbol {
+		// 	font-size: x-large;
+		// }
 	}
-	.info {
+	.status-info {
 		width: auto;
 		justify-self: center;
-	}
-	.status {
 		grid-template-columns: minmax(0, 1fr) minmax(0, auto) minmax(0, 1fr);
+		grid-area: statusInfo;
 	}
 	.score {
 		font-weight: bold;

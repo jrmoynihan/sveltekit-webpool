@@ -1,5 +1,5 @@
 import cookie from 'cookie';
-import { v4 as uuid } from '@lukeed/uuid';
+import { v4 as uuid } from 'uuid';
 import type { Handle } from '@sveltejs/kit';
 
 export const handle: Handle = async ({ request, resolve }) => {
