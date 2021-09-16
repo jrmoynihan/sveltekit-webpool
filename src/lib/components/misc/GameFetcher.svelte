@@ -14,7 +14,12 @@
 	import YearSelect from '../selects/YearSelect.svelte';
 	import { onMount } from 'svelte';
 	import { defaultToast } from '$scripts/toasts';
-	import { convertToHttps, setPreSeasonWeeks, setRegularSeasonWeeks } from '$scripts/functions';
+	import {
+		convertToHttps,
+		getConsensusSpread,
+		setPreSeasonWeeks,
+		setRegularSeasonWeeks
+	} from '$scripts/functions';
 	import LoadingSpinner from './LoadingSpinner.svelte';
 
 	let message = '';
@@ -71,7 +76,7 @@
 		}
 	};
 
-	const getData = async (
+	export const getData = async (
 		selectedYear: number,
 		selectedSeasonType: SeasonType,
 		selectedWeek: number
@@ -95,31 +100,6 @@
 			weeks = setRegularSeasonWeeks();
 		} else if (selectedSeasonType.text === 'Pre-Season') {
 			weeks = setPreSeasonWeeks();
-		}
-	};
-
-	const getConsensusSpread = async (gameID: string) => {
-		try {
-			submessage = 'getting spread';
-			const response = await fetch(
-				`https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events/${gameID}/competitions/${gameID}/odds`
-			);
-			const data = await response.json();
-			const spreads = data.items;
-			let consensus;
-			submessage = 'finding consensus spread';
-			for (const spread of spreads) {
-				if (spread.provider.name === 'consensus') {
-					consensus = spread.spread;
-				}
-			}
-			submessage = '';
-			if (consensus === undefined) {
-				consensus = '--';
-			}
-			return consensus;
-		} catch (error) {
-			console.error(error);
 		}
 	};
 
@@ -147,7 +127,7 @@
 
 		// Get the spread by querying the game id on the spread API
 		const consensus = await getConsensusSpread(game.id);
-		gameFormatted.spread = consensus;
+		gameFormatted.spread = consensus as number;
 
 		// Convert the date to the server format
 		const date = new Date(gameFormatted.date);

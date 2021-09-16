@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { showTimestamps } from '$scripts/store';
-	import type { Timestamp } from 'firebase/firestore';
+	import type { Timestamp } from '@firebase/firestore';
 	import GameTime from './GameTime.svelte';
 
 	export let timestamp: Timestamp;

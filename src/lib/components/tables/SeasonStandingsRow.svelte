@@ -43,6 +43,7 @@
 	.percentage {
 		@include gridCenter($grid: inline-grid, $gap: 10px);
 		grid-template-columns: min-content min-content;
+		padding-left: 1.2em; // helps align the percentage and radial pie chart
 	}
 	span {
 		aspect-ratio: 1/1;

@@ -41,6 +41,9 @@ const config = {
 					$static: path.resolve('./static/')
 				}
 			},
+			ssr: {
+				external: ['@firebase/firestore']
+			},
 			server: {
 				https: true
 			},

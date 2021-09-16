@@ -25,7 +25,7 @@
 <style lang="scss">
 	.ATS-scores {
 		grid-area: scoresATS;
-		display: grid;
+		@include gridAndGap;
 		grid-template-columns: repeat(3, minmax(0, 1fr));
 	}
 	span {

@@ -13,7 +13,7 @@
 
 <div class="winLossAt">
 	{#await promiseStatus}
-		<span />
+		<span class="at-symbol"> AT </span>
 	{:then status}
 		<span>
 			{#if status.type.description === 'Final'}
@@ -26,14 +26,14 @@
 						{:else}
 							<Fa icon={faTimesCircle} size="2x" color="red" />
 						{/if}
-						{#if selectedTeam === awayTeam.abbreviation}
-							{#if (spread < 0 && homeScoreData.value + spread < awayScoreData.value) || (spread > 0 && awayScoreData.value - spread > homeScoreData.value)}
-								<Fa icon={faCheckCircle} size="2x" color="green" />
-							{:else if spread === 0 && awayScoreData.value > homeScoreData.value}
-								<Fa icon={faCheckCircle} size="2x" color="green" />
-							{:else}
-								<Fa icon={faTimesCircle} size="2x" color="red" />
-							{/if}
+					{/if}
+					{#if selectedTeam === awayTeam.abbreviation}
+						{#if (spread < 0 && homeScoreData.value + spread < awayScoreData.value) || (spread > 0 && awayScoreData.value - spread > homeScoreData.value)}
+							<Fa icon={faCheckCircle} size="2x" color="green" />
+						{:else if spread === 0 && awayScoreData.value > homeScoreData.value}
+							<Fa icon={faCheckCircle} size="2x" color="green" />
+						{:else}
+							<Fa icon={faTimesCircle} size="2x" color="red" />
 						{/if}
 					{/if}
 				{/await}

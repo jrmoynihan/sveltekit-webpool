@@ -23,6 +23,7 @@ export const largerThanMobile = writable(true);
 export const editing = writable(false);
 export const showPickWarning = writable(false);
 export const showIDs = writable(false);
+export const showSpreads = writable(false);
 export const showTimestamps = writable(false);
 
 export const queryAsStore = (

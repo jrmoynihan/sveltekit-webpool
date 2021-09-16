@@ -10,11 +10,16 @@
 	import { gameConverter, userConverter, weeklyPickConverter } from '$scripts/converters';
 	import { defaultToast, errorToast } from '$scripts/toasts';
 	import { faSync } from '@fortawesome/free-solid-svg-icons';
-	import { deleteDoc, doc, getDocs, query, setDoc, where } from 'firebase/firestore';
+	import { deleteDoc, doc, getDocs, query, setDoc, where, updateDoc } from '@firebase/firestore';
 	import Fa from 'svelte-fa';
+	import { getConsensusSpread } from '$scripts/functions';
+	import WeekSelect from '$lib/components/selects/WeekSelect.svelte';
+	import YearSelect from '$lib/components/selects/YearSelect.svelte';
 
 	let weeklyUsers: WebUser[] = [];
 	let weeklyGames: Game[] = [];
+	let selectedWeek: number = 1;
+	let selectedYear: number = new Date().getFullYear();
 
 	const getWeeklyUsers = async () => {
 		try {
@@ -115,7 +120,8 @@
 					year: game.timestamp.toDate().getFullYear(),
 					timestamp: game.timestamp,
 					game: { ...game },
-					type: game.type
+					type: game.type,
+					isCorrect: null
 				});
 				setDoc(newWeeklyPickRef.withConverter(weeklyPickConverter), pickDoc);
 			});
@@ -199,6 +205,34 @@
 			myError('createTiebreakersForAllUsers', error, msg);
 		}
 	};
+	const updateSpreads = async (week: number, year: number) => {
+		try {
+			// Update the pick game objects on the pick documents?
+			const q = query(weeklyPicksCollection, where('week', '==', week), where('year', '==', year));
+			const picks = await getDocs(q.withConverter(weeklyPickConverter));
+			picks.forEach((pick) => {
+				const data = pick.data();
+				const game = data.game;
+				if (isNaN(game.spread)) {
+					getUpdatedSpread(game).then((updatedSpread) => {
+						const updatedGame = { ...game, spread: updatedSpread };
+						updateDoc(pick.ref, { game: updatedGame });
+					});
+				}
+			});
+			defaultToast({
+				title: 'Updated Spreads!',
+				msg: `Week ${selectedWeek} spreads were successfully updated!`
+			});
+		} catch (error) {
+			errorToast('Failed to update spreads.  See console logs.');
+			myError('updateSpreads', error);
+		}
+	};
+	const getUpdatedSpread = async (game: Game) => {
+		const updatedSpread = await getConsensusSpread(game.id);
+		return updatedSpread;
+	};
 </script>
 
 <PageTitle>Weekly Pool Admin</PageTitle>
@@ -213,6 +247,10 @@
 	</button>
 	<button on:click={createWeeklyPicksForAllUsers}>Create Picks for All Users</button>
 	<button on:click={deleteWeeklyPicksForAllUsers}>Delete All Picks for All Users</button>
+
+	<WeekSelect bind:selectedWeek />
+	<YearSelect bind:selectedYear />
+	<button on:click={() => updateSpreads(selectedWeek, selectedYear)}>Update Week Spreads</button>
 </div>
 
 {#await userPromise}

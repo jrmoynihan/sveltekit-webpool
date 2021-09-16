@@ -11,6 +11,7 @@ export class WeeklyPickDoc {
 	timestamp: Timestamp;
 	game: Game;
 	type: string;
+	isCorrect: boolean;
 	constructor({ ...args }) {
 		(this.docRef = args.docRef),
 			(this.id = args.id),
@@ -21,5 +22,6 @@ export class WeeklyPickDoc {
 		this.timestamp = args.timestamp;
 		this.game = args.game;
 		this.type = args.type;
+		this.isCorrect = args.isCorrect;
 	}
 }

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Team } from '$scripts/classes/team';
-	import { showIDs } from '$scripts/store';
+	import { showIDs, showSpreads } from '$scripts/store';
 	import type { Timestamp } from '@firebase/firestore';
 	import {
 		faArrowCircleLeft,
@@ -37,17 +37,20 @@
 	<ScoresAts {promiseStatus} {promiseScores} {spread} />
 	<SpreadOrPossession {spread} {disabled} {awayTeam} {homeTeam} {promiseSituation} />
 	<DateTimeOrDownDistance {timestamp} {promiseStatus} {promiseSituation} />
-	{#if $showIDs}
-		<div>{id}</div>
-	{/if}
 	<input id="{id}-none" type="radio" bind:group={selectedTeam} value="" {disabled} />
+	{#if $showIDs}
+		<div style="grid-area:dateTimeOrDownDistance">{id}</div>
+	{/if}
+	{#if $showSpreads}
+		<div style="grid-area:spreadOrPossession">{spread}</div>
+	{/if}
 </label>
 
 <style lang="scss">
 	.game-info {
 		display: grid;
 		align-items: end;
-		grid-template-columns: repeat(auto, minmax(0, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
 		grid-template-rows: repeat(auto-fit, minmax(0, 1fr));
 		grid-template-areas:
 			'WinLossAt'

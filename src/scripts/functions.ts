@@ -131,3 +131,43 @@ export const setLocalStorageItem = async (key: string, value: string) => {
 export const convertToHttps = async (httpAddress: string) => {
 	return httpAddress.replace('http', 'https');
 };
+export const getStatus = async (competitions: { status: { $ref: string } }[]): Promise<any> => {
+	const httpGameStatusEndpoint: string = competitions[0].status.$ref;
+	const httpsGameStatusEndpoint: string = await convertToHttps(httpGameStatusEndpoint);
+	// console.log(httpsGameStatusEndpoint)
+	const statusResponse = await fetch(httpsGameStatusEndpoint);
+	const statusData = statusResponse.json();
+	return statusData;
+};
+export const getSituation = async (
+	competitions: { situation: { $ref: string } }[]
+): Promise<any> => {
+	const httpGameSituationEndpoint: string = competitions[0].situation.$ref;
+	const httpsGameSituationEndpoint: string = await convertToHttps(httpGameSituationEndpoint);
+	const situationResponse = await fetch(httpsGameSituationEndpoint);
+	const situationData = situationResponse.json();
+	// console.table(situationData);
+	return situationData;
+};
+
+export const getConsensusSpread = async (gameID: string) => {
+	try {
+		const response = await fetch(
+			`https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events/${gameID}/competitions/${gameID}/odds`
+		);
+		const data = await response.json();
+		const spreadProviders = data.items;
+		let consensus: number;
+		for (const spreadProvider of spreadProviders) {
+			if (spreadProvider.provider.name === 'consensus') {
+				consensus = spreadProvider.spread;
+			}
+		}
+		if (consensus === undefined) {
+			consensus = null;
+		}
+		return consensus;
+	} catch (error) {
+		console.error(error);
+	}
+};

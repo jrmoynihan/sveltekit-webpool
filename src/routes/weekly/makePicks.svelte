@@ -13,7 +13,13 @@
 		weeklyTiebreakersCollection
 	} from '$scripts/collections';
 	import { weeklyPickConverter, weeklyTiebreakerConverter } from '$scripts/converters';
-	import { largerThanMobile, showIDs, showTimestamps, useDarkTheme } from '$scripts/store';
+	import {
+		largerThanMobile,
+		showIDs,
+		showSpreads,
+		showTimestamps,
+		useDarkTheme
+	} from '$scripts/store';
 	import {
 		DocumentReference,
 		getDocs,
@@ -47,7 +53,7 @@
 	import SubmitPicks from '$lib/components/buttons/SubmitPicks.svelte';
 	import type { WeeklyTiebreaker } from '$scripts/classes/tiebreaker';
 	import { flip } from 'svelte/animate';
-	import { doc, setDoc } from 'firebase/firestore';
+	import { doc, setDoc } from '@firebase/firestore';
 	import { fly } from 'svelte/transition';
 	import LoadingSpinner from '$lib/components/misc/LoadingSpinner.svelte';
 	import { writable } from 'svelte/store';
@@ -59,6 +65,7 @@
 	let currentPicks: WeeklyPickDoc[] = [];
 	let currentPickCount = 0;
 	let upcomingGamesCount = 0;
+	let isCorrectCount = 0;
 	let totalGameCount = 16;
 	let tiebreakerDocRef: DocumentReference;
 	let tiebreaker: number = 0;
@@ -117,8 +124,12 @@
 	};
 
 	const getUserId = async () => {
-		const id = await getLocalStorageItem('id');
-		return id;
+		try {
+			const id = await getLocalStorageItem('id');
+			return id;
+		} catch (error) {
+			myError('getUserId', error);
+		}
 	};
 
 	const toastIt = () =>
@@ -158,6 +169,9 @@
 				const ableToPick = await isBeforeGameTime(pick.timestamp, now);
 				if (ableToPick) {
 					upcomingGamesCount++;
+				}
+				if (pick.isCorrect) {
+					isCorrectCount++;
 				}
 			});
 			return picks;
@@ -415,6 +429,8 @@
 				<ToggleSwitch bind:checked={$showIDs} />
 				Show Timestamps
 				<ToggleSwitch bind:checked={$showTimestamps} />
+				Show Spreads
+				<ToggleSwitch bind:checked={$showSpreads} />
 				Edit Toast
 				<ToggleSwitch bind:checked={editingToast} />
 				{#if $currentUser}
@@ -476,7 +492,7 @@
 					bind:upcomingGamesCount
 				/>
 			{/key}
-			{#if currentPickCount >= upcomingGamesCount}
+			{#if currentPickCount >= upcomingGamesCount && upcomingGamesCount !== 0}
 				<SubmitPicks
 					on:click={submitPicks}
 					ableToTab={tiebreaker >= 10 ? 0 : -1}
@@ -486,8 +502,10 @@
 				{#if upcomingGamesCount > 0}
 					<TiebreakerInput bind:tiebreaker />
 				{/if}
-			{:else}
+			{:else if upcomingGamesCount !== 0}
 				<progress value={$progress || 0} />
+			{:else}
+				<div>{isCorrectCount} of {totalGameCount} correct</div>
 			{/if}
 		{/if}
 	</div>
