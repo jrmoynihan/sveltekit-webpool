@@ -42,7 +42,7 @@ export const rulesConverter = {
 };
 
 export const gameConverter = {
-	toFirestore: (game: Partial<Game>): Partial<Game> => {
+	toFirestore: (game: Game): Game => {
 		return { ...game };
 	},
 	fromFirestore: (snapshot: QueryDocumentSnapshot): Game => {

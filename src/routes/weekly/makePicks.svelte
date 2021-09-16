@@ -8,11 +8,16 @@
 	import { currentUser } from '$scripts/auth';
 	import type { WeeklyPickDoc } from '$scripts/classes/picks';
 	import {
+		scheduleCollection,
 		toastsCollection,
 		weeklyPicksCollection,
 		weeklyTiebreakersCollection
 	} from '$scripts/collections';
-	import { weeklyPickConverter, weeklyTiebreakerConverter } from '$scripts/converters';
+	import {
+		gameConverter,
+		weeklyPickConverter,
+		weeklyTiebreakerConverter
+	} from '$scripts/converters';
 	import {
 		largerThanMobile,
 		showIDs,
@@ -57,12 +62,14 @@
 	import { fly } from 'svelte/transition';
 	import LoadingSpinner from '$lib/components/misc/LoadingSpinner.svelte';
 	import { writable } from 'svelte/store';
+	import type { Game } from '$scripts/classes/game';
 
 	let editingToast = false;
 	let selectedWeek = 1;
 	let selectedYear = new Date().getFullYear();
 	let selectedSeasonType = seasonTypes[1];
 	let currentPicks: WeeklyPickDoc[] = [];
+	let selectedGames: Game[] = [];
 	let currentPickCount = 0;
 	let upcomingGamesCount = 0;
 	let isCorrectCount = 0;
@@ -165,11 +172,11 @@
 			totalGameCount = picks.length;
 			upcomingGamesCount = 0;
 			picks.forEach(async (pick) => {
-				const now = new Date().getTime();
-				const ableToPick = await isBeforeGameTime(pick.timestamp, now);
-				if (ableToPick) {
-					upcomingGamesCount++;
-				}
+				// const now = new Date().getTime();
+				// const ableToPick = await isBeforeGameTime(pick.timestamp, now);
+				// if (ableToPick) {
+				// 	upcomingGamesCount++;
+				// }
 				if (pick.isCorrect) {
 					isCorrectCount++;
 				}
@@ -182,6 +189,39 @@
 			myError('getPicks', error);
 		}
 	};
+
+	const getGames = async (selectedWeek: number) => {
+		try {
+			const games: Game[] = [];
+			const q = query(
+				scheduleCollection,
+				where('year', '==', selectedYear),
+				where('type', '==', selectedSeasonType.text),
+				where('week', '==', selectedWeek),
+				orderBy('timestamp')
+			);
+			const querySnapshot = await getDocs(q.withConverter(gameConverter));
+			querySnapshot.forEach((doc) => {
+				games.push(doc.data());
+			});
+
+			myLog('got games!', '', checkmark);
+			games.forEach(async (game) => {
+				const now = new Date().getTime();
+				const ableToPick = await isBeforeGameTime(game.timestamp, now);
+				if (ableToPick) {
+					upcomingGamesCount++;
+				}
+			});
+			return games;
+		} catch (error) {
+			errorToast(
+				'Unable to get games. Contact the admin.  You can find more information about the error by pressing Ctrl+Shift+I and then inspecting the error in the Console tab.'
+			);
+			myError('getGames', error);
+		}
+	};
+
 	const getTiebreaker = async (selectedWeek: number) => {
 		try {
 			let tiebreakerData: WeeklyTiebreaker;
@@ -399,8 +439,10 @@
 
 	let picksPromise: Promise<WeeklyPickDoc[]> = getPicks(selectedWeek);
 	let tiebreakerPromise: Promise<WeeklyTiebreaker> = getTiebreaker(selectedWeek);
+	let gamesPromise: Promise<Game[]> = getGames(selectedWeek);
 
 	const changedQuery = async () => {
+		gamesPromise = getGames(selectedWeek);
 		picksPromise = getPicks(selectedWeek);
 		tiebreakerPromise = getTiebreaker(selectedWeek);
 	};
@@ -531,29 +573,36 @@
 			: ''} grid-template-columns:repeat({gridColumns},1fr)"
 	>
 		{#await picksPromise}
-			<LoadingSpinner msg="Loading games and picks..." width="100%" />
+			<LoadingSpinner msg="Loading picks..." width="100%" />
 		{:then picks}
 			{#each currentPicks as pick, i (pick.id)}
-				<div
-					class="game-container"
-					animate:flip={{ duration: 200 }}
-					in:fly={{ x: -100, duration: 300, delay: 0 }}
-					out:fly={{ x: 100, duration: 300 }}
-				>
-					<MatchupContainer
-						bind:totalGameCount
-						bind:selectedTeam={pick.pick}
-						bind:currentPickCount
-						{gridColumns}
-						id={pick.game.id}
-						index={i}
-						spread={pick.game.spread}
-						homeTeam={pick.game.homeTeam}
-						awayTeam={pick.game.awayTeam}
-						timestamp={pick.game.timestamp}
-						competitions={pick.game.competitions}
-					/>
-				</div>
+				{#await gamesPromise}
+					<LoadingSpinner msg="Loading games..." width="100%" />
+				{:then games}
+					{#each games as game (game.id)}
+						{#if pick.id === game.id}
+							<div
+								class="game-container"
+								in:fly={{ x: -100, duration: 300, delay: 0 }}
+								out:fly={{ x: 100, duration: 300 }}
+							>
+								<MatchupContainer
+									bind:totalGameCount
+									bind:selectedTeam={pick.pick}
+									bind:currentPickCount
+									{gridColumns}
+									id={game.id}
+									index={i}
+									spread={game.spread}
+									homeTeam={game.homeTeam}
+									awayTeam={game.awayTeam}
+									timestamp={game.timestamp}
+									competitions={game.competitions}
+								/>
+							</div>
+						{/if}
+					{/each}
+				{/await}
 			{/each}
 		{/await}
 	</div>

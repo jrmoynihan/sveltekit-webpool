@@ -205,18 +205,40 @@
 			myError('createTiebreakersForAllUsers', error, msg);
 		}
 	};
-	const updateSpreads = async (week: number, year: number) => {
+	// const updateSpreads = async (week: number, year: number) => {
+	// 	try {
+	// 		// Update the pick game objects on the pick documents?
+	// 		const q = query(weeklyPicksCollection, where('week', '==', week), where('year', '==', year));
+	// 		const picks = await getDocs(q.withConverter(weeklyPickConverter));
+	// 		picks.forEach((pick) => {
+	// 			const data = pick.data();
+	// 			const game = data.game;
+	// 			if (isNaN(game.spread)) {
+	// 				getUpdatedSpread(game).then((updatedSpread) => {
+	// 					const updatedGame = { ...game, spread: updatedSpread };
+	// 					updateDoc(pick.ref, { game: updatedGame });
+	// 				});
+	// 			}
+	// 		});
+	// 		defaultToast({
+	// 			title: 'Updated Spreads!',
+	// 			msg: `Week ${selectedWeek} spreads were successfully updated!`
+	// 		});
+	// 	} catch (error) {
+	// 		errorToast('Failed to update spreads.  See console logs.');
+	// 		myError('updateSpreads', error);
+	// 	}
+	// };
+	const updateGameSpreads = async (week: number, year: number) => {
 		try {
 			// Update the pick game objects on the pick documents?
-			const q = query(weeklyPicksCollection, where('week', '==', week), where('year', '==', year));
-			const picks = await getDocs(q.withConverter(weeklyPickConverter));
-			picks.forEach((pick) => {
-				const data = pick.data();
-				const game = data.game;
+			const q = query(scheduleCollection, where('week', '==', week), where('year', '==', year));
+			const games = await getDocs(q.withConverter(gameConverter));
+			games.forEach((gameDoc) => {
+				const game = gameDoc.data();
 				if (isNaN(game.spread)) {
 					getUpdatedSpread(game).then((updatedSpread) => {
-						const updatedGame = { ...game, spread: updatedSpread };
-						updateDoc(pick.ref, { game: updatedGame });
+						updateDoc(gameDoc.ref, { spread: updatedSpread });
 					});
 				}
 			});
@@ -250,7 +272,8 @@
 
 	<WeekSelect bind:selectedWeek />
 	<YearSelect bind:selectedYear />
-	<button on:click={() => updateSpreads(selectedWeek, selectedYear)}>Update Week Spreads</button>
+	<button on:click={() => updateGameSpreads(selectedWeek, selectedYear)}>Update Week Spreads</button
+	>
 </div>
 
 {#await userPromise}
