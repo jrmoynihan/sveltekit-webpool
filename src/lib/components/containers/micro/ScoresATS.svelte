@@ -1,4 +1,6 @@
 <script lang="ts">
+	import Tooltip from '../Tooltip.svelte';
+
 	export let promiseStatus: Promise<any>;
 	export let promiseScores: Promise<any>;
 	export let spread: number;
@@ -9,13 +11,19 @@
 		<div class="ATS-scores">
 			{#await promiseScores then scores}
 				{#if spread > 0}
-					<span>({scores.awayScoreData.value - spread})</span>
-					<span>ATS</span>
-					<span>({scores.homeScoreData.value})</span>
+					<span class="score">{scores.awayScoreData.value - spread}</span>
+					<Tooltip tooltipWidth="300%">
+						<svelte:fragment slot="text">Scores adjusted Against the Spread.</svelte:fragment>
+						<span slot="content">ATS</span>
+					</Tooltip>
+					<span class="score">{scores.homeScoreData.value}</span>
 				{:else if spread < 0}
-					<span>({scores.awayScoreData.value})</span>
-					<span>ATS</span>
-					<span>({scores.homeScoreData.value - spread * -1})</span>
+					<span class="score">{scores.awayScoreData.value}</span>
+					<Tooltip tooltipWidth="300%">
+						<svelte:fragment slot="text">Scores adjusted Against the Spread.</svelte:fragment>
+						<span slot="content">ATS</span>
+					</Tooltip>
+					<span class="score">{scores.homeScoreData.value - spread * -1}</span>
 				{/if}
 			{/await}
 		</div>
@@ -27,6 +35,10 @@
 		grid-area: scoresATS;
 		@include gridAndGap;
 		grid-template-columns: repeat(3, minmax(0, 1fr));
+		font-weight: 600;
+	}
+	.score {
+		font-size: 1.25em;
 	}
 	span {
 		// padding: 0.3rem 0.5rem;

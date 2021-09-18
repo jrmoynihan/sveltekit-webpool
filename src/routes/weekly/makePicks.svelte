@@ -20,6 +20,7 @@
 	} from '$scripts/converters';
 	import {
 		largerThanMobile,
+		overrideDisabled,
 		showIDs,
 		showSpreads,
 		showTimestamps,
@@ -42,6 +43,7 @@
 		checkmark,
 		dogFace,
 		home,
+		HomeOrAway,
 		myError,
 		myLog,
 		okHand,
@@ -57,21 +59,19 @@
 	import PickCounter from '$lib/components/containers/micro/PickCounter.svelte';
 	import SubmitPicks from '$lib/components/buttons/SubmitPicks.svelte';
 	import type { WeeklyTiebreaker } from '$scripts/classes/tiebreaker';
-	import { flip } from 'svelte/animate';
 	import { doc, setDoc } from '@firebase/firestore';
 	import { fly } from 'svelte/transition';
 	import LoadingSpinner from '$lib/components/misc/LoadingSpinner.svelte';
-	import { writable } from 'svelte/store';
 	import type { Game } from '$scripts/classes/game';
 
 	let editingToast = false;
-	let selectedWeek = 1;
+	let selectedWeek = 2;
 	let selectedYear = new Date().getFullYear();
 	let selectedSeasonType = seasonTypes[1];
 	let currentPicks: WeeklyPickDoc[] = [];
 	let selectedGames: Game[] = [];
 	let currentPickCount = 0;
-	let upcomingGamesCount = 0;
+	let upcomingGamesCount: number = 0;
 	let isCorrectCount = 0;
 	let totalGameCount = 16;
 	let tiebreakerDocRef: DocumentReference;
@@ -160,7 +160,8 @@
 				where('type', '==', selectedSeasonType.text),
 				where('week', '==', selectedWeek),
 				where('uid', '==', uid),
-				orderBy('timestamp')
+				orderBy('timestamp'),
+				orderBy('id')
 			);
 			const querySnapshot = await getDocs(q.withConverter(weeklyPickConverter));
 			querySnapshot.forEach((doc) => {
@@ -170,7 +171,6 @@
 			myLog('got picks!', '', pick, picks);
 			currentPicks = picks;
 			totalGameCount = picks.length;
-			upcomingGamesCount = 0;
 			picks.forEach(async (pick) => {
 				// const now = new Date().getTime();
 				// const ableToPick = await isBeforeGameTime(pick.timestamp, now);
@@ -206,19 +206,30 @@
 			});
 
 			myLog('got games!', '', checkmark);
-			games.forEach(async (game) => {
-				const now = new Date().getTime();
-				const ableToPick = await isBeforeGameTime(game.timestamp, now);
-				if (ableToPick) {
-					upcomingGamesCount++;
-				}
-			});
+			selectedGames = games;
+			upcomingGamesCount = await countUpcomingGames(games);
 			return games;
 		} catch (error) {
 			errorToast(
 				'Unable to get games. Contact the admin.  You can find more information about the error by pressing Ctrl+Shift+I and then inspecting the error in the Console tab.'
 			);
 			myError('getGames', error);
+		}
+	};
+	const countUpcomingGames = async (games: Game[]) => {
+		try {
+			let upcomingGamesCount: number = 0;
+			for await (const game of games) {
+				const ableToPick = await isBeforeGameTime(game.timestamp);
+				if (ableToPick) {
+					upcomingGamesCount++;
+				}
+			}
+			myLog(`${upcomingGamesCount} upcoming games`);
+			return upcomingGamesCount;
+		} catch (error) {
+			errorToast('Unable to check game times.');
+			myError('checkGameTimes', error);
 		}
 	};
 
@@ -287,7 +298,7 @@
 			myError('submitPicks', error);
 		}
 	};
-	const setTiebreakerDoc = async () => {
+	const setTiebreakerDoc = async (): Promise<void> => {
 		let docRef: DocumentReference;
 		if (tiebreakerDocRef) {
 			docRef = tiebreakerDocRef;
@@ -317,19 +328,32 @@
 			});
 		}
 	};
+	const updatePicks = async (
+		games: Game[],
+		currentPicks: WeeklyPickDoc[],
+		homeOrAway: HomeOrAway
+	): Promise<WeeklyPickDoc[]> => {
+		currentPicks.forEach(async (pickDoc) => {
+			const matchingGame = games.find((game) => game.id === pickDoc.id);
+			const ableToPick = await isBeforeGameTime(matchingGame.timestamp);
+			if (ableToPick) {
+				if (homeOrAway === 'Home') {
+					const homeTeam = matchingGame.homeTeam;
+					pickDoc.pick = homeTeam.abbreviation;
+				} else if (homeOrAway === 'Away') {
+					const awayTeam = matchingGame.awayTeam;
+					pickDoc.pick = awayTeam.abbreviation;
+				}
+			}
+		});
+		return currentPicks;
+	};
 
 	const pickAllHome = async () => {
 		try {
-			currentPicks.forEach(async (pickDoc) => {
-				const now = new Date().getTime();
-				const ableToPick = await isBeforeGameTime(pickDoc.timestamp, now);
-				if (ableToPick) {
-					const homeTeam = pickDoc.game.homeTeam;
-					pickDoc.pick = homeTeam.abbreviation;
-				}
-			});
-			myLog('picked all home teams!', '', home);
+			await updatePicks(selectedGames, currentPicks, HomeOrAway.Home);
 			currentPicks = currentPicks;
+			myLog('picked all home teams!', '', home);
 			focusTiebreaker();
 		} catch (error) {
 			myError('pickAllHome', error);
@@ -337,16 +361,9 @@
 	};
 	const pickAllAway = async () => {
 		try {
-			currentPicks.forEach(async (pickDoc) => {
-				const now = new Date().getTime();
-				const ableToPick = await isBeforeGameTime(pickDoc.timestamp, now);
-				if (ableToPick) {
-					const awayTeam = pickDoc.game.awayTeam;
-					pickDoc.pick = awayTeam.abbreviation;
-				}
-			});
-			myLog('picks all away teams!', '', airplaneDeparture);
+			await updatePicks(selectedGames, currentPicks, HomeOrAway.Away);
 			currentPicks = currentPicks;
+			myLog('picks all away teams!', '', airplaneDeparture);
 			focusTiebreaker();
 		} catch (error) {
 			myError('pickAllAway', error);
@@ -355,8 +372,7 @@
 	const pickAllFavored = async () => {
 		try {
 			let spreadsMissing = false;
-			const favored = currentPicks.map((pickDoc) => {
-				const game = pickDoc.game;
+			const favored = selectedGames.map((game) => {
 				if (game.spread < 0) {
 					return game.homeTeam;
 				} else if (game.spread > 0) {
@@ -373,12 +389,10 @@
 					msg: `You can use this button when spreads are updated.`,
 					duration: 10000
 				});
-				// alert(`Spreads not yet available for all games!`);
 				return;
 			}
 			currentPicks.forEach(async (pickDoc, i) => {
-				const now = new Date().getTime();
-				const ableToPick = await isBeforeGameTime(pickDoc.timestamp, now);
+				const ableToPick = await isBeforeGameTime(pickDoc.timestamp);
 				if (ableToPick) {
 					if (favored[i] !== null && favored[i] !== undefined) {
 						pickDoc.pick = favored[i].abbreviation;
@@ -397,8 +411,7 @@
 	const pickAllDogs = async () => {
 		try {
 			let spreadsMissing = false;
-			const underdogs = currentPicks.map((pickDoc) => {
-				const game = pickDoc.game;
+			const underdogs = selectedGames.map((game) => {
 				if (game.spread < 0) {
 					return game.awayTeam;
 				} else if (game.spread > 0) {
@@ -415,12 +428,10 @@
 					msg: `You can use this button when spreads are updated.`,
 					duration: 10000
 				});
-				// alert(`Spreads not yet available for all games!`);
 				return;
 			}
 			currentPicks.forEach(async (pickDoc, i) => {
-				const now = new Date().getTime();
-				const ableToPick = await isBeforeGameTime(pickDoc.timestamp, now);
+				const ableToPick = await isBeforeGameTime(pickDoc.timestamp);
 				if (ableToPick) {
 					if (underdogs[i] !== null && underdogs[i] !== undefined) {
 						pickDoc.pick = underdogs[i].abbreviation;
@@ -433,7 +444,7 @@
 			currentPicks = currentPicks;
 			focusTiebreaker();
 		} catch (error) {
-			myError('pickAllFavored', error);
+			myError('pickAllDogs', error);
 		}
 	};
 
@@ -473,6 +484,8 @@
 				<ToggleSwitch bind:checked={$showTimestamps} />
 				Show Spreads
 				<ToggleSwitch bind:checked={$showSpreads} />
+				Override Disabled Picks
+				<ToggleSwitch bind:checked={$overrideDisabled} />
 				Edit Toast
 				<ToggleSwitch bind:checked={editingToast} />
 				{#if $currentUser}

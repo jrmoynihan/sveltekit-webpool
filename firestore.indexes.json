@@ -8,8 +8,8 @@
 				{"fieldPath": "uid", "order": "ASCENDING"},
 				{"fieldPath": "week","order": "ASCENDING"},
 				{"fieldPath": "year","order": "ASCENDING"},
-				{"fieldPath": "id","order": "ASCENDING"},
-				{"fieldPath": "timestamp","order": "ASCENDING"}
+				{"fieldPath": "timestamp","order": "ASCENDING"},
+				{"fieldPath": "id","order": "ASCENDING"}
 			]
 		},
 		{

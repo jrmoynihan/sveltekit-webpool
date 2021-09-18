@@ -8,9 +8,9 @@
 	import Tooltip from '../Tooltip.svelte';
 
 	export let invisible = false;
-	export let currentPickCount = 0;
-	export let totalGameCount = 0;
-	export let upcomingGamesCount = 0;
+	export let currentPickCount: number = 0;
+	export let totalGameCount: number = 0;
+	export let upcomingGamesCount: number = 0;
 	export let currentPicks: WeeklyPickDoc[] = [];
 
 	const findMissedPick = async () => {
@@ -44,6 +44,14 @@
 		{/if}
 	{:else}
 		{currentPickCount} / {totalGameCount} Picks Made ({upcomingGamesCount} Left to Play)
+		{#if $showPickWarning}
+			<Tooltip tooltipTop="-500%">
+				<svelte:fragment slot="text">You missed a pick! Click here to find it!</svelte:fragment>
+				<div on:click={goToMissedPick} slot="content">
+					<Fa icon={faExclamationCircle} />
+				</div>
+			</Tooltip>
+		{/if}
 	{/if}
 </div>
 

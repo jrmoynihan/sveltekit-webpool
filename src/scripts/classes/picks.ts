@@ -9,7 +9,7 @@ export class WeeklyPickDoc {
 	week: number;
 	year: number;
 	timestamp: Timestamp;
-	game: Game;
+	// game: Game;
 	type: string;
 	isCorrect: boolean;
 	constructor({ ...args }) {
@@ -20,7 +20,7 @@ export class WeeklyPickDoc {
 			(this.week = args.week);
 		this.year = args.year;
 		this.timestamp = args.timestamp;
-		this.game = args.game;
+		// this.game = args.game;
 		this.type = args.type;
 		this.isCorrect = args.isCorrect;
 	}

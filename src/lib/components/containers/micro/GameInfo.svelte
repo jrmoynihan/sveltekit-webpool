@@ -2,18 +2,7 @@
 	import type { Team } from '$scripts/classes/team';
 	import { showIDs, showSpreads } from '$scripts/store';
 	import type { Timestamp } from '@firebase/firestore';
-	import {
-		faArrowCircleLeft,
-		faArrowCircleRight,
-		faCheckCircle,
-		faFootballBall,
-		faLock,
-		faTimesCircle
-	} from '@fortawesome/free-solid-svg-icons';
-	import Fa from 'svelte-fa';
-	import Tooltip from '../Tooltip.svelte';
 	import DateTimeOrDownDistance from './DateTimeOrDownDistance.svelte';
-	import GameTime from './GameTime.svelte';
 	import ScoresAts from './ScoresATS.svelte';
 	import SpreadOrPossession from './SpreadOrPossession.svelte';
 	import StatusInfo from './StatusInfo.svelte';
@@ -39,10 +28,10 @@
 	<DateTimeOrDownDistance {timestamp} {promiseStatus} {promiseSituation} />
 	<input id="{id}-none" type="radio" bind:group={selectedTeam} value="" {disabled} />
 	{#if $showIDs}
-		<div style="grid-area:dateTimeOrDownDistance">{id}</div>
+		<div style="grid-area:IDs">{id}</div>
 	{/if}
 	{#if $showSpreads}
-		<div style="grid-area:spreadOrPossession">{spread}</div>
+		<div style="grid-area:spreads">{spread}</div>
 	{/if}
 </label>
 
@@ -57,38 +46,11 @@
 			'statusInfo'
 			'scoresATS'
 			'spreadOrPossession'
-			'dateTimeOrDownDistance';
+			'dateTimeOrDownDistance'
+			'spreads'
+			'IDs';
 	}
 	input {
-		visibility: hidden;
-		height: 0;
-		width: 0;
-		display: none;
+		@include hiddenRadio;
 	}
-	// .grid {
-	// 	@include gridAndGap;
-	// 	justify-items: center;
-	// }
-	// span {
-	// 	padding: 0.3rem 0.5rem;
-	// 	align-self: center;
-	// }
-	// .status {
-	// 	grid-template-columns: minmax(0, 1fr) minmax(0, auto) minmax(0, 1fr);
-	// }
-	// .score {
-	// 	font-weight: bold;
-	// 	font-size: clamp(1rem, 5vw, 3rem);
-	// 	min-width: 2ch;
-	// }
-	// .info {
-	// 	width: auto;
-	// 	justify-self: center;
-	// }
-	// .dayShadow:hover {
-	// 	@include nightShadow;
-	// }
-	// .nightShadow:focus {
-	// 	@include nightShadow;
-	// }
 </style>

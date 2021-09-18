@@ -2,7 +2,7 @@
 	import { policeCarLight } from '$scripts/classes/constants';
 	import type { Team } from '$scripts/classes/team';
 	import { convertToHttps, getSituation, getStatus, isBeforeGameTime } from '$scripts/functions';
-	import { windowWidth } from '$scripts/store';
+	import { overrideDisabled, windowWidth } from '$scripts/store';
 	import type { Timestamp } from '@firebase/firestore';
 	import { onDestroy, onMount } from 'svelte';
 	import GameInfo from './micro/GameInfo.svelte';
@@ -26,6 +26,10 @@
 	let beforeGameTime = false;
 	let element: HTMLElement;
 	let showGameContainer = false;
+
+	$: if ($overrideDisabled) {
+		disabled = false;
+	}
 
 	// TODO move this to a web worker to avoid slowdown?
 	const getScores = async (): Promise<{ homeScoreData: any; awayScoreData: any }> => {
@@ -55,8 +59,7 @@
 		}
 	};
 	const checkGameTime = async () => {
-		const now = new Date().getTime();
-		beforeGameTime = await isBeforeGameTime(timestamp, now);
+		beforeGameTime = await isBeforeGameTime(timestamp);
 		if (beforeGameTime) {
 			disabled = false;
 			// myLog(`game ${id} hasn't started`);
@@ -122,39 +125,40 @@
 
 <div bind:this={element} id="game-{index}">
 	<TeamSelectRadioInput
-		homeOrAwayTeam={awayTeam}
-		{id}
-		{selectedTeam}
-		{disabled}
-		{index}
-		{currentPickCount}
-		{totalGameCount}
-		{element}
-		{showGameContainer}
-		{showTeamNameImages}
+		bind:homeOrAwayTeam={awayTeam}
+		bind:id
+		bind:selectedTeam
+		bind:currentPickCount
+		bind:totalGameCount
+		bind:element
+		bind:showGameContainer
+		bind:showTeamNameImages
+		bind:index
+		bind:disabled
 	/>
 	<GameInfo
-		{promiseScores}
-		{promiseStatus}
-		{promiseSituation}
-		{selectedTeam}
-		{timestamp}
-		{homeTeam}
-		{awayTeam}
-		{spread}
-		{disabled}
+		bind:id
+		bind:selectedTeam
+		bind:timestamp
+		bind:homeTeam
+		bind:awayTeam
+		bind:spread
+		bind:disabled
+		bind:promiseScores
+		bind:promiseStatus
+		bind:promiseSituation
 	/>
 	<TeamSelectRadioInput
-		homeOrAwayTeam={homeTeam}
-		{id}
-		{selectedTeam}
-		{disabled}
-		{index}
-		{currentPickCount}
-		{totalGameCount}
-		{element}
-		{showGameContainer}
-		{showTeamNameImages}
+		bind:homeOrAwayTeam={homeTeam}
+		bind:id
+		bind:selectedTeam
+		bind:currentPickCount
+		bind:totalGameCount
+		bind:element
+		bind:showGameContainer
+		bind:showTeamNameImages
+		bind:index
+		bind:disabled
 	/>
 </div>
 

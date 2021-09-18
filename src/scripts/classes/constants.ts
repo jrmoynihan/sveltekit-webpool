@@ -10,6 +10,10 @@ export enum Division {
 	East = 'East',
 	West = 'West'
 }
+export enum HomeOrAway {
+	Home = 'Home',
+	Away = 'Away'
+}
 export const conferences: Conference[] = [Conference.AFC, Conference.NFC];
 export const divisions: Division[] = [Division.East, Division.West, Division.North, Division.South];
 export const startingYear = 2020;
