@@ -603,6 +603,7 @@
 									bind:totalGameCount
 									bind:selectedTeam={pick.pick}
 									bind:currentPickCount
+									bind:upcomingGamesCount
 									{gridColumns}
 									id={game.id}
 									index={i}

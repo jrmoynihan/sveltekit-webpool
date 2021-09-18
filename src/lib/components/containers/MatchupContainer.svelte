@@ -18,6 +18,7 @@
 	export let competitions = [];
 	export let currentPickCount = 0;
 	export let totalGameCount = 0;
+	export let upcomingGamesCount = 0;
 	export let gridColumns = 1;
 	let layoutBreakpoint = 620;
 	let showTeamNameImages = false;
@@ -130,6 +131,7 @@
 		bind:selectedTeam
 		bind:currentPickCount
 		bind:totalGameCount
+		bind:upcomingGamesCount
 		bind:element
 		bind:showGameContainer
 		bind:showTeamNameImages
@@ -154,6 +156,7 @@
 		bind:selectedTeam
 		bind:currentPickCount
 		bind:totalGameCount
+		bind:upcomingGamesCount
 		bind:element
 		bind:showGameContainer
 		bind:showTeamNameImages

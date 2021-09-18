@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { WeeklyPickDoc } from '$scripts/classes/picks';
-	import { scrollToNextGame } from '$scripts/functions';
+	import { isBeforeGameTime, scrollToNextGame } from '$scripts/functions';
 	import { showPickWarning } from '$scripts/store';
 	import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
@@ -16,7 +16,9 @@
 	const findMissedPick = async () => {
 		for (const [i, value] of currentPicks.entries()) {
 			if (value.pick === '') {
-				return i;
+				if (await isBeforeGameTime(value.timestamp)) {
+					return i;
+				}
 			}
 		}
 	};

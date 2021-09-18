@@ -75,21 +75,21 @@ export const setPreSeasonWeeks = () => {
 export const scrollToNextGame = (
 	index: number,
 	currentPickCount: number,
-	totalGameCount: number
+	upcomingGameCount: number
 ) => {
 	if (browser) {
 		const element = document.getElementById(`game-${index + 1}`);
 
 		// NOTE: The minus 1 accounts for this function running before the parent passes in the newly updated currentPickCount
 		// I.E. -- When making the 16th pick, currentPickCount will still be 15
-		if (currentPickCount < totalGameCount - 1 && element) {
+		if (currentPickCount < upcomingGameCount - 1 && element) {
 			const yOffset = -200;
 			const y = element.getBoundingClientRect().top + window.scrollY + yOffset;
 			scrollToTopSmooth(y);
 			showPickWarning.set(false);
 		} else {
 			setTimeout(() => {
-				if (currentPickCount < totalGameCount - 1) {
+				if (currentPickCount < upcomingGameCount - 1) {
 					showPickWarning.set(true);
 				}
 			}, 1000);
