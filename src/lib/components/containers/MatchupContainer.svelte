@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { policeCarLight } from '$scripts/classes/constants';
-	import type { Team } from '$scripts/classes/team';
 	import { convertToHttps, getSituation, getStatus, isBeforeGameTime } from '$scripts/functions';
 	import { overrideDisabled, windowWidth } from '$scripts/store';
 	import type { Timestamp } from '@firebase/firestore';
+	import type { Team } from '$scripts/classes/team';
+	import type { WeeklyPickDoc } from '$scripts/classes/picks';
 	import { onDestroy, onMount } from 'svelte';
 	import GameInfo from './micro/GameInfo.svelte';
 	import TeamSelectRadioInput from './micro/TeamSelectRadioInput.svelte';
@@ -16,9 +17,10 @@
 	export let timestamp: Timestamp;
 	export let selectedTeam: string = '';
 	export let competitions = [];
-	export let currentPickCount = 0;
-	export let totalGameCount = 0;
-	export let upcomingGamesCount = 0;
+	export let currentPicks: WeeklyPickDoc[] = [];
+	// export let currentPickCount = 0;
+	// export let totalGameCount = 0;
+	// export let upcomingGamesCount = 0;
 	export let gridColumns = 1;
 	let layoutBreakpoint = 620;
 	let showTeamNameImages = false;
@@ -129,13 +131,10 @@
 		bind:homeOrAwayTeam={awayTeam}
 		bind:id
 		bind:selectedTeam
-		bind:currentPickCount
-		bind:totalGameCount
-		bind:upcomingGamesCount
+		bind:currentPicks
 		bind:element
 		bind:showGameContainer
 		bind:showTeamNameImages
-		bind:index
 		bind:disabled
 	/>
 	<GameInfo
@@ -154,13 +153,10 @@
 		bind:homeOrAwayTeam={homeTeam}
 		bind:id
 		bind:selectedTeam
-		bind:currentPickCount
-		bind:totalGameCount
-		bind:upcomingGamesCount
+		bind:currentPicks
 		bind:element
 		bind:showGameContainer
 		bind:showTeamNameImages
-		bind:index
 		bind:disabled
 	/>
 </div>

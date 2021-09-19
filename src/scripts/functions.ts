@@ -1,6 +1,7 @@
 import { browser } from '$app/env';
 import type { Timestamp } from '@firebase/firestore';
 import { myLog } from './classes/constants';
+import type { WeeklyPickDoc } from './classes/picks';
 import { showPickWarning } from './store';
 
 export const isPropertyOf = <T>(
@@ -170,5 +171,23 @@ export const getConsensusSpread = async (gameID: string) => {
 		return consensus;
 	} catch (error) {
 		console.error(error);
+	}
+};
+export const findMissedPick = async (currentPicks: WeeklyPickDoc[]) => {
+	for (const [i, value] of currentPicks.entries()) {
+		if (value.pick === '') {
+			if (await isBeforeGameTime(value.timestamp)) {
+				return i;
+			}
+		}
+	}
+};
+export const goToMissedPick = async (currentPicks: WeeklyPickDoc[]) => {
+	const pickIndex = await findMissedPick(currentPicks);
+	console.log(pickIndex);
+	if (pickIndex) {
+		scrollToNextGame(pickIndex - 1, 0, 2); // Force it to run the scroll to game instead of scroll to top;
+	} else {
+		scrollToTopSmooth();
 	}
 };

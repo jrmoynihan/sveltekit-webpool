@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { WeeklyPickDoc } from '$scripts/classes/picks';
-	import { isBeforeGameTime, scrollToNextGame } from '$scripts/functions';
+	import { goToMissedPick, isBeforeGameTime, scrollToNextGame } from '$scripts/functions';
 	import { showPickWarning } from '$scripts/store';
 	import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
@@ -12,20 +12,6 @@
 	export let totalGameCount: number = 0;
 	export let upcomingGamesCount: number = 0;
 	export let currentPicks: WeeklyPickDoc[] = [];
-
-	const findMissedPick = async () => {
-		for (const [i, value] of currentPicks.entries()) {
-			if (value.pick === '') {
-				if (await isBeforeGameTime(value.timestamp)) {
-					return i;
-				}
-			}
-		}
-	};
-	const goToMissedPick = async () => {
-		const pickIndex = await findMissedPick();
-		scrollToNextGame(pickIndex - 1, 0, 2); // Force it to run the scroll to game instead of scroll to top;
-	};
 </script>
 
 <div
@@ -39,7 +25,7 @@
 		{#if $showPickWarning}
 			<Tooltip tooltipTop="-500%">
 				<svelte:fragment slot="text">You missed a pick! Click here to find it!</svelte:fragment>
-				<div on:click={goToMissedPick} slot="content">
+				<div on:click={() => goToMissedPick(currentPicks)} slot="content">
 					<Fa icon={faExclamationCircle} />
 				</div>
 			</Tooltip>
@@ -49,7 +35,7 @@
 		{#if $showPickWarning}
 			<Tooltip tooltipTop="-500%">
 				<svelte:fragment slot="text">You missed a pick! Click here to find it!</svelte:fragment>
-				<div on:click={goToMissedPick} slot="content">
+				<div on:click={() => goToMissedPick(currentPicks)} slot="content">
 					<Fa icon={faExclamationCircle} />
 				</div>
 			</Tooltip>

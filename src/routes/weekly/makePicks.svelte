@@ -600,10 +600,8 @@
 								out:fly={{ x: 100, duration: 300 }}
 							>
 								<MatchupContainer
-									bind:totalGameCount
 									bind:selectedTeam={pick.pick}
-									bind:currentPickCount
-									bind:upcomingGamesCount
+									bind:currentPicks
 									{gridColumns}
 									id={game.id}
 									index={i}
