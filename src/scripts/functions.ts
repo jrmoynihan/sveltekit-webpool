@@ -3,6 +3,8 @@ import type { Timestamp } from '@firebase/firestore';
 import { myLog } from './classes/constants';
 import type { WeeklyPickDoc } from './classes/picks';
 import { showPickWarning } from './store';
+import { getDocs, query, where } from '@firebase/firestore';
+import { scheduleCollection } from './collections';
 
 export const isPropertyOf = <T>(
 	varToBeChecked: unknown,
@@ -190,4 +192,16 @@ export const goToMissedPick = async (currentPicks: WeeklyPickDoc[]) => {
 	} else {
 		scrollToTopSmooth();
 	}
+};
+
+// Score all picks for a given week
+export const scorePicks = async (selectedWeek: number) => {
+	const year = new Date().getFullYear();
+	const q = query(
+		scheduleCollection,
+		where('week', '==', selectedWeek),
+		where('year', '==', year),
+		where('type', '==', 'Regular Season')
+	);
+	const games = await getDocs(q);
 };
