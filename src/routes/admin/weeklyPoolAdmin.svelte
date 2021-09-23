@@ -15,6 +15,13 @@
 	import { getConsensusSpread } from '$scripts/functions';
 	import WeekSelect from '$lib/components/selects/WeekSelect.svelte';
 	import YearSelect from '$lib/components/selects/YearSelect.svelte';
+	import {
+		removeScoredPicksForWeek,
+		removeWinnersFromGames,
+		scorePicksForWeek,
+		updateTeamsOnScheduleDocs
+	} from '$scripts/scorePicks';
+	import { resetTeamRecords } from '$scripts/teams';
 
 	let weeklyUsers: WebUser[] = [];
 	let weeklyGames: Game[] = [];
@@ -88,48 +95,60 @@
 		}
 	};
 
-	let userPromise = getWeeklyUsers();
-	let gamePromise = getAllGames();
-	let maxWeekPromise = getMaxGameWeek();
+	let userPromise: Promise<WebUser[]>;
+	let gamePromise: Promise<Game[]>;
+	let maxWeekPromise: Promise<number>;
 
 	const createWeeklyPicksForAllUsers = async () => {
 		try {
-			weeklyUsers.forEach((user) => {
-				createWeeklyPicksForUser(user, false);
-			});
-			const title = 'Created Weekly Picks!';
-			const msg = 'Pick documents were created for every game, for every Weekly pool user.';
-			defaultToast({ title, msg });
-			myLog(msg, 'createWeeklyPicksForUser');
+			if (weeklyUsers.length > 0) {
+				const users = weeklyUsers;
+				users.forEach((user) => {
+					createWeeklyPicksForUser(user, false);
+				});
+				const title = 'Created Weekly Picks!';
+				const msg = 'Pick documents were created for every game, for every Weekly pool user.';
+				defaultToast({ title, msg });
+				myLog(msg, 'createWeeklyPicksForUser');
+			} else {
+				errorToast('No users loaded! Please hit the sync button.');
+			}
 		} catch (error) {
 			const msg = `Encountered an error while trying to create all users' picks.  Check the console for more info. ${error}`;
 			errorToast(msg);
 			myError('createWeeklyPicksForAllUsers', error, msg);
 		}
 	};
+
+	//TODO: Move to a triggered Cloud Function when a user joins the Weekly pool
 	const createWeeklyPicksForUser = async (user: WebUser, logAll: boolean = true) => {
 		try {
-			weeklyGames.forEach((game) => {
-				const newWeeklyPickRef = doc(weeklyPicksCollection);
-				const pickDoc = new WeeklyPickDoc({
-					docRef: newWeeklyPickRef,
-					id: game.id,
-					pick: '',
-					uid: user.id,
-					week: game.week,
-					year: game.timestamp.toDate().getFullYear(),
-					timestamp: game.timestamp,
-					game: { ...game },
-					type: game.type,
-					isCorrect: null
+			if (weeklyGames.length > 0) {
+				const games = weeklyGames;
+				games.forEach((game) => {
+					const newWeeklyPickRef = doc(weeklyPicksCollection);
+					const pickDoc = new WeeklyPickDoc({
+						docRef: newWeeklyPickRef,
+						id: game.id,
+						pick: '',
+						uid: user.id,
+						week: game.week,
+						year: game.timestamp.toDate().getFullYear(),
+						timestamp: game.timestamp,
+						// game: { ...game },
+						type: game.type,
+						isCorrect: null
+					});
+					setDoc(newWeeklyPickRef.withConverter(weeklyPickConverter), pickDoc);
 				});
-				setDoc(newWeeklyPickRef.withConverter(weeklyPickConverter), pickDoc);
-			});
-			const title = 'Created Weekly Picks!';
-			const msg = `Pick documents were created for every game for ${user.name} (${user.nickname})`;
-			if (logAll) {
-				defaultToast({ title, msg });
-				myLog(msg, 'createWeeklyPicksForUser');
+				const title = 'Created Weekly Picks!';
+				const msg = `Pick documents were created for every game for ${user.name} (${user.nickname})`;
+				if (logAll) {
+					defaultToast({ title, msg });
+					myLog(msg, 'createWeeklyPicksForUser');
+				}
+			} else {
+				throw new Error();
 			}
 		} catch (error) {
 			const msg = `Encountered an error while trying to delete ${user.name}'s picks.  Check the console for more info. ${error}`;
@@ -260,45 +279,65 @@
 <PageTitle>Weekly Pool Admin</PageTitle>
 <div class="grid">
 	<button
-		on:click={() => {
+		on:click={async () => {
 			userPromise = getWeeklyUsers();
 			gamePromise = getAllGames();
+			maxWeekPromise = getMaxGameWeek();
 		}}
 	>
 		<Fa icon={faSync} />
 	</button>
 	<button on:click={createWeeklyPicksForAllUsers}>Create Picks for All Users</button>
-	<button on:click={deleteWeeklyPicksForAllUsers}>Delete All Picks for All Users</button>
+	<button class="deletion" on:click={deleteWeeklyPicksForAllUsers}
+		>Delete All Picks for All Users</button
+	>
 
 	<WeekSelect bind:selectedWeek />
 	<YearSelect bind:selectedYear />
 	<button on:click={() => updateGameSpreads(selectedWeek, selectedYear)}>Update Week Spreads</button
 	>
+	<button on:click={() => scorePicksForWeek(selectedWeek, selectedYear)}
+		>Score Picks For Week</button
+	>
+	<button class="deletion" on:click={() => removeScoredPicksForWeek(selectedWeek, selectedYear)}
+		>Remove Scored Picks For Week</button
+	>
+	<button class="deletion" on:click={() => removeWinnersFromGames(selectedWeek, selectedYear)}
+		>Remove Game Winners For Week</button
+	>
+	<button class="deletion" on:click={resetTeamRecords}>Reset Team Records</button>
+	<button on:click={() => updateTeamsOnScheduleDocs(selectedYear)}
+		>Update Team Records on Scheduled Games</button
+	>
 </div>
 
-{#await userPromise}
-	<LoadingSpinner msg="Loading users..." />
-{:then weeklyUsers}
-	<AccordionDetails expandTitle="Weekly Users">
-		<svelte:fragment slot="content">
-			{#each weeklyUsers as user}
-				<p>{user.name} -- weekly: {user.weekly}</p>
-			{/each}
-		</svelte:fragment>
-	</AccordionDetails>
-{/await}
+{#if userPromise}
+	{#await userPromise}
+		<LoadingSpinner msg="Loading users..." />
+	{:then weeklyUsers}
+		<AccordionDetails expandTitle="Weekly Users">
+			<svelte:fragment slot="content">
+				{#each weeklyUsers as user}
+					<p>{user.name} -- weekly: {user.weekly}</p>
+				{/each}
+			</svelte:fragment>
+		</AccordionDetails>
+	{/await}
+{/if}
 
-{#await gamePromise}
-	<LoadingSpinner msg="Loading games..." />
-{:then games}
-	<AccordionDetails expandTitle="Weekly Games">
-		<svelte:fragment slot="content">
-			{#each games as game}
-				<p>{game.name}</p>
-			{/each}
-		</svelte:fragment>
-	</AccordionDetails>
-{/await}
+{#if gamePromise}
+	{#await gamePromise}
+		<LoadingSpinner msg="Loading games..." />
+	{:then games}
+		<AccordionDetails expandTitle="Weekly Games">
+			<svelte:fragment slot="content">
+				{#each games as game}
+					<p>{game.name}</p>
+				{/each}
+			</svelte:fragment>
+		</AccordionDetails>
+	{/await}
+{/if}
 
 <style lang="scss">
 	.grid {
@@ -307,5 +346,9 @@
 	}
 	button {
 		@include styledButton;
+	}
+	.deletion {
+		background: darkred;
+		border: 4px solid firebrick;
 	}
 </style>

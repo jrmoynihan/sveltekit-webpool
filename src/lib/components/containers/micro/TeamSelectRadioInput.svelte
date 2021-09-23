@@ -1,8 +1,7 @@
 <script lang="ts">
 	import type { WeeklyPickDoc } from '$scripts/classes/picks';
-
 	import type { Team } from '$scripts/classes/team';
-	import { goToMissedPick, scrollToNextGame } from '$scripts/functions';
+	import { goToMissedPick } from '$scripts/functions';
 	import { useDarkTheme } from '$scripts/store';
 
 	import IntersectionObserver from 'svelte-intersection-observer';
@@ -14,11 +13,7 @@
 	export let homeOrAwayTeam: Team;
 	export let selectedTeam: string;
 	export let disabled: boolean;
-	// export let index: number;
 	export let currentPicks: WeeklyPickDoc[] = [];
-	// export let currentPickCount: number;
-	// export let totalGameCount: number;
-	// export let upcomingGamesCount: number;
 	export let element: HTMLElement;
 	export let showGameContainer: boolean;
 	export let showTeamNameImages: boolean;

@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { policeCarLight } from '$scripts/classes/constants';
-	import { convertToHttps, getSituation, getStatus, isBeforeGameTime } from '$scripts/functions';
+	import { getScores, getSituation, getStatus, isBeforeGameTime } from '$scripts/functions';
 	import { overrideDisabled, windowWidth } from '$scripts/store';
 	import type { Timestamp } from '@firebase/firestore';
 	import type { Team } from '$scripts/classes/team';
@@ -18,9 +17,6 @@
 	export let selectedTeam: string = '';
 	export let competitions = [];
 	export let currentPicks: WeeklyPickDoc[] = [];
-	// export let currentPickCount = 0;
-	// export let totalGameCount = 0;
-	// export let upcomingGamesCount = 0;
 	export let gridColumns = 1;
 	let layoutBreakpoint = 620;
 	let showTeamNameImages = false;
@@ -34,33 +30,6 @@
 		disabled = false;
 	}
 
-	// TODO move this to a web worker to avoid slowdown?
-	const getScores = async (): Promise<{ homeScoreData: any; awayScoreData: any }> => {
-		try {
-			let homeScoreData: any;
-			let awayScoreData: any;
-			const httpHomeEndpoint = competitions[0].competitors[0].score.$ref;
-			const httpAwayEndpoint = competitions[0].competitors[1].score.$ref;
-			const httpsHomeEndpoint = await convertToHttps(httpHomeEndpoint);
-			const httpsAwayEndpoint = await convertToHttps(httpAwayEndpoint);
-			const homeScoreResponse = await fetch(httpsHomeEndpoint);
-			const awayScoreResponse = await fetch(httpsAwayEndpoint);
-
-			if (homeScoreResponse.ok) {
-				homeScoreData = await homeScoreResponse.json();
-			}
-			if (awayScoreResponse.ok) {
-				awayScoreData = await awayScoreResponse.json();
-			}
-			if (homeScoreData !== undefined && awayScoreData !== undefined) {
-				return { homeScoreData, awayScoreData };
-			} else {
-				throw `error getting scores`;
-			}
-		} catch (error) {
-			console.error(`%c${policeCarLight} error getting scores!`);
-		}
-	};
 	const checkGameTime = async () => {
 		beforeGameTime = await isBeforeGameTime(timestamp);
 		if (beforeGameTime) {
@@ -74,7 +43,7 @@
 	};
 
 	let promiseStatus = getStatus(competitions);
-	let promiseScores = getScores();
+	let promiseScores = getScores(competitions);
 	let promiseSituation = getSituation(competitions);
 	let statusInterval: NodeJS.Timer;
 	let recheckGameTimeInterval: NodeJS.Timer;
@@ -100,8 +69,8 @@
 
 	onMount(async () => {
 		checkGameTime();
-		getScores();
 		if (competitions) {
+			getScores(competitions);
 			getStatus(competitions);
 			getSituation(competitions);
 		}
@@ -111,8 +80,8 @@
 
 		// Every 60 seconds, update the game status if the game has started, but hasn't ended
 		statusInterval = setInterval(() => {
-			promiseScores = getScores();
 			if (competitions) {
+				promiseScores = getScores(competitions);
 				promiseStatus = getStatus(competitions);
 				promiseSituation = getSituation(competitions);
 			}

@@ -21,6 +21,7 @@ export const seasonTypes: SeasonType[] = [
 	{ id: 1, text: 'Pre-Season' },
 	{ id: 2, text: 'Regular Season' }
 ];
+export const everyoneWinsResult = 'push';
 
 // CSS emoji for console logging (https://unicode.org/emoji/charts/full-emoji-list.html)
 export const okHand = String.fromCodePoint(0x1f44c);

@@ -23,6 +23,8 @@ export class Game {
 	type: string;
 	homeTeam: Team;
 	awayTeam: Team;
+	winner: string;
+	ATSwinner: string;
 
 	constructor({ ...args }) {
 		this.docRef = args.docRef;
@@ -46,5 +48,7 @@ export class Game {
 		this.type = args.type;
 		this.homeTeam = args.homeTeam;
 		this.awayTeam = args.awayTeam;
+		this.winner = args.winner;
+		this.ATSwinner = args.ATSwinner;
 	}
 }

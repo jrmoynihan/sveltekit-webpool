@@ -1,10 +1,8 @@
 import { browser } from '$app/env';
 import type { Timestamp } from '@firebase/firestore';
-import { myLog } from './classes/constants';
+import { myLog, policeCarLight } from './classes/constants';
 import type { WeeklyPickDoc } from './classes/picks';
 import { showPickWarning } from './store';
-import { getDocs, query, where } from '@firebase/firestore';
-import { scheduleCollection } from './collections';
 
 export const isPropertyOf = <T>(
 	varToBeChecked: unknown,
@@ -154,6 +152,35 @@ export const getSituation = async (
 	return situationData;
 };
 
+export const getScores = async (
+	competitions: { competitors: { score: { $ref: any } }[] }[]
+): Promise<{ homeScoreData: any; awayScoreData: any }> => {
+	try {
+		let homeScoreData: any;
+		let awayScoreData: any;
+		const httpHomeEndpoint = competitions[0].competitors[0].score.$ref;
+		const httpAwayEndpoint = competitions[0].competitors[1].score.$ref;
+		const httpsHomeEndpoint = await convertToHttps(httpHomeEndpoint);
+		const httpsAwayEndpoint = await convertToHttps(httpAwayEndpoint);
+		const homeScoreResponse = await fetch(httpsHomeEndpoint);
+		const awayScoreResponse = await fetch(httpsAwayEndpoint);
+
+		if (homeScoreResponse.ok) {
+			homeScoreData = await homeScoreResponse.json();
+		}
+		if (awayScoreResponse.ok) {
+			awayScoreData = await awayScoreResponse.json();
+		}
+		if (homeScoreData !== undefined && awayScoreData !== undefined) {
+			return { homeScoreData, awayScoreData };
+		} else {
+			throw `error getting scores`;
+		}
+	} catch (error) {
+		console.error(`%c${policeCarLight} error getting scores!`);
+	}
+};
+
 export const getConsensusSpread = async (gameID: string) => {
 	try {
 		const response = await fetch(
@@ -192,16 +219,4 @@ export const goToMissedPick = async (currentPicks: WeeklyPickDoc[]) => {
 	} else {
 		scrollToTopSmooth();
 	}
-};
-
-// Score all picks for a given week
-export const scorePicks = async (selectedWeek: number) => {
-	const year = new Date().getFullYear();
-	const q = query(
-		scheduleCollection,
-		where('week', '==', selectedWeek),
-		where('year', '==', year),
-		where('type', '==', 'Regular Season')
-	);
-	const games = await getDocs(q);
 };

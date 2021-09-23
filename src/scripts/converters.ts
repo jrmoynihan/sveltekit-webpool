@@ -19,7 +19,7 @@ export const userConverter = {
 	}
 };
 export const teamConverter = {
-	toFirestore: (team: Partial<Team>): Partial<Team> => {
+	toFirestore: (team: Team): Team => {
 		return { ...team };
 	},
 	fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): Team => {

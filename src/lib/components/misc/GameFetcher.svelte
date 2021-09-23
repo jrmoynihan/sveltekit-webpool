@@ -3,7 +3,7 @@
 	import { gameConverter } from '$scripts/converters';
 	import { firestoreDB } from '$scripts/firebaseInit';
 	import { scheduleCollection } from '$scripts/collections';
-	import allTeams from '$scripts/teams';
+	import { allTeams } from '$scripts/teams';
 	import { deleteDoc, doc, getDocs, query, setDoc, Timestamp, where } from '@firebase/firestore';
 	import AccordionDetails from '../containers/AccordionDetails.svelte';
 	import WeekSelect from '../selects/WeekSelect.svelte';

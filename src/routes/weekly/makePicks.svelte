@@ -65,7 +65,7 @@
 	import type { Game } from '$scripts/classes/game';
 
 	let editingToast = false;
-	let selectedWeek = 2;
+	let selectedWeek = 3;
 	let selectedYear = new Date().getFullYear();
 	let selectedSeasonType = seasonTypes[1];
 	let currentPicks: WeeklyPickDoc[] = [];
@@ -152,6 +152,7 @@
 
 	const getPicks = async (selectedWeek: number) => {
 		try {
+			isCorrectCount = 0;
 			const uid = await getUserId();
 			const picks: WeeklyPickDoc[] = [];
 			const q = query(
@@ -531,6 +532,20 @@
 				<p>{currentPickCount}</p>
 				<button on:click={errorToastIt}>Error Toast!</button>
 			</div>
+			{#await gamesPromise}
+				Loading games...
+			{:then games}
+				{#each games as game (game.id)}
+					<p>
+						{game.awayTeam.abbreviation}: {game.awayTeam.wins}-{game.awayTeam.losses}-{game.awayTeam
+							.ties}
+					</p>
+					<p>
+						{game.homeTeam.abbreviation}: {game.homeTeam.wins}-{game.homeTeam.losses}-{game.homeTeam
+							.ties}
+					</p>
+				{/each}
+			{/await}
 		</DevNotes>
 	</div>
 	<div class="pick-status fixed grid {$largerThanMobile ? 'bottom-left' : 'bottom-right'}">
@@ -547,14 +562,14 @@
 					bind:upcomingGamesCount
 				/>
 			{/key}
-			{#if currentPickCount >= upcomingGamesCount && upcomingGamesCount !== 0}
+			{#if (currentPickCount >= upcomingGamesCount && upcomingGamesCount !== 0) || $overrideDisabled}
 				<SubmitPicks
 					on:click={submitPicks}
 					ableToTab={tiebreaker >= 10 ? 0 : -1}
 					pulse={tiebreaker >= 10}
 					invisible={tiebreaker < 10 || tiebreaker === undefined}
 				/>
-				{#if upcomingGamesCount > 0}
+				{#if upcomingGamesCount > 0 || $overrideDisabled}
 					<TiebreakerInput bind:tiebreaker />
 				{/if}
 			{:else if upcomingGamesCount !== 0}
