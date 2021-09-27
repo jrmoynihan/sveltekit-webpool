@@ -26,8 +26,12 @@
 	let element: HTMLElement;
 	let showGameContainer = false;
 
-	$: if ($overrideDisabled) {
-		disabled = false;
+	$: {
+		if ($overrideDisabled) {
+			disabled = false;
+		} else {
+			checkGameTime();
+		}
 	}
 
 	const checkGameTime = async () => {

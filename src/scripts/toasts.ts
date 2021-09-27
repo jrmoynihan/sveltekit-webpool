@@ -1,5 +1,6 @@
 import { toast } from '@zerodevx/svelte-toast';
 import SeenToast from '$lib/components/switches/SeenToast.svelte';
+import { policeCarLight } from './classes/constants';
 
 export const defaultToast = ({
 	title = '',
@@ -42,7 +43,7 @@ export const defaultToast = ({
 		'--toastProgressBorderRadius': `${toastProgressBorderRadius}`
 	};
 	if (useSeenToastComponent) {
-		toast.push({
+		toast.push(msg, {
 			component: {
 				src: SeenToast,
 				props: { msgMarkup: msgBuilder, localStorageKey: localStorageKey }
@@ -68,3 +69,13 @@ export const errorToast = (msg: string) =>
 		toastColor: 'white',
 		toastBackground: 'darkred'
 	});
+export const toastIt = (title: string, msg: string) =>
+	defaultToast({
+		title,
+		msg,
+		duration: 200_000,
+		textFontWeight: '600',
+		useSeenToastComponent: true
+	});
+export const errorToastIt = () =>
+	errorToast(`${policeCarLight} This is a test error. Try to avoid the real thing.`);

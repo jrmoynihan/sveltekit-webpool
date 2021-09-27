@@ -5,10 +5,11 @@ import { RuleCategory } from '$scripts/classes/rules';
 import { Game } from './classes/game';
 import { WeeklyPickDoc } from './classes/picks';
 import { WeeklyTiebreaker } from './classes/tiebreaker';
+import { WeekBoundDoc } from './classes/weekBound';
 
 export const userConverter = {
 	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-	toFirestore: (user: Partial<WebUser>): Partial<WebUser> => {
+	toFirestore: (user: WebUser): WebUser => {
 		return { ...user };
 	},
 	fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): WebUser => {
@@ -70,5 +71,16 @@ export const weeklyTiebreakerConverter = {
 		const docRef = snapshot.ref;
 		const data = snapshot.data();
 		return new WeeklyTiebreaker({ docRef, ...data });
+	}
+};
+export const weekBoundConverter = {
+	toFirestore: (bound: WeekBoundDoc): WeekBoundDoc => {
+		return { ...bound };
+	},
+	fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): WeekBoundDoc => {
+		const docRef = snapshot.ref;
+		const docID = snapshot.id;
+		const data = snapshot.data(options);
+		return new WeekBoundDoc({ docRef, docID, ...data });
 	}
 };

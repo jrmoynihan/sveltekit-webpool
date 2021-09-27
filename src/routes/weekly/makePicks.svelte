@@ -52,7 +52,7 @@
 		seasonTypes
 	} from '$scripts/classes/constants';
 	import { onMount } from 'svelte';
-	import { defaultToast, errorToast } from '$scripts/toasts';
+	import { defaultToast, errorToast, errorToastIt, toastIt } from '$scripts/toasts';
 	import SeasonTypeSelect from '$lib/components/selects/SeasonTypeSelect.svelte';
 	import YearSelect from '$lib/components/selects/YearSelect.svelte';
 	import TiebreakerInput from '$lib/components/inputs/TiebreakerInput.svelte';
@@ -63,7 +63,11 @@
 	import { fly } from 'svelte/transition';
 	import LoadingSpinner from '$lib/components/misc/LoadingSpinner.svelte';
 	import type { Game } from '$scripts/classes/game';
+	import { findCurrentWeekOfSchedule } from '$scripts/schedule';
 
+	let picksPromise: Promise<WeeklyPickDoc[]>;
+	let tiebreakerPromise: Promise<WeeklyTiebreaker>;
+	let gamesPromise: Promise<Game[]>;
 	let editingToast = false;
 	let selectedWeek = 3;
 	let selectedYear = new Date().getFullYear();
@@ -95,10 +99,10 @@
 		}
 	};
 
-	// $: $largerThanMobile, checkWidth();
+	$: $largerThanMobile, checkWidth();
 
 	onMount(async () => {
-		// checkWidth();
+		await getData();
 		const toastSeen = await getLocalStorageItem(toastSeenKey);
 		if (toastSeen !== 'true') {
 			const promisedToast = await getToast('Make Picks');
@@ -113,6 +117,10 @@
 			});
 		}
 	});
+	const getData = async () => {
+		selectedWeek = await findCurrentWeekOfSchedule();
+		await changedQuery();
+	};
 	const getToast = async (page: string) => {
 		try {
 			let msg: string;
@@ -138,17 +146,6 @@
 			myError('getUserId', error);
 		}
 	};
-
-	const toastIt = () =>
-		defaultToast({
-			title: toastTitle,
-			msg: toastMsg,
-			duration: 200_000,
-			textFontWeight: '600',
-			useSeenToastComponent: true
-		});
-	const errorToastIt = () =>
-		errorToast(`${policeCarLight} This is a test error. Try to avoid the real thing.`);
 
 	const getPicks = async (selectedWeek: number) => {
 		try {
@@ -334,20 +331,24 @@
 		currentPicks: WeeklyPickDoc[],
 		homeOrAway: HomeOrAway
 	): Promise<WeeklyPickDoc[]> => {
-		currentPicks.forEach(async (pickDoc) => {
-			const matchingGame = games.find((game) => game.id === pickDoc.id);
-			const ableToPick = await isBeforeGameTime(matchingGame.timestamp);
-			if (ableToPick) {
-				if (homeOrAway === 'Home') {
-					const homeTeam = matchingGame.homeTeam;
-					pickDoc.pick = homeTeam.abbreviation;
-				} else if (homeOrAway === 'Away') {
-					const awayTeam = matchingGame.awayTeam;
-					pickDoc.pick = awayTeam.abbreviation;
+		try {
+			currentPicks.forEach(async (pickDoc) => {
+				const matchingGame = games.find((game) => game.id === pickDoc.id);
+				const ableToPick = await isBeforeGameTime(matchingGame.timestamp);
+				if (ableToPick) {
+					if (homeOrAway === 'Home') {
+						const homeTeam = matchingGame.homeTeam;
+						pickDoc.pick = homeTeam.abbreviation;
+					} else if (homeOrAway === 'Away') {
+						const awayTeam = matchingGame.awayTeam;
+						pickDoc.pick = awayTeam.abbreviation;
+					}
 				}
-			}
-		});
-		return currentPicks;
+			});
+			return currentPicks;
+		} catch (error) {
+			myError('updatePicks', error);
+		}
 	};
 
 	const pickAllHome = async () => {
@@ -449,14 +450,14 @@
 		}
 	};
 
-	let picksPromise: Promise<WeeklyPickDoc[]> = getPicks(selectedWeek);
-	let tiebreakerPromise: Promise<WeeklyTiebreaker> = getTiebreaker(selectedWeek);
-	let gamesPromise: Promise<Game[]> = getGames(selectedWeek);
-
 	const changedQuery = async () => {
-		gamesPromise = getGames(selectedWeek);
-		picksPromise = getPicks(selectedWeek);
-		tiebreakerPromise = getTiebreaker(selectedWeek);
+		try {
+			gamesPromise = getGames(selectedWeek);
+			picksPromise = getPicks(selectedWeek);
+			tiebreakerPromise = getTiebreaker(selectedWeek);
+		} catch (error) {
+			myError('changedQuery', error);
+		}
 	};
 
 	$: {
@@ -485,7 +486,7 @@
 				<ToggleSwitch bind:checked={$showTimestamps} />
 				Show Spreads
 				<ToggleSwitch bind:checked={$showSpreads} />
-				Override Disabled Picks
+				Override Disabled Picks: {$overrideDisabled}
 				<ToggleSwitch bind:checked={$overrideDisabled} />
 				Edit Toast
 				<ToggleSwitch bind:checked={editingToast} />
@@ -518,7 +519,9 @@
 						style="max-width:100%;"
 					/>{widthMeasure}
 				</p>
-				<button style="color:black;" on:click={toastIt}>Toast It!</button>
+				<button style="color:black;" on:click={() => toastIt(toastTitle, toastMsg)}
+					>Toast It!</button
+				>
 				{#if editingToast}
 					<textarea style="resize:both;min-height:5rem;" contenteditable bind:value={toastMsg} />
 				{:else}
@@ -530,22 +533,25 @@
 				<p>{totalGameCount}</p>
 				Current Pick Count
 				<p>{currentPickCount}</p>
+				<!-- svelte-ignore missing-declaration -->
 				<button on:click={errorToastIt}>Error Toast!</button>
 			</div>
-			{#await gamesPromise}
-				Loading games...
-			{:then games}
-				{#each games as game (game.id)}
-					<p>
-						{game.awayTeam.abbreviation}: {game.awayTeam.wins}-{game.awayTeam.losses}-{game.awayTeam
-							.ties}
-					</p>
-					<p>
-						{game.homeTeam.abbreviation}: {game.homeTeam.wins}-{game.homeTeam.losses}-{game.homeTeam
-							.ties}
-					</p>
-				{/each}
-			{/await}
+			{#if gamesPromise}
+				{#await gamesPromise}
+					Loading games...
+				{:then games}
+					{#each games as game (game.id)}
+						<p>
+							{game.awayTeam.abbreviation}: {game.awayTeam.wins}-{game.awayTeam.losses}-{game
+								.awayTeam.ties}
+						</p>
+						<p>
+							{game.homeTeam.abbreviation}: {game.homeTeam.wins}-{game.homeTeam.losses}-{game
+								.homeTeam.ties}
+						</p>
+					{/each}
+				{/await}
+			{/if}
 		</DevNotes>
 	</div>
 	<div class="pick-status fixed grid {$largerThanMobile ? 'bottom-left' : 'bottom-right'}">
@@ -672,6 +678,7 @@
 	.game-container {
 		@include defaultContainerStyles;
 		// background-color: black(30%); // for use with background images
+		box-shadow: 0px 0px 15px 0px rgba(var(--mainValue-color), 0.5);
 		cursor: initial;
 		width: 100%;
 		height: 100%;

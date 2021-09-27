@@ -22,8 +22,8 @@
 		updateTeamsOnScheduleDocs
 	} from '$scripts/scorePicks';
 	import { resetTeamRecords } from '$scripts/teams';
+	import { findWeekDateTimeBounds } from '$scripts/schedule';
 
-	let weeklyUsers: WebUser[] = [];
 	let weeklyGames: Game[] = [];
 	let selectedWeek: number = 1;
 	let selectedYear: number = new Date().getFullYear();
@@ -39,12 +39,9 @@
 				const user = new WebUser({ id: id, ref: ref, ...doc.data() });
 				users.push(user);
 			});
-
-			const title = 'Got Weekly Users!';
 			const msg = 'Retrieved all users who are Weekly Pool players.';
-			defaultToast({ title, msg });
+			defaultToast({ title: 'Got Weekly Users!', msg: msg });
 			myLog(msg, 'createWeeklyPicksForUser', undefined, users);
-			weeklyUsers = users;
 			return users;
 		} catch (error) {
 			const msg = `Encountered an error while trying to get weekly users.  Check the console for more info. ${error}`;
@@ -101,18 +98,15 @@
 
 	const createWeeklyPicksForAllUsers = async () => {
 		try {
-			if (weeklyUsers.length > 0) {
-				const users = weeklyUsers;
-				users.forEach((user) => {
-					createWeeklyPicksForUser(user, false);
-				});
-				const title = 'Created Weekly Picks!';
-				const msg = 'Pick documents were created for every game, for every Weekly pool user.';
-				defaultToast({ title, msg });
-				myLog(msg, 'createWeeklyPicksForUser');
-			} else {
-				errorToast('No users loaded! Please hit the sync button.');
+			const weeklyUsers = await getWeeklyUsers();
+			const games = await getAllGames();
+			for await (const user of weeklyUsers) {
+				await createWeeklyPicksForUser(user, games);
 			}
+			const title = 'Created Weekly Picks!';
+			const msg = 'Pick documents were created for every game, for every Weekly pool user.';
+			defaultToast({ title, msg });
+			myLog(msg, 'createWeeklyPicksForUser');
 		} catch (error) {
 			const msg = `Encountered an error while trying to create all users' picks.  Check the console for more info. ${error}`;
 			errorToast(msg);
@@ -121,34 +115,30 @@
 	};
 
 	//TODO: Move to a triggered Cloud Function when a user joins the Weekly pool
-	const createWeeklyPicksForUser = async (user: WebUser, logAll: boolean = true) => {
+	const createWeeklyPicksForUser = async (user: WebUser, games: Game[], logAll: boolean = true) => {
 		try {
-			if (weeklyGames.length > 0) {
-				const games = weeklyGames;
-				games.forEach((game) => {
-					const newWeeklyPickRef = doc(weeklyPicksCollection);
-					const pickDoc = new WeeklyPickDoc({
-						docRef: newWeeklyPickRef,
-						id: game.id,
-						pick: '',
-						uid: user.id,
-						week: game.week,
-						year: game.timestamp.toDate().getFullYear(),
-						timestamp: game.timestamp,
-						// game: { ...game },
-						type: game.type,
-						isCorrect: null
-					});
-					setDoc(newWeeklyPickRef.withConverter(weeklyPickConverter), pickDoc);
+			for await (const game of games) {
+				const newWeeklyPickRef = doc(weeklyPicksCollection);
+				const pickDoc = new WeeklyPickDoc({
+					docRef: newWeeklyPickRef,
+					id: game.id,
+					pick: '',
+					uid: user.id,
+					week: game.week,
+					year: game.timestamp.toDate().getFullYear(),
+					timestamp: game.timestamp,
+					name: user.name,
+					nickname: user.nickname,
+					type: game.type,
+					isCorrect: null
 				});
-				const title = 'Created Weekly Picks!';
-				const msg = `Pick documents were created for every game for ${user.name} (${user.nickname})`;
-				if (logAll) {
-					defaultToast({ title, msg });
-					myLog(msg, 'createWeeklyPicksForUser');
-				}
-			} else {
-				throw new Error();
+				setDoc(newWeeklyPickRef.withConverter(weeklyPickConverter), pickDoc);
+			}
+			const title = 'Created Weekly Picks!';
+			const msg = `Pick documents were created for every game for ${user.name} (${user.nickname})`;
+			if (logAll) {
+				defaultToast({ title, msg });
+				myLog(msg, 'createWeeklyPicksForUser');
 			}
 		} catch (error) {
 			const msg = `Encountered an error while trying to delete ${user.name}'s picks.  Check the console for more info. ${error}`;
@@ -197,6 +187,7 @@
 	};
 	const createTiebreakersForAllUsers = async () => {
 		try {
+			const weeklyUsers = await getWeeklyUsers();
 			weeklyUsers.forEach((user) => {
 				createTiebreakersForUser(user, false);
 			});
@@ -297,7 +288,7 @@
 	<button on:click={() => updateGameSpreads(selectedWeek, selectedYear)}>Update Week Spreads</button
 	>
 	<button on:click={() => scorePicksForWeek(selectedWeek, selectedYear)}
-		>Score Picks For Week</button
+		>Score Picks For Week {selectedWeek}</button
 	>
 	<button class="deletion" on:click={() => removeScoredPicksForWeek(selectedWeek, selectedYear)}
 		>Remove Scored Picks For Week</button
@@ -309,6 +300,7 @@
 	<button on:click={() => updateTeamsOnScheduleDocs(selectedYear)}
 		>Update Team Records on Scheduled Games</button
 	>
+	<button on:click={() => findWeekDateTimeBounds()}>Find Bounds for Each Week</button>
 </div>
 
 {#if userPromise}

@@ -95,7 +95,7 @@ export const removeScoredPicksForWeek = async (
 
 export const updateGameWinner = async (
 	gameData: Game,
-	ref: DocumentReference,
+	gameRef: DocumentReference,
 	teams: QuerySnapshot<Team>
 ) => {
 	try {
@@ -104,19 +104,19 @@ export const updateGameWinner = async (
 		if (statusData.type?.completed) {
 			myLog(`${gameData.id} completed: ${statusData.type.completed}`);
 
-			const spread = gameData.spread;
+			const spread : number = gameData.spread;
 			const scores = await getScores(competitions);
 			const homeScore: number = scores.homeScoreData.value;
 			const awayScore: number = scores.awayScoreData.value;
 			const winnerAndLoser = await findWinnerAndLoser(scores, gameData);
 			const ATSwinner = await findATSWinner(gameData, homeScore, awayScore, spread);
 			myLog(`winner: ${winnerAndLoser?.winner}, ATSwinner: ${ATSwinner}, spread: ${spread}`);
-			await updateDoc(ref, { winner: winnerAndLoser?.winner, ATSwinner: ATSwinner });
+			await updateDoc(gameRef, { winner: winnerAndLoser?.winner, ATSwinner: ATSwinner });
 
 			// Update the team record
 			await updateTeamRecord(winnerAndLoser, teams, gameData);
 		} else {
-			myLog(`${gameData.id} is NOT completed`);
+			myLog(`game ${gameData.id} is NOT completed`);
 		}
 	} catch (error) {
 		myError('updatedGameWinner', error);

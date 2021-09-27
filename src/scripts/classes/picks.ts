@@ -1,5 +1,4 @@
 import type { DocumentReference, Timestamp } from '@firebase/firestore';
-import type { Game } from './game';
 
 export class WeeklyPickDoc {
 	docRef: DocumentReference;
@@ -9,7 +8,8 @@ export class WeeklyPickDoc {
 	week: number;
 	year: number;
 	timestamp: Timestamp;
-	// game: Game;
+	name: string;
+	nickname: string;
 	type: string;
 	isCorrect: boolean;
 	constructor({ ...args }) {
@@ -20,7 +20,8 @@ export class WeeklyPickDoc {
 			(this.week = args.week);
 		this.year = args.year;
 		this.timestamp = args.timestamp;
-		// this.game = args.game;
+		this.name = args.name;
+		this.nickname = args.nickname;
 		this.type = args.type;
 		this.isCorrect = args.isCorrect;
 	}

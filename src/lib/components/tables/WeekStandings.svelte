@@ -1,6 +1,5 @@
 <script lang="ts">
 	import ReturnToTop from '$lib/components/buttons/ReturnToTop.svelte';
-	import AccordionDetails from '$lib/components/containers/AccordionDetails.svelte';
 	import WeekSelect from '$lib/components/selects/WeekSelect.svelte';
 	import WeeklyStandingsRow from '$lib/components/tables/WeeklyStandingsRow.svelte';
 	import { mobileBreakpoint } from '$scripts/site';
@@ -21,27 +20,22 @@
 		'Jamie',
 		'Emma',
 		'Dad',
-		'RidinWithBiden',
 		'Luca',
+		'RidingWithBiden',
 		'TheCheese',
-		'AllenDiggs2024',
-		'WatsonTradeBlockchain'
+		'AllenDiggs2024'
 	];
-	names = [...names, ...names];
-	names = [...names, ...names];
-	names = [...names, ...names];
-	names = [...names, ...names];
 
-	const getRandomWins = async () => {
-		let data = [];
+	const getRandomRecords = async (names: string[]) => {
+		let recordData = [];
 		for await (const name of names) {
 			const wins = await getRandomInt(16);
 			const losses = 16 - wins;
 			const tiebreaker = await getRandomInt(63, 10);
 			const playerDatum = { nickname: name, wins: wins, losses: losses, tiebreaker: tiebreaker };
-			data = [...data, playerDatum];
+			recordData = [...recordData, playerDatum];
 		}
-		return data;
+		return recordData;
 	};
 	const getRandomInt = async (max: number, min = 0) => {
 		return Math.max(Math.floor(Math.random() * max), min);
@@ -123,7 +117,7 @@
 		{#each weekHeaders as header}
 			<div class="header">{header}</div>
 		{/each}
-		{#await getRandomWins()}
+		{#await getRandomRecords(names)}
 			Loading data...
 		{:then playerData}
 			{#await sortPlayersByWins(playerData)}

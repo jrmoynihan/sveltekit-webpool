@@ -1,8 +1,8 @@
 import { browser } from '$app/env';
-import type { Timestamp } from '@firebase/firestore';
+import { showPickWarning } from './store';
 import { myLog, policeCarLight } from './classes/constants';
 import type { WeeklyPickDoc } from './classes/picks';
-import { showPickWarning } from './store';
+import type { Timestamp } from '@firebase/firestore';
 
 export const isPropertyOf = <T>(
 	varToBeChecked: unknown,

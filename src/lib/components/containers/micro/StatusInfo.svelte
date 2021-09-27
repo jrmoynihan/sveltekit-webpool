@@ -80,7 +80,7 @@
 		grid-template-rows: repeat(auto-fit, minmax(1rem, 1fr));
 	}
 	span {
-		padding: 0.3rem 0.5rem;
+		padding: 0.3rem 1rem;
 		align-self: center;
 		// &.at-symbol {
 		// 	font-size: x-large;
@@ -91,10 +91,11 @@
 		justify-self: center;
 		grid-template-columns: minmax(0, 1fr) minmax(0, auto) minmax(0, 1fr);
 		grid-area: statusInfo;
+		align-self: center;
 	}
 	.score {
 		font-weight: bold;
-		font-size: clamp(1rem, 5vw, 3rem);
+		font-size: min(2rem, 5vw);
 		min-width: 2ch;
 	}
 	.higherScore {

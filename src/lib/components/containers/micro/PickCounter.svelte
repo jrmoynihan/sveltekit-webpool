@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { WeeklyPickDoc } from '$scripts/classes/picks';
-	import { goToMissedPick, isBeforeGameTime, scrollToNextGame } from '$scripts/functions';
+	import { goToMissedPick } from '$scripts/functions';
 	import { showPickWarning } from '$scripts/store';
 	import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
