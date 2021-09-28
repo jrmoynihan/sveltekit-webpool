@@ -1,11 +1,11 @@
 import type { QueryDocumentSnapshot, SnapshotOptions } from '@firebase/firestore';
-import { WebUser } from '$scripts/classes/webUser';
 import { Team } from '$scripts/classes/team';
 import { RuleCategory } from '$scripts/classes/rules';
 import { Game } from './classes/game';
 import { WeeklyPickDoc } from './classes/picks';
 import { WeeklyTiebreaker } from './classes/tiebreaker';
 import { WeekBoundDoc } from './classes/weekBound';
+import { WebUser } from './classes/webUser';
 
 export const userConverter = {
 	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types

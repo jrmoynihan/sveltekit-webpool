@@ -1,11 +1,19 @@
 import type { Game } from './classes/game';
 import type { DocumentReference, QuerySnapshot } from '@firebase/firestore';
-import { myLog, everyoneWinsResult, myError } from './classes/constants';
-import { scheduleCollection, weeklyPicksCollection } from './collections';
-import { gameConverter, teamConverter, weeklyPickConverter } from './converters';
+import { myLog, everyoneWinsResult, myError, checkmark } from './classes/constants';
+import { scheduleCollection, usersCollection, weeklyPicksCollection } from './collections';
+import { gameConverter, teamConverter, userConverter, weeklyPickConverter } from './converters';
 import { getStatus, getScores } from './functions';
 import { defaultToast, errorToast } from './toasts';
-import { updateDoc, getDocs, query, where, QueryConstraint, increment } from '@firebase/firestore';
+import {
+	updateDoc,
+	getDocs,
+	query,
+	where,
+	QueryConstraint,
+	increment,
+	doc
+} from '@firebase/firestore';
 import { teamsCollection } from './teams';
 import type { Team } from './classes/team';
 
@@ -38,12 +46,22 @@ export const scorePicksForWeek = async (
 			picks.forEach((pick) => {
 				const pickData = pick.data();
 				const ref = pick.ref;
+				const uid = pickData.uid;
+				const userRef = doc(usersCollection, uid);
 				if (pickData.isCorrect === null || pickData.isCorrect === undefined) {
 					if (pickData.id === game.id) {
 						if (gameData.ATSwinner === pickData.pick || gameData.ATSwinner === everyoneWinsResult) {
 							updateDoc(ref, { isCorrect: true });
+							updateDoc(userRef, {
+								'weeklyPickRecord.total.wins': increment(1),
+								[`weeklyPickRecord.week_${selectedWeek}.wins`]: increment(1)
+							});
 						} else {
 							updateDoc(ref, { isCorrect: false });
+							updateDoc(userRef, {
+								'weeklyPickRecord.total.losses': increment(1),
+								[`weeklyPickRecord.week_${selectedWeek}.losses`]: increment(1)
+							});
 						}
 						myLog('scored pick');
 					}
@@ -52,7 +70,7 @@ export const scorePicksForWeek = async (
 				}
 			});
 		});
-		// await updateTeamsOnPickDocs(selectedWeek,selectedYear,seasonType)
+
 		defaultToast({
 			title: `Scored Week ${selectedWeek} Picks!`,
 			msg: `Successfully scored each user's picks for the selected week.`
@@ -104,7 +122,7 @@ export const updateGameWinner = async (
 		if (statusData.type?.completed) {
 			myLog(`${gameData.id} completed: ${statusData.type.completed}`);
 
-			const spread : number = gameData.spread;
+			const spread: number = gameData.spread;
 			const scores = await getScores(competitions);
 			const homeScore: number = scores.homeScoreData.value;
 			const awayScore: number = scores.awayScoreData.value;
@@ -283,5 +301,62 @@ export const updateTeamsOnScheduleDocs = async (
 	} catch (error) {
 		errorToast('Error updating teams on scheduled game documents!');
 		myError('updateTeamsOnScheduleDocs', error);
+	}
+};
+
+export const resetWeeklyUserRecords = async () => {
+	try {
+		const proceed = confirm('Are you sure you want to reset all Weekly Pool user records?');
+		if (proceed) {
+			const weeklyUserQuery = query(usersCollection, where('weekly', '==', true));
+			const weeklyUsers = await getDocs(weeklyUserQuery);
+			weeklyUsers.forEach((user) => {
+				updateDoc(user.ref, {
+					'weeklyPickRecord.total.wins': 0,
+					'weeklyPickRecord.total.losses': 0,
+					'weeklyPickRecord.week_1.wins': 0,
+					'weeklyPickRecord.week_1.losses': 0,
+					'weeklyPickRecord.week_2.wins': 0,
+					'weeklyPickRecord.week_2.losses': 0,
+					'weeklyPickRecord.week_3.wins': 0,
+					'weeklyPickRecord.week_3.losses': 0,
+					'weeklyPickRecord.week_4.wins': 0,
+					'weeklyPickRecord.week_4.losses': 0,
+					'weeklyPickRecord.week_5.wins': 0,
+					'weeklyPickRecord.week_5.losses': 0,
+					'weeklyPickRecord.week_6.wins': 0,
+					'weeklyPickRecord.week_6.losses': 0,
+					'weeklyPickRecord.week_7.wins': 0,
+					'weeklyPickRecord.week_7.losses': 0,
+					'weeklyPickRecord.week_8.wins': 0,
+					'weeklyPickRecord.week_8.losses': 0,
+					'weeklyPickRecord.week_9.wins': 0,
+					'weeklyPickRecord.week_9.losses': 0,
+					'weeklyPickRecord.week_10.wins': 0,
+					'weeklyPickRecord.week_10.losses': 0,
+					'weeklyPickRecord.week_11.wins': 0,
+					'weeklyPickRecord.week_11.losses': 0,
+					'weeklyPickRecord.week_12.wins': 0,
+					'weeklyPickRecord.week_12.losses': 0,
+					'weeklyPickRecord.week_13.wins': 0,
+					'weeklyPickRecord.week_13.losses': 0,
+					'weeklyPickRecord.week_14.wins': 0,
+					'weeklyPickRecord.week_14.losses': 0,
+					'weeklyPickRecord.week_15.wins': 0,
+					'weeklyPickRecord.week_15.losses': 0,
+					'weeklyPickRecord.week_16.wins': 0,
+					'weeklyPickRecord.week_16.losses': 0,
+					'weeklyPickRecord.week_17.wins': 0,
+					'weeklyPickRecord.week_17.losses': 0
+				});
+				myLog(`reset records for ${user.data().name} (${user.id})`);
+			});
+		}
+		defaultToast({
+			title: `Successful Reset!`,
+			msg: `${checkmark} All weekly pool user records have been reset.`
+		});
+	} catch (error) {
+		myError('resetWeeklyUserRecords', error);
 	}
 };

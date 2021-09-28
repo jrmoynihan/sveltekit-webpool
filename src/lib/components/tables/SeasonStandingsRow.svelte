@@ -1,8 +1,9 @@
 <script lang="ts">
 	import RowData from '$lib/components/containers/micro/RowData.svelte';
+	import type { WebUser } from '$scripts/classes/webUser';
 	import { largerThanMobile } from '$scripts/store';
 
-	export let player: { nickname: any; wins: number; losses: any };
+	export let player: WebUser;
 	export let i: number;
 	const isEvenRow = (index: number) => {
 		if ((index + 1) % 2 === 0) {
@@ -18,21 +19,37 @@
 	{i + 1}
 </RowData>
 <RowData {evenRow}>
-	{player.nickname}
+	{#if player.nickname}
+		{player.nickname}
+	{:else}
+		{player.name}
+	{/if}
 </RowData>
 <RowData {evenRow}>
-	{player.wins}
+	{player.weeklyPickRecord.total.wins}
 </RowData>
 <RowData {evenRow}>
-	{player.losses}
+	{player.weeklyPickRecord.total.losses}
 </RowData>
 <RowData {evenRow}>
 	<div class="percentage">
-		{((player.wins / (player.wins + player.losses)) * 100).toFixed(2)}%
-		{#if $largerThanMobile}
-			<span
-				style="--win-radii:{((player.wins / (player.wins + player.losses)) * 100).toString()}%"
-			/>
+		{#if player.weeklyPickRecord.total.wins > 0 || player.weeklyPickRecord.total.losses > 0}
+			{(
+				(player.weeklyPickRecord.total.wins /
+					(player.weeklyPickRecord.total.wins + player.weeklyPickRecord.total.losses)) *
+				100
+			).toFixed(2)}%
+			{#if $largerThanMobile}
+				<span
+					style="--win-radii:{(
+						(player.weeklyPickRecord.total.wins /
+							(player.weeklyPickRecord.total.wins + player.weeklyPickRecord.total.losses)) *
+						100
+					).toString()}%"
+				/>
+			{/if}
+		{:else}
+			--
 		{/if}
 	</div>
 </RowData>

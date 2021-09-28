@@ -1,18 +1,24 @@
 <script lang="ts">
+	import type { WebUser } from '$scripts/classes/webUser';
 	import { mobileBreakpoint } from '$scripts/site';
 	import { windowWidth } from '$scripts/store';
 	import SeasonStandingsRow from './SeasonStandingsRow.svelte';
+	import { query, where, orderBy } from '@firebase/firestore';
+	import { usersCollection } from '$scripts/collections';
+	import { getWeeklyUsers } from '$scripts/weeklyUsers';
+	import { onMount } from 'svelte';
 
 	let initialSeasonHeaders = ['Rank', 'Player', 'Wins', 'Losses', '% Won'];
 	let abbreviatedSeasonHeaders = ['#', 'Name', 'W', 'L', '%'];
 	let seasonHeaders = initialSeasonHeaders;
+	let weeklyUserPromise: Promise<WebUser[]>;
 	// TODO query the collection by week, and sort by wins, then net tiebreaker
-	let playerData = [
-		{ nickname: 'jrmoynihan', wins: 10, losses: 6, tiebreaker: 42 },
-		{ nickname: 'moynihan', wins: 9, losses: 7, tiebreaker: 35 },
-		{ nickname: 'winston', wins: 7, losses: 9, tiebreaker: 38 },
-		{ nickname: 'daphne', wins: 4, losses: 12, tiebreaker: 49 }
-	];
+	// let playerData = [
+	// 	{ nickname: 'jrmoynihan', wins: 10, losses: 6, tiebreaker: 42 },
+	// 	{ nickname: 'moynihan', wins: 9, losses: 7, tiebreaker: 35 },
+	// 	{ nickname: 'winston', wins: 7, losses: 9, tiebreaker: 38 },
+	// 	{ nickname: 'daphne', wins: 4, losses: 12, tiebreaker: 49 }
+	// ];
 
 	$: {
 		if ($windowWidth < mobileBreakpoint - 500) {
@@ -21,15 +27,33 @@
 			seasonHeaders = initialSeasonHeaders;
 		}
 	}
+	const getData = async () => {
+		const weeklyUserQuery = query(
+			usersCollection,
+			where('weekly', '==', true),
+			orderBy(`weeklyPickRecord.total.wins`)
+		);
+		weeklyUserPromise = getWeeklyUsers(weeklyUserQuery, false);
+	};
+
+	onMount(async () => {
+		getData();
+	});
 </script>
 
 <div class="table grid">
 	{#each seasonHeaders as header}
 		<div class="header">{header}</div>
 	{/each}
-	{#each playerData as player, i}
-		<SeasonStandingsRow {player} {i} />
-	{/each}
+	{#if weeklyUserPromise}
+		{#await weeklyUserPromise}
+			Loading data...
+		{:then weeklyPlayerData}
+			{#each weeklyPlayerData as player, i}
+				<SeasonStandingsRow {player} {i} />
+			{/each}
+		{/await}
+	{/if}
 </div>
 
 <style lang="scss">

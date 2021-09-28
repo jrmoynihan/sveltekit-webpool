@@ -36,9 +36,15 @@
 	} from '@firebase/firestore';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
-	import { focusTiebreaker, getLocalStorageItem, isBeforeGameTime } from '$scripts/functions';
+	import {
+		focusTiebreaker,
+		getLocalStorageItem,
+		getUserId,
+		isBeforeGameTime
+	} from '$scripts/functions';
 	import {
 		airplaneDeparture,
+		bomb,
 		bread,
 		checkmark,
 		dogFace,
@@ -138,15 +144,6 @@
 		}
 	};
 
-	const getUserId = async () => {
-		try {
-			const id = await getLocalStorageItem('id');
-			return id;
-		} catch (error) {
-			myError('getUserId', error);
-		}
-	};
-
 	const getPicks = async (selectedWeek: number) => {
 		try {
 			isCorrectCount = 0;
@@ -231,7 +228,7 @@
 		}
 	};
 
-	const getTiebreaker = async (selectedWeek: number) => {
+	export const getTiebreaker = async (selectedWeek: number) => {
 		try {
 			let tiebreakerData: WeeklyTiebreaker;
 			const uid = await getUserId();
@@ -257,6 +254,7 @@
 				tiebreakerDocRef = null;
 			}
 		} catch (error) {
+			errorToast('Error encountered while getting tiebreaker. See console log.');
 			myError('getTiebreaker', error);
 		}
 	};
@@ -276,10 +274,9 @@
 						error,
 						`unable to update game pick ${currentPick.docRef} for user ${currentPick.uid}`
 					);
-					defaultToast({
-						title: `${policeCarLight} Unable To Update Picks!`,
-						msg: `We encountered an error while trying to submit your picks.  Please contact the site admin with the following information: <br> ${error}`
-					});
+					errorToast(
+						`We encountered an error while trying to submit your picks.  Please contact the site admin with the following information: <br> ${error}`
+					);
 				}
 			});
 			myLog('updated/submitted picks!', '', okHand, currentPicks);
@@ -293,19 +290,23 @@
 				duration: 10000
 			});
 		} catch (error) {
+			errorToast('We encountered an error while submitting picks.  See the console log.');
 			myError('submitPicks', error);
 		}
 	};
 	const setTiebreakerDoc = async (): Promise<void> => {
-		let docRef: DocumentReference;
-		if (tiebreakerDocRef) {
-			docRef = tiebreakerDocRef;
-		} else {
-			docRef = doc(weeklyTiebreakersCollection);
-		}
-
 		const uid = await getUserId();
 		try {
+			let docRef: DocumentReference;
+
+			// If a tiebreaker document already exists, use its reference
+			if (tiebreakerDocRef) {
+				docRef = tiebreakerDocRef;
+				// Otherwise, make a new document reference to set on the collection
+			} else {
+				docRef = doc(weeklyTiebreakersCollection);
+			}
+
 			await setDoc(docRef.withConverter(weeklyTiebreakerConverter), {
 				docRef: docRef,
 				tiebreaker: tiebreaker,
@@ -320,16 +321,15 @@
 				error,
 				`unable to update tiebreaker ${tiebreakerDocRef.path} for user ${uid}`
 			);
-			defaultToast({
-				title: `${policeCarLight} Unable To Update Tiebreaker!`,
-				msg: `We encountered an error while trying to submit your tiebreaker.  Please contact your admin with the following information: <br> ${error}`
-			});
+			errorToast(
+				`We encountered an error while trying to submit your tiebreaker.  Please contact your admin with the following information: <br> ${error}`
+			);
 		}
 	};
 	const updatePicks = async (
 		games: Game[],
 		currentPicks: WeeklyPickDoc[],
-		homeOrAway: HomeOrAway
+		homeOrAway?: HomeOrAway
 	): Promise<WeeklyPickDoc[]> => {
 		try {
 			currentPicks.forEach(async (pickDoc) => {
@@ -342,12 +342,25 @@
 					} else if (homeOrAway === 'Away') {
 						const awayTeam = matchingGame.awayTeam;
 						pickDoc.pick = awayTeam.abbreviation;
+					} else {
+						pickDoc.pick = '';
 					}
 				}
 			});
 			return currentPicks;
 		} catch (error) {
 			myError('updatePicks', error);
+		}
+	};
+	const resetPicks = async () => {
+		try {
+			await updatePicks(selectedGames, currentPicks);
+			currentPicks = currentPicks;
+			myLog('reset all picks!', null, bomb);
+			focusTiebreaker();
+		} catch (error) {
+			errorToast('Error in resetting picks... see console log.');
+			myError('resetPicks', error);
 		}
 	};
 
@@ -358,6 +371,7 @@
 			myLog('picked all home teams!', '', home);
 			focusTiebreaker();
 		} catch (error) {
+			errorToast('Error in picking home teams... see console log.');
 			myError('pickAllHome', error);
 		}
 	};
@@ -368,6 +382,7 @@
 			myLog('picks all away teams!', '', airplaneDeparture);
 			focusTiebreaker();
 		} catch (error) {
+			errorToast('Error in picking away teams... see console log.');
 			myError('pickAllAway', error);
 		}
 	};
@@ -407,6 +422,7 @@
 			currentPicks = currentPicks;
 			focusTiebreaker();
 		} catch (error) {
+			errorToast('Error in picking favored teams... see console log.');
 			myError('pickAllFavored', error);
 		}
 	};
@@ -446,6 +462,7 @@
 			currentPicks = currentPicks;
 			focusTiebreaker();
 		} catch (error) {
+			errorToast('Error in picking underdog teams... see console log.');
 			myError('pickAllDogs', error);
 		}
 	};
@@ -456,6 +473,7 @@
 			picksPromise = getPicks(selectedWeek);
 			tiebreakerPromise = getTiebreaker(selectedWeek);
 		} catch (error) {
+			errorToast('Error in picking changing query... see console log.');
 			myError('changedQuery', error);
 		}
 	};
@@ -590,6 +608,9 @@
 		style={$largerThanMobile ? `margin-right:${offsetRightPercentage}%;` : ''}
 	>
 		<WeekSelect bind:selectedWeek bind:selectedSeasonType on:weekChanged={changedQuery} />
+		<button on:click={resetPicks} class:dark-mode={$useDarkTheme} class="hotkeys"
+			>Reset Picks</button
+		>
 	</div>
 
 	<!-- prettier-ignore -->

@@ -5,7 +5,7 @@
 	import { myError, myLog } from '$scripts/classes/constants';
 	import { Game } from '$scripts/classes/game';
 	import { WeeklyPickDoc } from '$scripts/classes/picks';
-	import { WebUser } from '$scripts/classes/webUser';
+	import type { WebUser } from '$scripts/classes/webUser';
 	import { scheduleCollection, usersCollection, weeklyPicksCollection } from '$scripts/collections';
 	import { gameConverter, userConverter, weeklyPickConverter } from '$scripts/converters';
 	import { defaultToast, errorToast } from '$scripts/toasts';
@@ -18,37 +18,17 @@
 	import {
 		removeScoredPicksForWeek,
 		removeWinnersFromGames,
+		resetWeeklyUserRecords,
 		scorePicksForWeek,
 		updateTeamsOnScheduleDocs
 	} from '$scripts/scorePicks';
 	import { resetTeamRecords } from '$scripts/teams';
 	import { findWeekDateTimeBounds } from '$scripts/schedule';
+	import { getWeeklyUsers } from '$scripts/weeklyUsers';
 
 	let weeklyGames: Game[] = [];
 	let selectedWeek: number = 1;
 	let selectedYear: number = new Date().getFullYear();
-
-	const getWeeklyUsers = async () => {
-		try {
-			const users: WebUser[] = [];
-			const q = query(usersCollection, where('weekly', '==', true));
-			const querySnapshot = await getDocs(q.withConverter(userConverter));
-			querySnapshot.forEach((doc) => {
-				const id = doc.id;
-				const ref = doc.ref;
-				const user = new WebUser({ id: id, ref: ref, ...doc.data() });
-				users.push(user);
-			});
-			const msg = 'Retrieved all users who are Weekly Pool players.';
-			defaultToast({ title: 'Got Weekly Users!', msg: msg });
-			myLog(msg, 'createWeeklyPicksForUser', undefined, users);
-			return users;
-		} catch (error) {
-			const msg = `Encountered an error while trying to get weekly users.  Check the console for more info. ${error}`;
-			errorToast(msg);
-			myError('getWeeklyUsers', error, msg);
-		}
-	};
 
 	const getAllGames = async () => {
 		try {
@@ -301,6 +281,7 @@
 		>Update Team Records on Scheduled Games</button
 	>
 	<button on:click={() => findWeekDateTimeBounds()}>Find Bounds for Each Week</button>
+	<button class="deletion" on:click={resetWeeklyUserRecords}>Reset User Records</button>
 </div>
 
 {#if userPromise}

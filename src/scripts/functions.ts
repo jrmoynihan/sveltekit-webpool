@@ -1,6 +1,6 @@
 import { browser } from '$app/env';
 import { showPickWarning } from './store';
-import { myLog, policeCarLight } from './classes/constants';
+import { myError, myLog, policeCarLight } from './classes/constants';
 import type { WeeklyPickDoc } from './classes/picks';
 import type { Timestamp } from '@firebase/firestore';
 
@@ -218,5 +218,13 @@ export const goToMissedPick = async (currentPicks: WeeklyPickDoc[]) => {
 		scrollToNextGame(pickIndex - 1, 0, 2); // Force it to run the scroll to game instead of scroll to top;
 	} else {
 		scrollToTopSmooth();
+	}
+};
+export const getUserId = async () => {
+	try {
+		const id = await getLocalStorageItem('id');
+		return id;
+	} catch (error) {
+		myError('getUserId', error);
 	}
 };

@@ -1,76 +1,113 @@
 <script lang="ts">
+	import type { WebUser } from '$scripts/classes/webUser';
 	import ReturnToTop from '$lib/components/buttons/ReturnToTop.svelte';
 	import WeekSelect from '$lib/components/selects/WeekSelect.svelte';
 	import WeeklyStandingsRow from '$lib/components/tables/WeeklyStandingsRow.svelte';
+	import { findCurrentWeekOfSchedule } from '$scripts/schedule';
 	import { mobileBreakpoint } from '$scripts/site';
 	import { windowWidth } from '$scripts/store';
 	import { onMount } from 'svelte';
+	import { query, where, orderBy, DocumentData, Query, getDocs } from '@firebase/firestore';
+	import { usersCollection, weeklyTiebreakersCollection } from '$scripts/collections';
+	import { getWeeklyUsers } from '$scripts/weeklyUsers';
+	import type { WeeklyTiebreaker } from '$scripts/classes/tiebreaker';
+	import { weeklyTiebreakerConverter } from '$scripts/converters';
+	import { errorToast } from '$scripts/toasts';
+	import { myError } from '$scripts/classes/constants';
+	import { dataset_dev } from 'svelte/internal';
 
 	let initialWeekHeaders: string[] = ['Rank', 'Player', 'Wins', 'Losses', 'Tiebreaker'];
 	let abbreviatedWeekHeaders: string[] = ['#', 'Name', 'W', 'L', 'T'];
 	let weekHeaders: string[] = initialWeekHeaders;
+	let selectedWeek: number;
+	let tiebreakerPromise: Promise<WeeklyTiebreaker[]>;
+	let weeklyUserPromise: Promise<WebUser[]>;
+	let weeklyUserQuery: Query<DocumentData>;
 	// let playerData = [];
 	// let possibleWins: { wins: number; count: number }[] = [];
 	// let maxCount: number = 1;
 
 	// TODO query the collection by week, and sort by wins, then net tiebreaker
-	let names = [
-		'Daphne',
-		'Winston',
-		'Jamie',
-		'Emma',
-		'Dad',
-		'Luca',
-		'RidingWithBiden',
-		'TheCheese',
-		'AllenDiggs2024'
-	];
+	// let names = [
+	// 	'Daphne',
+	// 	'Winston',
+	// 	'Jamie',
+	// 	'Emma',
+	// 	'Dad',
+	// 	'Luca',
+	// 	'RidingWithBiden',
+	// 	'TheCheese',
+	// 	'AllenDiggs2024'
+	// ];
 
-	const getRandomRecords = async (names: string[]) => {
-		let recordData = [];
-		for await (const name of names) {
-			const wins = await getRandomInt(16);
-			const losses = 16 - wins;
-			const tiebreaker = await getRandomInt(63, 10);
-			const playerDatum = { nickname: name, wins: wins, losses: losses, tiebreaker: tiebreaker };
-			recordData = [...recordData, playerDatum];
-		}
-		return recordData;
-	};
-	const getRandomInt = async (max: number, min = 0) => {
-		return Math.max(Math.floor(Math.random() * max), min);
-	};
+	// const getRandomRecords = async (names: string[]) => {
+	// 	let recordData = [];
+	// 	for await (const name of names) {
+	// 		const wins = await getRandomInt(16);
+	// 		const losses = 16 - wins;
+	// 		const tiebreaker = await getRandomInt(63, 10);
+	// 		const playerDatum = { nickname: name, wins: wins, losses: losses, tiebreaker: tiebreaker };
+	// 		recordData = [...recordData, playerDatum];
+	// 	}
+	// 	return recordData;
+	// };
+	// const getRandomInt = async (max: number, min = 0) => {
+	// 	return Math.max(Math.floor(Math.random() * max), min);
+	// };
 
-	const sortPlayersByWins = (playerData: any[]) => {
-		const tempArr = playerData;
-		tempArr.sort((firstPlayer, secondPlayer) => secondPlayer.wins - firstPlayer.wins);
-		return tempArr;
-	};
+	// const sortPlayersByWins = (playerData: any[]) => {
+	// 	const tempArr = playerData;
+	// 	tempArr.sort((firstPlayer, secondPlayer) => secondPlayer.wins - firstPlayer.wins);
+	// 	return tempArr;
+	// };
 
-	const setPossibleWins = async () => {
-		let arr: { wins: number; count: number }[] = [];
-		for (let i = 1; i < 17; i++) {
-			arr.push({ wins: i, count: 0 });
-		}
-		return arr;
-	};
+	// const setPossibleWins = async () => {
+	// 	let arr: { wins: number; count: number }[] = [];
+	// 	for (let i = 1; i < 17; i++) {
+	// 		arr.push({ wins: i, count: 0 });
+	// 	}
+	// 	return arr;
+	// };
 
-	const countWins = async (possibleWins: { wins: number; count: number }[], playerData: any[]) => {
-		let countedWins = possibleWins;
+	// const countWins = async (possibleWins: { wins: number; count: number }[], playerData: any[]) => {
+	// 	let countedWins = possibleWins;
 
-		for await (const possibleWinCount of countedWins) {
-			for await (const player of playerData) {
-				if (player.wins === possibleWinCount.wins) {
-					possibleWinCount.count++;
+	// 	for await (const possibleWinCount of countedWins) {
+	// 		for await (const player of playerData) {
+	// 			if (player.wins === possibleWinCount.wins) {
+	// 				possibleWinCount.count++;
+	// 			}
+	// 		}
+	// 	}
+	// 	return countedWins;
+	// };
+	// const updateMaxCount = async (countedWins: any[]) => {
+	// 	const counts = countedWins.map((obj) => obj.count);
+	// 	const maxCount = Math.max.apply(Math, counts);
+	// 	return maxCount;
+	// };
+
+	export const getAllTiebreakers = async (selectedWeek: number) => {
+		try {
+			const tiebreakers: WeeklyTiebreaker[] = [];
+			const selectedYear = new Date().getFullYear();
+			const q = query(
+				weeklyTiebreakersCollection,
+				where('year', '==', selectedYear),
+				where('week', '==', selectedWeek)
+			);
+			const querySnapshot = await getDocs(q.withConverter(weeklyTiebreakerConverter));
+			querySnapshot.forEach((doc) => {
+				if (doc.exists()) {
+					const data = doc.data();
+					tiebreakers.push(data);
 				}
-			}
+			});
+			return tiebreakers;
+		} catch (error) {
+			errorToast('Error encountered while getting tiebreakers. See console log.');
+			myError('getAllTiebreakers', error);
 		}
-		return countedWins;
-	};
-	const updateMaxCount = async (countedWins: any[]) => {
-		const counts = countedWins.map((obj) => obj.count);
-		const maxCount = Math.max.apply(Math, counts);
-		return maxCount;
 	};
 
 	$: {
@@ -80,6 +117,21 @@
 			weekHeaders = initialWeekHeaders;
 		}
 	}
+	const getData = async (selectedWeek: number) => {
+		weeklyUserQuery = query(
+			usersCollection,
+			where('weekly', '==', true),
+			orderBy(`weeklyPickRecord.week_${selectedWeek}.wins`)
+		);
+		weeklyUserPromise = getWeeklyUsers(weeklyUserQuery, false);
+		tiebreakerPromise = getAllTiebreakers(selectedWeek);
+	};
+
+	onMount(async () => {
+		//TODO: could just query docs on parent component and use client to sort by wins; compare performance vs. reads tradeoff
+		selectedWeek = await findCurrentWeekOfSchedule();
+		getData(selectedWeek);
+	});
 </script>
 
 <div class="week grid">
@@ -112,22 +164,28 @@
 			{/await}
 		</svelte:fragment>
 	</AccordionDetails> -->
-	<WeekSelect gridArea="selector" />
+	<WeekSelect gridArea="selector" bind:selectedWeek on:weekChanged={() => getData(selectedWeek)} />
 	<div class="table grid">
 		{#each weekHeaders as header}
 			<div class="header">{header}</div>
 		{/each}
-		{#await getRandomRecords(names)}
-			Loading data...
-		{:then playerData}
-			{#await sortPlayersByWins(playerData)}
-				Sorting by wins...
-			{:then sortedData}
-				{#each sortedData as player, i}
-					<WeeklyStandingsRow {player} {i} />
-				{/each}
+		{#if weeklyUserPromise}
+			{#await weeklyUserPromise}
+				Loading data...
+			{:then weeklyPlayerData}
+				{#await tiebreakerPromise}
+					Loading data...
+				{:then tiebreakers}
+					{#each weeklyPlayerData as player, i}
+						{#each tiebreakers as tiebreaker}
+							{#if tiebreaker.uid === player.id}
+								<WeeklyStandingsRow {player} {selectedWeek} {i} {tiebreaker} />
+							{/if}
+						{/each}
+					{/each}
+				{/await}
 			{/await}
-		{/await}
+		{/if}
 	</div>
 </div>
 <ReturnToTop />

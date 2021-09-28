@@ -1,8 +1,8 @@
-import {where, QueryConstraint} from '@firebase/firestore'
+// import {where, QueryConstraint} from '@firebase/firestore'
 
 // export const updateGames = async () => {
 //     try {
-//         const selectedWeek = 
+//         const selectedWeek =
 // 		const wheres: QueryConstraint[] = [
 // 			where('week', '==', selectedWeek),
 // 			where('year', '==', selectedYear),

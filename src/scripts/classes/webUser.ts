@@ -1,4 +1,5 @@
 import type { DocumentReference } from '@firebase/firestore';
+import type { WeeklyPickRecord } from './userRecord';
 
 export class WebUser {
 	id: string;
@@ -12,6 +13,7 @@ export class WebUser {
 	playoffs: boolean;
 	survivor: boolean;
 	weekly: boolean;
+	weeklyPickRecord: WeeklyPickRecord;
 	constructor({ ...args }) {
 		(this.id = args.id),
 			(this.ref = args.ref),
@@ -24,5 +26,6 @@ export class WebUser {
 		this.playoffs = args.playoffs;
 		this.survivor = args.survivor;
 		this.weekly = args.weekly;
+		this.weeklyPickRecord = args.weeklyPickRecord;
 	}
 }
