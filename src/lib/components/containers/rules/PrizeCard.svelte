@@ -2,13 +2,13 @@
 	import PrizeInfo from '$containers/rules/PrizeInfo.svelte';
 	import type { RuleCategory } from '$scripts/classes/rules';
 
-	export let rulesCategories: RuleCategory[] = [];
+	export let ruleCategories: RuleCategory[];
 </script>
 
 <div class="prize-section">
-	{#each rulesCategories as ruleCategory}
+	{#each ruleCategories as ruleCategory}
 		{#if ruleCategory.title === 'Prizes'}
-			<PrizeInfo {ruleCategory} />
+			<PrizeInfo prizeData={ruleCategory} />
 		{/if}
 	{/each}
 </div>

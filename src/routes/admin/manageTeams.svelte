@@ -30,7 +30,10 @@
 			// Write the defined properties to the document in the Team collection
 			setDoc(docRef.withConverter(teamConverter), definedKeys);
 
-			defaultToast('Team Updated!', `${team.city} ${team.name} team document was updated.`);
+			defaultToast({
+				title: 'Team Updated!',
+				msg: `${team.city} ${team.name} team document was updated.`
+			});
 			// Since this is admin-only, the alert interface is sufficient for success/error notification
 			// alert('success!');
 		} catch (err) {

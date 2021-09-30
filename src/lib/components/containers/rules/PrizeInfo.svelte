@@ -1,20 +1,14 @@
 <script lang="ts">
-	import type { QueryDocumentSnapshot } from '@firebase/firestore';
+	import type { RuleCategory } from '$scripts/classes/rules';
 
-	export let rulesDocument: QueryDocumentSnapshot;
-
-	let prizeData = { ...rulesDocument.data() };
+	export let prizeData: RuleCategory;
 
 	// Customize the view based on the type of info that needs to be presented
 	var spanLength: number;
 	$: if (prizeData.hasWeeklyPayout) {
 		spanLength = 2;
-		// console.log('hasWeeklyPayout: true');
-		// console.log(spanLength);
 	} else {
 		spanLength = 4;
-		// console.log('hasWeeklyPayout: false');
-		// console.log(spanLength);
 	}
 </script>
 

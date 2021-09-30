@@ -10,8 +10,8 @@
 </script>
 
 <script lang="ts">
-	import AmericanFootball from '../../static/American_football.svelte';
-	import NflLogo from '../../static/nfl-logo.svelte';
+	import AmericanFootball from '$static/American_football.svelte';
+	import NflLogo from '$static/nfl-logo.svelte';
 	import { getWindowSize } from '$scripts/functions';
 	import { browser } from '$app/env';
 	import { windowWidth } from '$scripts/store';

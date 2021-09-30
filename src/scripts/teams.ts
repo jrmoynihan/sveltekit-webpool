@@ -1,9 +1,9 @@
-import type { Team } from '$scripts/classes/team';
-import { collection, onSnapshot, query, getDocs, updateDoc } from '@firebase/firestore';
+import { collection, query, getDocs, onSnapshot, updateDoc } from '@firebase/firestore';
 import { firestoreDB } from './firebaseInit';
-import { writable } from 'svelte/store';
 import { teamConverter } from './converters';
 import { defaultToast } from './toasts';
+import type { Team } from './classes/team';
+import { writable } from 'svelte/store';
 
 export const teamsCollection = collection(firestoreDB, 'Teams');
 export const allTeams = writable<Team[]>([]);
@@ -15,6 +15,15 @@ export const getTeams = onSnapshot(teamsCollection.withConverter(teamConverter),
 		});
 	});
 });
+export const getAllTeams = async (): Promise<Team[]> => {
+	let teamsToReturn: Team[];
+	const teamDocs = await getDocs(query(teamsCollection).withConverter(teamConverter));
+	teamDocs.forEach((teamDoc) => {
+		const teamData = teamDoc.data();
+		teamsToReturn.push(teamData);
+	});
+	return teamsToReturn;
+};
 
 export const resetTeamRecords = async () => {
 	const proceed = confirm('Are you sure you want to reset the team records?');

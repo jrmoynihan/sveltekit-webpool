@@ -1,7 +1,5 @@
 <script lang="ts">
 	import {
-		onSnapshot,
-		QueryDocumentSnapshot,
 		orderBy,
 		query,
 		DocumentReference,
@@ -47,18 +45,6 @@
 		});
 		return ruleCategories;
 	};
-	const makeTabs = async (ruleCategories: RuleCategory[]) => {
-		let tabs: { name: string; component: any; data: any; ref: DocumentReference }[] = [];
-		ruleCategories.forEach((ruleCategory) => {
-			tabs.push({
-				name: ruleCategory.title,
-				component: RulesCategoryGrid,
-				data: ruleCategory,
-				ref: ruleCategory.docRef
-			});
-		});
-		return tabs;
-	};
 
 	// Dynamically watches for changes to the WeeklyRules collection, and brings them in in order of their 'order' field value
 	// This will also react to changes to hte WeeklyRules collection's documents, but not the fields of those documents
@@ -93,8 +79,22 @@
 	// }
 	let ruleCategoryPromise = getRuleCategories();
 	let tabPromise: Promise<
-		{ name: string; component: ToggleSwitch; data: any; ref: DocumentReference<DocumentData> }[]
+		{ name: string; component: any; data: any; ref: DocumentReference<DocumentData> }[]
 	>;
+	const makeTabs = async (ruleCategories: RuleCategory[]) => {
+		let tabs: { name: string; component: any; data: any; ref: DocumentReference }[] = [];
+		ruleCategories.forEach((ruleCategory) => {
+			if (ruleCategory.title !== 'Prizes') {
+				tabs.push({
+					name: ruleCategory.title,
+					component: RulesCategoryGrid,
+					data: ruleCategory,
+					ref: ruleCategory.docRef
+				});
+			}
+		});
+		return tabs;
+	};
 	const getTabs = async (ruleCategoryPromise: Promise<RuleCategory[]>) => {
 		if (ruleCategoryPromise) {
 			const ruleCategories = await ruleCategoryPromise;
@@ -120,9 +120,7 @@
 {:then ruleCategories}
 	<PrizeCard {ruleCategories} />
 	<hr />
-	{#await tabPromise}
-		Loading tabs...
-	{:then tabs}
+	{#await tabPromise then tabs}
 		<Tabs {tabs} selectedTab={tabs[0]} />
 	{/await}
 {/await}
