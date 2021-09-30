@@ -93,9 +93,9 @@
 		transition: all 300ms ease-in-out;
 		border: 0;
 		border-radius: 25px;
-		box-shadow: 0 0 10px var(--main-color);
-		background-color: var(--alternate-color);
-		color: var(--main-color);
+		box-shadow: 0 0 10px var(--main-color, rgb(255, 255, 255));
+		background-color: var(--alternate-color, rgb(36, 50, 36));
+		color: var(--main-color, rgb(255, 255, 255));
 		font-size: initial;
 		margin: auto; // centers the dialog for bad browser user-agent stylesheets that default to top-left
 

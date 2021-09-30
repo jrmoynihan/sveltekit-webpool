@@ -1,3 +1,3 @@
-export const date = new Date().getFullYear()
+export const date = new Date().getFullYear();
 
-console.log(date)
+console.log(date);

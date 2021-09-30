@@ -1,5 +1,5 @@
 import { toast } from '@zerodevx/svelte-toast';
-import SeenToast from '$lib/components/switches/SeenToast.svelte';
+import SeenToast from '$switches/SeenToast.svelte';
 import { policeCarLight } from './classes/constants';
 
 export const defaultToast = ({

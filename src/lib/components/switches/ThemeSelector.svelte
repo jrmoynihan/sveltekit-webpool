@@ -138,7 +138,7 @@
 		display: grid;
 		position: relative;
 		width: max-content;
-		color: var(--main-color);
+		color: var(--main-color, rgb(255, 255, 255));
 	}
 	.container {
 		display: grid;

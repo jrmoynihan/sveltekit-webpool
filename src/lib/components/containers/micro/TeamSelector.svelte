@@ -64,9 +64,3 @@
 	</IntersectionObserver>
 	<TeamRecord showTeamAbbreviation={!showTeamNameImages} team={homeOrAwayTeam} />
 </label>
-
-<style lang="scss">
-	input {
-		// @include hiddenRadio;
-	}
-</style>

@@ -6,13 +6,13 @@ import { usersCollection } from './collections';
 import { userConverter } from './converters';
 import { defaultToast, errorToast } from './toasts';
 
-export const getWeeklyUsers = async (q?: Query, showToast = true) => {
+export const getWeeklyUsers = async ({
+	showToast = true,
+	customizedQuery = query(usersCollection, where('weekly', '==', true))
+}) => {
 	try {
 		const users: WebUser[] = [];
-		if (q === undefined) {
-			q = query(usersCollection, where('weekly', '==', true));
-		}
-		const querySnapshot = await getDocs(q.withConverter(userConverter));
+		const querySnapshot = await getDocs(customizedQuery.withConverter(userConverter));
 		querySnapshot.forEach((doc) => {
 			const id = doc.id;
 			const ref = doc.ref;

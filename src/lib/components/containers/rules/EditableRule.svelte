@@ -1,37 +1,29 @@
 <script lang="ts">
-	import { DocumentReference, updateDoc } from '@firebase/firestore';
-	import type { DocumentData } from '@firebase/firestore';
+	import { updateDoc } from '@firebase/firestore';
+	import type { Rule } from '$scripts/classes/rules';
+	import { myLog } from '$scripts/classes/constants';
+	import { errorToast } from '$scripts/toasts';
 
-	export let rule: { data: DocumentData; ref: DocumentReference };
+	export let rule: Rule;
 
-	const ruleData = { ...rule.data };
-
-	function updateRule(): void {
+	const updateRule = async (): Promise<void> => {
 		try {
-			console.log('before', rule);
-			if (ruleData.subtext) {
-				updateDoc(rule.ref, {
-					text: ruleData.text,
-					order: ruleData.order,
-					subtext: ruleData.subtext
-				});
-			} else {
-				updateDoc(rule.ref, { text: ruleData.text, order: ruleData.order });
-			}
-
-			console.log('after', rule);
+			myLog(`before rule change: ${rule}`);
+			updateDoc(rule.docRef, { ...rule });
+			myLog(`after rule change: ${rule}`);
 		} catch (err) {
 			console.error(err);
+			errorToast('Unable to make rule change.  See console log for details.');
 		}
-	}
+	};
 </script>
 
 <div class="rule-item">
-	<textarea bind:value={ruleData.text} on:change={updateRule} />
-	<input class="order-input" bind:value={ruleData.order} on:change={() => updateRule()} />
-	{#if ruleData.subtext}
-		<textarea bind:value={ruleData.subtext} on:change={updateRule} />
-		<div class="order-input">{ruleData.order}</div>
+	<textarea bind:value={rule.text} on:change={updateRule} />
+	<input class="order-input" bind:value={rule.order} on:change={updateRule} />
+	{#if rule.subtext}
+		<textarea bind:value={rule.subtext} on:change={updateRule} />
+		<div class="order-input">{rule.order}</div>
 	{/if}
 </div>
 

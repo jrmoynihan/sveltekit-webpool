@@ -1,1 +1,5 @@
-let t;function a(a){t=a}export{a as i,t as r};
+let t;
+function a(a) {
+	t = a;
+}
+export { a as i, t as r };

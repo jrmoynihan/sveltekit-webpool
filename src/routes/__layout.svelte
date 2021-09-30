@@ -108,9 +108,9 @@
 			sans-serif;
 		box-sizing: border-box;
 		font-display: swap;
-		color: var(--main-color);
+		color: var(--main-color, rgb(255, 255, 255));
 		scrollbar-width: thin;
-		scrollbar-color: var(--accent-color) var(--alternate-color);
+		scrollbar-color: var(--accent-color, rgb(233, 181, 99)) var(--alternate-color, rgb(36, 50, 36));
 		--toastContainerTop: 15%;
 		--toastWidth: 100%;
 		--toastContainerLeft: 2%;
@@ -127,7 +127,7 @@
 	.app-wrapper {
 		padding: 0 5px 5px 5px;
 		display: grid;
-		background: var(--alternate-color);
+		background: var(--alternate-color, rgb(36, 50, 36));
 		position: relative;
 		opacity: 0.99;
 		min-height: 100vh;
@@ -166,7 +166,7 @@
 
 		// my styles
 		@include gridAndGap(15px);
-		color: var(--main-color);
+		color: var(--main-color, rgb(255, 255, 255));
 		grid-template-rows: repeat(auto-fit, minmax(min(0px, 100%), 1fr));
 		grid-template-columns: 100%;
 		text-align: center;

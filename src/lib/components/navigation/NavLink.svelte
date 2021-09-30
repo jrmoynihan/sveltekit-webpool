@@ -59,8 +59,8 @@
 		@include defaultTransition;
 		@include flexCenter;
 		position: relative;
-		color: var(--main-color);
-		box-shadow: 0 0 2px 2px rgba(var(--accentValue-color), 0.3);
+		color: var(--main-color, rgb(255, 255, 255));
+		box-shadow: 0 0 2px 2px rgba(var(--accentValue-color, rgb(233, 181, 99)), 0.3);
 		width: 100%;
 		height: 2em;
 
@@ -77,8 +77,8 @@
 		}
 		&:hover:not(.active),
 		&:focus:not(.active) {
-			background: radial-gradient(var(--alternate-color) 30%, transparent 90%);
-			background-color: rgba(var(--accentValue-color), 50%);
+			background: radial-gradient(var(--alternate-color, rgb(36, 50, 36)) 30%, transparent 90%);
+			background-color: rgba(var(--accentValue-color, rgb(233, 181, 99)), 50%);
 		}
 		// Current page indicator
 		&.active {
@@ -92,7 +92,7 @@
 	}
 	a {
 		@include flexCenter;
-		color: var(--main-color);
+		color: var(--main-color, rgb(255, 255, 255));
 		font-weight: 700;
 		font-size: 0.8rem;
 		gap: 0.7em;
@@ -104,13 +104,13 @@
 		transition: color 0.2s linear;
 		width: 100%;
 		&:visited {
-			color: var(--main-color);
+			color: var(--main-color, rgb(255, 255, 255));
 		}
 		&.active,
 		&:active {
-			color: var(--alternate-color);
+			color: var(--alternate-color, rgb(36, 50, 36));
 			&.dark-mode {
-				color: var(--main-color);
+				color: var(--main-color, rgb(255, 255, 255));
 			}
 		}
 	}

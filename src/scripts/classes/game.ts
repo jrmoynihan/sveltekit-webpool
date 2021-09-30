@@ -25,6 +25,8 @@ export class Game {
 	awayTeam: Team;
 	winner: string;
 	ATSwinner: string;
+	totalScore: number;
+	isLastGameOfWeek: boolean;
 
 	constructor({ ...args }) {
 		this.docRef = args.docRef;
@@ -50,5 +52,7 @@ export class Game {
 		this.awayTeam = args.awayTeam;
 		this.winner = args.winner;
 		this.ATSwinner = args.ATSwinner;
+		this.totalScore = args.totalScore;
+		this.isLastGameOfWeek = args.isLastGameOfWeek;
 	}
 }

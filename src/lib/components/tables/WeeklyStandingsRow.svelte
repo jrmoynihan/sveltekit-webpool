@@ -7,6 +7,7 @@
 	export let i: number;
 	export let selectedWeek: number;
 	export let tiebreaker: WeeklyTiebreaker;
+	export let showNetTiebreakers: boolean = false;
 
 	const isEvenRow = (index: number) => {
 		if ((index + 1) % 2 === 0) {
@@ -16,24 +17,28 @@
 		}
 	};
 	const evenRow = isEvenRow(i);
+	const inTheMoney = i < 3;
 </script>
 
-<RowData {evenRow}>
+<RowData {evenRow} {inTheMoney}>
 	{i + 1}
 </RowData>
-<RowData {evenRow}>
+<RowData {evenRow} {inTheMoney}>
 	{#if player.nickname}
 		{player.nickname}
 	{:else}
 		{player.name}
 	{/if}
 </RowData>
-<RowData {evenRow}>
+<RowData {evenRow} {inTheMoney}>
 	{player.weeklyPickRecord[`week_${selectedWeek}`].wins}
 </RowData>
-<RowData {evenRow}>
+<RowData {evenRow} {inTheMoney}>
 	{player.weeklyPickRecord[`week_${selectedWeek}`].losses}
 </RowData>
-<RowData {evenRow}>
+<RowData {evenRow} {inTheMoney}>
 	{tiebreaker.tiebreaker}
+	{#if showNetTiebreakers}
+		({player.weeklyPickRecord[`week_${selectedWeek}`].netTiebreaker})
+	{/if}
 </RowData>

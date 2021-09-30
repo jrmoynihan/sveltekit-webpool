@@ -14,7 +14,7 @@ import {
 import { firestoreAuth } from '$scripts/firebaseInit';
 import { get, writable } from 'svelte/store';
 import type { WebUser } from '$scripts/classes/webUser';
-import { getDoc, doc, setDoc, DocumentSnapshot } from '@firebase/firestore';
+import { getDoc, doc, setDoc } from '@firebase/firestore';
 import { usersCollection } from '$scripts/collections';
 import { hideModal } from './functions';
 import { goto } from '$app/navigation';

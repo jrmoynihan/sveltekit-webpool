@@ -1,8 +1,18 @@
 import type { Game } from './classes/game';
 import type { DocumentReference, QuerySnapshot } from '@firebase/firestore';
 import { myLog, everyoneWinsResult, myError, checkmark } from './classes/constants';
-import { scheduleCollection, usersCollection, weeklyPicksCollection } from './collections';
-import { gameConverter, teamConverter, userConverter, weeklyPickConverter } from './converters';
+import {
+	scheduleCollection,
+	usersCollection,
+	weeklyPicksCollection,
+	weeklyTiebreakersCollection
+} from './collections';
+import {
+	gameConverter,
+	teamConverter,
+	weeklyPickConverter,
+	weeklyTiebreakerConverter
+} from './converters';
 import { getStatus, getScores } from './functions';
 import { defaultToast, errorToast } from './toasts';
 import {
@@ -22,7 +32,7 @@ export const scorePicksForWeek = async (
 	selectedWeek: number,
 	selectedYear = new Date().getFullYear(),
 	seasonType = 'Regular Season'
-) => {
+): Promise<void> => {
 	try {
 		const wheres: QueryConstraint[] = [
 			where('week', '==', selectedWeek),
@@ -31,33 +41,55 @@ export const scorePicksForWeek = async (
 		];
 		const gameQuery = query(scheduleCollection, ...wheres);
 		const pickQuery = query(weeklyPicksCollection, ...wheres);
+		const tiebreakerQuery = query(weeklyTiebreakersCollection, ...wheres);
 		const teamQuery = query(teamsCollection);
 		const games = await getDocs(gameQuery.withConverter(gameConverter));
 		const picks = await getDocs(pickQuery.withConverter(weeklyPickConverter));
+		const tiebreakers = await getDocs(tiebreakerQuery.withConverter(weeklyTiebreakerConverter));
 		const teams = await getDocs(teamQuery.withConverter(teamConverter));
 		games.forEach((game) => {
 			const gameData = game.data();
-			const ref = game.ref;
+			const gameRef = game.ref;
 			if (!gameData.winner) {
-				updateGameWinner(gameData, ref, teams);
+				updateGameandATSWinner(gameData, gameRef, teams);
 			} else {
-				myLog('already stored winners');
+				myLog(
+					`already stored winner of game ${gameData.id} (${gameData.shortName}, ${gameData.date})`
+				);
 			}
+			if (gameData.isLastGameOfWeek && gameData.winner) {
+				myLog(`last game of the week: ${gameData.shortName}, totalScore: ${gameData.totalScore}`);
+				tiebreakers.forEach((tiebreaker) => {
+					const tiebreakerData = tiebreaker.data();
+					const uid = tiebreakerData.uid;
+					if (tiebreakerData.tiebreaker) {
+						const netFromTotalScore = gameData.totalScore - tiebreakerData.tiebreaker;
+						const userDocRef = doc(usersCollection, uid);
+						// store netTiebreakers on the USER document; easier for scoreboard
+						updateDoc(userDocRef, {
+							[`weeklyPickRecord.week_${selectedWeek}.netTiebreaker`]: netFromTotalScore
+						});
+					} else {
+						myLog('no tiebreaker posted');
+					}
+				});
+			}
+
 			picks.forEach((pick) => {
 				const pickData = pick.data();
-				const ref = pick.ref;
+				const pickRef = pick.ref;
 				const uid = pickData.uid;
 				const userRef = doc(usersCollection, uid);
 				if (pickData.isCorrect === null || pickData.isCorrect === undefined) {
 					if (pickData.id === game.id) {
 						if (gameData.ATSwinner === pickData.pick || gameData.ATSwinner === everyoneWinsResult) {
-							updateDoc(ref, { isCorrect: true });
+							updateDoc(pickRef, { isCorrect: true });
 							updateDoc(userRef, {
 								'weeklyPickRecord.total.wins': increment(1),
 								[`weeklyPickRecord.week_${selectedWeek}.wins`]: increment(1)
 							});
 						} else {
-							updateDoc(ref, { isCorrect: false });
+							updateDoc(pickRef, { isCorrect: false });
 							updateDoc(userRef, {
 								'weeklyPickRecord.total.losses': increment(1),
 								[`weeklyPickRecord.week_${selectedWeek}.losses`]: increment(1)
@@ -83,7 +115,7 @@ export const removeScoredPicksForWeek = async (
 	selectedWeek: number,
 	selectedYear = new Date().getFullYear(),
 	seasonType = 'Regular Season'
-) => {
+): Promise<void> => {
 	try {
 		const wheres: QueryConstraint[] = [
 			where('week', '==', selectedWeek),
@@ -111,11 +143,11 @@ export const removeScoredPicksForWeek = async (
 	}
 };
 
-export const updateGameWinner = async (
+export const updateGameandATSWinner = async (
 	gameData: Game,
 	gameRef: DocumentReference,
 	teams: QuerySnapshot<Team>
-) => {
+): Promise<void> => {
 	try {
 		const competitions: any[] = gameData.competitions;
 		const statusData = await getStatus(competitions);
@@ -128,13 +160,20 @@ export const updateGameWinner = async (
 			const awayScore: number = scores.awayScoreData.value;
 			const winnerAndLoser = await findWinnerAndLoser(scores, gameData);
 			const ATSwinner = await findATSWinner(gameData, homeScore, awayScore, spread);
-			myLog(`winner: ${winnerAndLoser?.winner}, ATSwinner: ${ATSwinner}, spread: ${spread}`);
-			await updateDoc(gameRef, { winner: winnerAndLoser?.winner, ATSwinner: ATSwinner });
+			const totalScore = homeScore + awayScore;
+			myLog(
+				`winner: ${winnerAndLoser?.winner}, ATSwinner: ${ATSwinner}, spread: ${spread}, total score: ${totalScore}`
+			);
+			await updateDoc(gameRef.withConverter(gameConverter), {
+				winner: winnerAndLoser?.winner,
+				ATSwinner: ATSwinner,
+				totalScore: totalScore
+			});
 
 			// Update the team record
 			await updateTeamRecord(winnerAndLoser, teams, gameData);
 		} else {
-			myLog(`game ${gameData.id} is NOT completed`);
+			myLog(`game ${gameData.id} (${gameData.shortName}, ${gameData.date}) is NOT completed`);
 		}
 	} catch (error) {
 		myError('updatedGameWinner', error);
@@ -144,14 +183,14 @@ export const updateGameWinner = async (
 export const findWinnerAndLoser = async (
 	scores: { homeScoreData: { winner: boolean }; awayScoreData: { winner: boolean } },
 	gameData: Game
-) => {
+): Promise<{ winner: string; loser: string }> => {
 	try {
 		if (scores.homeScoreData.winner === true) {
 			return { winner: gameData.homeTeam.abbreviation, loser: gameData.awayTeam.abbreviation };
 		} else if (scores.awayScoreData.winner === true) {
 			return { winner: gameData.awayTeam.abbreviation, loser: gameData.homeTeam.abbreviation };
 		} else {
-			return null;
+			return { winner: everyoneWinsResult, loser: everyoneWinsResult };
 		}
 	} catch (error) {
 		myError('findWinnerAndLoser', error);
@@ -162,7 +201,7 @@ export const findATSWinner = async (
 	homeScore: number,
 	awayScore: number,
 	spread: number
-) => {
+): Promise<string> => {
 	// Home Team Favored
 	if (spread < 0) {
 		// Home Team Favored, Covers
@@ -207,7 +246,7 @@ export const updateTeamRecord = async (
 	winnerAndLoser: { winner: string; loser: string },
 	teams: QuerySnapshot<Team>,
 	gameData: Game
-) => {
+): Promise<void> => {
 	// Update for ties
 	if (winnerAndLoser === null) {
 		const homeTeamRef = gameData.homeTeam.docRef;
@@ -229,20 +268,20 @@ export const updateTeamRecord = async (
 	}
 };
 
-export const incrementTies = async (teamRef: DocumentReference) => {
+export const incrementTies = async (teamRef: DocumentReference): Promise<void> => {
 	await updateDoc(teamRef, { ties: increment(1) });
 };
-export const incrementWins = async (teamRef: DocumentReference) => {
+export const incrementWins = async (teamRef: DocumentReference): Promise<void> => {
 	await updateDoc(teamRef, { wins: increment(1) });
 };
-export const incrementLosses = async (teamRef: DocumentReference) => {
+export const incrementLosses = async (teamRef: DocumentReference): Promise<void> => {
 	await updateDoc(teamRef, { losses: increment(1) });
 };
 export const removeWinnersFromGames = async (
 	selectedWeek: number,
 	selectedYear = new Date().getFullYear(),
 	seasonType = 'Regular Season'
-) => {
+): Promise<void> => {
 	try {
 		const wheres: QueryConstraint[] = [
 			where('week', '==', selectedWeek),
@@ -273,17 +312,22 @@ export const removeWinnersFromGames = async (
 export const updateTeamsOnScheduleDocs = async (
 	selectedYear = new Date().getFullYear(),
 	seasonType = 'Regular Season'
-) => {
+): Promise<void> => {
 	try {
 		const wheres = [where('year', '==', selectedYear), where('type', '==', seasonType)];
 		const gamesQuery = query(scheduleCollection, ...wheres);
 		const teamQuery = query(teamsCollection);
 		const games = await getDocs(gamesQuery.withConverter(gameConverter));
 		const teams = await getDocs(teamQuery.withConverter(teamConverter));
-		games.forEach((game) => {
+		games.forEach(async (game) => {
 			const gameData = game.data();
 			const gameRef = game.ref;
-			teams.forEach((team) => {
+			const competitions: any[] = gameData.competitions;
+			const scores = await getScores(competitions);
+			const winnerAndLoser = await findWinnerAndLoser(scores, gameData);
+			await updateTeamRecord(winnerAndLoser, teams, gameData);
+			// Then update the team document data
+			for await (const team of teams.docs) {
 				const teamData = team.data();
 				const teamID = team.id;
 				if (gameData.awayTeam.abbreviation === teamID) {
@@ -292,7 +336,7 @@ export const updateTeamsOnScheduleDocs = async (
 				if (gameData.homeTeam.abbreviation === teamID) {
 					updateDoc(gameRef, { homeTeam: { ...teamData } });
 				}
-			});
+			}
 		});
 		defaultToast({
 			title: 'Updated Teams!',
@@ -304,7 +348,7 @@ export const updateTeamsOnScheduleDocs = async (
 	}
 };
 
-export const resetWeeklyUserRecords = async () => {
+export const resetWeeklyUserRecords = async (): Promise<void> => {
 	try {
 		const proceed = confirm('Are you sure you want to reset all Weekly Pool user records?');
 		if (proceed) {

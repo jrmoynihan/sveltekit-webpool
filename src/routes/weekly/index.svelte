@@ -10,6 +10,7 @@
 
 <DevNotes>
 	<svelte:fragment slot="notes">
-		This may be a good place to insert the "widgets". Out of the way enough to not be a bother, but still findable via normal navigation.
+		This may be a good place to insert the "widgets". Out of the way enough to not be a bother, but
+		still findable via normal navigation.
 	</svelte:fragment>
 </DevNotes>

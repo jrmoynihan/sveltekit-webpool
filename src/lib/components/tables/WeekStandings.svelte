@@ -7,14 +7,20 @@
 	import { mobileBreakpoint } from '$scripts/site';
 	import { windowWidth } from '$scripts/store';
 	import { onMount } from 'svelte';
-	import { query, where, orderBy, DocumentData, Query, getDocs } from '@firebase/firestore';
-	import { usersCollection, weeklyTiebreakersCollection } from '$scripts/collections';
+	import { query, where, orderBy, DocumentData, Query, getDocs, getDoc } from '@firebase/firestore';
+	import {
+		scheduleCollection,
+		usersCollection,
+		weeklyTiebreakersCollection
+	} from '$scripts/collections';
 	import { getWeeklyUsers } from '$scripts/weeklyUsers';
 	import type { WeeklyTiebreaker } from '$scripts/classes/tiebreaker';
-	import { weeklyTiebreakerConverter } from '$scripts/converters';
+	import { gameConverter, weeklyTiebreakerConverter } from '$scripts/converters';
 	import { errorToast } from '$scripts/toasts';
 	import { myError } from '$scripts/classes/constants';
-	import { dataset_dev } from 'svelte/internal';
+	import type { Game } from '$scripts/classes/game';
+	import DevNotes from '../misc/DevNotes.svelte';
+	import ToggleSwitch from '../switches/ToggleSwitch.svelte';
 
 	let initialWeekHeaders: string[] = ['Rank', 'Player', 'Wins', 'Losses', 'Tiebreaker'];
 	let abbreviatedWeekHeaders: string[] = ['#', 'Name', 'W', 'L', 'T'];
@@ -22,70 +28,9 @@
 	let selectedWeek: number;
 	let tiebreakerPromise: Promise<WeeklyTiebreaker[]>;
 	let weeklyUserPromise: Promise<WebUser[]>;
+	let lastGamePromise: Promise<Game>;
 	let weeklyUserQuery: Query<DocumentData>;
-	// let playerData = [];
-	// let possibleWins: { wins: number; count: number }[] = [];
-	// let maxCount: number = 1;
-
-	// TODO query the collection by week, and sort by wins, then net tiebreaker
-	// let names = [
-	// 	'Daphne',
-	// 	'Winston',
-	// 	'Jamie',
-	// 	'Emma',
-	// 	'Dad',
-	// 	'Luca',
-	// 	'RidingWithBiden',
-	// 	'TheCheese',
-	// 	'AllenDiggs2024'
-	// ];
-
-	// const getRandomRecords = async (names: string[]) => {
-	// 	let recordData = [];
-	// 	for await (const name of names) {
-	// 		const wins = await getRandomInt(16);
-	// 		const losses = 16 - wins;
-	// 		const tiebreaker = await getRandomInt(63, 10);
-	// 		const playerDatum = { nickname: name, wins: wins, losses: losses, tiebreaker: tiebreaker };
-	// 		recordData = [...recordData, playerDatum];
-	// 	}
-	// 	return recordData;
-	// };
-	// const getRandomInt = async (max: number, min = 0) => {
-	// 	return Math.max(Math.floor(Math.random() * max), min);
-	// };
-
-	// const sortPlayersByWins = (playerData: any[]) => {
-	// 	const tempArr = playerData;
-	// 	tempArr.sort((firstPlayer, secondPlayer) => secondPlayer.wins - firstPlayer.wins);
-	// 	return tempArr;
-	// };
-
-	// const setPossibleWins = async () => {
-	// 	let arr: { wins: number; count: number }[] = [];
-	// 	for (let i = 1; i < 17; i++) {
-	// 		arr.push({ wins: i, count: 0 });
-	// 	}
-	// 	return arr;
-	// };
-
-	// const countWins = async (possibleWins: { wins: number; count: number }[], playerData: any[]) => {
-	// 	let countedWins = possibleWins;
-
-	// 	for await (const possibleWinCount of countedWins) {
-	// 		for await (const player of playerData) {
-	// 			if (player.wins === possibleWinCount.wins) {
-	// 				possibleWinCount.count++;
-	// 			}
-	// 		}
-	// 	}
-	// 	return countedWins;
-	// };
-	// const updateMaxCount = async (countedWins: any[]) => {
-	// 	const counts = countedWins.map((obj) => obj.count);
-	// 	const maxCount = Math.max.apply(Math, counts);
-	// 	return maxCount;
-	// };
+	let showNetTiebreakers: boolean = false;
 
 	export const getAllTiebreakers = async (selectedWeek: number) => {
 		try {
@@ -109,6 +54,16 @@
 			myError('getAllTiebreakers', error);
 		}
 	};
+	const getLastGame = async (selectedWeek: number) => {
+		const lastGameQuery = query(
+			scheduleCollection,
+			where('week', '==', selectedWeek),
+			where('isLastGame', '==', true)
+		);
+		const lastGameDoc = await getDocs(lastGameQuery.withConverter(gameConverter));
+		const lastGame = lastGameDoc.docs[0].data();
+		return lastGame;
+	};
 
 	$: {
 		if ($windowWidth < mobileBreakpoint - 500) {
@@ -121,9 +76,10 @@
 		weeklyUserQuery = query(
 			usersCollection,
 			where('weekly', '==', true),
-			orderBy(`weeklyPickRecord.week_${selectedWeek}.wins`)
+			orderBy(`weeklyPickRecord.week_${selectedWeek}.wins`, 'desc'),
+			orderBy(`weeklyPickRecord.week_${selectedWeek}.netTiebreaker`)
 		);
-		weeklyUserPromise = getWeeklyUsers(weeklyUserQuery, false);
+		weeklyUserPromise = getWeeklyUsers({ showToast: false, q: weeklyUserQuery });
 		tiebreakerPromise = getAllTiebreakers(selectedWeek);
 	};
 
@@ -134,6 +90,12 @@
 	});
 </script>
 
+<DevNotes>
+	<p>
+		<span>Show Net Tiebreakers:</span>
+		<ToggleSwitch bind:checked={showNetTiebreakers} />
+	</p>
+</DevNotes>
 <div class="week grid">
 	<!-- <AccordionDetails>
 		<svelte:fragment slot="summary">Histogram</svelte:fragment>
@@ -179,7 +141,7 @@
 					{#each weeklyPlayerData as player, i}
 						{#each tiebreakers as tiebreaker}
 							{#if tiebreaker.uid === player.id}
-								<WeeklyStandingsRow {player} {selectedWeek} {i} {tiebreaker} />
+								<WeeklyStandingsRow {player} {selectedWeek} {i} {tiebreaker} {showNetTiebreakers} />
 							{/if}
 						{/each}
 					{/each}
@@ -210,7 +172,7 @@
 	.header {
 		font-weight: bold;
 		padding-bottom: 0.5rem;
-		border-bottom: 2px solid rgba(var(--accentValue-color), 50%);
+		border-bottom: 2px solid rgba(var(--accentValue-color, rgb(233, 181, 99)), 50%);
 	}
 	// .histogram {
 	// 	position: sticky;

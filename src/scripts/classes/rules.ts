@@ -1,13 +1,16 @@
-import {
-	collection,
-	CollectionReference,
-	DocumentData,
-	DocumentReference
-} from '@firebase/firestore';
+import { collection, CollectionReference, DocumentReference } from '@firebase/firestore';
 
 export class Rule {
+	docRef: DocumentReference;
 	order: number;
 	text: string;
+	subtext?: string;
+	constructor({ ...args }) {
+		this.docRef = args.docRef;
+		this.order = args.order;
+		this.text = args.text;
+		this.subtext = args.subtext;
+	}
 }
 
 export class RuleCategory {

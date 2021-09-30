@@ -22,7 +22,7 @@
 
 <style lang="scss">
 	.switch {
-		--line: var(--main-color);
+		--line: var(--main-color, rgb(255, 255, 255));
 		--dot: #000;
 		--circle: #f7f8ff; //#9EA0BE
 		--duration: 0.3s;

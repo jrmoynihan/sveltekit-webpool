@@ -1,6 +1,6 @@
 import type { QueryDocumentSnapshot, SnapshotOptions } from '@firebase/firestore';
 import { Team } from '$scripts/classes/team';
-import { RuleCategory } from '$scripts/classes/rules';
+import { Rule, RuleCategory } from '$scripts/classes/rules';
 import { Game } from './classes/game';
 import { WeeklyPickDoc } from './classes/picks';
 import { WeeklyTiebreaker } from './classes/tiebreaker';
@@ -30,8 +30,8 @@ export const teamConverter = {
 		return new Team({ docID: docID, docRef: docRef, ...data });
 	}
 };
-export const rulesConverter = {
-	toFirestore: (rule: Partial<RuleCategory>): Partial<RuleCategory> => {
+export const ruleCategoryConverter = {
+	toFirestore: (rule: RuleCategory): RuleCategory => {
 		return { ...rule };
 	},
 	fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): RuleCategory => {
@@ -39,6 +39,16 @@ export const rulesConverter = {
 		const docID = snapshot.id;
 		const data = snapshot.data(options);
 		return new RuleCategory({ docRef: docRef, docID: docID, ...data });
+	}
+};
+export const ruleConverter = {
+	toFirestore: (rule: Rule): Rule => {
+		return { ...rule };
+	},
+	fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): Rule => {
+		const data = snapshot.data(options);
+		const docRef = snapshot.ref;
+		return new Rule({ docRef: docRef, ...data });
 	}
 };
 
@@ -64,7 +74,7 @@ export const weeklyPickConverter = {
 	}
 };
 export const weeklyTiebreakerConverter = {
-	toFirestore: (tiebreaker: WeeklyTiebreaker) => {
+	toFirestore: (tiebreaker: WeeklyTiebreaker): WeeklyTiebreaker => {
 		return { ...tiebreaker };
 	},
 	fromFirestore: (snapshot: QueryDocumentSnapshot): WeeklyTiebreaker => {

@@ -1,5 +1,5 @@
 export class WeeklyPickRecord {
-	total: UserRecord;
+	total: { wins: number; losses: number };
 	week_1: UserRecord;
 	week_2: UserRecord;
 	week_3: UserRecord;
@@ -22,4 +22,5 @@ export class WeeklyPickRecord {
 export class UserRecord {
 	wins: number;
 	losses: number;
+	netTiebreaker: number;
 }

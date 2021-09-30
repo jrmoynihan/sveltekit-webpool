@@ -40,7 +40,10 @@
 		transition: all 300ms ease-in-out;
 		width: 100%;
 		z-index: 10;
-		background: radial-gradient(rgba(var(--alternateValue-color), 90%) 70%, transparent);
+		background: radial-gradient(
+			rgba(var(--alternateValue-color, rgb(36, 50, 36)), 90%) 70%,
+			transparent
+		);
 		@include responsive_desktop_only {
 			position: sticky;
 		}

@@ -71,7 +71,7 @@ p {
 }
 
 a {
-	color: var(--accent-color);
+	color: var(--accent-color, rgb(233, 181, 99));
 	text-decoration: none;
 }
 

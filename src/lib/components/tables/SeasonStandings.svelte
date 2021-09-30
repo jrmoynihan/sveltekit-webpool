@@ -31,9 +31,9 @@
 		const weeklyUserQuery = query(
 			usersCollection,
 			where('weekly', '==', true),
-			orderBy(`weeklyPickRecord.total.wins`)
+			orderBy(`weeklyPickRecord.total.wins`, 'desc')
 		);
-		weeklyUserPromise = getWeeklyUsers(weeklyUserQuery, false);
+		weeklyUserPromise = getWeeklyUsers({ showToast: false, customizedQuery: weeklyUserQuery });
 	};
 
 	onMount(async () => {
@@ -72,6 +72,6 @@
 	.header {
 		font-weight: bold;
 		padding-bottom: 0.5rem;
-		border-bottom: 2px solid rgba(var(--accentValue-color), 50%);
+		border-bottom: 2px solid rgba(var(--accentValue-color, rgb(233, 181, 99)), 50%);
 	}
 </style>

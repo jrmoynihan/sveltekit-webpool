@@ -1,27 +1,24 @@
 <script lang="ts">
-	import type { DocumentReference } from '@firebase/firestore';
 	import { faFootballBall } from '@fortawesome/free-solid-svg-icons';
-	import type { DocumentData } from '@firebase/firestore';
 	import Fa from 'svelte-fa';
+	import type { Rule } from '$scripts/classes/rules';
 
-	export let rule: { data: DocumentData; ref: DocumentReference };
-
-	let ruleData = { ...rule.data };
+	export let rule: Rule;
 </script>
 
 <li class="rule-item">
 	<div class="icon">
 		<Fa icon={faFootballBall} />
 	</div>
-	&nbsp {@html ruleData.text}
+	&nbsp {@html rule.text}
 
-	{#if ruleData.subtext}
+	{#if rule.subtext}
 		<ul>
 			<li class="rule-item">
 				<div class="icon">
 					<Fa icon={faFootballBall} />
 				</div>
-				&nbsp {@html ruleData.subtext}
+				&nbsp {@html rule.subtext}
 			</li>
 		</ul>
 	{/if}
@@ -40,12 +37,12 @@
 		// align-self: center;
 
 		&::marker {
-			color: var(--accent-color);
+			color: var(--accent-color, rgb(233, 181, 99));
 			font-size: 1.2em;
 		}
 	}
 	.icon {
 		display: inline-block;
-		color: var(--accent-color);
+		color: var(--accent-color, rgb(233, 181, 99));
 	}
 </style>

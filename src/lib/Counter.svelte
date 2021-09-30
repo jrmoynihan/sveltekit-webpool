@@ -82,7 +82,7 @@
 		width: 100%;
 		height: 100%;
 		font-weight: 400;
-		color: var(--accent-color);
+		color: var(--accent-color, rgb(233, 181, 99));
 		font-size: 4rem;
 	}
 

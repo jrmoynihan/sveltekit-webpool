@@ -54,7 +54,7 @@ export const myError = (
 	error: Error,
 	additionalMessage: string = null,
 	icon: string = policeCarLight
-) => {
+): void => {
 	console.error(
 		`%c${icon} ${functionName} had an error! ${additionalMessage}`,
 		defaultConsoleLogStyle,
@@ -63,10 +63,10 @@ export const myError = (
 };
 export const myLog = (
 	message: string,
-	functionName: string = '',
-	icon: string = '',
+	functionName = '',
+	icon = '',
 	additionalParameters = null
-) => {
+): void => {
 	console.log(
 		`%c${icon} ${functionName ? `${functionName}:` : ''} ${message}`,
 		defaultConsoleLogStyle,

@@ -13,25 +13,26 @@
 		}
 	};
 	const evenRow = isEvenRow(i);
+	const inTheMoney = i < 3;
 </script>
 
-<RowData {evenRow}>
+<RowData {evenRow} {inTheMoney}>
 	{i + 1}
 </RowData>
-<RowData {evenRow}>
+<RowData {evenRow} {inTheMoney}>
 	{#if player.nickname}
 		{player.nickname}
 	{:else}
 		{player.name}
 	{/if}
 </RowData>
-<RowData {evenRow}>
+<RowData {evenRow} {inTheMoney}>
 	{player.weeklyPickRecord.total.wins}
 </RowData>
-<RowData {evenRow}>
+<RowData {evenRow} {inTheMoney}>
 	{player.weeklyPickRecord.total.losses}
 </RowData>
-<RowData {evenRow}>
+<RowData {evenRow} {inTheMoney}>
 	<div class="percentage">
 		{#if player.weeklyPickRecord.total.wins > 0 || player.weeklyPickRecord.total.losses > 0}
 			{(
@@ -64,7 +65,7 @@
 	}
 	span {
 		aspect-ratio: 1/1;
-		background: conic-gradient(var(--main-color) $radii, transparent $radii);
+		background: conic-gradient(var(--main-color, rgb(255, 255, 255)) $radii, transparent $radii);
 		border-radius: 50%;
 		display: inline-block;
 		height: 100%;

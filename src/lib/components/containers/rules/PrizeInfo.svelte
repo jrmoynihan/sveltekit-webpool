@@ -50,7 +50,7 @@
 <style lang="scss">
 	$spanLength: var(--span-length);
 	h3 {
-		color: var(--accent-color);
+		color: var(--accent-color, rgb(233, 181, 99));
 		text-decoration: underline 2px;
 	}
 	.title {

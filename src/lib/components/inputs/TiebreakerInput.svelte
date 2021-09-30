@@ -43,7 +43,7 @@
 	.tiebreaker-container {
 		position: relative;
 		grid-area: tiebreaker;
-		box-shadow: 0 0 4px 2px var(--accent-color);
+		box-shadow: 0 0 4px 2px var(--accent-color, rgb(233, 181, 99));
 	}
 	input {
 		@include editableInput;

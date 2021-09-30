@@ -78,7 +78,7 @@
 
 	const createWeeklyPicksForAllUsers = async () => {
 		try {
-			const weeklyUsers = await getWeeklyUsers();
+			const weeklyUsers = await getWeeklyUsers({});
 			const games = await getAllGames();
 			for await (const user of weeklyUsers) {
 				await createWeeklyPicksForUser(user, games);
@@ -167,7 +167,7 @@
 	};
 	const createTiebreakersForAllUsers = async () => {
 		try {
-			const weeklyUsers = await getWeeklyUsers();
+			const weeklyUsers = await getWeeklyUsers({});
 			weeklyUsers.forEach((user) => {
 				createTiebreakersForUser(user, false);
 			});
@@ -251,7 +251,7 @@
 <div class="grid">
 	<button
 		on:click={async () => {
-			userPromise = getWeeklyUsers();
+			userPromise = getWeeklyUsers({});
 			gamePromise = getAllGames();
 			maxWeekPromise = getMaxGameWeek();
 		}}
@@ -265,23 +265,22 @@
 
 	<WeekSelect bind:selectedWeek />
 	<YearSelect bind:selectedYear />
-	<button on:click={() => updateGameSpreads(selectedWeek, selectedYear)}>Update Week Spreads</button
+	<button on:click={() => updateGameSpreads(selectedWeek, selectedYear)}
+		>Update Spreads for Week {selectedWeek}, {selectedYear}</button
 	>
 	<button on:click={() => scorePicksForWeek(selectedWeek, selectedYear)}
-		>Score Picks For Week {selectedWeek}</button
+		>Score Picks For Week {selectedWeek}, {selectedYear}</button
 	>
 	<button class="deletion" on:click={() => removeScoredPicksForWeek(selectedWeek, selectedYear)}
-		>Remove Scored Picks For Week</button
+		>Remove Scored Picks For Week {selectedWeek}, {selectedYear}</button
 	>
 	<button class="deletion" on:click={() => removeWinnersFromGames(selectedWeek, selectedYear)}
-		>Remove Game Winners For Week</button
+		>Remove Game Winners For Week {selectedWeek}, {selectedYear}</button
 	>
 	<button class="deletion" on:click={resetTeamRecords}>Reset Team Records</button>
-	<button on:click={() => updateTeamsOnScheduleDocs(selectedYear)}
-		>Update Team Records on Scheduled Games</button
-	>
+	<button on:click={() => updateTeamsOnScheduleDocs()}>Update Team Records</button>
 	<button on:click={() => findWeekDateTimeBounds()}>Find Bounds for Each Week</button>
-	<button class="deletion" on:click={resetWeeklyUserRecords}>Reset User Records</button>
+	<button class="deletion" on:click={() => resetWeeklyUserRecords()}>Reset User Records</button>
 </div>
 
 {#if userPromise}

@@ -6,7 +6,3 @@
 <PageTitle>View League Picks</PageTitle>
 <h3><em>(just showcasing the images until I build this page)</em></h3>
 <TeamGallery />
-
-
-<style lang="scss">
-</style>

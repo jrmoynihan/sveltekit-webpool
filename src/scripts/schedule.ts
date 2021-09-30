@@ -8,7 +8,8 @@ import {
 	setDoc,
 	updateDoc,
 	doc,
-	QuerySnapshot
+	QuerySnapshot,
+	DocumentReference
 } from '@firebase/firestore';
 import { myError, myLog } from './classes/constants';
 import type { Game } from './classes/game';
@@ -18,7 +19,7 @@ import { gameConverter, weekBoundConverter } from './converters';
 import { firestoreDB } from './firebaseInit';
 import { defaultToast } from './toasts';
 
-export const findWeekDateTimeBounds = async () => {
+export const findWeekDateTimeBounds = async (): Promise<void> => {
 	defaultToast({
 		title: 'Starting Week Bounds Search!',
 		msg: 'Iterating through the schedule to find and set the weekly bounds.  Please wait a few seconds...',
@@ -44,9 +45,12 @@ export const findWeekDateTimeBounds = async () => {
 	});
 };
 
-export const getFirstAndLastGameTime = async (weekOfGames: QuerySnapshot<Game>) => {
+export const getFirstAndLastGameTime = async (
+	weekOfGames: QuerySnapshot<Game>
+): Promise<{ first: Timestamp; last: Timestamp }> => {
 	let firstGameofWeekTime: Timestamp;
 	let lastGameofWeekTime: Timestamp;
+	let lastGameRef: DocumentReference<Game>;
 
 	for await (const game of weekOfGames.docs) {
 		const data = game.data();
@@ -57,8 +61,11 @@ export const getFirstAndLastGameTime = async (weekOfGames: QuerySnapshot<Game>) 
 		}
 		if (lastGameofWeekTime === undefined || gameTime > lastGameofWeekTime) {
 			lastGameofWeekTime = gameTime;
+			lastGameRef = game.ref;
 		}
 	}
+	// Set the flag to indicate that this game's score will be used for the tiebreaker comparison
+	updateDoc(lastGameRef, { isLastGameOfWeek: true });
 	return { first: firstGameofWeekTime, last: lastGameofWeekTime };
 };
 
@@ -67,7 +74,7 @@ export const setBounds = async (
 	firstGameTime: Timestamp,
 	lastGameTime: Timestamp,
 	year?: number
-) => {
+): Promise<void> => {
 	try {
 		myLog(`week ${week} firstGameTime: ${firstGameTime}`);
 		myLog(`week ${week} lastGameTime: ${lastGameTime}`);
@@ -93,7 +100,7 @@ export const setBounds = async (
 		myError('setBounds', error);
 	}
 };
-export const findCurrentWeekOfSchedule = async () => {
+export const findCurrentWeekOfSchedule = async (): Promise<number> => {
 	const now = new Date();
 	const currentYear = now.getFullYear();
 	const boundsDoc = doc(weekBoundsCollection, currentYear.toString());

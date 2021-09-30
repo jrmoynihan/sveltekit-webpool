@@ -71,6 +71,7 @@
 	import type { Game } from '$scripts/classes/game';
 	import { findCurrentWeekOfSchedule } from '$scripts/schedule';
 
+	let uid: string;
 	let picksPromise: Promise<WeeklyPickDoc[]>;
 	let tiebreakerPromise: Promise<WeeklyTiebreaker>;
 	let gamesPromise: Promise<Game[]>;
@@ -124,6 +125,7 @@
 		}
 	});
 	const getData = async () => {
+		uid = await getUserId();
 		selectedWeek = await findCurrentWeekOfSchedule();
 		await changedQuery();
 	};
@@ -144,10 +146,9 @@
 		}
 	};
 
-	const getPicks = async (selectedWeek: number) => {
+	const getPicks = async (selectedWeek: number, uid: string) => {
 		try {
 			isCorrectCount = 0;
-			const uid = await getUserId();
 			const picks: WeeklyPickDoc[] = [];
 			const q = query(
 				weeklyPicksCollection,
@@ -228,10 +229,12 @@
 		}
 	};
 
-	export const getTiebreaker = async (selectedWeek: number) => {
+	export const getTiebreaker = async (selectedWeek: number, uid: string) => {
 		try {
 			let tiebreakerData: WeeklyTiebreaker;
-			const uid = await getUserId();
+			if (!uid) {
+				uid = await getUserId();
+			}
 			const q = query(
 				weeklyTiebreakersCollection,
 				where('year', '==', selectedYear),
@@ -259,7 +262,7 @@
 		}
 	};
 
-	const submitPicks = async () => {
+	const submitPicks = async (uid: string) => {
 		try {
 			currentPicks.forEach(async (currentPick) => {
 				const docRef = currentPick.docRef;
@@ -280,9 +283,9 @@
 				}
 			});
 			myLog('updated/submitted picks!', '', okHand, currentPicks);
-			picksPromise = getPicks(selectedWeek);
+			picksPromise = getPicks(selectedWeek, uid);
 
-			setTiebreakerDoc();
+			setTiebreakerDoc(uid);
 
 			defaultToast({
 				title: `${checkmark} Picks submitted!`,
@@ -294,11 +297,9 @@
 			myError('submitPicks', error);
 		}
 	};
-	const setTiebreakerDoc = async (): Promise<void> => {
-		const uid = await getUserId();
+	const setTiebreakerDoc = async (uid?: string): Promise<void> => {
 		try {
 			let docRef: DocumentReference;
-
 			// If a tiebreaker document already exists, use its reference
 			if (tiebreakerDocRef) {
 				docRef = tiebreakerDocRef;
@@ -311,6 +312,7 @@
 				docRef: docRef,
 				tiebreaker: tiebreaker,
 				uid: uid,
+				type: 'Regular Season',
 				week: selectedWeek,
 				year: selectedYear
 			});
@@ -470,8 +472,8 @@
 	const changedQuery = async () => {
 		try {
 			gamesPromise = getGames(selectedWeek);
-			picksPromise = getPicks(selectedWeek);
-			tiebreakerPromise = getTiebreaker(selectedWeek);
+			picksPromise = getPicks(selectedWeek, uid);
+			tiebreakerPromise = getTiebreaker(selectedWeek, uid);
 		} catch (error) {
 			errorToast('Error in picking changing query... see console log.');
 			myError('changedQuery', error);
@@ -588,7 +590,7 @@
 			{/key}
 			{#if (currentPickCount >= upcomingGamesCount && upcomingGamesCount !== 0) || $overrideDisabled}
 				<SubmitPicks
-					on:click={submitPicks}
+					on:click={() => submitPicks(uid)}
 					ableToTab={tiebreaker >= 10 ? 0 : -1}
 					pulse={tiebreaker >= 10}
 					invisible={tiebreaker < 10 || tiebreaker === undefined}
@@ -699,7 +701,7 @@
 	.game-container {
 		@include defaultContainerStyles;
 		// background-color: black(30%); // for use with background images
-		box-shadow: 0px 0px 15px 0px rgba(var(--mainValue-color), 0.5);
+		box-shadow: 0px 0px 15px 0px rgba(var(--mainValue-color, rgb(255, 255, 255)), 0.5);
 		cursor: initial;
 		width: 100%;
 		height: 100%;
@@ -736,7 +738,7 @@
 		text-shadow: none;
 	}
 	.fixed {
-		background-color: var(--alternate-color);
+		background-color: var(--alternate-color, rgb(36, 50, 36));
 		position: fixed;
 		z-index: 20;
 		font-weight: bold;
@@ -764,7 +766,7 @@
 	progress {
 		grid-area: tiebreaker;
 		min-height: 2.6rem;
-		accent-color: var(--accent-color);
+		accent-color: var(--accent-color, rgb(233, 181, 99));
 	}
 
 	.hotkeys {

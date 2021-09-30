@@ -56,7 +56,7 @@ export const isBeforeGameTime = async (timestamp: Timestamp): Promise<boolean> =
 	}
 };
 
-export const setRegularSeasonWeeks = () => {
+export const setRegularSeasonWeeks = (): number[] => {
 	const weeks = [];
 	for (let i = 1; i < 18; i++) {
 		weeks.push(i);
@@ -64,7 +64,7 @@ export const setRegularSeasonWeeks = () => {
 	// console.log('setRegularSeasonWeeks');
 	return weeks;
 };
-export const setPreSeasonWeeks = () => {
+export const setPreSeasonWeeks = (): number[] => {
 	const weeks = [];
 	for (let i = 1; i < 5; i++) {
 		weeks.push(i);
@@ -77,7 +77,7 @@ export const scrollToNextGame = (
 	index: number,
 	currentPickCount: number,
 	upcomingGameCount: number
-) => {
+): void => {
 	if (browser) {
 		const element = document.getElementById(`game-${index + 1}`);
 
@@ -99,7 +99,7 @@ export const scrollToNextGame = (
 		}
 	}
 };
-export const focusTiebreaker = () => {
+export const focusTiebreaker = (): void => {
 	if (browser) {
 		setTimeout(() => {
 			const tiebreakerInput = document.getElementById('tiebreaker-input');
@@ -109,13 +109,13 @@ export const focusTiebreaker = () => {
 		}, 200);
 	}
 };
-export const scrollToTopSmooth = (top = 0) => {
+export const scrollToTopSmooth = (top = 0): void => {
 	if (browser) {
 		window.scrollTo({ top, behavior: 'smooth' });
 	}
 };
 
-export const getLocalStorageItem = async (key: string) => {
+export const getLocalStorageItem = async (key: string): Promise<any> => {
 	if (browser) {
 		const item = JSON.parse(localStorage.getItem(key));
 		return item;
@@ -123,14 +123,14 @@ export const getLocalStorageItem = async (key: string) => {
 		myLog('unable to check for local storage');
 	}
 };
-export const setLocalStorageItem = async (key: string, value: string) => {
+export const setLocalStorageItem = async (key: string, value: string): Promise<void> => {
 	if (browser) {
 		localStorage.setItem(key, JSON.stringify(value));
 	} else {
 		myLog('unable to set item in local storage');
 	}
 };
-export const convertToHttps = async (httpAddress: string) => {
+export const convertToHttps = async (httpAddress: string): Promise<string> => {
 	return httpAddress.replace('http', 'https');
 };
 export const getStatus = async (competitions: { status: { $ref: string } }[]): Promise<any> => {
@@ -181,7 +181,7 @@ export const getScores = async (
 	}
 };
 
-export const getConsensusSpread = async (gameID: string) => {
+export const getConsensusSpread = async (gameID: string): Promise<number> => {
 	try {
 		const response = await fetch(
 			`https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events/${gameID}/competitions/${gameID}/odds`
@@ -202,7 +202,7 @@ export const getConsensusSpread = async (gameID: string) => {
 		console.error(error);
 	}
 };
-export const findMissedPick = async (currentPicks: WeeklyPickDoc[]) => {
+export const findMissedPick = async (currentPicks: WeeklyPickDoc[]): Promise<number> => {
 	for (const [i, value] of currentPicks.entries()) {
 		if (value.pick === '') {
 			if (await isBeforeGameTime(value.timestamp)) {
@@ -211,7 +211,7 @@ export const findMissedPick = async (currentPicks: WeeklyPickDoc[]) => {
 		}
 	}
 };
-export const goToMissedPick = async (currentPicks: WeeklyPickDoc[]) => {
+export const goToMissedPick = async (currentPicks: WeeklyPickDoc[]): Promise<void> => {
 	const pickIndex = await findMissedPick(currentPicks);
 	console.log(pickIndex);
 	if (pickIndex) {
@@ -220,7 +220,7 @@ export const goToMissedPick = async (currentPicks: WeeklyPickDoc[]) => {
 		scrollToTopSmooth();
 	}
 };
-export const getUserId = async () => {
+export const getUserId = async (): Promise<any> => {
 	try {
 		const id = await getLocalStorageItem('id');
 		return id;

@@ -79,7 +79,7 @@
 		right: 0;
 		z-index: 999;
 		transition: all 200ms ease-in-out;
-		color: var(--alternate-color);
+		color: var(--alternate-color, rgb(36, 50, 36));
 		text-align: center;
 		justify-items: center;
 		justify-content: center;
@@ -94,8 +94,8 @@
 			font-size: inherit;
 			grid-template-columns: repeat(2, min-content) 1fr;
 			background: linear-gradient(
-				rgba(var(--alternateValue-color), 90%) 90%,
-				rgba(var(--alternateValue-color), 50%) 95%,
+				rgba(var(--alternateValue-color, rgb(36, 50, 36)), 90%) 90%,
+				rgba(var(--alternateValue-color, rgb(36, 50, 36)), 50%) 95%,
 				transparent 99%
 			);
 		}
@@ -117,11 +117,11 @@
 		color: var(--main-color);
 		&:hover,
 		&:focus {
-			background-color: rgba(var(--mainValue-color), 10%);
+			background-color: rgba(var(--mainValue-color, rgb(255, 255, 255)), 10%);
 		}
 	}
 	.mobile-nav-open {
-		box-shadow: 0 0 0 rgba(var(--accentValue-color), 50%);
+		box-shadow: 0 0 0 rgba(var(--accentValue-color, rgb(233, 181, 99)), 50%);
 		@include pulse;
 	}
 	#settings-wrapper {

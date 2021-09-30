@@ -36,8 +36,8 @@
 			left: 50%;
 			font-weight: normal;
 			font-size: 0.8rem;
-			background: var(--alternate-color);
-			box-shadow: 0 0 10px 0px var(--accent-color);
+			background: var(--alternate-color, rgb(36, 50, 36));
+			box-shadow: 0 0 10px 0px var(--accent-color, rgb(233, 181, 99));
 			border-radius: 0.75rem;
 			padding: 1rem;
 			scale: 0;
@@ -63,11 +63,11 @@
 				position: absolute;
 				width: 25px;
 				height: 25px;
-				background: var(--alternate-color);
+				background: var(--alternate-color, rgb(36, 50, 36));
 				transform: translateX(-50%) translateY(-50%) rotate(45deg);
 				top: 0;
 				left: 50%;
-				box-shadow: 1px 1px 10px 0px var(--accent-color);
+				box-shadow: 1px 1px 10px 0px var(--accent-color, rgb(233, 181, 99));
 
 				// border-style: solid;
 				// border-width: 1rem 0.75rem 0 0.75rem;

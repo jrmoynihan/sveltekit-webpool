@@ -105,7 +105,7 @@
 <style lang="scss">
 	select {
 		@include rounded;
-		color: var(--main-color);
+		color: var(--main-color, rgb(255, 255, 255));
 		margin: 0 auto;
 		max-width: max-content;
 		padding: 1rem;
@@ -156,8 +156,8 @@
 		justify-content: center;
 	}
 	.team-select {
-		background-color: rgba(var(--accentValue-color), 80%);
-		color: var(--alternate-color);
+		background-color: rgba(var(--accentValue-color, rgb(233, 181, 99)), 80%);
+		color: var(--alternate-color, rgb(36, 50, 36));
 		margin: 2rem auto;
 	}
 </style>

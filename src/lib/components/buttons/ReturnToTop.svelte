@@ -50,8 +50,8 @@
 		@include fixed($bottom: 5px, $left: 0);
 		width: 10.4%;
 		aspect-ratio: 1/1.35;
-		background-color: rgba(var(--accentValue-color), 80%);
-		color: var(--alternate-color);
+		background-color: rgba(var(--accentValue-color, rgb(233, 181, 99)), 80%);
+		color: var(--alternate-color, rgb(36, 50, 36));
 		border: 2px inset rgba(100, 148, 237, 0.295);
 		z-index: 30;
 		opacity: 50%;
@@ -64,7 +64,7 @@
 		right: 0;
 		height: 5px;
 		z-index: 30;
-		background-color: var(--accent-color);
+		background-color: var(--accent-color, rgb(233, 181, 99));
 	}
 	custom-progress-radial {
 		position: fixed;
@@ -74,6 +74,6 @@
 		aspect-ratio: 1/1;
 		z-index: 300;
 		border-radius: 50%;
-		background: conic-gradient(var(--accent-color) $radii, transparent $radii);
+		background: conic-gradient(var(--accent-color, rgb(233, 181, 99)) $radii, transparent $radii);
 	}
 </style>

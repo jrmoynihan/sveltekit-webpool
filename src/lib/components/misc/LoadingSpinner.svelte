@@ -44,7 +44,7 @@
 		// border: 2px white(0.2) solid;
 		& > p {
 			display: inline-grid;
-			color: var(--main-color);
+			color: var(--main-color, rgb(255, 255, 255));
 			position: absolute;
 			width: 100%;
 			align-self: center;
