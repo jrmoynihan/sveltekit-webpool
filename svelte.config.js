@@ -37,6 +37,7 @@ const config = {
 					$selects: path.resolve('./src/lib/components/selects'),
 					$switches: path.resolve('./src/lib/components/switches'),
 					$tables: path.resolve('./src/lib/components/tables'),
+					$images: path.resolve('./src/lib/images'),
 					$majorFeatures: path.resolve('./src/lib/majorFeatures'),
 					$static: path.resolve('./static/')
 				}

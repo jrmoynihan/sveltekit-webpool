@@ -22,7 +22,7 @@
 		"baseUrl": ".",
 		"allowJs": true,
 		"checkJs": true,
-		// "types": ["svelte"],
+		"types": ["svelte"],
 		"paths": {
 			"$lib": ["src/lib"],
 			"$lib/*": ["src/lib/*"],

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
-	import GoogleLogo from '/static/GoogleLogo.svelte';
+	import GoogleLogo from '$images/GoogleLogo.svelte';
 
 	const dispatch = createEventDispatcher();
 	function buttonClicked(event: { detail: any }): void {
