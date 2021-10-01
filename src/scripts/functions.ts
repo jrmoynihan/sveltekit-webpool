@@ -1,6 +1,12 @@
 import { browser } from '$app/env';
 import { showPickWarning } from './store';
-import { myError, myLog, policeCarLight } from './classes/constants';
+import {
+	maxPreseasonWeeks,
+	maxRegularSeasonWeeks,
+	myError,
+	myLog,
+	policeCarLight
+} from './classes/constants';
 import type { WeeklyPickDoc } from './classes/picks';
 import type { Timestamp } from '@firebase/firestore';
 
@@ -56,17 +62,17 @@ export const isBeforeGameTime = async (timestamp: Timestamp): Promise<boolean> =
 	}
 };
 
-export const setRegularSeasonWeeks = (): number[] => {
-	const weeks = [];
-	for (let i = 1; i < 18; i++) {
+export const getRegularSeasonWeeks = async (): Promise<number[]> => {
+	const weeks: number[] = [];
+	for (let i = 1; i <= maxRegularSeasonWeeks; i++) {
 		weeks.push(i);
 	}
 	// console.log('setRegularSeasonWeeks');
 	return weeks;
 };
-export const setPreSeasonWeeks = (): number[] => {
-	const weeks = [];
-	for (let i = 1; i < 5; i++) {
+export const getPreSeasonWeeks = async (): Promise<number[]> => {
+	const weeks: number[] = [];
+	for (let i = 1; i <= maxPreseasonWeeks; i++) {
 		weeks.push(i);
 	}
 	// console.log('setPreSeasonWeeks');

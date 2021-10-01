@@ -35,13 +35,8 @@
 		value={homeOrAwayTeam.abbreviation}
 		{disabled}
 	/>
-	<IntersectionObserver
-		once={true}
-		{element}
-		on:intersect={() => {
-			showGameContainer = true;
-		}}
-	>
+	<!--prettier-ignore-->
+	<IntersectionObserver once={true} {element}	on:intersect={() => {showGameContainer = true;}}>
 		{#if showGameContainer}
 			<TeamImage
 				team={homeOrAwayTeam}

@@ -41,6 +41,7 @@
 		@include gridAndGap;
 		width: auto;
 		justify-self: center;
+		align-self: flex-end;
 	}
 	.red-zone {
 		background: darkred;

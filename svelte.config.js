@@ -27,7 +27,6 @@ const config = {
 		adapter: firebase(),
 		ssr: true,
 		vite: {
-			define: {},
 			resolve: {
 				alias: {
 					$scripts: path.resolve('./src/scripts'),
@@ -42,9 +41,9 @@ const config = {
 					$static: path.resolve('./static/')
 				}
 			},
-			ssr: {
-				external: ['@firebase/firestore']
-			},
+			// ssr: {
+			// 	external: ['@firebase/firestore']
+			// },
 			server: {
 				https: true
 			},

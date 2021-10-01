@@ -8,9 +8,9 @@ import {
 	setDoc,
 	updateDoc,
 	doc,
-	QuerySnapshot,
 	DocumentReference
 } from '@firebase/firestore';
+import type { QuerySnapshot } from '@firebase/firestore';
 import { myError, myLog } from './classes/constants';
 import type { Game } from './classes/game';
 import type { WeekBound } from './classes/weekBound';
@@ -18,6 +18,7 @@ import { scheduleCollection, weekBoundsCollection } from './collections';
 import { gameConverter, weekBoundConverter } from './converters';
 import { firestoreDB } from './firebaseInit';
 import { defaultToast } from './toasts';
+import { getRegularSeasonWeeks } from './functions';
 
 export const findWeekDateTimeBounds = async (): Promise<void> => {
 	defaultToast({
@@ -26,7 +27,8 @@ export const findWeekDateTimeBounds = async (): Promise<void> => {
 		duration: 15000
 	});
 	const thisYear = new Date().getFullYear();
-	for (let week = 1; week < 18; week++) {
+	const regSeasonWeeks = await getRegularSeasonWeeks();
+	for (const week of regSeasonWeeks) {
 		const wheres = [
 			where('week', '==', week),
 			where('type', '==', 'Regular Season'),
@@ -115,7 +117,8 @@ export const findCurrentWeekOfSchedule = async (): Promise<number> => {
 	if (allBounds.exists) {
 		myLog('got gameBounds doc!');
 		const data = allBounds.data();
-		for (let week = 1; week < 18; week++) {
+		const regSeasonWeeks = await getRegularSeasonWeeks();
+		for (const week of regSeasonWeeks) {
 			const weekBounds: WeekBound = data[`week_${week}`];
 			const firstGameTime = weekBounds.firstGameTime.toDate();
 			const lastGameTime = weekBounds.lastGameTime.toDate();

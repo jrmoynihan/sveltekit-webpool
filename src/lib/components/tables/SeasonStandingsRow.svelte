@@ -54,6 +54,9 @@
 		{/if}
 	</div>
 </RowData>
+<RowData {evenRow} {inTheMoney}>
+	${player.weeklyWinnings.total}
+</RowData>
 
 <style lang="scss">
 	$radii: var(--win-radii);

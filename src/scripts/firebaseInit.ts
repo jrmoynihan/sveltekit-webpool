@@ -1,14 +1,14 @@
-import { FirebaseApp, initializeApp } from '@firebase/app';
 import { getAuth } from '@firebase/auth';
-import { getStorage } from '@firebase/storage';
+// import { getStorage } from '@firebase/storage';
 import { getFirestore } from '@firebase/firestore';
-import { getApp, getApps } from '@firebase/app';
+import { getApp, getApps, initializeApp } from '@firebase/app';
+import type { FirebaseApp } from '@firebase/app';
 import { browser, dev } from '$app/env';
 import { enableIndexedDbPersistence } from '@firebase/firestore';
 
 // TODO: API key should be stored in a environment variable (see: privateStuff.env) so it is not exposed publicly
-// export const API_KEY: string = import.meta.env.VITE_API_KEY as string;
-// console.log(API_KEY);
+export const API_KEY = import.meta.env.VITE_API_KEY;
+console.log('api?', API_KEY);
 
 const firebaseConfig = {
 	// apiKey: API_KEY,
@@ -22,18 +22,18 @@ const firebaseConfig = {
 	measurementId: 'G-8Y5HV7HDFZ'
 };
 
-export let firebaseApp: FirebaseApp;
+export let myApp: FirebaseApp;
 
 // If a firebase app is already initialized, use that one
 if (getApps().length === 0) {
-	firebaseApp = initializeApp(firebaseConfig);
+	myApp = initializeApp(firebaseConfig);
 } else {
-	firebaseApp = getApp();
+	myApp = getApp();
 }
 
-export const firestoreDB = getFirestore(firebaseApp);
-export const firestoreAuth = getAuth(firebaseApp);
-export const firestoreStorage = getStorage(firebaseApp);
+export const firestoreDB = getFirestore(myApp);
+export const firestoreAuth = getAuth(myApp);
+// export const firestoreStorage = getStorage(myApp);
 
 if (browser && !dev) {
 	enableIndexedDbPersistence(firestoreDB).catch((err) => {

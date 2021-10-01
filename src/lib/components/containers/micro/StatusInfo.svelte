@@ -78,6 +78,7 @@
 	.period-clock {
 		grid-template-columns: 1fr;
 		grid-template-rows: repeat(auto-fit, minmax(1rem, 1fr));
+		align-self: center;
 	}
 	span {
 		padding: 0.3rem 1rem;
@@ -95,7 +96,7 @@
 	}
 	.score {
 		font-weight: bold;
-		font-size: min(2rem, 5vw);
+		font-size: min(3rem, 5vw);
 		min-width: 2ch;
 	}
 	.higherScore {

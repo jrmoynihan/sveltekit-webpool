@@ -1,5 +1,7 @@
+import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
-import { doc, updateDoc } from '@firebase/firestore';
+import { doc, updateDoc, onSnapshot, query } from '@firebase/firestore';
+import type { Query, FirestoreDataConverter } from '@firebase/firestore';
 import { userConverter } from './converters';
 import type { WebUser } from '$scripts/classes/webUser';
 import { usersCollection } from './collections';
@@ -28,15 +30,15 @@ export const overrideDisabled = writable(false);
 // 		});
 // 	});
 // };
-// export const writableQueryAsStore = (
-// 	query: Query,
-// 	converter: FirestoreDataConverter<unknown>
-// ): Writable<unknown[]> =>
-// 	writable<Array<unknown>>([], (set) => {
-// 		onSnapshot(query.withConverter(converter), async (snap) => {
-// 			set(snap.docs.map((doc) => doc.data()));
-// 		});
-// 	});
+export const writableQueryAsStore = (
+	query: Query,
+	converter: FirestoreDataConverter<unknown>
+): Writable<unknown[]> =>
+	writable<Array<unknown>>([], (set) => {
+		onSnapshot(query.withConverter(converter), async (snap) => {
+			set(snap.docs.map((doc) => doc.data()));
+		});
+	});
 
 // export const queryDocumentAsStore = (
 // 	query: Query,
@@ -62,3 +64,4 @@ export const updateUser = async (userData: WebUser): Promise<void> => {
 		console.error('Error updating User document', error);
 	}
 };
+export const allUsers = writableQueryAsStore(query(usersCollection), userConverter);

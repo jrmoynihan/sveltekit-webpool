@@ -8,8 +8,8 @@
 	import { getWeeklyUsers } from '$scripts/weeklyUsers';
 	import { onMount } from 'svelte';
 
-	let initialSeasonHeaders = ['Rank', 'Player', 'Wins', 'Losses', '% Won'];
-	let abbreviatedSeasonHeaders = ['#', 'Name', 'W', 'L', '%'];
+	let initialSeasonHeaders = ['Rank', 'Player', 'Wins', 'Losses', '% Won', 'Prizes'];
+	let abbreviatedSeasonHeaders = ['#', 'Name', 'W', 'L', '%', '$'];
 	let seasonHeaders = initialSeasonHeaders;
 	let weeklyUserPromise: Promise<WebUser[]>;
 	// TODO query the collection by week, and sort by wins, then net tiebreaker
@@ -19,7 +19,8 @@
 	// 	{ nickname: 'winston', wins: 7, losses: 9, tiebreaker: 38 },
 	// 	{ nickname: 'daphne', wins: 4, losses: 12, tiebreaker: 49 }
 	// ];
-
+	let headerCount: number;
+	$: headerCount = seasonHeaders.length;
 	$: {
 		if ($windowWidth < mobileBreakpoint - 500) {
 			seasonHeaders = abbreviatedSeasonHeaders;
@@ -41,7 +42,7 @@
 	});
 </script>
 
-<div class="table grid">
+<div class="table grid" style="--columns:{headerCount}">
 	{#each seasonHeaders as header}
 		<div class="header">{header}</div>
 	{/each}
@@ -63,7 +64,7 @@
 		width: 100%;
 	}
 	.table {
-		grid-template-columns: repeat(5, minmax(max-content, 1fr));
+		grid-template-columns: repeat(var(--columns), minmax(max-content, 1fr));
 		overflow: auto;
 		padding-bottom: 1rem;
 		column-gap: 0;

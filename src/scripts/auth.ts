@@ -1,5 +1,4 @@
 import {
-	AuthProvider,
 	FacebookAuthProvider,
 	GoogleAuthProvider,
 	linkWithPopup,
@@ -7,10 +6,9 @@ import {
 	OAuthCredential,
 	signInWithPopup,
 	signInWithRedirect,
-	signOut,
-	User,
-	UserCredential
+	signOut
 } from '@firebase/auth';
+import type { User, UserCredential, AuthProvider } from '@firebase/auth';
 import { firestoreAuth } from '$scripts/firebaseInit';
 import { get, writable } from 'svelte/store';
 import type { WebUser } from '$scripts/classes/webUser';
@@ -103,8 +101,8 @@ export const startSignIn = async (
 		// Else, create a new document for the user
 		else {
 			try {
-				createNewUserDocument();
-				console.log('created bew yser doc!');
+				await createNewUserDocument();
+				console.log('created new user doc!');
 			} catch (error) {
 				console.warn('failed to create user doc!', error);
 			}

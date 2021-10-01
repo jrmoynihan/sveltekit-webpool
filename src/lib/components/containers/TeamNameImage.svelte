@@ -24,7 +24,7 @@
 		class:whiteBg
 		class:topRounded
 		class:bottomRounded
-		src={dev ? `../../../static/${team.fontPath}` : team.fontPath}
+		src={team.fontPath}
 		alt="{team.city}-{team.name}"
 		{width}
 		{height}

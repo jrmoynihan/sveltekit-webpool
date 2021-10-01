@@ -42,3 +42,6 @@
 		({player.weeklyPickRecord[`week_${selectedWeek}`].netTiebreaker})
 	{/if}
 </RowData>
+<RowData {evenRow} {inTheMoney}>
+	${player.weeklyWinnings[`week_${selectedWeek}`]}
+</RowData>

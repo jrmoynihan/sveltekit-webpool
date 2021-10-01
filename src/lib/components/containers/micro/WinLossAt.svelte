@@ -53,6 +53,7 @@
 		@include gridAndGap;
 		justify-items: center;
 		width: auto;
+		align-self: flex-start;
 		justify-self: center;
 		grid-area: WinLossAt;
 	}

@@ -3,7 +3,6 @@
 	import ReturnToTop from '$lib/components/buttons/ReturnToTop.svelte';
 	import WeekSelect from '$lib/components/selects/WeekSelect.svelte';
 	import WeeklyStandingsRow from '$lib/components/tables/WeeklyStandingsRow.svelte';
-	import { findCurrentWeekOfSchedule } from '$scripts/schedule';
 	import { mobileBreakpoint } from '$scripts/site';
 	import { windowWidth } from '$scripts/store';
 	import { onMount } from 'svelte';
@@ -21,9 +20,10 @@
 	import type { Game } from '$scripts/classes/game';
 	import DevNotes from '../misc/DevNotes.svelte';
 	import ToggleSwitch from '../switches/ToggleSwitch.svelte';
+	import { findCurrentWeekOfSchedule } from '$scripts/schedule';
 
-	let initialWeekHeaders: string[] = ['Rank', 'Player', 'Wins', 'Losses', 'Tiebreaker'];
-	let abbreviatedWeekHeaders: string[] = ['#', 'Name', 'W', 'L', 'T'];
+	let initialWeekHeaders: string[] = ['Rank', 'Player', 'Wins', 'Losses', 'Tiebreaker', 'Prize'];
+	let abbreviatedWeekHeaders: string[] = ['#', 'Name', 'W', 'L', 'T', '$'];
 	let weekHeaders: string[] = initialWeekHeaders;
 	let selectedWeek: number;
 	let tiebreakerPromise: Promise<WeeklyTiebreaker[]>;
@@ -64,7 +64,8 @@
 		const lastGame = lastGameDoc.docs[0].data();
 		return lastGame;
 	};
-
+	let headerCount: number;
+	$: headerCount = weekHeaders.length;
 	$: {
 		if ($windowWidth < mobileBreakpoint - 500) {
 			weekHeaders = abbreviatedWeekHeaders;
@@ -79,12 +80,11 @@
 			orderBy(`weeklyPickRecord.week_${selectedWeek}.wins`, 'desc'),
 			orderBy(`weeklyPickRecord.week_${selectedWeek}.netTiebreaker`)
 		);
-		weeklyUserPromise = getWeeklyUsers({ showToast: false, q: weeklyUserQuery });
+		weeklyUserPromise = getWeeklyUsers({ showToast: false, customizedQuery: weeklyUserQuery });
 		tiebreakerPromise = getAllTiebreakers(selectedWeek);
 	};
 
 	onMount(async () => {
-		//TODO: could just query docs on parent component and use client to sort by wins; compare performance vs. reads tradeoff
 		selectedWeek = await findCurrentWeekOfSchedule();
 		getData(selectedWeek);
 	});
@@ -96,7 +96,7 @@
 		<ToggleSwitch bind:checked={showNetTiebreakers} />
 	</p>
 </DevNotes>
-<div class="week grid">
+<div class="week grid" style="--columns:{headerCount}">
 	<!-- <AccordionDetails>
 		<svelte:fragment slot="summary">Histogram</svelte:fragment>
 		<svelte:fragment slot="content">
@@ -163,7 +163,7 @@
 		grid-template-areas: 'selector' 'table';
 	}
 	.table {
-		grid-template-columns: repeat(5, minmax(max-content, 1fr));
+		grid-template-columns: repeat(var(--columns), minmax(max-content, 1fr));
 		overflow: auto;
 		padding-bottom: 1rem;
 		column-gap: 0;

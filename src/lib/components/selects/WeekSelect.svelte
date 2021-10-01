@@ -1,37 +1,28 @@
 <script lang="ts">
 	import type { SeasonType } from '$scripts/classes/seasonType';
-	import { setPreSeasonWeeks, setRegularSeasonWeeks } from '$scripts/functions';
+	import { getPreSeasonWeeks, getRegularSeasonWeeks } from '$scripts/functions';
+	import { findCurrentWeekOfSchedule } from '$scripts/schedule';
 	import { createEventDispatcher, onMount } from 'svelte';
 
 	export let weeks: number[] = [];
-	let currentWeek: number = 1; // @TODO find a function to determine the NFL week automatically
-	export let selectedWeek: number = currentWeek;
+	export let selectedWeek: number;
 	export let gridArea = '';
 	export let selectedSeasonType: SeasonType = { id: 2, text: 'Regular Season' };
 	export let customStyles = '';
 
-	const setDefaultWeeks = () => {
-		if (weeks === undefined || weeks.length === 0) {
-			for (let i = 1; i < 18; i++) {
-				weeks = [...weeks, i];
-			}
-		}
-	};
-	const changeWeeksAvailable = (selectedSeasonType) => {
-		// console.log('changed weeks available');
-		if (selectedSeasonType.text === 'Regular Season') {
-			weeks = setRegularSeasonWeeks();
-		} else if (selectedSeasonType.text === 'Pre-Season') {
-			weeks = setPreSeasonWeeks();
-		}
-	};
-
 	const dispatch = createEventDispatcher();
 
-	onMount(() => {
-		setDefaultWeeks();
+	const changeWeeksAvailable = async (selectedSeasonType: SeasonType): Promise<void> => {
+		// console.log('changed weeks available');
+		if (selectedSeasonType.text === 'Regular Season') {
+			weeks = await getRegularSeasonWeeks();
+		} else if (selectedSeasonType.text === 'Pre-Season') {
+			weeks = await getPreSeasonWeeks();
+		}
+	};
+	onMount(async () => {
+		selectedWeek = await findCurrentWeekOfSchedule();
 	});
-
 	$: changeWeeksAvailable(selectedSeasonType);
 </script>
 

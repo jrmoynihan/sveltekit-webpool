@@ -1,5 +1,8 @@
 import type { SeasonType } from './seasonType';
 
+export const maxRegularSeasonWeeks = 18;
+export const maxPreseasonWeeks = 4;
+
 export enum Conference {
 	NFC = 'NFC',
 	AFC = 'AFC'

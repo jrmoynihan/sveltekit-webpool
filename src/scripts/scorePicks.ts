@@ -1,5 +1,5 @@
 import type { Game } from './classes/game';
-import type { DocumentReference, QuerySnapshot } from '@firebase/firestore';
+import type { DocumentReference, QuerySnapshot, QueryConstraint } from '@firebase/firestore';
 import { myLog, everyoneWinsResult, myError, checkmark } from './classes/constants';
 import {
 	scheduleCollection,
@@ -15,17 +15,12 @@ import {
 } from './converters';
 import { getStatus, getScores } from './functions';
 import { defaultToast, errorToast } from './toasts';
-import {
-	updateDoc,
-	getDocs,
-	query,
-	where,
-	QueryConstraint,
-	increment,
-	doc
-} from '@firebase/firestore';
+import { updateDoc, getDocs, query, where, increment, doc } from '@firebase/firestore';
 import { teamsCollection } from './teams';
 import type { Team } from './classes/team';
+import { getWeeklyUsers } from './weeklyUsers';
+import type { WeeklyTiebreaker } from './classes/tiebreaker';
+import type { WeeklyPickDoc } from './classes/picks';
 
 // Score all picks for a given week
 export const scorePicksForWeek = async (
@@ -47,6 +42,7 @@ export const scorePicksForWeek = async (
 		const picks = await getDocs(pickQuery.withConverter(weeklyPickConverter));
 		const tiebreakers = await getDocs(tiebreakerQuery.withConverter(weeklyTiebreakerConverter));
 		const teams = await getDocs(teamQuery.withConverter(teamConverter));
+
 		games.forEach((game) => {
 			const gameData = game.data();
 			const gameRef = game.ref;
@@ -57,50 +53,8 @@ export const scorePicksForWeek = async (
 					`already stored winner of game ${gameData.id} (${gameData.shortName}, ${gameData.date})`
 				);
 			}
-			if (gameData.isLastGameOfWeek && gameData.winner) {
-				myLog(`last game of the week: ${gameData.shortName}, totalScore: ${gameData.totalScore}`);
-				tiebreakers.forEach((tiebreaker) => {
-					const tiebreakerData = tiebreaker.data();
-					const uid = tiebreakerData.uid;
-					if (tiebreakerData.tiebreaker) {
-						const netFromTotalScore = gameData.totalScore - tiebreakerData.tiebreaker;
-						const userDocRef = doc(usersCollection, uid);
-						// store netTiebreakers on the USER document; easier for scoreboard
-						updateDoc(userDocRef, {
-							[`weeklyPickRecord.week_${selectedWeek}.netTiebreaker`]: netFromTotalScore
-						});
-					} else {
-						myLog('no tiebreaker posted');
-					}
-				});
-			}
-
-			picks.forEach((pick) => {
-				const pickData = pick.data();
-				const pickRef = pick.ref;
-				const uid = pickData.uid;
-				const userRef = doc(usersCollection, uid);
-				if (pickData.isCorrect === null || pickData.isCorrect === undefined) {
-					if (pickData.id === game.id) {
-						if (gameData.ATSwinner === pickData.pick || gameData.ATSwinner === everyoneWinsResult) {
-							updateDoc(pickRef, { isCorrect: true });
-							updateDoc(userRef, {
-								'weeklyPickRecord.total.wins': increment(1),
-								[`weeklyPickRecord.week_${selectedWeek}.wins`]: increment(1)
-							});
-						} else {
-							updateDoc(pickRef, { isCorrect: false });
-							updateDoc(userRef, {
-								'weeklyPickRecord.total.losses': increment(1),
-								[`weeklyPickRecord.week_${selectedWeek}.losses`]: increment(1)
-							});
-						}
-						myLog('scored pick');
-					}
-				} else {
-					myLog('pick has already been scored!');
-				}
-			});
+			scoreNetTiebreakers(gameData, tiebreakers, selectedWeek);
+			updateUserRecords(picks, gameData, selectedWeek);
 		});
 
 		defaultToast({
@@ -111,6 +65,72 @@ export const scorePicksForWeek = async (
 		myError('scorePicks', error);
 	}
 };
+export const updateUserRecords = async (
+	picks: QuerySnapshot<WeeklyPickDoc>,
+	gameData: Game,
+	selectedWeek: number
+) => {
+	try {
+		picks.forEach((pick) => {
+			const pickData = pick.data();
+			const pickRef = pick.ref;
+			const uid = pickData.uid;
+			const userRef = doc(usersCollection, uid);
+			if (pickData.isCorrect === null || pickData.isCorrect === undefined) {
+				if (pickData.id === gameData.id) {
+					if (gameData.ATSwinner === pickData.pick || gameData.ATSwinner === everyoneWinsResult) {
+						updateDoc(pickRef, { isCorrect: true });
+						updateDoc(userRef, {
+							'weeklyPickRecord.total.wins': increment(1),
+							[`weeklyPickRecord.week_${selectedWeek}.wins`]: increment(1)
+						});
+					} else {
+						updateDoc(pickRef, { isCorrect: false });
+						updateDoc(userRef, {
+							'weeklyPickRecord.total.losses': increment(1),
+							[`weeklyPickRecord.week_${selectedWeek}.losses`]: increment(1)
+						});
+					}
+					myLog('scored pick');
+				}
+			} else {
+				myLog('pick has already been scored!');
+			}
+		});
+	} catch (error) {
+		myError('updateUserRecords', error);
+	}
+};
+export const scoreNetTiebreakers = async (
+	gameData: Game,
+	tiebreakers: QuerySnapshot<WeeklyTiebreaker>,
+	selectedWeek: number
+) => {
+	try {
+		if (gameData.isLastGameOfWeek && gameData.winner) {
+			myLog(`last game of the week: ${gameData.shortName}, totalScore: ${gameData.totalScore}`);
+			tiebreakers.forEach((tiebreaker) => {
+				const tiebreakerData = tiebreaker.data();
+				const uid = tiebreakerData.uid;
+				if (tiebreakerData.tiebreaker) {
+					const netTiebreaker = gameData.totalScore - tiebreakerData.tiebreaker;
+					const netTiebreakerAbsolute = Math.abs(netTiebreaker);
+					const userDocRef = doc(usersCollection, uid);
+					// store netTiebreakers on the USER document; easier for scoreboard
+					updateDoc(userDocRef, {
+						[`weeklyPickRecord.week_${selectedWeek}.netTiebreaker`]: netTiebreaker,
+						[`weeklyPickRecord.week_${selectedWeek}.netTiebreakerAbsolute`]: netTiebreakerAbsolute
+					});
+				} else {
+					myLog('no tiebreaker posted');
+				}
+			});
+		}
+	} catch (error) {
+		myError('scoreNetTiebreakers', error);
+	}
+};
+
 export const removeScoredPicksForWeek = async (
 	selectedWeek: number,
 	selectedYear = new Date().getFullYear(),
@@ -391,7 +411,9 @@ export const resetWeeklyUserRecords = async (): Promise<void> => {
 					'weeklyPickRecord.week_16.wins': 0,
 					'weeklyPickRecord.week_16.losses': 0,
 					'weeklyPickRecord.week_17.wins': 0,
-					'weeklyPickRecord.week_17.losses': 0
+					'weeklyPickRecord.week_17.losses': 0,
+					'weeklyPickRecord.week_18.wins': 0,
+					'weeklyPickRecord.week_18.losses': 0
 				});
 				myLog(`reset records for ${user.data().name} (${user.id})`);
 			});

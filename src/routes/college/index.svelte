@@ -6,6 +6,3 @@
 <svelte:head>
 	<title>College Pool</title>
 </svelte:head>
-
-<style lang="scss">
-</style>

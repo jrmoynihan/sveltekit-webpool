@@ -121,10 +121,10 @@
 				myLog(msg, 'createWeeklyPicksForUser');
 			}
 		} catch (error) {
-			const msg = `Encountered an error while trying to delete ${user.name}'s picks.  Check the console for more info. ${error}`;
+			const msg = `Encountered an error while trying to create ${user.name}'s picks.  Check the console for more info. ${error}`;
 			if (logAll) {
 				errorToast(msg);
-				myError('deleteWeeklyPicksForUser', error, msg);
+				myError('createWeeklyPicksForUser', error, msg);
 			} else {
 				throw error;
 			}

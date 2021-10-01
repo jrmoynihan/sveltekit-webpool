@@ -13,7 +13,7 @@
 <picture transition:fade={{ duration: 400 }}>
 	<!-- <source srcset={team.logoPath} type="image/webp" /> -->
 	<img
-		src={dev ? `../../../static/${team.logoPath}` : team.logoPath}
+		src={team.logoPath}
 		alt="{team.city}-{team.name}"
 		{width}
 		{height}
