@@ -29,18 +29,52 @@ export const matchPath = (testPath: string, currentPath: string): boolean => {
 		console.error('An error occurred in functions:{matchPath}');
 	}
 };
-export const hideModal = async (modalID: string): Promise<void> => {
-	const modal: HTMLDialogElement = document.getElementById(`modal-${modalID}`) as HTMLDialogElement;
+export const displayModal = (modalID: string) => {
+	console.log('displaying modal id:', modalID);
+	let modal: HTMLDialogElement;
 	let isDialogSupported = true;
 
-	if (!window.HTMLDialogElement) {
-		document.body.classList.add('no-dialog');
-		isDialogSupported = false;
+	if (browser) {
+		modal = document.getElementById(`modal-${modalID}`) as HTMLDialogElement;
+		if (!window.HTMLDialogElement) {
+			document.body.classList.add('no-dialog');
+			isDialogSupported = false;
+		}
 	}
 
-	if (isDialogSupported) {
+	if (isDialogSupported && modal) {
+		// dialogOpen = true;
+		modal.showModal();
+	} else if (modal) {
+		modal.setAttribute('open', '');
+	}
+	blurModal(modalID);
+};
+
+export const blurModal = (modalID: string) => {
+	if (browser) {
+		const modal = document.getElementById(`modal-${modalID}`);
+		if (modal) {
+			modal.blur();
+		}
+	}
+};
+export const hideModal = async (modalID: string): Promise<void> => {
+	let modal: HTMLDialogElement;
+	let isDialogSupported = true;
+	if (browser) {
+		modal = document.getElementById(`modal-${modalID}`) as HTMLDialogElement;
+		if (!window.HTMLDialogElement) {
+			document.body.classList.add('no-dialog');
+			isDialogSupported = false;
+		}
+	}
+
+	if (isDialogSupported && modal) {
+		console.log(`dialog supported. closing dialog.`);
 		modal.close();
-	} else {
+	} else if (modal) {
+		console.log(`dialog not supported. closing dialog.`);
 		modal.removeAttribute('open');
 	}
 };

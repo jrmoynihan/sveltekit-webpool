@@ -17,8 +17,8 @@
 	import {
 		convertToHttps,
 		getConsensusSpread,
-		setPreSeasonWeeks,
-		setRegularSeasonWeeks
+		getPreSeasonWeeks,
+		getRegularSeasonWeeks
 	} from '$scripts/functions';
 	import LoadingSpinner from './LoadingSpinner.svelte';
 
@@ -95,11 +95,11 @@
 		games = [];
 		promise = getData(selectedYear, selectedSeasonType, selectedWeek);
 	};
-	const changeWeeksAvailable = () => {
+	const changeWeeksAvailable = async () => {
 		if (selectedSeasonType.text === 'Regular Season') {
-			weeks = setRegularSeasonWeeks();
+			weeks = await getRegularSeasonWeeks();
 		} else if (selectedSeasonType.text === 'Pre-Season') {
-			weeks = setPreSeasonWeeks();
+			weeks = await getPreSeasonWeeks();
 		}
 	};
 
@@ -197,8 +197,8 @@
 			});
 		}
 	};
-	onMount(() => {
-		weeks = setRegularSeasonWeeks();
+	onMount(async () => {
+		weeks = await getRegularSeasonWeeks();
 	});
 </script>
 

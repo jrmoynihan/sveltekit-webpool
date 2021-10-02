@@ -9,7 +9,7 @@
 <script lang="ts">
 	import '../app.css';
 	import { userConverter } from '$scripts/converters';
-	import { currentUser, userData } from '$scripts/auth';
+	import { currentUser, userData } from '$scripts/auth/auth';
 	import {
 		chosenMixBlendMode,
 		largerThanMobile,
@@ -30,6 +30,8 @@
 	import { onMount } from 'svelte';
 	import { WebUser } from '$scripts/classes/webUser';
 	import { getLocalStorageItem, setLocalStorageItem } from '$scripts/functions';
+	import { WeeklyPickRecord } from '$scripts/classes/userRecord';
+	import { myLog } from '$scripts/classes/constants';
 
 	export let refresh: any;
 
@@ -50,7 +52,7 @@
 	const saveUserData = async () => {
 		const userDocRef = doc(usersCollection, $currentUser.uid);
 		const snapshot = await getDoc(userDocRef.withConverter(userConverter));
-		const user = new WebUser(snapshot.data());
+		const user = new WebUser({ ...snapshot.data() });
 		$userData = user;
 		for (const property in $userData) {
 			setLocalStorageItem(property, $userData[property]);

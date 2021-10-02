@@ -4,7 +4,7 @@
 	import { faBars, faCog } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import Auth from '$lib/majorFeatures/Auth.svelte';
-	import ModalButtonAndSlot from '$lib/components/ModalButtonAndSlot.svelte';
+	import ModalButtonAndSlot from '$lib/components/modals/ModalButtonAndSlot.svelte';
 	import LightDarkToggle from '$lib/components/switches/LightDarkToggle.svelte';
 	import ThemeSelector from '$lib/components/switches/ThemeSelector.svelte';
 	import Navigator from '$lib/components/navigation/Navigator.svelte';

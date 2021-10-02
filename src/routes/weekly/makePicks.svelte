@@ -5,7 +5,7 @@
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
 	import WeekSelect from '$lib/components/selects/WeekSelect.svelte';
 	import ToggleSwitch from '$lib/components/switches/ToggleSwitch.svelte';
-	import { currentUser } from '$scripts/auth';
+	import { currentUser } from '$scripts/auth/auth';
 	import type { WeeklyPickDoc } from '$scripts/classes/picks';
 	import {
 		scheduleCollection,

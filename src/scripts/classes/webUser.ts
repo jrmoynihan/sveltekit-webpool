@@ -7,6 +7,7 @@ export class WebUser {
 	name: string;
 	nickname: string;
 	email: string;
+	active: boolean;
 	admin: boolean;
 	college: boolean;
 	pick6: boolean;
@@ -21,12 +22,13 @@ export class WebUser {
 			(this.name = args.name),
 			(this.nickname = args.nickname),
 			(this.email = args.email),
-			(this.admin = args.admin);
-		this.college = args.college;
-		this.pick6 = args.pick6;
-		this.playoffs = args.playoffs;
-		this.survivor = args.survivor;
-		this.weekly = args.weekly;
+			(this.active = args.active || true),
+			(this.admin = args.admin || false);
+		this.college = args.college || false;
+		this.pick6 = args.pick6 || false;
+		this.playoffs = args.playoffs || false;
+		this.survivor = args.survivor || false;
+		this.weekly = args.weekly || false;
 		this.weeklyPickRecord = args.weeklyPickRecord;
 		this.weeklyWinnings = args.weeklyWinnings;
 	}

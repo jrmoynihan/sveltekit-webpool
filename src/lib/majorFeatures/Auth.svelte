@@ -1,34 +1,58 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
-	import { currentUser, startSignOut, startSignIn } from '$scripts/auth';
+	import { currentUser, startSignOut, startSignIn } from '$scripts/auth/auth';
 	import Fa from 'svelte-fa';
 	import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
 	import ToggleSwitch from '$lib/components/switches/ToggleSwitch.svelte';
-	import ModalButtonAndSlot from '$lib/components/ModalButtonAndSlot.svelte';
+	import ModalButtonAndSlot from '$lib/components/modals/ModalButtonAndSlot.svelte';
 	import GoogleLoginButton from '$lib/components/buttons/GoogleLoginButton.svelte';
 	import FacebookLoginButton from '$lib/components/buttons/FacebookLoginButton.svelte';
 	import { dev } from '$app/env';
+	import ModalOnly from '$lib/components/modals/ModalOnly.svelte';
+	import { displayModal } from '$scripts/functions';
+	import { userNotFound } from '$scripts/auth/signInRedirectResult';
 
 	export let useRedirect = true;
-	let modalID: string;
+	let loginModalID: string;
+	let newUserModalID: string;
+	let newUserModalOpen = false;
+
+	const googleLogin = async () => {
+		await startSignIn('Google', useRedirect, loginModalID);
+		if ($userNotFound) {
+			showNewUserForm();
+		}
+	};
+	const facebookLogin = async () => {
+		await startSignIn('Facebook', useRedirect, loginModalID);
+		if ($userNotFound) {
+			showNewUserForm();
+		}
+	};
+	const showNewUserForm = () => {
+		displayModal(newUserModalID);
+		newUserModalOpen = true;
+	};
+	$: {
+		if ($userNotFound) {
+			showNewUserForm();
+		}
+	}
 </script>
 
 <ModalButtonAndSlot
-	defaultButton={true}
 	displayModalButtonText={$currentUser ? '' : 'Login'}
 	modalButtonStyles={$currentUser
 		? 'padding:0;border-radius:50%;'
 		: 'height: 100%; background:none; display:grid; align-content:center;'}
-	dialogStyles="align-items:center; justify-content:center; background-color:#00000078;margin: auto;
-	padding: revert;"
-	bind:modalID
+	bind:modalID={loginModalID}
 >
 	<svelte:fragment slot="modal-content">
 		{#if $currentUser !== undefined && $currentUser !== null}
 			<button id="sign-out-button" on:click={startSignOut}>Sign Out</button>
 		{:else}
-			<GoogleLoginButton on:click={() => startSignIn('Google', useRedirect, modalID)} />
-			<FacebookLoginButton on:click={() => startSignIn('Facebook', useRedirect, modalID)} />
+			<GoogleLoginButton on:click={googleLogin} />
+			<FacebookLoginButton on:click={facebookLogin} />
 			{#if dev}
 				<ToggleSwitch
 					bind:checked={useRedirect}
@@ -52,6 +76,9 @@
 	</svelte:fragment>
 </ModalButtonAndSlot>
 
+<!-- <ModalOnly bind:dialogOpen={newUserModalOpen} bind:modalID={newUserModalID}>
+	<svelte:fragment slot="modal-content">Hello!</svelte:fragment>
+</ModalOnly> -->
 <style lang="scss">
 	button {
 		@include defaultButtonStyles;

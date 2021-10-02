@@ -9,6 +9,11 @@
 	export let customExpandIcon: IconDefinition = null;
 	export let iconClass: string = 'fa-CaretDown';
 	export let expandDuration: number = 300;
+	export let customContentStyles: string = '';
+	export let customDetailsStyles: string = '';
+	export let customSummaryStyles: string = '';
+	export let cloudyBackground = true;
+	export let frostedGlass = true;
 	export class Accordion {
 		el: HTMLDetailsElement;
 		summary: HTMLElement;
@@ -154,22 +159,27 @@
 
 	const dispatch = createEventDispatcher();
 
-	function clicked() {
+	function clicked(element: string) {
 		dispatch('click');
+		console.log(`clicked ${element}`);
 	}
 </script>
 
-<details on:click={clicked}>
+<details
+	class:cloudyBackground
+	class:frostedGlass
+	on:click={() => clicked('details')}
+	style={customDetailsStyles}
+>
 	<summary
 		class={showArrow ? '' : 'hideArrow'}
-		style="{showArrow ? 'display:list-item' : 'display:flex'};"
+		style="{showArrow ? 'display:list-item' : 'display:flex'}; {customSummaryStyles}"
 	>
 		{#if customExpandIcon}<Fa icon={customExpandIcon} class={iconClass} />{/if}
-		&nbsp;
 		{expandTitle}
 		<slot name="summary" />
 	</summary>
-	<div class="content" on:click={clicked}>
+	<div class="content" style={customContentStyles} on:click={() => clicked('content')}>
 		<slot name="content" />
 	</div>
 </details>
@@ -183,8 +193,13 @@
 		width: 100%;
 	}
 	details {
-		@include cloudyBackground;
-		@include frostedGlass;
+		&.cloudyBackground {
+			@include cloudyBackground;
+		}
+		&.frostedGlass {
+			@include frostedGlass;
+		}
+
 		&[open] {
 			// box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.137);
 			& summary ~ * {

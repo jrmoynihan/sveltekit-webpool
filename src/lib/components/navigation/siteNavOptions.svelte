@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { PageOptions } from '$scripts/site';
 	import NavLink from '$navigation/NavLink.svelte';
-	import { currentUser, userData } from '$scripts/auth';
+	import { currentUser, userData } from '$scripts/auth/auth';
 	export let modalID: string = '';
 </script>
 

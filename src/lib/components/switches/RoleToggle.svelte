@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { userData } from '$scripts/auth';
+	import { userData } from '$scripts/auth/auth';
 	import { updateUser } from '$scripts/store';
 	import ToggleSwitch from '$lib/components/switches/ToggleSwitch.svelte';
 
-	export let role = 'admin';
+	export let role: string;
 </script>
 
 <div class="{role} toggle">

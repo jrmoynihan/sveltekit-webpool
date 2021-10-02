@@ -8,7 +8,7 @@
 		DocumentData
 	} from '@firebase/firestore';
 	import ToggleSwitch from '$switches/ToggleSwitch.svelte';
-	import { userData } from '$scripts/auth';
+	import { userData } from '$scripts/auth/auth';
 	import Fa from 'svelte-fa';
 	import { faLock, faUnlock } from '@fortawesome/free-solid-svg-icons';
 	import { ruleCategoryConverter, ruleConverter } from '$scripts/converters';
