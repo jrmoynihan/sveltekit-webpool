@@ -18,9 +18,9 @@
 	import { editing } from '$scripts/store';
 	import type { WebUser } from '$scripts/classes/webUser';
 	import type { Rule, RuleCategory } from '$scripts/classes/rules';
-import { collection, onSnapshot } from 'firebase/firestore';
-import { onDestroy } from 'svelte';
-import { myLog } from '$scripts/classes/constants';
+	import { collection, onSnapshot } from 'firebase/firestore';
+	import { onDestroy } from 'svelte';
+	import { myLog } from '$scripts/classes/constants';
 
 	// This container can receive different collection references for the various pools
 	export let rulesCollection: CollectionReference;
@@ -36,22 +36,20 @@ import { myLog } from '$scripts/classes/constants';
 	};
 	$: editable = isUserAdmin($userData);
 
-
-
-	let ruleCategories: RuleCategory[]
+	let ruleCategories: RuleCategory[];
 	const ruleQuery = query(rulesCollection, orderBy('order'));
 	// Dynamically watches for changes to the WeeklyRules collection, and brings them in in order of their 'order' field value
 	// This will also react to changes to hte WeeklyRules collection's documents, but not the fields of those documents
 	const unsubscribe = onSnapshot(ruleQuery.withConverter(ruleCategoryConverter), (snap) => {
 		try {
-			const ruleDocs : RuleCategory[] = []
+			const ruleDocs: RuleCategory[] = [];
 			snap.forEach((doc) => {
-				const data = doc.data()
-				const ref = doc.ref
-				ruleDocs.push({docRef:ref,...data})
+				const data = doc.data();
+				const ref = doc.ref;
+				ruleDocs.push({ docRef: ref, ...data });
 			});
 			// Trigger reactive update (hopefully)
-			ruleCategories = ruleDocs
+			ruleCategories = ruleDocs;
 		} catch (err) {
 			console.error(err);
 		}
@@ -61,13 +59,18 @@ import { myLog } from '$scripts/classes/constants';
 		myLog('unsubscribed from rule document changes!');
 	});
 
-	let tabs : {name: string, component:any, data:{}, ref:DocumentReference}[]
+	let tabs: { name: string; component: any; data: {}; ref: DocumentReference }[];
 
 	$: {
 		if (ruleCategories) {
-			ruleCategories.forEach(async (ruleCategory) => {
+			ruleCategories.forEach((ruleCategory) => {
 				// Package the categories into objects that are consumable by my Tabs components
-				const tab = { name: ruleCategory.title, component: RulesCategoryGrid, data: ruleCategory, ref: ruleCategory.docRef };
+				const tab = {
+					name: ruleCategory.title,
+					component: RulesCategoryGrid,
+					data: ruleCategory,
+					ref: ruleCategory.docRef
+				};
 				if (tab.name !== 'Prizes') {
 					// Re-assignment will trigger the reactive update
 					tabs = [...tabs, tab];
@@ -133,13 +136,13 @@ import { myLog } from '$scripts/classes/constants';
 	<PrizeCard {ruleCategories} />
 	<hr />
 {/if}
-	<!-- {#await tabPromise then tabs} -->
-	{#if tabs}
-		<Tabs {tabs} selectedTab={tabs[0]} />
-	{/if}
-	<!-- {/await} -->
+<!-- {#await tabPromise then tabs} -->
+{#if tabs}
+	<Tabs {tabs} selectedTab={tabs[0]} />
+{/if}
 <!-- {/await} -->
 
+<!-- {/await} -->
 <style lang="scss">
 	div {
 		@include flexCenter;

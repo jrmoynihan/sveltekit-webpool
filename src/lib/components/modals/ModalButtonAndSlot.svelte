@@ -97,7 +97,7 @@
 		@include defaultTransition;
 		display: grid;
 		grid-auto-rows: max-content;
-		grid-auto-columns: 1fr;
+		grid-auto-columns: minmax(0, 1fr);
 		gap: 15px;
 		z-index: 10;
 		align-items: center;

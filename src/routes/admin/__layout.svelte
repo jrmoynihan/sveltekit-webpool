@@ -31,11 +31,11 @@
 
 <Navigator minItemSize="{maxLengthText}ch" maxItemSize="max-content" customStyles="top:2.5rem;">
 	{#each adminTabs as tab, index}
-		{#if dev}
-			<NavLink {index} pageOption={tab} fullyRounded={true} />
-		{:else if tab.navigationText !== 'Toggle Roles'}
-			<NavLink {index} pageOption={tab} fullyRounded={true} />
-		{/if}
+		<!-- {#if dev} -->
+		<NavLink {index} pageOption={tab} fullyRounded={true} />
+		<!-- {:else if tab.navigationText !== 'Toggle Roles'}
+			<NavLink {index} pageOption={tab} fullyRounded={true} /> -->
+		<!-- {/if} -->
 	{/each}
 </Navigator>
 <TransitionWrapper {refresh} customStyles="display:grid;">

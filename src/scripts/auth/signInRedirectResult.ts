@@ -13,6 +13,7 @@ if (!dev && browser) {
 	try {
 		getRedirectResult(firestoreAuth).then(async (result) => {
 			try {
+				console.log(result);
 				currentUser.set(result.user);
 				console.log(currentUser);
 				const userDoc = doc(usersCollection, get(currentUser).uid);

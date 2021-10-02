@@ -1,14 +1,15 @@
 <script lang="ts">
 	import { currentUser } from '$scripts/auth/auth';
-
+	import { football, myLog } from '$scripts/classes/constants';
+	import { hideModal } from '$scripts/functions';
 	import { faCheckCircle, faFootballBall } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import { slide } from 'svelte/transition';
-
 	import AccordionDetails from '../containers/AccordionDetails.svelte';
 	import Grid from '../containers/Grid.svelte';
 	import ModalButtonAndSlot from '../modals/ModalButtonAndSlot.svelte';
 	import ToggleSwitch from '../switches/ToggleSwitch.svelte';
+	let modalID: string;
 	let nickname: string = '';
 	let buttonHidden = true;
 	let nicknameEntered = false;
@@ -62,10 +63,18 @@
 	const createAccount = async () => {
 		alert('Going to create an account!');
 		const sanitizedNickname = nickname.trimStart().trimEnd();
-		console.log(
+		let poolsWillJoin: string[] = [];
+		poolsToJoin.forEach((pool) => {
+			const report = `${pool.name}: ${pool.toggled}`;
+			poolsWillJoin.push(report);
+		});
+		myLog(
 			`Creating account for ${$currentUser.displayName} (${sanitizedNickname})...`,
-			poolsToJoin.forEach((pool) => `${pool.name}: ${pool.toggled}`)
+			null,
+			football,
+			poolsWillJoin
 		);
+		hideModal(modalID);
 	};
 	const isOneOrMorePoolsSelected = async () => {
 		for (const pool of poolsToJoin) {
@@ -93,8 +102,15 @@
 	}, 750);
 </script>
 
-<ModalButtonAndSlot displayModalButtonText={'Show Login Form'}>
-	<Grid slot="modal-content" customStyles="grid-template-columns: 1fr auto; gap: 1.5rem;">
+<ModalButtonAndSlot
+	displayModalButtonText={'Show Login Form'}
+	bind:modalID
+	modalForegroundStyles={'width: min(100vw, 500px);'}
+>
+	<Grid
+		slot="modal-content"
+		customStyles="grid-template-columns: minmax(0,1fr) minmax(0,auto); gap: 1.5rem;width:clamp(200px,85vw,100%)"
+	>
 		<label for="nickname" class="two-column">
 			<h3>Enter Your Nickname</h3>
 			<input
@@ -126,8 +142,10 @@
 				<div class="accordionWrapper" transition:slide={{ duration: 500 }}>
 					<AccordionDetails
 						showArrow={false}
-						customContentStyles="width:50ch;"
-						customDetailsStyles="width:50ch;"
+						customContentStyles="max-width:50ch;"
+						customDetailsStyles="max-width:50ch;transition:background 300ms ease-out;{pool.toggled
+							? `background:#2196f3;color:white;`
+							: ``}"
 					>
 						<p slot="summary" class="summary">{pool.name}</p>
 						<svelte:fragment slot="content">
@@ -174,7 +192,7 @@
 	.checkmark-wrapper {
 		position: absolute;
 		right: 1.5%;
-		bottom: 8%;
+		bottom: 10%;
 	}
 	.price {
 		font-weight: bold;
