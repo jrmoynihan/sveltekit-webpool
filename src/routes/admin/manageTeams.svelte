@@ -57,11 +57,11 @@
 		</div>
 		{#each Object.keys(selectedTeam) as key}
 			{#if key !== 'docRef'}
-				<label for={`${selectedTeam}-${key}`} style="grid-area:{key}">
+				<label for={`${selectedTeam.abbreviation}-${key}`} style="grid-area:{key}">
 					{key}
 					{#if key === 'conference'}
 						<select
-							id={`${selectedTeam}-${key}`}
+							id={`${selectedTeam.abbreviation}-${key}`}
 							bind:value={selectedTeam[key]}
 							style="font-style:{selectedTeam[key] ? '' : 'italic'}"
 							>{#each conferences as conf}
@@ -70,7 +70,7 @@
 						</select>
 					{:else if key === 'division'}
 						<select
-							id={`${selectedTeam}-${key}`}
+							id={`${selectedTeam.abbreviation}-${key}`}
 							bind:value={selectedTeam[key]}
 							style="font-style:{selectedTeam[key] ? '' : 'italic'}"
 							>{#each divisions as div}
@@ -80,7 +80,7 @@
 					{:else if key === 'wins' || key === 'losses' || key === 'ties'}
 						<input
 							type="number"
-							id={`${selectedTeam}-${key}`}
+							id={`${selectedTeam.abbreviation}-${key}`}
 							bind:value={selectedTeam[key]}
 							style="font-style:{selectedTeam[key] ? '' : 'italic'};  width:min(calc({selectedTeam[
 								key
@@ -90,7 +90,7 @@
 					{:else}
 						<input
 							type="text"
-							id={`${selectedTeam}-${key}`}
+							id={`${selectedTeam.abbreviation}-${key}`}
 							bind:value={selectedTeam[key]}
 							style="font-style:{selectedTeam[key] ? '' : 'bold'} ; width:min(calc({selectedTeam[
 								key
@@ -108,7 +108,6 @@
 <style lang="scss">
 	select {
 		@include rounded;
-		color: var(--main-color, rgb(255, 255, 255));
 		margin: 0 auto;
 		max-width: max-content;
 		padding: 1rem;
