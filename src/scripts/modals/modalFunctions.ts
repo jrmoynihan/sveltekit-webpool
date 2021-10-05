@@ -12,6 +12,7 @@ export const displayModal = (modalID: string) => {
 			isDialogSupported = false;
 		}
 	}
+	modal.classList.add('dialogOpen');
 
 	if (isDialogSupported && modal) {
 		// dialogOpen = true;
@@ -40,17 +41,24 @@ export const hideModal = async (modalID: string): Promise<void> => {
 			isDialogSupported = false;
 		}
 	}
+	// When navigating, this needs to be removed programmatically
+	modal.classList.remove('dialogOpen');
 
 	if (isDialogSupported && modal) {
 		console.log(`dialog supported. closing dialog.`);
-		modal.close();
+		setTimeout(() => {
+			modal.close();
+		}, 300);
 	} else if (modal) {
 		console.log(`dialog not supported. closing dialog.`);
-		modal.removeAttribute('open');
+		setTimeout(() => {
+			modal.removeAttribute('open');
+		}, 300);
 	}
 };
 export const hideThisModalDelayed = async (modal: HTMLDialogElement) => {
 	console.log(`hideThisModalDelayed...`);
+	modal.classList.remove('dialogOpen');
 	// run the dialog close method after the CSS transition completes to avoid "snapping" the element during the transition (set timeout to 0 to observe this)
 	setTimeout(() => {
 		modal.close();
@@ -58,9 +66,9 @@ export const hideThisModalDelayed = async (modal: HTMLDialogElement) => {
 };
 export const checkForEscape = async (
 	e: KeyboardEvent & { currentTarget: EventTarget & Window },
-	dialogOpen: boolean
+	modal: HTMLDialogElement
 ) => {
 	if (e.key === 'Escape') {
-		dialogOpen ? (dialogOpen = false) : null;
+		hideThisModalDelayed(modal);
 	}
 };

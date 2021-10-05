@@ -19,6 +19,7 @@ export const showIDs = writable(false);
 export const showSpreads = writable(false);
 export const showTimestamps = writable(false);
 export const overrideDisabled = writable(false);
+export const dialogOpen = writable(false);
 export const godMode = writable(false);
 export const godCode = writable<string[]>([]);
 

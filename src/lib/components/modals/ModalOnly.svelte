@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { hideThisModalDelayed } from '$scripts/modals/modalFunctions';
+	import { checkForEscape, hideThisModalDelayed } from '$scripts/modals/modalFunctions';
 
 	// import dialogPolyfill from 'dialog-polyfill';
 	import { nanoid } from 'nanoid';
@@ -29,6 +29,7 @@
 		<slot name="modal-content">slotted modal content goes here</slot>
 	</div>
 </dialog>
+<svelte:window on:keydown={(e) => checkForEscape(e, modal)} />
 
 <style lang="scss">
 	dialog {

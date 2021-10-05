@@ -28,7 +28,7 @@
 	class:dialogOpen
 	id={`modal-${modalID}`}
 	style={dialogStyles}
-	on:click|self={() => {
+	on:click|self|capture={() => {
 		dialogOpen = false;
 		hideThisModalDelayed(modal);
 	}}
@@ -51,7 +51,7 @@
 	{displayModalButtonText}
 	<slot name="button-icon" />
 </button>
-<svelte:window on:keydown={(e) => checkForEscape(e, dialogOpen)} />
+<svelte:window on:keydown|preventDefault={(e) => checkForEscape(e, modal)} />
 
 <style lang="scss">
 	// @import 'src/Styles/Mixins.scss';
