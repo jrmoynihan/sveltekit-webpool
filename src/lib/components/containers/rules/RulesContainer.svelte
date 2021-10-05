@@ -59,7 +59,7 @@
 		myLog('unsubscribed from rule document changes!');
 	});
 
-	let tabs: { name: string; component: any; data: {}; ref: DocumentReference }[];
+	let tabs: { name: string; component: any; data: {}; ref: DocumentReference }[] = [];
 
 	$: {
 		if (ruleCategories) {
