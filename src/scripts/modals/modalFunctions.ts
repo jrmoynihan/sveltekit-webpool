@@ -49,8 +49,8 @@ export const hideModal = async (modalID: string): Promise<void> => {
 		modal.removeAttribute('open');
 	}
 };
-export const hideThisModalDelayed = async (modal: HTMLDialogElement, dialogOpen: boolean) => {
-	dialogOpen = false;
+export const hideThisModalDelayed = async (modal: HTMLDialogElement) => {
+	console.log(`hideThisModalDelayed...`);
 	// run the dialog close method after the CSS transition completes to avoid "snapping" the element during the transition (set timeout to 0 to observe this)
 	setTimeout(() => {
 		modal.close();

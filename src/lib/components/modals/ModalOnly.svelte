@@ -19,7 +19,10 @@
 	class="fixed"
 	id={`modal-${modalID}`}
 	style="{dialogOpen ? 'opacity:1' : 'opacity:0'}; {dialogStyles}"
-	on:click|self={() => hideThisModalDelayed(modal, dialogOpen)}
+	on:click|self={() => {
+		dialogOpen = false;
+		hideThisModalDelayed(modal);
+	}}
 	bind:this={modal}
 >
 	<div class="modal-foreground" style={modalForegroundStyles}>
