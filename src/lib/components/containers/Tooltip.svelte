@@ -3,6 +3,7 @@
 	export let tooltipHorizontalPosition = '-50%';
 	export let tooltipWidth = '100%';
 	export let tooltipTop = '-300%';
+	export let showArrow = true;
 </script>
 
 <div class="tooltip-parent">
@@ -12,7 +13,9 @@
 		style="--leftTip:{tooltipHorizontalPosition}; --widthTip:{tooltipWidth}; --topTip:{tooltipTop};"
 	>
 		<slot name="text">Tooltip text goes in the 'text' slot</slot>
-		<span class="tooltip-arrow" style="--leftArrow:{arrowhorizontalPosition}" />
+		{#if showArrow}
+			<span class="tooltip-arrow" style="--leftArrow:{arrowhorizontalPosition}" />
+		{/if}
 	</span>
 </div>
 

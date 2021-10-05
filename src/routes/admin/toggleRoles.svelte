@@ -17,4 +17,3 @@
 {:else}
 	The role toggles are only available for development/testing and are hidden in live/production.
 {/if}
-<LoginForm />

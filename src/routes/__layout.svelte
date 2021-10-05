@@ -9,7 +9,7 @@
 <script lang="ts">
 	import '../app.css';
 	import { userConverter } from '$scripts/converters';
-	import { currentUser, userData } from '$scripts/auth/auth';
+	import { currentUser } from '$scripts/auth/auth';
 	import {
 		chosenMixBlendMode,
 		largerThanMobile,
@@ -17,21 +17,18 @@
 		useDarkTheme,
 		windowWidth
 	} from '$scripts/store';
-	import { doc } from '@firebase/firestore';
 	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
 	import Navigator from '$navigation/Navigator.svelte';
 	import AppMenu from '$lib/majorFeatures/AppMenu.svelte';
 	import SiteNavOptions from '$navigation/siteNavOptions.svelte';
-	import { usersCollection } from '$scripts/collections';
 	import ReturnToTop from '$lib/components/buttons/ReturnToTop.svelte';
 	import { SvelteToast } from '@zerodevx/svelte-toast';
-	import { getDoc } from '@firebase/firestore';
 	import { mobileBreakpoint } from '$scripts/site';
 	import { onMount } from 'svelte';
-	import { WebUser } from '$scripts/classes/webUser';
-	import { getLocalStorageItem, setLocalStorageItem } from '$scripts/functions';
-	import { WeeklyPickRecord } from '$scripts/classes/userRecord';
-	import { myLog } from '$scripts/classes/constants';
+	import { getLocalStorageItem, saveUserData } from '$scripts/localStorage';
+	// import { WebUser } from '$scripts/classes/webUser';
+	// import { usersCollection } from '$scripts/collections';
+	// import { doc, getDoc } from '@firebase/firestore';
 
 	export let refresh: any;
 
@@ -46,16 +43,6 @@
 		const foundTheme: boolean = await getLocalStorageItem('useDarkTheme');
 		if (foundTheme) {
 			$useDarkTheme = foundTheme;
-		}
-	};
-
-	const saveUserData = async () => {
-		const userDocRef = doc(usersCollection, $currentUser.uid);
-		const snapshot = await getDoc(userDocRef.withConverter(userConverter));
-		const user = new WebUser({ ...snapshot.data() });
-		$userData = user;
-		for (const property in $userData) {
-			setLocalStorageItem(property, $userData[property]);
 		}
 	};
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { setLocalStorageItem } from '$scripts/functions';
+	import { setLocalStorageItem } from '$scripts/localStorage';
 	import { useDarkTheme } from '$scripts/store';
 
 	const storeDarkThemePreference = async () => {

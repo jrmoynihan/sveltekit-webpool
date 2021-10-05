@@ -16,6 +16,8 @@ export class WebUser {
 	weekly: boolean;
 	weeklyPickRecord: WeeklyPickRecord;
 	weeklyWinnings: UserWinnings;
+	amountOwedToPools: number;
+	amountPaidToPools: number;
 	constructor({ ...args }) {
 		(this.id = args.id),
 			(this.ref = args.ref),
@@ -31,5 +33,7 @@ export class WebUser {
 		this.weekly = args.weekly || false;
 		this.weeklyPickRecord = args.weeklyPickRecord;
 		this.weeklyWinnings = args.weeklyWinnings;
+		this.amountOwedToPools = args.amountOwedToPools;
+		this.amountPaidToPools = args.amountPaidToPools;
 	}
 }

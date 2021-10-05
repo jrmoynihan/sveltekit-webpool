@@ -1,10 +1,9 @@
-import type { Query } from '@firebase/firestore';
 import { query, where, getDocs } from '@firebase/firestore';
-import { myLog, myError } from './classes/constants';
-import { WebUser } from './classes/webUser';
-import { usersCollection } from './collections';
-import { userConverter } from './converters';
-import { defaultToast, errorToast } from './toasts';
+import { myLog, myError } from '../classes/constants';
+import { WebUser } from '../classes/webUser';
+import { usersCollection } from '../collections';
+import { userConverter } from '../converters';
+import { defaultToast, errorToast } from '../toasts';
 
 export const getWeeklyUsers = async ({
 	showToast = true,

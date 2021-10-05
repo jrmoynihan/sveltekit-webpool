@@ -9,6 +9,7 @@ import {
 } from './classes/constants';
 import type { WeeklyPickDoc } from './classes/picks';
 import type { Timestamp } from '@firebase/firestore';
+import { getLocalStorageItem } from './localStorage';
 
 export const isPropertyOf = <T>(
 	varToBeChecked: unknown,
@@ -29,55 +30,7 @@ export const matchPath = (testPath: string, currentPath: string): boolean => {
 		console.error('An error occurred in functions:{matchPath}');
 	}
 };
-export const displayModal = (modalID: string) => {
-	console.log('displaying modal id:', modalID);
-	let modal: HTMLDialogElement;
-	let isDialogSupported = true;
 
-	if (browser) {
-		modal = document.getElementById(`modal-${modalID}`) as HTMLDialogElement;
-		if (!window.HTMLDialogElement) {
-			document.body.classList.add('no-dialog');
-			isDialogSupported = false;
-		}
-	}
-
-	if (isDialogSupported && modal) {
-		// dialogOpen = true;
-		modal.showModal();
-	} else if (modal) {
-		modal.setAttribute('open', '');
-	}
-	blurModal(modalID);
-};
-
-export const blurModal = (modalID: string) => {
-	if (browser) {
-		const modal = document.getElementById(`modal-${modalID}`);
-		if (modal) {
-			modal.blur();
-		}
-	}
-};
-export const hideModal = async (modalID: string): Promise<void> => {
-	let modal: HTMLDialogElement;
-	let isDialogSupported = true;
-	if (browser) {
-		modal = document.getElementById(`modal-${modalID}`) as HTMLDialogElement;
-		if (!window.HTMLDialogElement) {
-			document.body.classList.add('no-dialog');
-			isDialogSupported = false;
-		}
-	}
-
-	if (isDialogSupported && modal) {
-		console.log(`dialog supported. closing dialog.`);
-		modal.close();
-	} else if (modal) {
-		console.log(`dialog not supported. closing dialog.`);
-		modal.removeAttribute('open');
-	}
-};
 export const sortByWins = (firstPlayer: { wins: number }, secondPlayer: { wins: number }): number =>
 	secondPlayer.wins - firstPlayer.wins;
 
@@ -155,21 +108,6 @@ export const scrollToTopSmooth = (top = 0): void => {
 	}
 };
 
-export const getLocalStorageItem = async (key: string): Promise<any> => {
-	if (browser) {
-		const item = JSON.parse(localStorage.getItem(key));
-		return item;
-	} else {
-		myLog('unable to check for local storage');
-	}
-};
-export const setLocalStorageItem = async (key: string, value: string): Promise<void> => {
-	if (browser) {
-		localStorage.setItem(key, JSON.stringify(value));
-	} else {
-		myLog('unable to set item in local storage');
-	}
-};
 export const convertToHttps = async (httpAddress: string): Promise<string> => {
 	return httpAddress.replace('http', 'https');
 };

@@ -4,8 +4,9 @@
 	import type { PageOption } from '$scripts/classes/pageOption';
 	import Fa from 'svelte-fa';
 	import { faFootballBall } from '@fortawesome/free-solid-svg-icons';
-	import { hideModal, matchPath } from '$scripts/functions';
+	import { matchPath } from '$scripts/functions';
 	import { toast } from '@zerodevx/svelte-toast';
+	import { hideModal } from '$scripts/modals/modalFunctions';
 
 	export let index = 0;
 	export let pageOption: PageOption;

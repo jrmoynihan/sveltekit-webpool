@@ -253,7 +253,9 @@
 	}
 	details {
 		@include rounded;
-		&:hover {
+		@include defaultTransition;
+		&:hover,
+		&:focus-within {
 			@include dayShadow;
 		}
 	}

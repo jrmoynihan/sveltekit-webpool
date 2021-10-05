@@ -2,8 +2,9 @@
 	import { createEventDispatcher } from 'svelte';
 	import { nanoid } from 'nanoid';
 
-	// Expose a property to the bind:checked event of the toggle
+	// Expose a property to the bind:checked event and disabled states of the toggle
 	export let checked: boolean = false;
+	export let disabled: boolean = false;
 	// A property to target a grid-area
 	export let area = '';
 	// An id property for a label to target
@@ -12,6 +13,14 @@
 	// Add override styles
 	export let sliderStyles = '';
 	export let labelStyles = '';
+	export let bgColorHue = 207;
+	export let bgColorSaturation = 90;
+	export let bgColorLuminosity = 54;
+	export let darkenHoverPercentage = 20;
+	export let toggleBgColorActive: string = `hsl(${bgColorHue},${bgColorSaturation}%,${bgColorLuminosity}%)`;
+	export let toggleBgColorActiveHovered: string = `hsl(${bgColorHue},${bgColorSaturation}%,${
+		bgColorLuminosity - darkenHoverPercentage
+	}%)`;
 
 	// Create an event dispatcher object
 	const dispatch = createEventDispatcher();
@@ -26,11 +35,19 @@
 		{labelText}
 	</label>
 {/if}
-<label class="switch" style="grid-area: {area};">
+<button
+	{disabled}
+	on:click|stopPropagation={() => {
+		checked = !checked;
+		toggleClicked();
+	}}
+	class="switch"
+	style="grid-area: {area};--toggleBgColorActive:{toggleBgColorActive}; --toggleBgColorActiveHovered:{toggleBgColorActiveHovered}"
+>
 	<!-- NOTE: Subtle fix made by changing this to on:change event instead of on:click -->
 	<input type="checkbox" bind:checked on:change|stopPropagation={toggleClicked} {id} />
 	<span class="slider round" style={sliderStyles} />
-</label>
+</button>
 
 <style lang="scss">
 	$toggle-height: min(1.7em, 10vmin);
@@ -38,8 +55,9 @@
 	$slider-height: min(1.2em, 10vmin); //3.5
 	$slider-width: min(1.2em, 10vmin); //3.5
 	$slider-transform: 105%; //min(1.3em, 6vmin)
-	$toggle-background-color-active: #2196f3;
-	$toggle-background-color-inactive: #ccc;
+	$toggle-background-color-active: var(--toggleBgColorActive, hsl(207, 90%, 54%));
+	$toggle-background-color-active-hovered: var(--toggleBgColorActiveHovered, hsl(207, 90%, 34%));
+	$toggle-background-color-inactive: #aaa;
 	$slider-color: white;
 	/* The switch - the box around the slider */
 	.switch,
@@ -88,7 +106,7 @@
 		}
 	}
 	input {
-		visibility: hidden;
+		@include hiddenInput;
 	}
 	input:checked + .slider {
 		background-color: $toggle-background-color-active;
@@ -99,11 +117,11 @@
 			transform: translateX($slider-transform); /* or 26px */
 		}
 		&:hover {
-			background-color: darken($toggle-background-color-active, 20%);
+			background-color: $toggle-background-color-active-hovered;
 		}
 	}
 	input:focus + .slider {
-		box-shadow: 0 0 2px 3px darken($toggle-background-color-active, 20%);
+		box-shadow: 0 0 2px 3px $toggle-background-color-active-hovered;
 		transition: all 100ms ease-in-out;
 	}
 	/* Rounded sliders */
@@ -117,5 +135,8 @@
 	.label-text {
 		max-width: none;
 		width: auto;
+	}
+	button {
+		@include discreetButtonStyles;
 	}
 </style>

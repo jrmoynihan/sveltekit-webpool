@@ -18,7 +18,6 @@ import { defaultToast, errorToast } from './toasts';
 import { updateDoc, getDocs, query, where, increment, doc } from '@firebase/firestore';
 import { teamsCollection } from './teams';
 import type { Team } from './classes/team';
-import { getWeeklyUsers } from './weeklyUsers';
 import type { WeeklyTiebreaker } from './classes/tiebreaker';
 import type { WeeklyPickDoc } from './classes/picks';
 

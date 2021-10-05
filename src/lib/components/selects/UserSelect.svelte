@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { WebUser } from '$scripts/classes/webUser';
-	import { getWeeklyUsers } from '$scripts/weeklyUsers';
+	import { getWeeklyUsers } from '$scripts/weekly/weeklyUsers';
 
 	export let selectedUser: WebUser;
 </script>

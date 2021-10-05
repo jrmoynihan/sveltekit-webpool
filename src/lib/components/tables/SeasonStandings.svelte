@@ -5,7 +5,7 @@
 	import SeasonStandingsRow from './SeasonStandingsRow.svelte';
 	import { query, where, orderBy } from '@firebase/firestore';
 	import { usersCollection } from '$scripts/collections';
-	import { getWeeklyUsers } from '$scripts/weeklyUsers';
+	import { getWeeklyUsers } from '$scripts/weekly/weeklyUsers';
 	import { onMount } from 'svelte';
 
 	let initialSeasonHeaders = ['Rank', 'Player', 'Wins', 'Losses', '% Won', 'Prizes'];

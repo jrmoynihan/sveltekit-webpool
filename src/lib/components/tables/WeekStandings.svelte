@@ -12,7 +12,7 @@
 		usersCollection,
 		weeklyTiebreakersCollection
 	} from '$scripts/collections';
-	import { getWeeklyUsers } from '$scripts/weeklyUsers';
+	import { getWeeklyUsers } from '$scripts/weekly/weeklyUsers';
 	import type { WeeklyTiebreaker } from '$scripts/classes/tiebreaker';
 	import { gameConverter, weeklyTiebreakerConverter } from '$scripts/converters';
 	import { errorToast } from '$scripts/toasts';

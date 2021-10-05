@@ -51,6 +51,6 @@
 			'IDs';
 	}
 	input {
-		@include hiddenRadio;
+		@include hiddenInput;
 	}
 </style>

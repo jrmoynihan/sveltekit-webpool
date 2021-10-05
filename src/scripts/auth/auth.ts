@@ -12,15 +12,15 @@ import {
 import type { User, UserCredential, AuthProvider } from '@firebase/auth';
 import { firestoreAuth } from '$scripts/firebaseInit';
 import { get, writable } from 'svelte/store';
-import type { WebUser } from '$scripts/classes/webUser';
+import { WebUser } from '$scripts/classes/webUser';
 import { getDoc, doc, setDoc } from '@firebase/firestore';
 import { usersCollection } from '$scripts/collections';
-import { hideModal } from '../functions';
 import { goto } from '$app/navigation';
 import { userConverter } from '../converters';
-import { myError } from '../classes/constants';
+import { myError, myLog } from '../classes/constants';
 import { userNotFound } from './signInRedirectResult';
 import { dev } from '$app/env';
+import { WeeklyPickRecord, UserWinnings } from '$scripts/classes/userRecord';
 
 export const currentUser = writable<User>(firestoreAuth.currentUser);
 export const userData = writable<WebUser>();
@@ -101,67 +101,77 @@ export const startSignIn = async (
 		await signInWithRedirect(firestoreAuth, provider);
 	}
 	// Everything below here will not run if the redirect sign-in above occurs
-	const userCredential = await signInWithPopup(firestoreAuth, provider);
-	if (userCredential) {
-		// const OAuthCredential = await getOAuthCredential(provider, userCredential);
-		// const token = OAuthCredential.accessToken;
-		currentUser.set(userCredential.user);
-		const _currentUser = get(currentUser);
+	// const userCredential = await signInWithPopup(firestoreAuth, provider);
+	// if (userCredential) {
+	// 	// const OAuthCredential = await getOAuthCredential(provider, userCredential);
+	// 	// const token = OAuthCredential.accessToken;
+	// 	currentUser.set(userCredential.user);
+	// 	const _currentUser = get(currentUser);
 
-		// Find if the user document already exists before trying to write a new one
-		const userDocSnapshot = await getDoc(doc(usersCollection, _currentUser.uid));
+	// 	// Find if the user document already exists before trying to write a new one
+	// 	const userDocSnapshot = await getDoc(doc(usersCollection, _currentUser.uid));
 
-		// Log if the user doc exists
-		if (userDocSnapshot.exists()) {
-			console.info(`User ${userDocSnapshot.exists()} already exists`);
-		}
-		// Else, create a new document for the user
-		else {
-			console.info('user not found!');
-			userNotFound.set(true);
-			if (dev) {
-				try {
-					await createNewUserDocument(_currentUser.displayName, true, true, true, true, true);
-					console.log('created new user doc!');
-				} catch (error) {
-					console.warn('failed to create user doc!', error);
-				}
-			}
-		}
-	}
-	if (modalID) {
-		hideModal(modalID);
-	}
+	// 	// Log if the user doc exists
+	// 	if (userDocSnapshot.exists()) {
+	// 		console.info(`User ${userDocSnapshot.exists()} already exists`);
+	// 	}
+	// 	// Else, create a new document for the user
+	// 	else {
+	// 		console.info('user not found!');
+	// 		userNotFound.set(true);
+	// 		if (dev) {
+	// 			try {
+	// 				await createNewUserDocument();
+	// 				console.log('created new user doc!');
+	// 			} catch (error) {
+	// 				console.warn('failed to create user doc!', error);
+	// 			}
+	// 		}
+	// 	}
+	// }
+	// if (modalID) {
+	// 	hideModal(modalID);
+	// }
 };
 
 export const createNewUserDocument = async (
 	nickname: string,
-	college: boolean,
-	pick6: boolean,
-	playoffs: boolean,
-	survivor: boolean,
-	weekly: boolean
+	pools: {
+		college: boolean;
+		pick6: boolean;
+		playoffs: boolean;
+		survivor: boolean;
+		weekly: boolean;
+	},
+	amountOwedToPools = 0,
+	amountPaidToPools = 0
 ): Promise<void> => {
 	try {
 		const newUser: User = get(currentUser);
 		// Make a document reference for the user with the user's UID, making it both unique and easy to lookup after they login
 		const newUserRef = doc(usersCollection, newUser.uid);
-		const newWebUser = {
+
+		const newUserData = new WebUser({
+			id: newUser.uid,
+			ref: newUserRef,
 			name: newUser.displayName,
 			nickname: nickname || newUser.displayName,
 			email: newUser.email,
-			id: newUser.uid,
-			ref: newUserRef,
 			active: true,
 			admin: false,
-			college,
-			pick6,
-			playoffs,
-			survivor,
-			weekly
-		};
+			college: pools.college,
+			pick6: pools.pick6,
+			playoffs: pools.playoffs,
+			survivor: pools.survivor,
+			weekly: pools.weekly,
+			weeklyPickRecord: { ...new WeeklyPickRecord({}) },
+			weeklyWinnings: { ...new UserWinnings({}) },
+			amountOwedToPools,
+			amountPaidToPools
+		});
+		console.log('newUserData', newUserData);
 		// Write some initial data to the user document
-		await setDoc(newUserRef.withConverter(userConverter), newWebUser);
+		await setDoc(newUserRef.withConverter(userConverter), newUserData);
 
 		console.info(`New user doc for ${newUser.displayName} (${newUser.uid}) added!`);
 	} catch (error) {
@@ -175,6 +185,7 @@ export const startSignOut = async (): Promise<void> => {
 	goto('/'); // go to the index page, navigating the user away from any authorized page they may be on currently
 };
 firestoreAuth.onAuthStateChanged(() => {
+	myLog('Auth state changed.', 'auth.ts => onAuthStateChanged');
 	currentUser.set(firestoreAuth.currentUser);
 });
 

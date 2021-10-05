@@ -9,8 +9,10 @@
 	import FacebookLoginButton from '$lib/components/buttons/FacebookLoginButton.svelte';
 	import { dev } from '$app/env';
 	import ModalOnly from '$lib/components/modals/ModalOnly.svelte';
-	import { displayModal } from '$scripts/functions';
 	import { userNotFound } from '$scripts/auth/signInRedirectResult';
+	import OnlineStatusIndicator from '$lib/components/containers/micro/OnlineStatusIndicator.svelte';
+	import { displayModal } from '$scripts/modals/modalFunctions';
+	import LoginForm from '$lib/components/forms/LoginForm.svelte';
 
 	export let useRedirect = true;
 	let loginModalID: string;
@@ -19,6 +21,7 @@
 
 	const googleLogin = async () => {
 		await startSignIn('Google', useRedirect, loginModalID);
+		console.log(`User ${$userNotFound ? 'not' : ''} found.`);
 		if ($userNotFound) {
 			showNewUserForm();
 		}
@@ -68,6 +71,7 @@
 			<picture transition:fade>
 				{#if $currentUser.photoURL !== undefined && $currentUser.photoURL !== null}
 					<img lazy-loading alt="user-profile-avatar" src={$currentUser.photoURL} width="50px" />
+					<OnlineStatusIndicator />
 				{:else}
 					<Fa icon={faUserCircle} size="2x" class="fa-UserCircle" />
 				{/if}
@@ -75,10 +79,8 @@
 		{/if}
 	</svelte:fragment>
 </ModalButtonAndSlot>
+<LoginForm bind:modalID={newUserModalID} bind:dialogOpen={newUserModalOpen} />
 
-<!-- <ModalOnly bind:dialogOpen={newUserModalOpen} bind:modalID={newUserModalID}>
-	<svelte:fragment slot="modal-content">Hello!</svelte:fragment>
-</ModalOnly> -->
 <style lang="scss">
 	button {
 		@include defaultButtonStyles;
@@ -90,6 +92,7 @@
 	}
 	picture {
 		display: grid;
+		position: relative;
 	}
 	#sign-out-button {
 		@include frostedGlassHighContrast;

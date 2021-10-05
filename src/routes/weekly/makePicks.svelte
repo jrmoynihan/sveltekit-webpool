@@ -36,12 +36,7 @@
 	} from '@firebase/firestore';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
-	import {
-		focusTiebreaker,
-		getLocalStorageItem,
-		getUserId,
-		isBeforeGameTime
-	} from '$scripts/functions';
+	import { focusTiebreaker, getUserId, isBeforeGameTime } from '$scripts/functions';
 	import {
 		airplaneDeparture,
 		bomb,
@@ -70,6 +65,7 @@
 	import LoadingSpinner from '$lib/components/misc/LoadingSpinner.svelte';
 	import type { Game } from '$scripts/classes/game';
 	import { findCurrentWeekOfSchedule } from '$scripts/schedule';
+	import { getLocalStorageItem } from '$scripts/localStorage';
 
 	let uid: string;
 	let picksPromise: Promise<WeeklyPickDoc[]>;
@@ -285,7 +281,7 @@
 			myLog('updated/submitted picks!', '', okHand, currentPicks);
 			picksPromise = getPicks(selectedWeek, uid);
 
-			setTiebreakerDoc(uid);
+			await updateTiebreakerDoc(tiebreakerDocRef, uid, tiebreaker, selectedWeek, selectedYear);
 
 			defaultToast({
 				title: `${checkmark} Picks submitted!`,
@@ -297,19 +293,16 @@
 			myError('submitPicks', error);
 		}
 	};
-	const setTiebreakerDoc = async (uid?: string): Promise<void> => {
+	const updateTiebreakerDoc = async (
+		tiebreakerDocRef: DocumentReference,
+		uid: string,
+		tiebreaker: number,
+		selectedWeek,
+		selectedYear
+	): Promise<void> => {
 		try {
-			let docRef: DocumentReference;
-			// If a tiebreaker document already exists, use its reference
-			if (tiebreakerDocRef) {
-				docRef = tiebreakerDocRef;
-				// Otherwise, make a new document reference to set on the collection
-			} else {
-				docRef = doc(weeklyTiebreakersCollection);
-			}
-
-			await setDoc(docRef.withConverter(weeklyTiebreakerConverter), {
-				docRef: docRef,
+			await updateDoc(tiebreakerDocRef.withConverter(weeklyTiebreakerConverter), {
+				docRef: tiebreakerDocRef,
 				tiebreaker: tiebreaker,
 				uid: uid,
 				type: 'Regular Season',

@@ -20,24 +20,24 @@ export class WeeklyPickRecord {
 	week_18: UserRecord;
 	constructor({ ...args }) {
 		this.total = args.total || { wins: 0, losses: 0 };
-		this.week_1 = args.week_1 || new UserRecord({});
-		this.week_2 = args.week_2 || new UserRecord({});
-		this.week_3 = args.week_3 || new UserRecord({});
-		this.week_4 = args.week_4 || new UserRecord({});
-		this.week_5 = args.week_5 || new UserRecord({});
-		this.week_6 = args.week_6 || new UserRecord({});
-		this.week_7 = args.week_7 || new UserRecord({});
-		this.week_8 = args.week_8 || new UserRecord({});
-		this.week_9 = args.week_9 || new UserRecord({});
-		this.week_10 = args.week_10 || new UserRecord({});
-		this.week_11 = args.week_11 || new UserRecord({});
-		this.week_12 = args.week_12 || new UserRecord({});
-		this.week_13 = args.week_13 || new UserRecord({});
-		this.week_14 = args.week_14 || new UserRecord({});
-		this.week_15 = args.week_15 || new UserRecord({});
-		this.week_16 = args.week_16 || new UserRecord({});
-		this.week_17 = args.week_17 || new UserRecord({});
-		this.week_18 = args.week_18 || new UserRecord({});
+		this.week_1 = args.week_1 || { ...new UserRecord({}) };
+		this.week_2 = args.week_2 || { ...new UserRecord({}) };
+		this.week_3 = args.week_3 || { ...new UserRecord({}) };
+		this.week_4 = args.week_4 || { ...new UserRecord({}) };
+		this.week_5 = args.week_5 || { ...new UserRecord({}) };
+		this.week_6 = args.week_6 || { ...new UserRecord({}) };
+		this.week_7 = args.week_7 || { ...new UserRecord({}) };
+		this.week_8 = args.week_8 || { ...new UserRecord({}) };
+		this.week_9 = args.week_9 || { ...new UserRecord({}) };
+		this.week_10 = args.week_10 || { ...new UserRecord({}) };
+		this.week_11 = args.week_11 || { ...new UserRecord({}) };
+		this.week_12 = args.week_12 || { ...new UserRecord({}) };
+		this.week_13 = args.week_13 || { ...new UserRecord({}) };
+		this.week_14 = args.week_14 || { ...new UserRecord({}) };
+		this.week_15 = args.week_15 || { ...new UserRecord({}) };
+		this.week_16 = args.week_16 || { ...new UserRecord({}) };
+		this.week_17 = args.week_17 || { ...new UserRecord({}) };
+		this.week_18 = args.week_18 || { ...new UserRecord({}) };
 	}
 }
 
