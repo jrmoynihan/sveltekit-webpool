@@ -8,37 +8,32 @@
 	import GoogleLoginButton from '$lib/components/buttons/GoogleLoginButton.svelte';
 	import FacebookLoginButton from '$lib/components/buttons/FacebookLoginButton.svelte';
 	import { dev } from '$app/env';
-	import ModalOnly from '$lib/components/modals/ModalOnly.svelte';
 	import { userNotFound } from '$scripts/auth/signInRedirectResult';
 	import OnlineStatusIndicator from '$lib/components/containers/micro/OnlineStatusIndicator.svelte';
-	import { displayModal } from '$scripts/modals/modalFunctions';
-	import LoginForm from '$lib/components/forms/LoginForm.svelte';
+	import NewUserForm from '$lib/components/forms/NewUserForm.svelte';
+	import type ModalOnly from '$lib/components/modals/ModalOnly.svelte';
 
 	export let useRedirect = true;
-	let loginModalID: string;
-	let newUserModalID: string;
-	let newUserModalOpen = false;
+	let newUserFormComponent: ModalOnly;
+	// let loginModalComponent: ModalButtonAndSlot
 
 	const googleLogin = async () => {
-		await startSignIn('Google', useRedirect, loginModalID);
-		console.log(`User ${$userNotFound ? 'not' : ''} found.`);
-		if ($userNotFound) {
-			showNewUserForm();
-		}
+		await startSignIn('Google', useRedirect);
+		// if ($userNotFound) {
+		// 	newUserFormComponent.open()
+		// }
 	};
 	const facebookLogin = async () => {
-		await startSignIn('Facebook', useRedirect, loginModalID);
-		if ($userNotFound) {
-			showNewUserForm();
-		}
+		await startSignIn('Facebook', useRedirect);
+		// if ($userNotFound) {
+		// 	newUserFormComponent.open()
+		// }
 	};
-	const showNewUserForm = () => {
-		displayModal(newUserModalID);
-		newUserModalOpen = true;
-	};
+
 	$: {
+		console.log(`User ${$userNotFound ? 'not' : ''} found.`);
 		if ($userNotFound) {
-			showNewUserForm();
+			newUserFormComponent.open();
 		}
 	}
 </script>
@@ -48,7 +43,6 @@
 	modalButtonStyles={$currentUser
 		? 'padding:0;border-radius:50%;'
 		: 'height: 100%; background:none; display:grid; align-content:center;'}
-	bind:modalID={loginModalID}
 >
 	<svelte:fragment slot="modal-content">
 		{#if $currentUser !== undefined && $currentUser !== null}
@@ -79,7 +73,7 @@
 		{/if}
 	</svelte:fragment>
 </ModalButtonAndSlot>
-<LoginForm bind:modalID={newUserModalID} bind:dialogOpen={newUserModalOpen} />
+<NewUserForm bind:modalOnlyComponent={newUserFormComponent} />
 
 <style lang="scss">
 	button {

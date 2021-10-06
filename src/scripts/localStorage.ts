@@ -5,7 +5,7 @@ import { doc, getDoc } from '@firebase/firestore';
 import { currentUser, userData } from './auth/auth';
 import { get } from 'svelte/store';
 import { browser } from '$app/env';
-import { myLog } from './classes/constants';
+import { myError, myLog } from './classes/constants';
 
 export const getLocalStorageItem = async (key: string): Promise<any> => {
 	if (browser) {
@@ -24,11 +24,16 @@ export const setLocalStorageItem = async (key: string, value: string): Promise<v
 };
 
 export const saveUserData = async () => {
-	const userDocRef = doc(usersCollection, get(currentUser).uid);
-	const snapshot = await getDoc(userDocRef.withConverter(userConverter));
-	const user = new WebUser({ ...snapshot.data() });
-	userData.set(user);
+	try {
+		const userDocRef = doc(usersCollection, get(currentUser).uid);
+		const snapshot = await getDoc(userDocRef.withConverter(userConverter));
+		const user = new WebUser({ ...snapshot.data() });
+		userData.set(user);
 	for (const property in user) {
 		setLocalStorageItem(property, user[property]);
+	}	
+	} catch (error) {
+		myError('saveUserData',error,'unable to save user data to local storage.')	
 	}
+	
 };

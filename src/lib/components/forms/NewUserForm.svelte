@@ -3,10 +3,13 @@
 	import { football, myError, myLog } from '$scripts/classes/constants';
 	import { weekBoundsCollection } from '$scripts/collections';
 	import { saveUserData } from '$scripts/localStorage';
-	import { displayModal, hideModal } from '$scripts/modals/modalFunctions';
-	import { godCode, godMode } from '$scripts/store';
+	import { godSequence, godMode } from '$scripts/store';
 	import { defaultToast, errorToast } from '$scripts/toasts';
-	import { createTiebreakersForUser, createWeeklyPicksForUser } from '$scripts/weekly/weeklyAdmin';
+	import {
+		createTiebreakersForUser,
+		createWeeklyPicksForUser,
+		getAllGames
+	} from '$scripts/weekly/weeklyAdmin';
 	import { doc } from '@firebase/firestore';
 	import { faCheckCircle, faFootballBall } from '@fortawesome/free-solid-svg-icons';
 	import { onMount } from 'svelte';
@@ -17,8 +20,7 @@
 	import ModalOnly from '../modals/ModalOnly.svelte';
 	import ToggleSwitch from '../switches/ToggleSwitch.svelte';
 
-	export let modalID: string;
-	export let dialogOpen = false;
+	export let modalOnlyComponent: ModalOnly;
 	let nickname: string = '';
 	let buttonHidden = true;
 	let nicknameEntered = false;
@@ -109,7 +111,8 @@
 			await saveUserData();
 			// TODO: create the necessary docs for each pool they've joined...
 			// may not need to await here...
-			createWeeklyPicksForUser($userData, true, false);
+			const games = await getAllGames(false);
+			createWeeklyPicksForUser($userData, true, false, games);
 			createTiebreakersForUser($userData);
 			//prettier-ignore
 			defaultToast({
@@ -117,8 +120,7 @@
 				msg: `${$currentUser.displayName} (${sanitizedNickname}) has joined the following pools: ${poolsWillJoinNames.join(', ')}`
 			});
 			//#prettier-ignore
-			dialogOpen = false;
-			hideModal(modalID);
+			modalOnlyComponent.close();
 		} catch (error) {
 			errorToast('We ran into an error while creating the account.');
 			myError('createAccount', error);
@@ -175,11 +177,6 @@
 			return msg;
 		}
 	};
-	$: console.log($godMode);
-	$: if ($godMode) {
-		dialogOpen = true;
-		displayModal(modalID);
-	}
 	//prettier-ignore
 	$: poolsWillJoinNames = poolsWillJoin.map((pool) => {return pool.name;});
 	//#prettier-ignore
@@ -210,13 +207,14 @@
 	};
 	onMount(() => {
 		$godMode = false;
-		const currentYear = new Date().getFullYear();
+		// const currentYear = new Date().getFullYear();
 		// weeklyCutoffDate = await getWeeklyCutoffDate(currentYear)
 	});
 
 	export const enableGodMode = async (
 		e: KeyboardEvent & { currentTarget: EventTarget & Window }
 	) => {
+		// console.log(e.key);
 		const secretCode = ['G', 'O', 'D'];
 		if (!$godMode && $userData.admin) {
 			if (
@@ -228,28 +226,24 @@
 				e.key !== 'd'
 			) {
 				$godMode = false;
-				$godCode = [];
+				$godSequence = [];
+				console.log('an incorrect character', $godSequence);
 				return;
 			}
 			if (e.key === 'G' || e.key === 'g') {
-				$godCode.push('G');
+				$godSequence.push('G');
 			}
 			if (e.key === 'O' || e.key === 'o') {
-				$godCode.push('O');
+				$godSequence.push('O');
 			}
 			if (e.key === 'D' || e.key === 'd') {
-				$godCode.push('D');
+				$godSequence.push('D');
 			}
-			console.log(
-				$godCode,
-				$godCode.every((letter, index) => {
-					return letter === secretCode[index];
-				})
-			);
+			// console.log($godSequence);
 			if (
-				$godCode.length === 3 &&
-				$godCode.every((letter, index) => {
-					console.log(secretCode[index]);
+				$godSequence.length === 3 &&
+				$godSequence.every((letter, index) => {
+					// console.log(secretCode[index]);
 					if (secretCode[index] === undefined) {
 						return false;
 					} else {
@@ -265,8 +259,13 @@
 	};
 </script>
 
-<svelte:window on:keypress={(e) => enableGodMode(e)} />
-<ModalOnly bind:modalID bind:dialogOpen modalForegroundStyles={'width: min(100vw, 500px);'}>
+<svelte:window
+	on:keydown={(e) => {
+		enableGodMode(e);
+	}}
+/>
+<ModalOnly bind:this={modalOnlyComponent} modalForegroundStyles={'width: min(100vw, 500px);'}>
+	<input type="text" placeholder="test" />
 	<Grid
 		slot="modal-content"
 		customStyles="grid-template-columns: minmax(0,1fr) minmax(0,auto); gap: 1.5rem;width:clamp(200px,85vw,100%)"
@@ -280,9 +279,7 @@
 				type="text"
 				tabindex="0"
 				bind:value={nickname}
-				on:input={() => {
-					typing = true;
-				}}
+				on:input|self|capture={(e) => console.log(e)}
 			/>
 
 			<!--TODO: could check for already used nickname here too-->
@@ -346,17 +343,19 @@
 			{/each}
 		{/if}
 		{#if !buttonHidden && nicknameEntered && !illegalCharacters}
-			<span transition:slide={{ duration: 500 }} class="two-column"
-				>${totalPriceToEnter} total to enter</span
-			>
+			<span transition:slide={{ duration: 500 }} class="two-column">
+				${totalPriceToEnter} total to enter
+			</span>
 			<button
 				transition:slide={{ duration: 500 }}
 				disabled={buttonHidden}
 				tabindex={buttonHidden ? -1 : 0}
 				class="two-column"
 				class:buttonHidden
-				on:click={createAccount}>Create Account</button
+				on:click={createAccount}
 			>
+				Create Account
+			</button>
 		{/if}
 	</Grid>
 </ModalOnly>

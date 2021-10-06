@@ -1,5 +1,9 @@
 <script lang="ts">
-	import { checkForEscape, hideThisModalDelayed } from '$scripts/modals/modalFunctions';
+	import {
+		checkForEscape,
+		displayModal,
+		hideThisModalDelayed
+	} from '$scripts/modals/modalFunctions';
 
 	// import dialogPolyfill from 'dialog-polyfill';
 	import { nanoid } from 'nanoid';
@@ -8,7 +12,15 @@
 	// Apply a random Universally Unique ID to allow more than one modal component to be present in the same window, but be targeted separately for opening/closing
 	export let modalID = nanoid();
 	export let dialogOpen = false;
-	let modal: HTMLDialogElement;
+	let modal;
+	export const close = async (): Promise<void> => {
+		dialogOpen = false;
+		hideThisModalDelayed(modal);
+	};
+	export const open = async (): Promise<void> => {
+		dialogOpen = true;
+		displayModal(modal);
+	};
 </script>
 
 <!-- <svelte:head>
@@ -19,17 +31,15 @@
 	class="fixed"
 	id={`modal-${modalID}`}
 	style="{dialogOpen ? 'opacity:1' : 'opacity:0'}; {dialogStyles}"
-	on:click|self={() => {
-		dialogOpen = false;
-		hideThisModalDelayed(modal);
-	}}
+	on:click|capture|self={close}
 	bind:this={modal}
 >
 	<div class="modal-foreground" style={modalForegroundStyles}>
 		<slot name="modal-content">slotted modal content goes here</slot>
 	</div>
 </dialog>
-<svelte:window on:keydown={(e) => checkForEscape(e, modal)} />
+
+<svelte:window on:keydown|self={(e) => checkForEscape(e, modal)} />
 
 <style lang="scss">
 	dialog {

@@ -38,7 +38,7 @@ export const getAllGames = async (showToast = true) => {
 };
 const getMaxGameWeek = async (): Promise<number> => {
 	try {
-		const weeklyGames = await getAllGames();
+		const weeklyGames = await getAllGames(false);
 		const gameWeeks = weeklyGames.map((game) => {
 			return game.week;
 		});
@@ -74,13 +74,10 @@ export const createWeeklyPicksForAllUsers = async () => {
 //TODO: Move to a triggered Cloud Function when a user joins the Weekly pool
 export const createWeeklyPicksForUser = async (
 	user: WebUser,
-	logAll: boolean = true,
+	logAll = true,
 	showToast = true,
-	games?: Game[]
+	games: Game[]
 ) => {
-	if (games === undefined) {
-		games = await getAllGames(showToast);
-	}
 	try {
 		for await (const game of games) {
 			const newWeeklyPickRef = doc(weeklyPicksCollection);
@@ -168,7 +165,6 @@ export const createTiebreakersForAllUsers = async () => {
 		myError('createTiebreakersForAllUsers', error, msg);
 	}
 };
-// @TODO: need to finish this function!
 export const createTiebreakersForUser = async (user: WebUser, logAll: boolean = true) => {
 	try {
 		const maxWeek = await getMaxGameWeek();

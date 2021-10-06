@@ -17,6 +17,14 @@
 	export let modalID = nanoid();
 	export let dialogOpen = false;
 	let modal: HTMLDialogElement;
+	export const close = async (): Promise<void> => {
+		dialogOpen = false;
+		await hideThisModalDelayed(modal);
+	};
+	export const open = async () => {
+		dialogOpen = true;
+		await displayModal(modal);
+	};
 </script>
 
 <!-- <svelte:head>
@@ -28,10 +36,7 @@
 	class:dialogOpen
 	id={`modal-${modalID}`}
 	style={dialogStyles}
-	on:click|self|capture={() => {
-		dialogOpen = false;
-		hideThisModalDelayed(modal);
-	}}
+	on:click|capture|self={() => close()}
 	bind:this={modal}
 >
 	<div class="modal-foreground" style={modalForegroundStyles}>
@@ -39,10 +44,7 @@
 	</div>
 </dialog>
 <button
-	on:click={() => {
-		displayModal(modalID);
-		dialogOpen = true;
-	}}
+	on:click={() => open()}
 	class:discreetButton
 	class:defaultButton
 	class:styledButton
@@ -51,7 +53,7 @@
 	{displayModalButtonText}
 	<slot name="button-icon" />
 </button>
-<svelte:window on:keydown|preventDefault={(e) => checkForEscape(e, modal)} />
+<svelte:window on:keydown={(e) => checkForEscape(e, modal)} />
 
 <style lang="scss">
 	// @import 'src/Styles/Mixins.scss';

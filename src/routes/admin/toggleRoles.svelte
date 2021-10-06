@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { dev } from '$app/env';
-	import LoginForm from '$lib/components/forms/LoginForm.svelte';
+	import NewUserForm from '$lib/components/forms/NewUserForm.svelte';
+	import LoginForm from '$lib/components/forms/NewUserForm.svelte';
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
 	import RoleToggle from '$switches/RoleToggle.svelte';
 </script>

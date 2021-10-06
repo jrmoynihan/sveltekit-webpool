@@ -26,12 +26,14 @@
 	import { mobileBreakpoint } from '$scripts/site';
 	import { onMount } from 'svelte';
 	import { getLocalStorageItem, saveUserData } from '$scripts/localStorage';
+	import NewUserForm from '$lib/components/forms/NewUserForm.svelte';
+	import type ModalOnly from '$lib/components/modals/ModalOnly.svelte';
 	// import { WebUser } from '$scripts/classes/webUser';
 	// import { usersCollection } from '$scripts/collections';
 	// import { doc, getDoc } from '@firebase/firestore';
 
 	export let refresh: any;
-
+	let modalOnlyComponent: ModalOnly;
 	const checkWindowWidth = () => {
 		if ($windowWidth > mobileBreakpoint) {
 			$largerThanMobile = true;
@@ -78,6 +80,8 @@
 		>
 			<slot />
 		</TransitionWrapper>
+		<NewUserForm bind:modalOnlyComponent />
+		<!-- <button on:click={() => modalOnlyComponent.open()}>Open New User Modal</button> -->
 	</main>
 
 	<ReturnToTop showButton={false} />

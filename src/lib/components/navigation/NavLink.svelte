@@ -6,12 +6,11 @@
 	import { faFootballBall } from '@fortawesome/free-solid-svg-icons';
 	import { matchPath } from '$scripts/functions';
 	import { toast } from '@zerodevx/svelte-toast';
-	import { hideModal } from '$scripts/modals/modalFunctions';
+	import { hideThisModalDelayed } from '$scripts/modals/modalFunctions';
 
 	export let index = 0;
 	export let pageOption: PageOption;
 	export let fullyRounded = false;
-	export let modalID = '';
 	let active = false;
 
 	$: {
@@ -22,8 +21,15 @@
 		active = pageOption.path === '/' && $page.path !== '/' ? false : active;
 	}
 	const cleanupToNavigate = () => {
-		if (modalID) {
-			hideModal(modalID);
+		const modals = Array.from(document.getElementsByTagName('dialog'));
+		if (modals) {
+			console.log(`found modals: ${modals}`);
+			for (const modal of modals) {
+				console.log(`closing modal id: ${modal.id}`);
+				hideThisModalDelayed(modal);
+			}
+		} else {
+			console.log(`didn't find modals: ${modals}`);
 		}
 		toast.pop(0);
 	};

@@ -77,7 +77,7 @@ export const scrollToNextGame = (
 		// NOTE: The minus 1 accounts for this function running before the parent passes in the newly updated currentPickCount
 		// I.E. -- When making the 16th pick, currentPickCount will still be 15
 		if (currentPickCount < upcomingGameCount - 1 && element) {
-			const yOffset = -200;
+			const yOffset = -300;
 			const y = element.getBoundingClientRect().top + window.scrollY + yOffset;
 			scrollToTopSmooth(y);
 			showPickWarning.set(false);

@@ -29,6 +29,7 @@
 	import {
 		DocumentReference,
 		getDocs,
+		getDocsFromServer,
 		orderBy,
 		query,
 		updateDoc,
@@ -155,7 +156,7 @@
 				orderBy('timestamp'),
 				orderBy('id')
 			);
-			const querySnapshot = await getDocs(q.withConverter(weeklyPickConverter));
+			const querySnapshot = await getDocsFromServer(q.withConverter(weeklyPickConverter));
 			querySnapshot.forEach((doc) => {
 				picks.push(doc.data());
 			});
@@ -192,7 +193,7 @@
 				where('week', '==', selectedWeek),
 				orderBy('timestamp')
 			);
-			const querySnapshot = await getDocs(q.withConverter(gameConverter));
+			const querySnapshot = await getDocsFromServer(q.withConverter(gameConverter));
 			querySnapshot.forEach((doc) => {
 				games.push(doc.data());
 			});
@@ -237,7 +238,7 @@
 				where('week', '==', selectedWeek),
 				where('uid', '==', uid)
 			);
-			const querySnapshot = await getDocs(q.withConverter(weeklyTiebreakerConverter));
+			const querySnapshot = await getDocsFromServer(q.withConverter(weeklyTiebreakerConverter));
 			querySnapshot.forEach((doc) => {
 				if (doc.exists()) {
 					const data = doc.data();

@@ -81,11 +81,7 @@ export const signInWithRedirectOrPopup = async (
 // 	}
 // };
 
-export const startSignIn = async (
-	loginPlatform: string,
-	useRedirect: boolean,
-	modalID?: string
-) => {
+export const startSignIn = async (loginPlatform: string, useRedirect: boolean) => {
 	// Set which Auth provider we want to use to authenticate the user
 	const provider = await getProvider(loginPlatform);
 
@@ -184,10 +180,17 @@ export const startSignOut = async (): Promise<void> => {
 	signOut(firestoreAuth);
 	goto('/'); // go to the index page, navigating the user away from any authorized page they may be on currently
 };
-firestoreAuth.onAuthStateChanged(() => {
-	myLog('Auth state changed.', 'auth.ts => onAuthStateChanged');
-	currentUser.set(firestoreAuth.currentUser);
-});
+firestoreAuth.onAuthStateChanged(
+	() => {
+		if (firestoreAuth.currentUser) {
+			currentUser.set(firestoreAuth.currentUser);
+			myLog(`the current user is ${get(currentUser).displayName}`, 'auth.ts => onAuthStateChanged');
+		} else {
+			myLog(`auth state changed, but current user is null or undefined: ${currentUser}`);
+		}
+	},
+	(error) => myError('auth.ts => onAuthStateChanged', error)
+);
 
 export const getOAuthCredential = async (
 	provider: AuthProvider,

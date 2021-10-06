@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { nanoid } from 'nanoid';
 	import { largerThanMobile, navChecked } from '$scripts/store';
 	import { faBars, faCog } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
@@ -9,8 +8,6 @@
 	import ThemeSelector from '$lib/components/switches/ThemeSelector.svelte';
 	import Navigator from '$lib/components/navigation/Navigator.svelte';
 	import SiteNavOptions from '$lib/components/navigation/siteNavOptions.svelte';
-
-	let modalID = nanoid();
 
 	function toggleNav(): void {
 		$navChecked = !$navChecked;
@@ -29,18 +26,14 @@
 			<!-- <input type="checkbox" id="nav-toggle" on:click={toggleNav} />  button makes this redundant -->
 		</button>
 	{:else}
-		<ModalButtonAndSlot
-			bind:modalID
-			modalButtonStyles={'background:transparent'}
-			discreetButton={true}
-		>
+		<ModalButtonAndSlot modalButtonStyles={'background:transparent'} discreetButton={true}>
 			<Fa slot="button-icon" icon={faBars} class="fa-bars" size="lg" />
 			<Navigator
 				slot="modal-content"
 				useModal={true}
 				customStyles="background:var(--alternate-color)"
 			>
-				<SiteNavOptions bind:modalID />
+				<SiteNavOptions />
 			</Navigator>
 		</ModalButtonAndSlot>
 	{/if}
