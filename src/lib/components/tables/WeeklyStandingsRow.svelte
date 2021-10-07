@@ -1,12 +1,15 @@
 <script lang="ts">
 	import RowData from '$lib/components/containers/micro/RowData.svelte';
+	import type { Game } from '$scripts/classes/game';
 	import type { WeeklyTiebreaker } from '$scripts/classes/tiebreaker';
 	import type { WebUser } from '$scripts/classes/webUser';
+	import Tooltip from '../containers/Tooltip.svelte';
 
 	export let player: WebUser;
 	export let i: number;
 	export let selectedWeek: number;
 	export let tiebreaker: WeeklyTiebreaker;
+	export let lastGame: Game;
 	export let showNetTiebreakers: boolean = false;
 
 	const isEvenRow = (index: number) => {
@@ -36,12 +39,25 @@
 <RowData {evenRow} {inTheMoney}>
 	{player.weeklyPickRecord[`week_${selectedWeek}`].losses}
 </RowData>
-<RowData {evenRow} {inTheMoney}>
-	{tiebreaker.tiebreaker}
-	{#if showNetTiebreakers}
-		({player.weeklyPickRecord[`week_${selectedWeek}`].netTiebreaker})
-	{/if}
-</RowData>
+<Tooltip>
+	<svelte:fragment slot="text">
+		{#if lastGame.totalScore}
+			The total score of the last game of week {selectedWeek} was {lastGame.totalScore}
+		{:else}
+			Last game of the week hasn't been played yet.
+		{/if}
+	</svelte:fragment>
+	<RowData slot="content" {evenRow} {inTheMoney}>
+		{#if tiebreaker.tiebreaker === null}
+			-
+		{:else}
+			{tiebreaker.tiebreaker}
+		{/if}
+		{#if showNetTiebreakers}
+			({player.weeklyPickRecord[`week_${selectedWeek}`].netTiebreaker})
+		{/if}
+	</RowData>
+</Tooltip>
 <RowData {evenRow} {inTheMoney}>
 	${player.weeklyWinnings[`week_${selectedWeek}`]}
 </RowData>

@@ -21,6 +21,8 @@
 	import DevNotes from '../misc/DevNotes.svelte';
 	import ToggleSwitch from '../switches/ToggleSwitch.svelte';
 	import { findCurrentWeekOfSchedule } from '$scripts/schedule';
+	import ModalOnly from '../modals/ModalOnly.svelte';
+	import ErrorModal from '../modals/ErrorModal.svelte';
 
 	let initialWeekHeaders: string[] = ['Rank', 'Player', 'Wins', 'Losses', 'Tiebreaker', 'Prize'];
 	let abbreviatedWeekHeaders: string[] = ['#', 'Name', 'W', 'L', 'T', '$'];
@@ -58,12 +60,31 @@
 		const lastGameQuery = query(
 			scheduleCollection,
 			where('week', '==', selectedWeek),
-			where('isLastGame', '==', true)
+			where('isLastGameOfWeek', '==', true)
 		);
 		const lastGameDoc = await getDocs(lastGameQuery.withConverter(gameConverter));
 		const lastGame = lastGameDoc.docs[0].data();
 		return lastGame;
 	};
+
+	const getData = async (selectedWeek: number) => {
+		weeklyUserQuery = query(
+			usersCollection,
+			where('weekly', '==', true),
+			orderBy(`weeklyPickRecord.week_${selectedWeek}.wins`, 'desc'),
+			orderBy(`weeklyPickRecord.week_${selectedWeek}.netTiebreaker`)
+		);
+		weeklyUserPromise = getWeeklyUsers(false, weeklyUserQuery);
+		tiebreakerPromise = getAllTiebreakers(selectedWeek);
+		lastGamePromise = getLastGame(selectedWeek);
+	};
+
+	onMount(async () => {
+		selectedWeek = await findCurrentWeekOfSchedule();
+		getData(selectedWeek);
+	});
+
+	// Reactive statements allow headers to update when the screen resizes
 	let headerCount: number;
 	$: headerCount = weekHeaders.length;
 	$: {
@@ -73,21 +94,6 @@
 			weekHeaders = initialWeekHeaders;
 		}
 	}
-	const getData = async (selectedWeek: number) => {
-		weeklyUserQuery = query(
-			usersCollection,
-			where('weekly', '==', true),
-			orderBy(`weeklyPickRecord.week_${selectedWeek}.wins`, 'desc'),
-			orderBy(`weeklyPickRecord.week_${selectedWeek}.netTiebreaker`)
-		);
-		weeklyUserPromise = getWeeklyUsers({ showToast: false, customizedQuery: weeklyUserQuery });
-		tiebreakerPromise = getAllTiebreakers(selectedWeek);
-	};
-
-	onMount(async () => {
-		selectedWeek = await findCurrentWeekOfSchedule();
-		getData(selectedWeek);
-	});
 </script>
 
 <DevNotes>
@@ -138,14 +144,37 @@
 				{#await tiebreakerPromise}
 					Loading data...
 				{:then tiebreakers}
-					{#each weeklyPlayerData as player, i}
-						{#each tiebreakers as tiebreaker}
-							{#if tiebreaker.uid === player.id}
-								<WeeklyStandingsRow {player} {selectedWeek} {i} {tiebreaker} {showNetTiebreakers} />
-							{/if}
+					{#await lastGamePromise}
+						Loading data...
+					{:then lastGame}
+						{#each weeklyPlayerData as player, i}
+							{#each tiebreakers as tiebreaker}
+								{#if tiebreaker.uid === player.id}
+									<WeeklyStandingsRow
+										{player}
+										{selectedWeek}
+										{i}
+										{tiebreaker}
+										{showNetTiebreakers}
+										{lastGame}
+									/>
+								{/if}
+							{/each}
 						{/each}
-					{/each}
+					{:catch error}
+						<ErrorModal>
+							Unable to load last game: {error}
+						</ErrorModal>
+					{/await}
+				{:catch error}
+					<ErrorModal>
+						Unable to load last tiebreakers: {error}
+					</ErrorModal>
 				{/await}
+			{:catch error}
+				<ErrorModal>
+					Unable to load users: {error}
+				</ErrorModal>
 			{/await}
 		{/if}
 	</div>
@@ -164,7 +193,7 @@
 	}
 	.table {
 		grid-template-columns: repeat(var(--columns), minmax(max-content, 1fr));
-		overflow: auto;
+		// overflow: auto;
 		padding-bottom: 1rem;
 		column-gap: 0;
 	}

@@ -50,7 +50,7 @@
 				/>
 			{/if}
 		{:else}
-			--
+			-
 		{/if}
 	</div>
 </RowData>

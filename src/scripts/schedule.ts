@@ -19,16 +19,18 @@ import { gameConverter, weekBoundConverter } from './converters';
 import { firestoreDB } from './firebaseInit';
 import { defaultToast } from './toasts';
 import { getRegularSeasonWeeks } from './functions';
+import { toast } from '@zerodevx/svelte-toast';
 
 export const findWeekDateTimeBounds = async (): Promise<void> => {
-	defaultToast({
+	const startToastId = defaultToast({
 		title: 'Starting Week Bounds Search!',
 		msg: 'Iterating through the schedule to find and set the weekly bounds.  Please wait a few seconds...',
-		duration: 15000
+		duration: 60000
 	});
 	const thisYear = new Date().getFullYear();
 	const regSeasonWeeks = await getRegularSeasonWeeks();
-	for (const week of regSeasonWeeks) {
+	for await (const week of regSeasonWeeks) {
+		console.log(`finding bounds for week: ${week}`);
 		const wheres = [
 			where('week', '==', week),
 			where('type', '==', 'Regular Season'),
@@ -45,6 +47,8 @@ export const findWeekDateTimeBounds = async (): Promise<void> => {
 		title: 'Found Week Bounds!',
 		msg: 'Successfully found the start and ending game times for each week of the schedule. See WeeklyScheduleBounds collection in the Firebase console.'
 	});
+	// Remove the 'starting search' message toast
+	toast.pop(startToastId);
 };
 
 export const getFirstAndLastGameTime = async (

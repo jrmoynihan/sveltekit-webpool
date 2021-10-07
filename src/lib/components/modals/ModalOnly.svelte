@@ -7,11 +7,13 @@
 
 	// import dialogPolyfill from 'dialog-polyfill';
 	import { nanoid } from 'nanoid';
+	import { onMount } from 'svelte';
 	export let modalForegroundStyles = '';
 	export let dialogStyles = '';
 	// Apply a random Universally Unique ID to allow more than one modal component to be present in the same window, but be targeted separately for opening/closing
 	export let modalID = nanoid();
 	export let dialogOpen = false;
+	export let isError = false;
 	let modal;
 	export const close = async (): Promise<void> => {
 		dialogOpen = false;
@@ -21,6 +23,9 @@
 		dialogOpen = true;
 		displayModal(modal);
 	};
+	onMount(() => {
+		dialogOpen ? open() : null;
+	});
 </script>
 
 <!-- <svelte:head>
@@ -29,6 +34,7 @@
 
 <dialog
 	class="fixed"
+	class:isError
 	id={`modal-${modalID}`}
 	style="{dialogOpen ? 'opacity:1' : 'opacity:0'}; {dialogStyles}"
 	on:click|capture|self={close}
@@ -56,6 +62,9 @@
 
 		&::backdrop {
 			background-color: rgba(0, 0, 0, 0.4);
+			&.isError {
+				background-color: rgba(192, 106, 106, 0.4);
+			}
 		}
 	}
 	.modal-foreground {
@@ -67,5 +76,9 @@
 		align-items: center;
 		justify-items: center;
 		padding: 1rem;
+	}
+	.isError {
+		background-color: pink;
+		color: darkred;
 	}
 </style>

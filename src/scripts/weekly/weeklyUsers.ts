@@ -5,10 +5,10 @@ import { usersCollection } from '../collections';
 import { userConverter } from '../converters';
 import { defaultToast, errorToast } from '../toasts';
 
-export const getWeeklyUsers = async ({
+export const getWeeklyUsers = async (
 	showToast = true,
 	customizedQuery = query(usersCollection, where('weekly', '==', true))
-}) => {
+) => {
 	try {
 		const users: WebUser[] = [];
 		const querySnapshot = await getDocs(customizedQuery.withConverter(userConverter));

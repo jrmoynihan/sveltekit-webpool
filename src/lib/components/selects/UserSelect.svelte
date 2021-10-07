@@ -5,15 +5,15 @@
 	export let selectedUser: WebUser;
 </script>
 
-<select bind:value={selectedUser}>
-	{#await getWeeklyUsers({ showToast: false })}
-		Loading Users...
-	{:then users}
+{#await getWeeklyUsers(false)}
+	Loading Users...
+{:then users}
+	<select bind:value={selectedUser}>
 		{#each users as user}
 			<option value={user}>{user.name} ({user.nickname})</option>
 		{/each}
-	{/await}
-</select>
+	</select>
+{/await}
 
 <style lang="scss">
 	select {

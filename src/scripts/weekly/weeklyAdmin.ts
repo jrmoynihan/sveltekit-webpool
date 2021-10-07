@@ -55,7 +55,7 @@ const getMaxGameWeek = async (): Promise<number> => {
 
 export const createWeeklyPicksForAllUsers = async () => {
 	try {
-		const weeklyUsers = await getWeeklyUsers({});
+		const weeklyUsers = await getWeeklyUsers();
 		const games = await getAllGames();
 		for await (const user of weeklyUsers) {
 			await createWeeklyPicksForUser(user, true, false, games);
@@ -151,7 +151,7 @@ export const deleteWeeklyPicksForUser = async (user: WebUser) => {
 };
 export const createTiebreakersForAllUsers = async () => {
 	try {
-		const weeklyUsers = await getWeeklyUsers({});
+		const weeklyUsers = await getWeeklyUsers();
 		weeklyUsers.forEach((user) => {
 			createTiebreakersForUser(user, false);
 		});

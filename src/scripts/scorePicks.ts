@@ -54,6 +54,7 @@ export const scorePicksForWeek = async (
 			}
 			scoreNetTiebreakers(gameData, tiebreakers, selectedWeek);
 			updateUserRecords(picks, gameData, selectedWeek);
+			//TODO: add a function to compare & rank user records/break ties
 		});
 
 		defaultToast({

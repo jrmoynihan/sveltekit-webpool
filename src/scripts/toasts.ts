@@ -42,8 +42,9 @@ export const defaultToast = ({
 		'--toastBarHeight': `${toastBarHeight}`,
 		'--toastProgressBorderRadius': `${toastProgressBorderRadius}`
 	};
+	let id: number;
 	if (useSeenToastComponent) {
-		toast.push(msg, {
+		id = toast.push(msg, {
 			component: {
 				src: SeenToast,
 				props: { msgMarkup: msgBuilder, localStorageKey: localStorageKey }
@@ -53,29 +54,34 @@ export const defaultToast = ({
 			theme: theme
 		});
 	} else {
-		toast.push(msgBuilder, {
+		id = toast.push(msgBuilder, {
 			duration: duration,
 			pausable: true,
 			theme: theme
 		});
 	}
+	return id;
 };
 
-export const errorToast = (msg: string) =>
-	defaultToast({
+export const errorToast = (msg: string) => {
+	const id = defaultToast({
 		title: 'Error!',
 		msg,
 		duration: 30_000,
 		toastColor: 'white',
 		toastBackground: 'darkred'
 	});
-export const toastIt = (title: string, msg: string) =>
-	defaultToast({
+	return id;
+};
+export const toastIt = (title: string, msg: string) => {
+	const id = defaultToast({
 		title,
 		msg,
 		duration: 200_000,
 		textFontWeight: '600',
 		useSeenToastComponent: true
 	});
+	return id;
+};
 export const errorToastIt = () =>
 	errorToast(`${policeCarLight} This is a test error. Try to avoid the real thing.`);

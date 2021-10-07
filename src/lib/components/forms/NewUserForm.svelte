@@ -17,11 +17,14 @@
 	import { slide } from 'svelte/transition';
 	import AccordionDetails from '../containers/AccordionDetails.svelte';
 	import Grid from '../containers/Grid.svelte';
+	import LoadingSpinner from '../misc/LoadingSpinner.svelte';
 	import ModalOnly from '../modals/ModalOnly.svelte';
 	import ToggleSwitch from '../switches/ToggleSwitch.svelte';
 
 	export let modalOnlyComponent: ModalOnly;
+	let debugCounter = 0;
 	let nickname: string = '';
+	let creatingNewAccount = false;
 	let buttonHidden = true;
 	let nicknameEntered = false;
 	let typing = false;
@@ -107,10 +110,17 @@
 				toggledPools
 			);
 			console.log('toggledPools', toggledPools);
+			// for await (const i of Array(100000).keys()) {
+			// 	const remainder = i % 10;
+			// 	if (remainder === 0) {
+			// 		// console.log(i);
+			// 		debugCounter = i;
+			// 	}
+			// }
 			await createNewUserDocument(nickname, toggledPools, totalPriceToEnter, 0);
 			await saveUserData();
 			// TODO: create the necessary docs for each pool they've joined...
-			// may not need to await here...
+			// may not need to await here, but should instead use Workers!
 			const games = await getAllGames(false);
 			createWeeklyPicksForUser($userData, true, false, games);
 			createTiebreakersForUser($userData);
@@ -121,6 +131,7 @@
 			});
 			//#prettier-ignore
 			modalOnlyComponent.close();
+			setTimeout(() => (creatingNewAccount = false), 300);
 		} catch (error) {
 			errorToast('We ran into an error while creating the account.');
 			myError('createAccount', error);
@@ -270,92 +281,103 @@
 		slot="modal-content"
 		customStyles="grid-template-columns: minmax(0,1fr) minmax(0,auto); gap: 1.5rem;width:clamp(200px,85vw,100%)"
 	>
-		<label for="nickname" class="two-column">
-			{#if !nicknameEntered}
-				<h3 transition:slide={{ duration: 500 }}>Enter Your Nickname</h3>
-			{/if}
-			<input
-				id="nickname"
-				type="text"
-				tabindex="0"
-				bind:value={nickname}
-				on:input|self|capture={(e) => console.log(e)}
-			/>
+		{#if !creatingNewAccount}
+			<label for="nickname" class="two-column">
+				{#if !nicknameEntered}
+					<h3 transition:slide={{ duration: 500 }}>Enter Your Nickname</h3>
+				{/if}
+				<input
+					id="nickname"
+					type="text"
+					tabindex="0"
+					bind:value={nickname}
+					on:input|self|capture={(e) => console.log(e)}
+				/>
 
-			<!--TODO: could check for already used nickname here too-->
-			{#if nicknameEntered && !nicknameTooLong && !illegalCharacters}
-				<div class="checkmark-wrapper">
-					<Fa icon={faCheckCircle} size="lg" color="green" />
-				</div>
+				<!--TODO: could check for already used nickname here too-->
+				{#if nicknameEntered && !nicknameTooLong && !illegalCharacters}
+					<div class="checkmark-wrapper">
+						<Fa icon={faCheckCircle} size="lg" color="green" />
+					</div>
+				{/if}
+			</label>
+			{#if illegalCharacters}
+				<span class="error two-column">{illegalCharacterMsg}</span>
 			{/if}
-		</label>
-		{#if illegalCharacters}
-			<span class="error two-column">{illegalCharacterMsg}</span>
-		{/if}
-		{#if nicknameTooLong}
-			<span class="error two-column"
-				>Try a shorter name? We're not looking for your life story!</span
-			>
-		{/if}
-		{#if nickname.length === 0}
-			<sub>we encourage humorous names</sub>
-		{/if}
-		{#if nicknameEntered && !typing && !nicknameTooLong && !illegalCharacters}
-			<h3 class="two-column" transition:slide={{ duration: 500 }}>Pick Your Pools</h3>
-			<h5 class="reveal two-column" transition:slide={{ duration: 500 }}>
-				Click to show/hide pool descriptions
-			</h5>
-			{#each poolsToJoin as pool, i}
-				<div class="accordionWrapper" transition:slide={{ duration: 500 }}>
-					<AccordionDetails
-						showArrow={false}
-						customContentStyles="max-width:50ch;"
-						customDetailsStyles="max-width:50ch;transition:background 300ms ease-out;{pool.toggled
-							? `background:darkolivegreen;color:white;`
-							: ``}"
-					>
-						<p slot="summary" class="summary">{pool.name}</p>
-						<svelte:fragment slot="content">
-							<ul>
-								{#each pool.description as item}
-									<li>
-										<div class="icon">
-											<Fa icon={faFootballBall} />
-										</div>
-										&nbsp
-										{@html item}
-									</li>
-								{/each}
-							</ul>
-							<p class="price">(${pool.price} {pool.textAfterPrice})</p>
-						</svelte:fragment>
-					</AccordionDetails>
-				</div>
-				<div class="toggle-slide" transition:slide={{ duration: 500 }}>
-					<ToggleSwitch
-						bgColorHue={82}
-						bgColorSaturation={39}
-						bgColorLuminosity={30}
-						bind:checked={pool.toggled}
-						on:toggle={isOneOrMorePoolsSelected}
-					/>
-				</div>
-			{/each}
-		{/if}
-		{#if !buttonHidden && nicknameEntered && !illegalCharacters}
-			<span transition:slide={{ duration: 500 }} class="two-column">
-				${totalPriceToEnter} total to enter
-			</span>
-			<button
-				transition:slide={{ duration: 500 }}
-				disabled={buttonHidden}
-				tabindex={buttonHidden ? -1 : 0}
-				class="two-column"
-				class:buttonHidden
-				on:click={createAccount}
-			>
-				Create Account
-			</button>
+			{#if nicknameTooLong}
+				<span class="error two-column"
+					>Try a shorter name? We're not looking for your life story!</span
+				>
+			{/if}
+			{#if nickname.length === 0}
+				<sub>we encourage humorous names</sub>
+			{/if}
+			{#if nicknameEntered && !typing && !nicknameTooLong && !illegalCharacters}
+				<h3 class="two-column" transition:slide={{ duration: 500 }}>Pick Your Pools</h3>
+				<h5 class="reveal two-column" transition:slide={{ duration: 500 }}>
+					Click to show/hide pool descriptions
+				</h5>
+				{#each poolsToJoin as pool, i}
+					<div class="accordionWrapper" transition:slide={{ duration: 500 }}>
+						<AccordionDetails
+							showArrow={false}
+							customContentStyles="max-width:50ch;"
+							customDetailsStyles="max-width:50ch;transition:background 300ms ease-out;{pool.toggled
+								? `background:darkolivegreen;color:white;`
+								: ``}"
+						>
+							<p slot="summary" class="summary">{pool.name}</p>
+							<svelte:fragment slot="content">
+								<ul>
+									{#each pool.description as item}
+										<li>
+											<div class="icon">
+												<Fa icon={faFootballBall} />
+											</div>
+											&nbsp
+											{@html item}
+										</li>
+									{/each}
+								</ul>
+								<p class="price">(${pool.price} {pool.textAfterPrice})</p>
+							</svelte:fragment>
+						</AccordionDetails>
+					</div>
+					<div class="toggle-slide" transition:slide={{ duration: 500 }}>
+						<ToggleSwitch
+							bgColorHue={82}
+							bgColorSaturation={39}
+							bgColorLuminosity={30}
+							bind:checked={pool.toggled}
+							on:toggle={isOneOrMorePoolsSelected}
+						/>
+					</div>
+				{/each}
+			{/if}
+			{#if !buttonHidden && nicknameEntered && !illegalCharacters}
+				<span transition:slide={{ duration: 500 }} class="two-column">
+					${totalPriceToEnter} total to enter
+				</span>
+				<button
+					transition:slide={{ duration: 500 }}
+					disabled={buttonHidden}
+					tabindex={buttonHidden ? -1 : 0}
+					class="two-column"
+					class:buttonHidden
+					on:click={() => {
+						creatingNewAccount = true;
+						setTimeout(async () => await createAccount(), 1500);
+					}}
+				>
+					Create Account
+				</button>
+			{/if}
+		{:else}
+			<LoadingSpinner msg={`Creating New Account...`}>
+				<!-- <svelte:fragment slot="content">
+					<h1 transition:slide={{ duration: 500 }}>{}</h1>
+				</svelte:fragment> -->
+			</LoadingSpinner>
 		{/if}
 	</Grid>
 </ModalOnly>

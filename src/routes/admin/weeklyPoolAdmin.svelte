@@ -26,13 +26,17 @@
 	import { getWeeklyUsers } from '$scripts/weekly/weeklyUsers';
 	import {
 		createWeeklyPicksForAllUsers,
+		createWeeklyPicksForUser,
 		deleteTiebreakersForAllUsers,
 		deleteWeeklyPicksForAllUsers,
+		deleteWeeklyPicksForUser,
 		getAllGames
 	} from '$scripts/weekly/weeklyAdmin';
+	import UserSelect from '$lib/components/selects/UserSelect.svelte';
 
 	let selectedWeek: number = 1;
 	let selectedYear: number = new Date().getFullYear();
+	let selectedUser: WebUser;
 	let userPromise: Promise<WebUser[]>;
 	let gamePromise: Promise<Game[]>;
 
@@ -68,20 +72,37 @@
 <div class="grid">
 	<button
 		on:click={async () => {
-			userPromise = getWeeklyUsers({});
+			userPromise = getWeeklyUsers();
 			gamePromise = getAllGames();
 			// maxWeekPromise = getMaxGameWeek();
 		}}
 	>
 		<Fa icon={faSync} />
 	</button>
+	<WeekSelect bind:selectedWeek />
+	<YearSelect bind:selectedYear />
 	<button on:click={createWeeklyPicksForAllUsers}>Create Picks for All Users</button>
 	<button class="deletion" on:click={deleteWeeklyPicksForAllUsers}
 		>Delete All Picks for All Users</button
 	>
+	{#await userPromise}
+		Loading users...
+	{:then users}
+		<UserSelect bind:selectedUser />
+		{#if selectedUser}
+			<button class="deletion" on:click={() => deleteWeeklyPicksForUser(selectedUser)}
+				>{`Delete All Picks for ${selectedUser.name}`}</button
+			>
+			{#await gamePromise}
+				Loading Games...
+			{:then games}
+				<button on:click={() => createWeeklyPicksForUser(selectedUser, false, true, games)}
+					>{`Create Picks for ${selectedUser.name}`}</button
+				>
+			{/await}
+		{/if}
+	{/await}
 
-	<WeekSelect bind:selectedWeek />
-	<YearSelect bind:selectedYear />
 	<button on:click={() => updateGameSpreads(selectedWeek, selectedYear)}
 		>Update Spreads for Week {selectedWeek}, {selectedYear}</button
 	>

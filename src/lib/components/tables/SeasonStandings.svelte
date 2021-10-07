@@ -34,7 +34,7 @@
 			where('weekly', '==', true),
 			orderBy(`weeklyPickRecord.total.wins`, 'desc')
 		);
-		weeklyUserPromise = getWeeklyUsers({ showToast: false, customizedQuery: weeklyUserQuery });
+		weeklyUserPromise = getWeeklyUsers(false, weeklyUserQuery);
 	};
 
 	onMount(async () => {

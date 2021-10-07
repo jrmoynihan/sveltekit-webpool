@@ -7,13 +7,19 @@
 	export let right = '100%';
 	export let bottom = '100%';
 	export let msg = 'Loading...';
+	export let useheadersForMsg = false;
 </script>
 
 <div
 	class="animation-container"
 	style="--width:{width};--left:{left};--middleX:{middleX};--middleY:{middleY};--top:{top};--right:{right};--bottom:{bottom}"
 >
-	<p>{msg}</p>
+	{#if useheadersForMsg}
+		<h1>{msg}</h1>
+	{:else}
+		<p>{msg}</p>
+	{/if}
+	<slot name="content" />
 	<div class="football">
 		<span class="long-lace">
 			<span class="short-lace first" />
