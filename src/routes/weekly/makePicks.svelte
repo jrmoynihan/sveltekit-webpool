@@ -5,7 +5,7 @@
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
 	import WeekSelect from '$lib/components/selects/WeekSelect.svelte';
 	import ToggleSwitch from '$lib/components/switches/ToggleSwitch.svelte';
-	import { currentUser } from '$scripts/auth/auth';
+	import { currentUser, userData } from '$scripts/auth/auth';
 	import type { WeeklyPickDoc } from '$scripts/classes/picks';
 	import {
 		scheduleCollection,
@@ -67,12 +67,20 @@
 	import type { Game } from '$scripts/classes/game';
 	import { findCurrentWeekOfSchedule } from '$scripts/schedule';
 	import { getLocalStorageItem } from '$scripts/localStorage';
+	import UserSelect from '$lib/components/selects/UserSelect.svelte';
+	import type { WebUser } from '$scripts/classes/webUser';
+	import { getWeeklyUsers } from '$scripts/weekly/weeklyUsers';
+	import Fa from 'svelte-fa';
+	import { faLock, faLockOpen, faUnlock } from '@fortawesome/free-solid-svg-icons';
+	import Tooltip from '$lib/components/containers/Tooltip.svelte';
 
 	let uid: string;
 	let picksPromise: Promise<WeeklyPickDoc[]>;
 	let tiebreakerPromise: Promise<WeeklyTiebreaker>;
 	let gamesPromise: Promise<Game[]>;
+	let userPromise: Promise<WebUser[]>;
 	let editingToast = false;
+	let selectedUser: WebUser;
 	let selectedWeek = 3;
 	let selectedYear = new Date().getFullYear();
 	let selectedSeasonType = seasonTypes[1];
@@ -124,7 +132,11 @@
 	const getData = async () => {
 		uid = await getUserId();
 		selectedWeek = await findCurrentWeekOfSchedule();
+		userPromise = getWeeklyUsers(false);
 		await changedQuery();
+	};
+	const changeUser = () => {
+		uid = selectedUser.id;
 	};
 	const getToast = async (page: string) => {
 		try {
@@ -329,7 +341,7 @@
 	): Promise<WeeklyPickDoc[]> => {
 		try {
 			currentPicks.forEach(async (pickDoc) => {
-				const matchingGame = games.find((game) => game.id === pickDoc.id);
+				const matchingGame = games.find((game) => game.id === pickDoc.gameId);
 				const ableToPick = await isBeforeGameTime(matchingGame.timestamp);
 				if (ableToPick) {
 					if (homeOrAway === 'Home') {
@@ -463,8 +475,11 @@
 		}
 	};
 
-	const changedQuery = async () => {
+	const changedQuery = async (changedUser = false) => {
 		try {
+			if (changedUser) {
+				changeUser();
+			}
 			gamesPromise = getGames(selectedWeek);
 			picksPromise = getPicks(selectedWeek, uid);
 			tiebreakerPromise = getTiebreaker(selectedWeek, uid);
@@ -504,13 +519,14 @@
 				<ToggleSwitch bind:checked={$overrideDisabled} />
 				Edit Toast
 				<ToggleSwitch bind:checked={editingToast} />
-				{#if $currentUser}
-					<p>Current User ID: {$currentUser.uid}</p>
+				{#if selectedUser}
+					<p>Selected User ID: {selectedUser.id}</p>
+					<p>UID for queries and submission: {uid}</p>
 				{/if}
 				Select Season Type
-				<SeasonTypeSelect bind:selectedSeasonType on:seasonTypeChanged={changedQuery} />
+				<SeasonTypeSelect bind:selectedSeasonType on:seasonTypeChanged={() => changedQuery()} />
 				Select Year
-				<YearSelect bind:selectedYear on:yearChanged={changedQuery} />
+				<YearSelect bind:selectedYear on:yearChanged={() => changedQuery()} />
 				<p>
 					<span>Game Columns</span>
 					<input
@@ -603,7 +619,24 @@
 		class="first-row grid"
 		style={$largerThanMobile ? `margin-right:${offsetRightPercentage}%;` : ''}
 	>
-		<WeekSelect bind:selectedWeek bind:selectedSeasonType on:weekChanged={changedQuery} />
+		<WeekSelect bind:selectedWeek bind:selectedSeasonType on:weekChanged={() => changedQuery()} />
+		{#if $userData?.admin}
+			<UserSelect
+				customStyles="border:darkred solid 2px;"
+				bind:selectedUser
+				bind:userPromise
+				on:userChanged={() => changedQuery(true)}
+			/>
+			<Tooltip tooltipWidth="200%" tooltipTop="-350%">
+				<span slot="text">{$overrideDisabled ? `Games Unlocked` : `Unlock Games`}</span>
+				<ToggleSwitch
+					customButtonStyles="border:darkred solid 2px;"
+					slot="content"
+					bind:checked={$overrideDisabled}
+				/>
+			</Tooltip>
+			<Fa icon={$overrideDisabled ? faLock : faUnlock} />
+		{/if}
 		<button on:click={resetPicks} class:dark-mode={$useDarkTheme} class="hotkeys"
 			>Reset Picks</button
 		>
@@ -626,12 +659,12 @@
 		{#await picksPromise}
 			<LoadingSpinner msg="Loading picks..." width="100%" />
 		{:then picks}
-			{#each currentPicks as pick, i (pick.id)}
+			{#each currentPicks as pick, i (pick.gameId)}
 				{#await gamesPromise}
 					<LoadingSpinner msg="Loading games..." width="100%" />
 				{:then games}
 					{#each games as game (game.id)}
-						{#if pick.id === game.id}
+						{#if pick.gameId === game.id}
 							<div
 								class="game-container"
 								in:fly={{ x: -100, duration: 300, delay: 0 }}
@@ -711,6 +744,7 @@
 	}
 	.first-row {
 		grid-area: firstRow;
+		grid-template-columns: repeat(auto-fit, minmax(0, max-content));
 	}
 	.second-row {
 		grid-area: secondRow;

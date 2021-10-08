@@ -9,6 +9,7 @@ export class Game {
 	id: string;
 	league: { $ref: string };
 	links: Record<string, unknown>[];
+	loser: string;
 	name: string;
 	season: { $ref: string };
 	seasonType: { $ref: string };
@@ -36,6 +37,7 @@ export class Game {
 		this.id = args.id;
 		this.league = args.league;
 		this.links = args.links;
+		this.loser = args.loser;
 		this.name = args.name;
 		this.season = args.season;
 		this.seasonType = args.seasonType;

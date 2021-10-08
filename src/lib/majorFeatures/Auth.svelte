@@ -64,7 +64,12 @@
 		{#if $currentUser !== undefined && $currentUser !== null}
 			<picture transition:fade>
 				{#if $currentUser.photoURL !== undefined && $currentUser.photoURL !== null}
-					<img lazy-loading alt="user-profile-avatar" src={$currentUser.photoURL} width="50px" />
+					<img
+						lazy-loading
+						alt={`${$currentUser.displayName}`}
+						src={$currentUser.photoURL}
+						width="50px"
+					/>
 					<OnlineStatusIndicator />
 				{:else}
 					<Fa icon={faUserCircle} size="2x" class="fa-UserCircle" />

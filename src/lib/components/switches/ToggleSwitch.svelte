@@ -13,6 +13,7 @@
 	// Add override styles
 	export let sliderStyles = '';
 	export let labelStyles = '';
+	export let customButtonStyles = '';
 	export let bgColorHue = 207;
 	export let bgColorSaturation = 90;
 	export let bgColorLuminosity = 54;
@@ -42,7 +43,7 @@
 		toggleClicked();
 	}}
 	class="switch"
-	style="grid-area: {area};--toggleBgColorActive:{toggleBgColorActive}; --toggleBgColorActiveHovered:{toggleBgColorActiveHovered}"
+	style="grid-area: {area};--toggleBgColorActive:{toggleBgColorActive}; --toggleBgColorActiveHovered:{toggleBgColorActiveHovered}; {customButtonStyles}"
 >
 	<!-- NOTE: Subtle fix made by changing this to on:change event instead of on:click -->
 	<input type="checkbox" bind:checked on:change|stopPropagation={toggleClicked} {id} />
@@ -52,9 +53,9 @@
 <style lang="scss">
 	$toggle-height: min(1.7em, 10vmin);
 	$toggle-width: min(3em, 15vmin);
-	$slider-height: min(1.2em, 10vmin); //3.5
-	$slider-width: min(1.2em, 10vmin); //3.5
-	$slider-transform: 105%; //min(1.3em, 6vmin)
+	$slider-height: min(1em, 10vmin); //3.5
+	$slider-width: min(1em, 10vmin); //3.5
+	$slider-transform: 130%; //min(1.3em, 6vmin)
 	$toggle-background-color-active: var(--toggleBgColorActive, hsl(207, 90%, 54%));
 	$toggle-background-color-active-hovered: var(--toggleBgColorActiveHovered, hsl(207, 90%, 34%));
 	$toggle-background-color-inactive: #aaa;
@@ -96,7 +97,7 @@
 			height: $slider-height; /* or 26px */
 			width: $slider-width; /* or 26px */
 			left: 10%; //5px or max(3px, 0.5vmin)
-			top: 0.2em; /* or 4px */
+			top: 20%; /* or 4px */
 			background-color: $slider-color;
 			-webkit-transition: all 300ms ease-in-out;
 			transition: all 300ms ease-in-out;

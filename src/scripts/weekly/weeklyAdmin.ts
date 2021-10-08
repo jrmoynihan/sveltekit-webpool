@@ -11,6 +11,7 @@ import { gameConverter, weeklyPickConverter, weeklyTiebreakerConverter } from '$
 import { defaultToast, errorToast } from '$scripts/toasts';
 import { getWeeklyUsers } from './weeklyUsers';
 import { deleteDoc, doc, getDocs, query, setDoc, where } from '@firebase/firestore';
+import { findCurrentWeekOfSchedule } from '$scripts/schedule';
 
 export const getAllGames = async (showToast = true) => {
 	try {
@@ -76,14 +77,17 @@ export const createWeeklyPicksForUser = async (
 	user: WebUser,
 	logAll = true,
 	showToast = true,
-	games: Game[]
+	games?: Game[]
 ) => {
 	try {
+		if (!games) {
+			games = await getAllGames(showToast);
+		}
 		for await (const game of games) {
 			const newWeeklyPickRef = doc(weeklyPicksCollection);
 			const pickDoc = new WeeklyPickDoc({
 				docRef: newWeeklyPickRef,
-				id: game.id,
+				gameId: game.id,
 				pick: '',
 				uid: user.id,
 				week: game.week,
@@ -132,9 +136,24 @@ export const deleteWeeklyPicksForAllUsers = async () => {
 		myError('deleteWeeklyPicksForAllUsers', error, msg);
 	}
 };
-export const deleteWeeklyPicksForUser = async (user: WebUser) => {
+export const deleteWeeklyPicksForUser = async (
+	user: WebUser,
+	selectedWeek?: number,
+	selectedYear?: number
+) => {
 	try {
-		const q = query(weeklyPicksCollection, where('uid', '==', user.id));
+		if (!selectedWeek) {
+			selectedWeek = await findCurrentWeekOfSchedule();
+		}
+		if (!selectedYear) {
+			selectedYear = new Date().getFullYear();
+		}
+		const wheres = [
+			where('uid', '==', user.id),
+			where('week', '==', selectedWeek),
+			where('year', '==', selectedYear)
+		];
+		const q = query(weeklyPicksCollection, ...wheres);
 		const allWeeklyDocsForUser = await getDocs(q);
 		allWeeklyDocsForUser.forEach((doc) => {
 			deleteDoc(doc.ref);
@@ -214,18 +233,24 @@ export const setNewTiebreakerDoc = async (
 };
 export const deleteTiebreakersForAllUsers = async () => {
 	try {
-		const q = query(weeklyTiebreakersCollection);
-		const allWeeklyDocs = await getDocs(q);
-		allWeeklyDocs.forEach((doc) => {
-			deleteDoc(doc.ref);
-		});
-		const title = 'Deleted Weekly Tiebreakers!';
-		const msg = 'All tiebreaker documents were deleted.';
-		defaultToast({ title, msg });
-		myLog(msg, 'deleteWeeklyTiebreakersForAllUsers');
+		const proceed = confirm(
+			'Are you sure you want to delete all picks for all users?  This is not reversible.'
+		);
+		if (proceed) {
+			const q = query(weeklyTiebreakersCollection);
+			const allWeeklyDocs = await getDocs(q);
+			allWeeklyDocs.forEach((doc) => {
+				deleteDoc(doc.ref);
+			});
+			const title = 'Deleted Weekly Tiebreakers!';
+			const msg = 'All tiebreaker documents were deleted.';
+			defaultToast({ title, msg });
+			myLog(msg, 'deleteWeeklyTiebreakersForAllUsers');
+		}
 	} catch (error) {
 		const msg = `Encountered an error while trying to delete all user's tiebreakers.  Check the console for more info. ${error}`;
 		errorToast(msg);
 		myError('deleteWeeklyTiebreakersForAllUsers', error, msg);
 	}
 };
+export const updateUserInfoOnPickDocs = async () => {};

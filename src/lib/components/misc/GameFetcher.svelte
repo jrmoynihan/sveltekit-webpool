@@ -120,7 +120,10 @@
 		// Load the game to a new object that will gain Firebase-friendly formatting changes
 		const gameFormatted = game;
 
-		// Start by adding the numeric year/week, instead of using ESPN's nested reference object
+		// Start with adding that docRef to the document itself
+		gameFormatted.docRef = gameDocRef;
+
+		// Add the numeric year/week, instead of using ESPN's nested reference object
 		gameFormatted.week = selectedWeek;
 		gameFormatted.year = selectedYear;
 		gameFormatted.type = selectedSeasonType.text;

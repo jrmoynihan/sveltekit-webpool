@@ -3,7 +3,7 @@ import type { DocumentReference, Timestamp } from '@firebase/firestore';
 export class WeeklyPickDoc {
 	docRef: DocumentReference;
 	pick: string;
-	id: string;
+	gameId: string;
 	uid: string;
 	week: number;
 	year: number;
@@ -14,7 +14,7 @@ export class WeeklyPickDoc {
 	isCorrect: boolean;
 	constructor({ ...args }) {
 		(this.docRef = args.docRef),
-			(this.id = args.id),
+			(this.gameId = args.gameId),
 			(this.pick = args.pick),
 			(this.uid = args.uid),
 			(this.week = args.week);

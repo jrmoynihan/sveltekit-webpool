@@ -43,6 +43,7 @@
 		display: inline-flex;
 		padding: 1rem;
 		font-weight: bold;
+		max-width: 100%;
 		&:focus {
 			@include nightShadow;
 		}

@@ -11,10 +11,14 @@
 		getAllGames
 	} from '$scripts/weekly/weeklyAdmin';
 	import { doc } from '@firebase/firestore';
-	import { faCheckCircle, faFootballBall } from '@fortawesome/free-solid-svg-icons';
+	import {
+		faArrowAltCircleRight,
+		faFootballBall,
+		faTimesCircle
+	} from '@fortawesome/free-solid-svg-icons';
 	import { onMount } from 'svelte';
 	import Fa from 'svelte-fa';
-	import { slide } from 'svelte/transition';
+	import { fly, slide } from 'svelte/transition';
 	import AccordionDetails from '../containers/AccordionDetails.svelte';
 	import Grid from '../containers/Grid.svelte';
 	import LoadingSpinner from '../misc/LoadingSpinner.svelte';
@@ -196,21 +200,22 @@
 	$: illegalCharacterMsg = makeIllegalCharacterMsg(illegalCharacters);
 	$: nickname.length === 0 ? (nicknameEntered = false) : null;
 	$: nickname.length > nicknameLimit ? (nicknameTooLong = true) : (nicknameTooLong = false);
-	$: {
-		if (typing) {
-			setTimeout(() => {
-				typing = false;
-			}, 1250);
-		}
-	}
-	$: setTimeout(() => {
-		if (nickname.length >= 3 && !typing) {
-			//TODO add a check to see if the user nickname is already in use?  Could try here or on submission.
-			nicknameEntered = true;
-		} else {
-			nicknameEntered = false;
-		}
-	}, 1250);
+
+	// $: {
+	// 	if (typing) {
+	// 		setTimeout(() => {
+	// 			typing = false;
+	// 		}, 1250);
+	// 	}
+	// }
+	// $: setTimeout(() => {
+	// 	if (nickname.length >= 3 && !typing) {
+	// 		//TODO add a check to see if the user nickname is already in use?  Could try here or on submission.
+	// 		nicknameEntered = true;
+	// 	} else {
+	// 		nicknameEntered = false;
+	// 	}
+	// }, 1250);
 
 	//possible TODO
 	const getWeeklyCutoffDate = async (currentYear: number) => {
@@ -218,6 +223,7 @@
 	};
 	onMount(() => {
 		$godMode = false;
+		// possible TODO
 		// const currentYear = new Date().getFullYear();
 		// weeklyCutoffDate = await getWeeklyCutoffDate(currentYear)
 	});
@@ -268,6 +274,14 @@
 			}
 		}
 	};
+	export const checkForEnter = (
+		e: KeyboardEvent & { currentTarget: EventTarget & HTMLInputElement }
+	) => {
+		console.log(e.code);
+		if (e.code === 'Enter') {
+			nicknameEntered = true;
+		}
+	};
 </script>
 
 <svelte:window
@@ -279,9 +293,11 @@
 	<input type="text" placeholder="test" />
 	<Grid
 		slot="modal-content"
-		customStyles="grid-template-columns: minmax(0,1fr) minmax(0,auto); gap: 1.5rem;width:clamp(200px,85vw,100%)"
+		customStyles="grid-template-columns: minmax(0,1fr) minmax(0,auto); gap: 1.5rem;width:clamp(200px,85vw,100%); overflow: hidden;
+		padding: 1rem;"
 	>
 		{#if !creatingNewAccount}
+			<!-- <div class="nickname-grid "> -->
 			<label for="nickname" class="two-column">
 				{#if !nicknameEntered}
 					<h3 transition:slide={{ duration: 500 }}>Enter Your Nickname</h3>
@@ -290,17 +306,34 @@
 					id="nickname"
 					type="text"
 					tabindex="0"
+					disabled={nicknameEntered}
 					bind:value={nickname}
-					on:input|self|capture={(e) => console.log(e)}
+					on:keypress={(e) => checkForEnter(e)}
 				/>
 
 				<!--TODO: could check for already used nickname here too-->
-				{#if nicknameEntered && !nicknameTooLong && !illegalCharacters}
+				<!-- {#if !nicknameTooLong && !illegalCharacters}
 					<div class="checkmark-wrapper">
 						<Fa icon={faCheckCircle} size="lg" color="green" />
 					</div>
+					{/if} -->
+				{#if nickname.length >= 3 && !nicknameTooLong && !illegalCharacters && !nicknameEntered}
+					<button
+						class="continue-button"
+						transition:fly={{ duration: 500, x: 100 }}
+						on:click={() => (nicknameEntered = true)}
+						><Fa icon={faArrowAltCircleRight} size="lg" /></button
+					>
+				{:else if nicknameEntered}
+					<button
+						class="continue-button"
+						transition:fly={{ duration: 500, x: -100 }}
+						on:click={() => (nicknameEntered = false)}><Fa icon={faTimesCircle} size="lg" /></button
+					>
 				{/if}
 			</label>
+
+			<!-- </div> -->
 			{#if illegalCharacters}
 				<span class="error two-column">{illegalCharacterMsg}</span>
 			{/if}
@@ -449,5 +482,14 @@
 	.error {
 		color: salmon;
 		font-size: 1rem;
+	}
+	.continue-button {
+		position: absolute;
+		right: -2px;
+		bottom: -2px;
+		width: min-content;
+		height: min-content;
+		color: var(--alternate-color);
+		padding: 0.5rem;
 	}
 </style>

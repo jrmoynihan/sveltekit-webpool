@@ -8,6 +8,6 @@
 
 <style lang="scss">
 	.grid {
-		@include gridCenter;
+		@include gridCenter($gap: 1rem);
 	}
 </style>
