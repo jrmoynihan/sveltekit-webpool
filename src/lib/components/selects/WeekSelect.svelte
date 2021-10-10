@@ -27,6 +27,7 @@
 </script>
 
 <select
+	id="week-select"
 	bind:value={selectedWeek}
 	on:change={() => dispatch('weekChanged', selectedWeek)}
 	style="{customStyles};{gridArea ? gridArea : ''}"

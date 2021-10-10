@@ -14,6 +14,7 @@
 	Loading Users...
 {:then users}
 	<select
+		id="user-select"
 		style={customStyles}
 		bind:value={selectedUser}
 		on:change={() => dispatch('userChanged', selectedUser)}
@@ -31,7 +32,9 @@
 		display: inline-flex;
 		padding: 1rem;
 		font-weight: bold;
+		width: max-content;
 		max-width: 100%;
+		place-self: center;
 		&:focus {
 			@include nightShadow;
 		}

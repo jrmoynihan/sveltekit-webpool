@@ -3,10 +3,11 @@
 	export let tooltipHorizontalPosition = '-50%';
 	export let tooltipWidth = '100%';
 	export let tooltipTop = '-300%';
+	export let customStyleTooltipParent = '';
 	export let showArrow = true;
 </script>
 
-<div class="tooltip-parent">
+<div class="tooltip-parent" style={customStyleTooltipParent}>
 	<slot name="content" />
 	<span
 		class="tooltip"

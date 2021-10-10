@@ -13,17 +13,18 @@ import type { User, UserCredential, AuthProvider } from '@firebase/auth';
 import { firestoreAuth } from '$scripts/firebaseInit';
 import { get, writable } from 'svelte/store';
 import { WebUser } from '$scripts/classes/webUser';
-import { getDoc, doc, setDoc } from '@firebase/firestore';
+import { doc, setDoc, query } from '@firebase/firestore';
 import { usersCollection } from '$scripts/collections';
 import { goto } from '$app/navigation';
 import { userConverter } from '../converters';
 import { myError, myLog } from '../classes/constants';
-import { userNotFound } from './signInRedirectResult';
-import { dev } from '$app/env';
 import { WeeklyPickRecord, UserWinnings } from '$scripts/classes/userRecord';
+import { userQueryAsStore } from '$scripts/store';
 
 export const currentUser = writable<User>(firestoreAuth.currentUser);
 export const userData = writable<WebUser>();
+const currentUserQuery = query(usersCollection);
+export const userDataSnapshot = userQueryAsStore(currentUserQuery);
 
 export const getProvider = async (loginPlatform: string): Promise<AuthProvider> => {
 	let provider: AuthProvider;
@@ -61,26 +62,6 @@ export const signInWithRedirectOrPopup = async (
 	}
 };
 
-// export const getUserCredentialFromRedirect = async (
-// 	provider: AuthProvider
-// ): Promise<void> => {
-// 	try {
-// 		await signInWithRedirect(firestoreAuth, provider); // If useRedirect is true, signInWithRedirect...
-// 	} catch (error) {
-// 		alert(error);
-// 	}
-// };
-
-// export const getUserCredentialFromPopup = async (
-// 	provider: AuthProvider
-// ): Promise<UserCredential> => {
-// 	try {
-// 		return await signInWithPopup(firestoreAuth, provider); // Else signInWithPopup
-// 	} catch (error) {
-// 		alert(error);
-// 	}
-// };
-
 export const startSignIn = async (loginPlatform: string, useRedirect: boolean) => {
 	// Set which Auth provider we want to use to authenticate the user
 	const provider = await getProvider(loginPlatform);
@@ -96,38 +77,6 @@ export const startSignIn = async (loginPlatform: string, useRedirect: boolean) =
 	if (useRedirect) {
 		await signInWithRedirect(firestoreAuth, provider);
 	}
-	// Everything below here will not run if the redirect sign-in above occurs
-	// const userCredential = await signInWithPopup(firestoreAuth, provider);
-	// if (userCredential) {
-	// 	// const OAuthCredential = await getOAuthCredential(provider, userCredential);
-	// 	// const token = OAuthCredential.accessToken;
-	// 	currentUser.set(userCredential.user);
-	// 	const _currentUser = get(currentUser);
-
-	// 	// Find if the user document already exists before trying to write a new one
-	// 	const userDocSnapshot = await getDoc(doc(usersCollection, _currentUser.uid));
-
-	// 	// Log if the user doc exists
-	// 	if (userDocSnapshot.exists()) {
-	// 		console.info(`User ${userDocSnapshot.exists()} already exists`);
-	// 	}
-	// 	// Else, create a new document for the user
-	// 	else {
-	// 		console.info('user not found!');
-	// 		userNotFound.set(true);
-	// 		if (dev) {
-	// 			try {
-	// 				await createNewUserDocument();
-	// 				console.log('created new user doc!');
-	// 			} catch (error) {
-	// 				console.warn('failed to create user doc!', error);
-	// 			}
-	// 		}
-	// 	}
-	// }
-	// if (modalID) {
-	// 	hideModal(modalID);
-	// }
 };
 
 export const createNewUserDocument = async (

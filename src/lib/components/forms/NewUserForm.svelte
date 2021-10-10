@@ -423,11 +423,6 @@
 		font-size: x-small;
 		font-style: italic;
 	}
-	.checkmark-wrapper {
-		position: absolute;
-		right: 1.5%;
-		bottom: 15%;
-	}
 	.price {
 		font-weight: bold;
 	}
@@ -460,12 +455,13 @@
 	}
 	input {
 		@include editableInput;
-		// @include cloudyBackground;
+		@include cloudyBackground;
 		background-color: white;
 		text-align: center;
 		font-size: inherit;
 		font-weight: revert;
 		margin-top: 1rem;
+		width: 100%;
 	}
 	button {
 		@include styledButton;
@@ -484,9 +480,7 @@
 		font-size: 1rem;
 	}
 	.continue-button {
-		position: absolute;
-		right: -2px;
-		bottom: -2px;
+		@include absolute($right: -2px, $bottom: -2px);
 		width: min-content;
 		height: min-content;
 		color: var(--alternate-color);

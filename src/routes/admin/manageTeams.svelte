@@ -113,13 +113,18 @@
 		padding: 1rem;
 	}
 	input {
+		@include editableInput;
 		@include rounded;
 		padding: 1rem;
 		width: 100%;
 		text-align: center;
 	}
+	select,
+	input {
+		margin-top: 0.5rem;
+	}
 	button {
-		@include defaultButtonStyles;
+		@include styledButton;
 		margin: 1rem;
 		grid-area: update;
 	}

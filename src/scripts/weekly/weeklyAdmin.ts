@@ -10,8 +10,10 @@ import {
 import { gameConverter, weeklyPickConverter, weeklyTiebreakerConverter } from '$scripts/converters';
 import { defaultToast, errorToast } from '$scripts/toasts';
 import { getWeeklyUsers } from './weeklyUsers';
-import { deleteDoc, doc, getDocs, query, setDoc, where } from '@firebase/firestore';
+import { updateDoc, deleteDoc, doc, getDocs, query, setDoc, where } from '@firebase/firestore';
+import type { QueryConstraint } from '@firebase/firestore';
 import { findCurrentWeekOfSchedule } from '$scripts/schedule';
+import { getConsensusSpread } from '$scripts/functions';
 
 export const getAllGames = async (showToast = true) => {
 	try {
@@ -35,6 +37,35 @@ export const getAllGames = async (showToast = true) => {
 		const msg = `Encountered an error while trying to get all game documents.  Check the console for more info. ${error}`;
 		errorToast(msg);
 		myError('getAllGames', error, msg);
+	}
+};
+export const getSpecificGames = async (
+	selectedWeek: number,
+	selectedYear: number,
+	showToast = false
+) => {
+	try {
+		const games: Game[] = [];
+		const wheres = [where('week', '==', selectedWeek), where('year', '==', selectedYear)];
+		const q = query(scheduleCollection, ...wheres);
+		const querySnapshot = await getDocs(q.withConverter(gameConverter));
+		querySnapshot.forEach((doc) => {
+			const docRef = doc.ref;
+			const id = doc.id;
+			const game = new Game({ id, docRef, ...doc.data() });
+			games.push(game);
+		});
+		const title = `Got Games for Week ${selectedWeek}, ${selectedYear}!`;
+		const msg = 'Retrieved all specified game documents from the Schedule collection.';
+		if (showToast) {
+			defaultToast({ title, msg });
+		}
+		myLog(msg, 'getSpecificGames');
+		return games;
+	} catch (error) {
+		const msg = `Encountered an error while trying to get a specific week/year of game documents.  Check the console for more info. ${error}`;
+		errorToast(msg);
+		myError('getSpecificGames', error, msg);
 	}
 };
 const getMaxGameWeek = async (): Promise<number> => {
@@ -77,11 +108,15 @@ export const createWeeklyPicksForUser = async (
 	user: WebUser,
 	logAll = true,
 	showToast = true,
-	games?: Game[]
+	games?: Game[],
+	selectedWeek?: number,
+	selectedYear?: number
 ) => {
 	try {
-		if (!games) {
+		if (!games && !selectedWeek && !selectedYear) {
 			games = await getAllGames(showToast);
+		} else if (!games && selectedWeek && selectedYear) {
+			games = await getSpecificGames(selectedWeek, selectedYear);
 		}
 		for await (const game of games) {
 			const newWeeklyPickRef = doc(weeklyPicksCollection);
@@ -172,7 +207,7 @@ export const createTiebreakersForAllUsers = async () => {
 	try {
 		const weeklyUsers = await getWeeklyUsers();
 		weeklyUsers.forEach((user) => {
-			createTiebreakersForUser(user, false);
+			createTiebreakersForUser(user, undefined, undefined, false);
 		});
 		const title = 'Created Tiebreakers!';
 		const msg = 'Tiebreaker documents were created for every game, for every Weekly pool user.';
@@ -184,15 +219,27 @@ export const createTiebreakersForAllUsers = async () => {
 		myError('createTiebreakersForAllUsers', error, msg);
 	}
 };
-export const createTiebreakersForUser = async (user: WebUser, logAll: boolean = true) => {
+export const createTiebreakersForUser = async (
+	user: WebUser,
+	selectedWeek?: number,
+	selectedYear?: number,
+	logAll: boolean = true
+) => {
 	try {
-		const maxWeek = await getMaxGameWeek();
 		const uid = user.id;
-		const selectedYear = new Date().getFullYear();
-		for await (const week of Array(maxWeek).keys()) {
-			const selectedWeek = week;
+		if (!selectedYear) {
+			selectedYear = new Date().getFullYear();
+		}
+		if (!selectedWeek) {
+			const maxWeek = await getMaxGameWeek();
+			for await (const week of Array(maxWeek).keys()) {
+				const selectedWeek = week;
+				await setNewTiebreakerDoc(uid, selectedWeek, selectedYear);
+			}
+		} else {
 			await setNewTiebreakerDoc(uid, selectedWeek, selectedYear);
 		}
+
 		if (logAll) {
 			myLog(`set tiebreaker for ${user.name} (${user.nickname})`);
 		}
@@ -253,4 +300,64 @@ export const deleteTiebreakersForAllUsers = async () => {
 		myError('deleteWeeklyTiebreakersForAllUsers', error, msg);
 	}
 };
-export const updateUserInfoOnPickDocs = async () => {};
+export const deleteTiebreakersForUser = async (
+	user: WebUser,
+	selectedWeek?: number,
+	selectedYear?: number
+) => {
+	try {
+		const proceed = confirm(
+			`Are you sure you want to delete tiebreakers for ${user.name} (${user.nickname})? ${
+				selectedWeek ? `for ${selectedWeek},` : ''
+			} ${selectedYear ? selectedYear : ''}`
+		);
+		if (proceed) {
+			const wheres: QueryConstraint[] = [where('uid', '==', user.id)];
+			if (selectedWeek) {
+				wheres.push(where('week', '==', selectedWeek));
+			}
+			if (selectedYear) {
+				wheres.push(where('year', '==', selectedYear));
+			}
+			const q = query(weeklyTiebreakersCollection, ...wheres);
+			const userTiebreakerDocs = await getDocs(q.withConverter(weeklyPickConverter));
+			userTiebreakerDocs.forEach((doc) => deleteDoc(doc.ref));
+			const title = `Deleted Weekly Tiebreakers for ${user.name}!`;
+			const msg = `All tiebreaker documents were deleted ${
+				selectedWeek ? selectedYear : null ? `for Week ${selectedWeek}, ${selectedYear}` : null
+			}.`;
+			defaultToast({ title, msg });
+			myLog(msg, 'deleteWeeklyTiebreakersForUser');
+		}
+	} catch (error) {
+		const msg = `Encountered an error while trying to delete ${user.name}'s tiebreakers.  Check the console for more info. ${error}`;
+		errorToast(msg);
+		myError('deleteWeeklyTiebreakersForUser', error, msg);
+	}
+};
+export const updateGameSpreads = async (week: number, year: number) => {
+	try {
+		// Update the pick game objects on the pick documents?
+		const q = query(scheduleCollection, where('week', '==', week), where('year', '==', year));
+		const games = await getDocs(q.withConverter(gameConverter));
+		games.forEach((gameDoc) => {
+			const game = gameDoc.data();
+			if (isNaN(game.spread)) {
+				getUpdatedSpread(game).then((updatedSpread) => {
+					updateDoc(gameDoc.ref, { spread: updatedSpread });
+				});
+			}
+		});
+		defaultToast({
+			title: 'Updated Spreads!',
+			msg: `Week ${week} spreads were successfully updated!`
+		});
+	} catch (error) {
+		errorToast('Failed to update spreads.  See console logs.');
+		myError('updateSpreads', error);
+	}
+};
+export const getUpdatedSpread = async (game: Game) => {
+	const updatedSpread = await getConsensusSpread(game.id);
+	return updatedSpread;
+};

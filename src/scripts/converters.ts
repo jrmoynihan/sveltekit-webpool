@@ -9,7 +9,7 @@ import { WebUser } from './classes/webUser';
 
 export const userConverter = {
 	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-	toFirestore: (user: Partial<WebUser>): Partial<WebUser> => {
+	toFirestore: (user: WebUser): WebUser => {
 		return { ...user };
 	},
 	fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): WebUser => {

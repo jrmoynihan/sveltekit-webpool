@@ -1,50 +1,72 @@
 <script lang="ts">
+	import ScoresAts from './ScoresATS.svelte';
+
 	export let promiseStatus: Promise<any>;
 	export let promiseScores: Promise<any>;
+	export let spread: number;
+
+	let min = 30;
+	let max = 60;
+	let topLeft = Math.floor(Math.random() * (max - min) + min);
+	let topLeftTwo = Math.floor(Math.random() * (max - min) + min);
+	let topRight = Math.floor(Math.random() * (max - min) + min);
+	let topRightTwo = Math.floor(Math.random() * (max - min) + min);
+	let bottomLeft = Math.floor(Math.random() * (max - min) + min);
+	let bottomLeftTwo = Math.floor(Math.random() * (max - min) + min);
+	let bottomRight = Math.floor(Math.random() * (max - min) + min);
+	let bottomRightTwo = Math.floor(Math.random() * (max - min) + min);
 </script>
 
 <div class="grid status-info">
 	{#await promiseStatus}
-		<span />
-		<span />
-		<span />
+		<div />
+		<div />
+		<div />
 	{:then status}
 		{#if status.type.description === 'Final'}
 			{#await promiseScores}
-				<span>--</span>
+				<div class="away">--</div>
 			{:then { awayScoreData, homeScoreData }}
-				<span class="score" class:higherScore={awayScoreData.value > homeScoreData.value}
-					>{awayScoreData.value}</span
+				<div
+					style="--topLeft:{topLeft}% {topLeftTwo}%; --topRight:{topRight}% {topRightTwo}%; --bottomLeft:{bottomLeft}% {bottomLeftTwo}%; --bottomRight:{bottomRight}% {bottomRightTwo}%;"
+					class="away score"
+					class:higherScore={awayScoreData.value > homeScoreData.value}
 				>
+					{awayScoreData.value}
+				</div>
 			{:catch}
-				<span>--</span>
+				<div class="away">--</div>
 			{/await}
 
-			<span>Final</span>
+			<div class="finalOrTime">Final</div>
 
 			{#await promiseScores}
-				<span>--</span>
+				<div class="home">--</div>
 			{:then { awayScoreData, homeScoreData }}
-				<span class="score" class:higherScore={homeScoreData.value > awayScoreData.value}
-					>{homeScoreData.value}</span
+				<div
+					style="--topLeft:{topLeft}% {topLeftTwo}%; --topRight:{topRight}% {topRightTwo}%; --bottomLeft:{bottomLeft}% {bottomLeftTwo}%; --bottomRight:{bottomRight}% {bottomRightTwo}%;"
+					class="home score"
+					class:higherScore={homeScoreData.value > awayScoreData.value}
 				>
+					{homeScoreData.value}
+				</div>
 			{:catch}
-				<span>--</span>
+				<div class="home">--</div>
 			{/await}
 		{:else if status.type.description === 'Scheduled'}
-			<span />
-			<span />
-			<span />
+			<!-- <div class="away" />
+			<div class="final" />
+			<div class="home" /> -->
 		{:else if status.type.description !== 'Canceled'}
 			{#await promiseScores}
-				<span>--</span>
+				<div class="away">--</div>
 			{:then { awayScoreData }}
-				<span class="score">{awayScoreData.value}</span>
+				<div class="away score">{awayScoreData.value}</div>
 			{:catch}
-				<span>--</span>
+				<div class="away">--</div>
 			{/await}
 
-			<div class="grid period-clock">
+			<div class="grid period-clock finalOrTime">
 				{#if status.type.completed === false}
 					{#if status.type.description === 'Halftime'}
 						<div>{status.type.description}</div>
@@ -58,30 +80,32 @@
 			</div>
 
 			{#await promiseScores}
-				<span>--</span>
+				<div class="home">--</div>
 			{:then { homeScoreData }}
-				<span class="score">{homeScoreData.value}</span>
+				<div class="home score">{homeScoreData.value}</div>
 			{:catch}
-				<span>--</span>
+				<div class="home">--</div>
 			{/await}
 		{/if}
 	{:catch}
 		unable to get game status...
 	{/await}
+	<ScoresAts {promiseStatus} {promiseScores} {spread} />
 </div>
 
 <style lang="scss">
 	.grid {
 		display: grid;
 		justify-items: center;
+		gap: 0.75rem;
 	}
 	.period-clock {
 		grid-template-columns: 1fr;
 		grid-template-rows: repeat(auto-fit, minmax(1rem, 1fr));
 		align-self: center;
 	}
-	span {
-		padding: 0.3rem 1rem;
+	div {
+		// padding: 0.3rem 1rem;
 		align-self: center;
 		// &.at-symbol {
 		// 	font-size: x-large;
@@ -91,15 +115,33 @@
 		width: auto;
 		justify-self: center;
 		grid-template-columns: minmax(0, 1fr) minmax(0, auto) minmax(0, 1fr);
+		grid-template-rows: repeat(auto-fit, minmax(0, auto));
+		grid-template-areas:
+			'away finalOrTime home'
+			'awayATS ATS homeATS';
 		grid-area: statusInfo;
 		align-self: center;
 	}
+	.away {
+		grid-area: away;
+	}
+	.home {
+		grid-area: home;
+	}
+	.finalOrTime {
+		grid-area: finalOrTime;
+		padding: 1rem;
+	}
 	.score {
 		font-weight: bold;
-		font-size: min(3rem, 5vw);
+		font-size: min(2.5rem, 5vw);
 		min-width: 2ch;
+		padding: min(0.5rem, 1.4vw);
 	}
 	.higherScore {
-		text-decoration: underline 2px solid;
+		// border-radius: 100%;
+		// outline:2px solid;
+		border-radius: var(--topLeft) var(--topRight) / var(--bottomRight) var(--bottomLeft);
+		outline: dashed;
 	}
 </style>

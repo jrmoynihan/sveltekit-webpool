@@ -16,7 +16,7 @@ import {
 import { getStatus, getScores } from './functions';
 import { defaultToast, errorToast } from './toasts';
 import { onSnapshot, updateDoc, getDocs, query, where, increment, doc } from '@firebase/firestore';
-import { teamsCollection } from './teams';
+import { resetTeamRecords, teamsCollection } from './teams';
 import type { Team } from './classes/team';
 import type { WeeklyTiebreaker } from './classes/tiebreaker';
 import type { WeeklyPickDoc } from './classes/picks';
@@ -224,6 +224,7 @@ export const updateGameandATSWinner = async (
 					ATSwinner: ATSwinner,
 					totalScore: totalScore
 				});
+
 				return { winnerAndLoser, ATSwinner };
 				// // Update the team record
 				// await updateTeamRecord(winnerAndLoser, teams, gameData);
@@ -308,7 +309,7 @@ export const updateTeamRecordOnTeamDoc = async (
 	gameData: Game
 ): Promise<void> => {
 	// Update for ties
-	if (winnerAndLoser === null) {
+	if (winnerAndLoser.winner === null && winnerAndLoser.loser === null) {
 		const homeTeamRef = gameData.homeTeam.docRef;
 		const awayTeamRef = gameData.awayTeam.docRef;
 		incrementTies(homeTeamRef);
@@ -387,6 +388,9 @@ export const updateTeamRecords = async (
 		if (!teams) {
 			teams = await getDocs(teamQuery.withConverter(teamConverter));
 		}
+		// Reset team records to stay in sync since we're iterating over EVERY game
+		await resetTeamRecords(true);
+
 		games.forEach(async (game) => {
 			const gameData = game.data();
 			const gameRef = game.ref;

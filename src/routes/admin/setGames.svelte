@@ -3,6 +3,3 @@
 </script>
 
 <GameFetcher />
-
-<style lang="scss">
-</style>

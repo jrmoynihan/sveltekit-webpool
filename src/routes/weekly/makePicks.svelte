@@ -61,7 +61,6 @@
 	import PickCounter from '$lib/components/containers/micro/PickCounter.svelte';
 	import SubmitPicks from '$lib/components/buttons/SubmitPicks.svelte';
 	import type { WeeklyTiebreaker } from '$scripts/classes/tiebreaker';
-	import { doc, setDoc } from '@firebase/firestore';
 	import { fly } from 'svelte/transition';
 	import LoadingSpinner from '$lib/components/misc/LoadingSpinner.svelte';
 	import type { Game } from '$scripts/classes/game';
@@ -73,6 +72,7 @@
 	import Fa from 'svelte-fa';
 	import { faLock, faLockOpen, faUnlock } from '@fortawesome/free-solid-svg-icons';
 	import Tooltip from '$lib/components/containers/Tooltip.svelte';
+	import ErrorModal from '$lib/components/modals/ErrorModal.svelte';
 
 	let uid: string;
 	let picksPromise: Promise<WeeklyPickDoc[]>;
@@ -103,15 +103,15 @@
 		easing: cubicOut
 	});
 
-	const checkWidth = async () => {
-		if ($largerThanMobile) {
-			gridColumns = 2;
-		} else {
-			gridColumns = 1;
-		}
-	};
+	// const checkWidth = async () => {
+	// 	if ($largerThanMobile) {
+	// 		gridColumns = 2;
+	// 	} else {
+	// 		gridColumns = 1;
+	// 	}
+	// };
 
-	$: $largerThanMobile, checkWidth();
+	$: gridColumns = $largerThanMobile ? 2 : 1;
 
 	onMount(async () => {
 		await getData();
@@ -137,6 +137,7 @@
 	};
 	const changeUser = () => {
 		uid = selectedUser.id;
+		return uid;
 	};
 	const getToast = async (page: string) => {
 		try {
@@ -159,6 +160,9 @@
 		try {
 			isCorrectCount = 0;
 			const picks: WeeklyPickDoc[] = [];
+			myLog(
+				`querying picks for week ${selectedWeek}, ${selectedYear}, ${selectedSeasonType.text}, ${uid}`
+			);
 			const q = query(
 				weeklyPicksCollection,
 				where('year', '==', selectedYear),
@@ -166,22 +170,16 @@
 				where('week', '==', selectedWeek),
 				where('uid', '==', uid),
 				orderBy('timestamp'),
-				orderBy('id')
+				orderBy('gameId')
 			);
 			const querySnapshot = await getDocsFromServer(q.withConverter(weeklyPickConverter));
 			querySnapshot.forEach((doc) => {
 				picks.push(doc.data());
 			});
-
 			myLog('got picks!', '', pick, picks);
 			currentPicks = picks;
 			totalGameCount = picks.length;
 			picks.forEach(async (pick) => {
-				// const now = new Date().getTime();
-				// const ableToPick = await isBeforeGameTime(pick.timestamp, now);
-				// if (ableToPick) {
-				// 	upcomingGamesCount++;
-				// }
 				if (pick.isCorrect) {
 					isCorrectCount++;
 				}
@@ -478,7 +476,7 @@
 	const changedQuery = async (changedUser = false) => {
 		try {
 			if (changedUser) {
-				changeUser();
+				uid = changeUser();
 			}
 			gamesPromise = getGames(selectedWeek);
 			picksPromise = getPicks(selectedWeek, uid);
@@ -620,7 +618,7 @@
 		style={$largerThanMobile ? `margin-right:${offsetRightPercentage}%;` : ''}
 	>
 		<WeekSelect bind:selectedWeek bind:selectedSeasonType on:weekChanged={() => changedQuery()} />
-		{#if $userData?.admin}
+		{#if $userData?.admin && selectedUser}
 			<UserSelect
 				customStyles="border:darkred solid 2px;"
 				bind:selectedUser
@@ -659,19 +657,22 @@
 		{#await picksPromise}
 			<LoadingSpinner msg="Loading picks..." width="100%" />
 		{:then picks}
-			{#each currentPicks as pick, i (pick.gameId)}
+			{#each currentPicks as pickDoc, i (pickDoc.gameId)}
 				{#await gamesPromise}
 					<LoadingSpinner msg="Loading games..." width="100%" />
 				{:then games}
 					{#each games as game (game.id)}
-						{#if pick.gameId === game.id}
+						{#if pickDoc.gameId === game.id}
 							<div
 								class="game-container"
 								in:fly={{ x: -100, duration: 300, delay: 0 }}
 								out:fly={{ x: 100, duration: 300 }}
+								class:winner={game.ATSwinner === pickDoc.pick}
+								class:loser={game.ATSwinner ? game.ATSwinner !== pickDoc.pick : null}
+								class:dark={$useDarkTheme}
 							>
 								<MatchupContainer
-									bind:selectedTeam={pick.pick}
+									bind:selectedTeam={pickDoc.pick}
 									bind:currentPicks
 									{gridColumns}
 									id={game.id}
@@ -681,12 +682,23 @@
 									awayTeam={game.awayTeam}
 									timestamp={game.timestamp}
 									competitions={game.competitions}
+									isATSwinner={game.ATSwinner ? game.ATSwinner === pickDoc.pick : null}
 								/>
 							</div>
 						{/if}
 					{/each}
+				{:catch}
+					<ErrorModal>
+						<svelte:fragment slot="modal-content">
+							Error in loading games documents.
+						</svelte:fragment>
+					</ErrorModal>
 				{/await}
 			{/each}
+		{:catch}
+			<ErrorModal>
+				<svelte:fragment slot="modal-content">Error in loading picks documents.</svelte:fragment>
+			</ErrorModal>
 		{/await}
 	</div>
 </section>
@@ -732,6 +744,7 @@
 		cursor: initial;
 		width: 100%;
 		height: 100%;
+		outline: 1px solid;
 	}
 	.weekGames {
 		padding: 1rem;
@@ -802,5 +815,17 @@
 	}
 	input[type='range'] {
 		display: inline-block;
+	}
+	.winner {
+		background-color: rgba(green, 20%);
+		&.dark {
+			background-color: rgba(green, 10%);
+		}
+	}
+	.loser {
+		background-color: rgba(darkred, 10%);
+		&.dark {
+			background-color: rgba(darkred, 20%);
+		}
 	}
 </style>

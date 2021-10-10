@@ -1,18 +1,32 @@
 <script lang="ts">
-	import type { Team } from '$scripts/classes/team';
 	import { faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
+	import Tooltip from '../Tooltip.svelte';
 
-	export let promiseStatus: Promise<any>;
-	export let promiseScores: Promise<any>;
-	export let selectedTeam: string;
-	export let spread: number;
-	export let homeTeam: Team;
-	export let awayTeam: Team;
+	// export let promiseStatus: Promise<any>;
+	// export let promiseScores: Promise<any>;
+	// export let selectedTeam: string;
+	// export let spread: number;
+	// export let homeTeam: Team;
+	// export let awayTeam: Team;
+	export let isATSwinner: boolean | null;
 </script>
 
 <div class="winLossAt">
-	{#await promiseStatus}
+	{#if isATSwinner}
+		<Tooltip tooltipWidth="250%">
+			<p slot="text">You picked correctly!</p>
+			<Fa slot="content" icon={faCheckCircle} size="2x" color="green" />
+		</Tooltip>
+	{:else if isATSwinner === false}
+		<Tooltip tooltipWidth="350%" tooltipTop="-400%">
+			<p slot="text">You got this one wrong. Better luck next time!</p>
+			<Fa slot="content" icon={faTimesCircle} size="2x" color="red" />
+		</Tooltip>
+	{:else if isATSwinner === null}
+		<span class="at-symbol"> AT </span>
+	{/if}
+	<!-- {#await promiseStatus}
 		<span class="at-symbol"> AT </span>
 	{:then status}
 		<span>
@@ -41,12 +55,13 @@
 				<span class="at-symbol"> AT </span>
 			{/if}
 		</span>
-	{/await}
+	{/await} -->
 </div>
 
 <style lang="scss">
 	span {
 		padding: 0.3rem 0.5rem;
+		font-size: x-large;
 		align-self: center;
 	}
 	.winLossAt {

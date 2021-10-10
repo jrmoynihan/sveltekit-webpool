@@ -1,5 +1,5 @@
 import { browser } from '$app/env';
-import { showPickWarning } from './store';
+import { overrideDisabled, showPickWarning } from './store';
 import {
 	maxPreseasonWeeks,
 	maxRegularSeasonWeeks,
@@ -10,6 +10,7 @@ import {
 import type { WeeklyPickDoc } from './classes/picks';
 import type { Timestamp } from '@firebase/firestore';
 import { getLocalStorageItem } from './localStorage';
+import { get } from 'svelte/store';
 
 export const isPropertyOf = <T>(
 	varToBeChecked: unknown,
@@ -81,7 +82,7 @@ export const scrollToNextGame = (
 			const y = element.getBoundingClientRect().top + window.scrollY + yOffset;
 			scrollToTopSmooth(y);
 			showPickWarning.set(false);
-		} else {
+		} else if (!get(overrideDisabled)) {
 			setTimeout(() => {
 				if (currentPickCount < upcomingGameCount - 1) {
 					showPickWarning.set(true);
@@ -191,7 +192,7 @@ export const findMissedPick = async (currentPicks: WeeklyPickDoc[]): Promise<num
 };
 export const goToMissedPick = async (currentPicks: WeeklyPickDoc[]): Promise<void> => {
 	const pickIndex = await findMissedPick(currentPicks);
-	console.log(pickIndex);
+	// console.log(pickIndex);
 	if (pickIndex) {
 		scrollToNextGame(pickIndex - 1, 0, 2); // Force it to run the scroll to game instead of scroll to top;
 	} else {

@@ -29,7 +29,7 @@
 	transition: box-shadow 200ms ease-in-out;
 }
 @mixin normalShadow {
-	box-shadow: 0 0 6px 3px var(--main-color);
+	box-shadow: 0 0 4px 2px rgba(var(--mainValue-color), 50%);
 }
 @mixin hoverBoxShadow {
 	&:hover {
@@ -86,11 +86,16 @@
 	border: none;
 	border-radius: 2vh; // or 20px?
 	box-sizing: border-box;
+	background-color: white;
+	color: black;
 }
-@mixin editableCell {
+@mixin editableCell($frosted: true) {
 	@include cell;
-	@include frostedGlass;
+	@if ($frosted) {
+		@include frostedGlass;
+	}
 	@include normalShadow;
+	width: max-content;
 	max-width: 100%;
 	&:hover,
 	&:focus {
@@ -103,10 +108,9 @@
 		}
 	}
 }
-@mixin editableInput {
-	@include editableCell;
+@mixin editableInput($frosted: true) {
+	@include editableCell($frosted);
 	@include cursorPointerAlways;
-	max-width: 100%;
 }
 
 @mixin padded1M {
@@ -139,13 +143,11 @@
 @mixin frostedGlass {
 	backdrop-filter: blur(3px);
 	-webkit-backdrop-filter: blur(3px);
-	background-color: #ffffff50;
 }
 @mixin frostedGlassHighContrast {
 	backdrop-filter: blur(3px);
 	-webkit-backdrop-filter: blur(3px);
 	color: black;
-	background-color: #ffffff91;
 }
 
 @mixin cloudyBackground {
@@ -159,6 +161,7 @@
 	width: auto;
 	font-size: 1rem;
 	color: var(--main-color);
+	// max-width: max-content;
 	// @include textWithShadow;
 	@include frostedGlass;
 	@include glassShadow;
@@ -310,29 +313,30 @@
 }
 @mixin styledButton {
 	@include defaultButtonStyles;
+	font-weight: bold;
 	color: white;
 	width: 100%;
 	box-shadow: 4px 4px 15px 5px rgba(0, 0, 0, 0.5);
 	border: 4px solid rgba(var(--accentValue-color), 80%);
-	// background: radial-gradient(
-	// 	rgba(var(--accentValue-color), 90%),
-	// 	rgba(var(--accentValue-color), 70%)
-	// );
 	background: radial-gradient(
 		rgba(var(--accentValue-color), 70%),
 		rgba(var(--accentValue-color), 40%)
 	);
-	// &.dark-mode {
-	// 	border: 4px solid rgba(var(--accentValue-color), 40%);
-	// 	background: radial-gradient(
-	// 		rgba(var(--accentValue-color), 10%),
-	// 		rgba(var(--accentValue-color), 50%)
-	// 	);
-	// }
 }
 @mixin hiddenInput {
 	visibility: hidden;
 	height: 0;
 	width: 0;
 	display: none;
+}
+@mixin adminButton($useDeletionButtons: true) {
+	button {
+		@include styledButton;
+		@if ($useDeletionButtons) {
+			&.deletion {
+				background: darkred;
+				border: 4px solid firebrick;
+			}
+		}
+	}
 }

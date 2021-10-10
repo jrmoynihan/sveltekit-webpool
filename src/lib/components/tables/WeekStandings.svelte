@@ -4,7 +4,7 @@
 	import WeekSelect from '$lib/components/selects/WeekSelect.svelte';
 	import WeeklyStandingsRow from '$lib/components/tables/WeeklyStandingsRow.svelte';
 	import { mobileBreakpoint } from '$scripts/site';
-	import { windowWidth } from '$scripts/store';
+	import { showIDs, windowWidth } from '$scripts/store';
 	import { onMount } from 'svelte';
 	import { query, where, orderBy, DocumentData, Query, getDocs, getDoc } from '@firebase/firestore';
 	import {
@@ -100,6 +100,8 @@
 	<p>
 		<span>Show Net Tiebreakers:</span>
 		<ToggleSwitch bind:checked={showNetTiebreakers} />
+		<span>Show UIDs</span>
+		<ToggleSwitch bind:checked={$showIDs} />
 	</p>
 </DevNotes>
 <div class="week grid" style="--columns:{headerCount}">
@@ -157,6 +159,7 @@
 										{tiebreaker}
 										{showNetTiebreakers}
 										{lastGame}
+										showUID={$showIDs}
 									/>
 								{/if}
 							{/each}

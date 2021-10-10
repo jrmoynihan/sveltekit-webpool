@@ -16,7 +16,7 @@
 	export let refresh: any;
 
 	const adminTabs: PageOption[] = [
-		new PageOption({ navigationText: 'Toggle Roles', path: '/admin/toggleRoles' }),
+		new PageOption({ navigationText: 'Manage Users', path: '/admin/manageUsers' }),
 		new PageOption({ navigationText: 'Manage Teams', path: '/admin/manageTeams' }),
 		new PageOption({ navigationText: 'Game Data', path: '/admin/setGames' }),
 		new PageOption({ navigationText: 'Weekly Pool Admin', path: '/admin/weeklyPoolAdmin' })

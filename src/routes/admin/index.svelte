@@ -14,4 +14,8 @@
 <button on:click={() => modalOnlyComponent.open()}>Open New User Form</button>
 
 <style lang="scss">
+	button {
+		@include styledButton;
+		width: max-content;
+	}
 </style>

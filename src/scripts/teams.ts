@@ -25,8 +25,10 @@ export const getAllTeams = async (): Promise<Team[]> => {
 	return teamsToReturn;
 };
 
-export const resetTeamRecords = async () => {
-	const proceed = confirm('Are you sure you want to reset the team records?');
+export const resetTeamRecords = async (skipConfirmation = false) => {
+	let proceed: boolean;
+	skipConfirmation ? (proceed = true) : (proceed = false);
+	proceed = confirm('Are you sure you want to reset the team records?');
 	if (proceed) {
 		const teamQuery = query(teamsCollection);
 		const teams = await getDocs(teamQuery.withConverter(teamConverter));

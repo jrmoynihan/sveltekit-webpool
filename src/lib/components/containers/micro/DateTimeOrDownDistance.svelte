@@ -9,7 +9,9 @@
 </script>
 
 <div class="dateTime info">
-	{$showTimestamps ? timestamp.toDate().getTime() : ''}
+	{$showTimestamps
+		? `${timestamp.toDate().toLocaleDateString()} ${timestamp.toDate().toLocaleTimeString()}`
+		: ''}
 	{#await promiseStatus}
 		{#if timestamp}
 			<GameTime {timestamp} />
@@ -27,7 +29,11 @@
 			{#await promiseSituation then situation}
 				{#if situation.downDistanceText !== undefined}
 					<div style="font-size: 0.8rem;">
-						<span class:red-zone={situation.yardLine <= 20}>{situation.downDistanceText}</span>
+						<span
+							class="downDistance"
+							class:red-zone={situation.isRedZone && situation.yardLine <= 20}
+							>{situation.downDistanceText}</span
+						>
 					</div>
 				{/if}
 			{/await}
@@ -42,6 +48,9 @@
 		width: auto;
 		justify-self: center;
 		align-self: flex-end;
+	}
+	.downDistance {
+		padding: 0.5rem;
 	}
 	.red-zone {
 		background: darkred;

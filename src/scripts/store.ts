@@ -3,7 +3,7 @@ import { writable } from 'svelte/store';
 import { doc, updateDoc, onSnapshot, query } from '@firebase/firestore';
 import type { Query, FirestoreDataConverter } from '@firebase/firestore';
 import { userConverter } from './converters';
-import type { WebUser } from '$scripts/classes/webUser';
+import { WebUser } from '$scripts/classes/webUser';
 import { usersCollection } from './collections';
 import { browser } from '$app/env';
 
@@ -42,6 +42,14 @@ export const writableQueryAsStore = (
 		});
 	});
 
+// ** Return a single user document as a dynamic store **
+export const userQueryAsStore = (query: Query): Writable<WebUser> =>
+	writable<WebUser>(new WebUser({}), (set) => {
+		onSnapshot(query.withConverter(userConverter), async (snap) => {
+			set(snap.docs[0].data());
+		});
+	});
+
 // export const queryDocumentAsStore = (
 // 	query: Query,
 // 	converter: FirestoreDataConverter<unknown>
@@ -61,7 +69,7 @@ export const updateUser = async (userData: WebUser): Promise<void> => {
 	const docRef = doc(usersCollection, userData.id);
 	try {
 		console.log(`attempting to update ${userData.name}`);
-		await updateDoc(docRef.withConverter(userConverter), userData);
+		await updateDoc(docRef.withConverter(userConverter), { ...userData });
 	} catch (error) {
 		console.error('Error updating User document', error);
 	}

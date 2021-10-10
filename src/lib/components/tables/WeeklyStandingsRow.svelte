@@ -11,6 +11,7 @@
 	export let tiebreaker: WeeklyTiebreaker;
 	export let lastGame: Game;
 	export let showNetTiebreakers: boolean = false;
+	export let showUID: boolean = false;
 
 	const isEvenRow = (index: number) => {
 		if ((index + 1) % 2 === 0) {
@@ -31,6 +32,9 @@
 		{player.nickname}
 	{:else}
 		{player.name}
+	{/if}
+	{#if showUID}
+		({player.id})
 	{/if}
 </RowData>
 <RowData {evenRow} {inTheMoney}>

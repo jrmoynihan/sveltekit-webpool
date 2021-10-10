@@ -16,6 +16,7 @@
 </script>
 
 <select
+	id="year-select"
 	bind:value={selectedYear}
 	on:change={() => dispatch('yearChanged', selectedYear)}
 	style={gridArea ? gridArea : ''}

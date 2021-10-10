@@ -14,6 +14,7 @@
 	export let customSummaryStyles: string = '';
 	export let cloudyBackground = true;
 	export let frostedGlass = true;
+	export let open = false;
 	export class Accordion {
 		el: HTMLDetailsElement;
 		summary: HTMLElement;
@@ -21,6 +22,7 @@
 		animation: Animation;
 		isClosing: boolean;
 		isExpanding: boolean;
+		open: boolean;
 
 		constructor(element: HTMLDetailsElement) {
 			// Store the <details> element
@@ -47,7 +49,7 @@
 			this.el.style.overflow = 'hidden';
 			// Check if the element is being closed or is already closed
 			if (this.isClosing || !this.el.open) {
-				this.open();
+				this.openAccordion();
 				// Check if the element is being openned or is already open
 			} else if (this.isExpanding || this.el.open) {
 				this.shrink();
@@ -57,6 +59,9 @@
 		shrink() {
 			// Set the element as "being closed"
 			this.isClosing = true;
+
+			// Add an overflow on the <details> to avoid content overflowing
+			this.el.style.overflow = 'hidden';
 
 			// Store the current height of the element
 			const startHeight = `${this.el.offsetHeight}px`;
@@ -87,7 +92,7 @@
 			this.animation.oncancel = () => (this.isClosing = false);
 		}
 
-		open() {
+		openAccordion() {
 			// Apply a fixed height on the element
 			this.el.style.height = `${this.el.offsetHeight}px`;
 			// Force the [open] attribute on the details element
@@ -140,11 +145,11 @@
 			this.el.style.overflow = '';
 		}
 	}
-
+	let accordion: Accordion;
 	onMount(() => {
 		if (browser) {
 			document.querySelectorAll('details').forEach((el) => {
-				new Accordion(el);
+				accordion = new Accordion(el);
 			});
 		}
 	});
@@ -159,16 +164,28 @@
 
 	const dispatch = createEventDispatcher();
 
-	function clicked(element: string) {
+	const clicked = (element: string) => {
 		dispatch('click');
 		console.log(`clicked ${element}`);
-	}
+	};
+	const checkforSpace = async (e: KeyboardEvent & { currentTarget: EventTarget & HTMLElement }) => {
+		if (e.code === 'Space') {
+			if (accordion.el.open) {
+				accordion.shrink();
+			} else {
+				accordion.openAccordion();
+			}
+		}
+	};
 </script>
 
 <details
 	class:cloudyBackground
 	class:frostedGlass
+	{open}
 	on:click={() => clicked('details')}
+	on:keydown|preventDefault={(e) => checkforSpace(e)}
+	tabindex="0"
 	style={customDetailsStyles}
 >
 	<summary
@@ -193,12 +210,15 @@
 		width: 100%;
 	}
 	details {
+		@include thinnestBorder;
+		@include noOutline;
 		&.cloudyBackground {
 			@include cloudyBackground;
 		}
 		&.frostedGlass {
 			@include frostedGlass;
 		}
+		@include normalShadow;
 
 		&[open] {
 			// box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.137);

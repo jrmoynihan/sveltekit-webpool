@@ -9,12 +9,13 @@
 <script lang="ts">
 	import '../app.css';
 	import { userConverter } from '$scripts/converters';
-	import { currentUser } from '$scripts/auth/auth';
+	import { currentUser, userDataSnapshot } from '$scripts/auth/auth';
 	import {
 		chosenMixBlendMode,
 		largerThanMobile,
 		navChecked,
 		useDarkTheme,
+		userQueryAsStore,
 		windowWidth
 	} from '$scripts/store';
 	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
@@ -28,6 +29,9 @@
 	import { getLocalStorageItem, saveUserData } from '$scripts/localStorage';
 	import NewUserForm from '$lib/components/forms/NewUserForm.svelte';
 	import type ModalOnly from '$lib/components/modals/ModalOnly.svelte';
+	import { query, where } from '@firebase/firestore';
+	import { usersCollection } from '$scripts/collections';
+	import { get } from 'svelte/store';
 	// import { WebUser } from '$scripts/classes/webUser';
 	// import { usersCollection } from '$scripts/collections';
 	// import { doc, getDoc } from '@firebase/firestore';
@@ -50,6 +54,8 @@
 
 	$: if ($currentUser && userConverter) {
 		saveUserData();
+		const q = query(usersCollection, where('id', '==', $currentUser.uid));
+		$userDataSnapshot = get(userQueryAsStore(q));
 	}
 
 	onMount(() => {

@@ -18,6 +18,7 @@
 	export let competitions = [];
 	export let currentPicks: WeeklyPickDoc[] = [];
 	export let gridColumns = 1;
+	export let isATSwinner: null | boolean = null;
 	let layoutBreakpoint = 620;
 	let showTeamNameImages = false;
 	let disabled: boolean = false;
@@ -121,6 +122,7 @@
 		bind:promiseScores
 		bind:promiseStatus
 		bind:promiseSituation
+		bind:isATSwinner
 	/>
 	<TeamSelectRadioInput
 		bind:homeOrAwayTeam={homeTeam}
@@ -136,7 +138,7 @@
 
 <style lang="scss">
 	div {
-		@include gridAndGap;
+		@include gridAndGap($gap: 1.6rem);
 		@include rounded;
 		justify-items: center;
 		grid-template-columns: repeat(3, minmax(0, 1fr));

@@ -9,7 +9,7 @@ export class WeeklyPickDoc {
 	year: number;
 	timestamp: Timestamp;
 	name: string;
-	nickname: string;
+	// nickname: string;
 	type: string;
 	isCorrect: boolean;
 	constructor({ ...args }) {
@@ -21,7 +21,7 @@ export class WeeklyPickDoc {
 		this.year = args.year;
 		this.timestamp = args.timestamp;
 		this.name = args.name;
-		this.nickname = args.nickname;
+		// this.nickname = args.nickname;
 		this.type = args.type;
 		this.isCorrect = args.isCorrect;
 	}
