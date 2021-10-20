@@ -17,7 +17,7 @@
 <p>
 	{#if value instanceof Object && Object.entries(value).length > 0}
 		<details
-			{open}
+			bind:open
 			on:click|self|preventDefault|stopPropagation={() => {
 				open ? (open = false) : (open = true);
 			}}
@@ -36,17 +36,19 @@
 					{String.fromCodePoint(0x007b)} {String.fromCodePoint(0x007d)}
 				{/if}
 			</summary>
-			<ul>
-				{#each Object.entries(value) as [key, value]}
-					<li style="--level:{level}">
-						<svelte:self {key} {value} level={level + 1} />
-					</li>
-				{/each}
-			</ul>
-			{#if value instanceof Array && open}
-				<span class="end-bracket" style="--level:{level}">]</span>
-			{:else if open}
-				<span class="end-bracket" style="--level:{level}">{String.fromCodePoint(0x007d)}</span>
+			{#if open}
+				<ul>
+					{#each Object.entries(value) as [key, value]}
+						<li style="--level:{level}">
+							<svelte:self {key} {value} level={level + 1} />
+						</li>
+					{/each}
+				</ul>
+				{#if value instanceof Array}
+					<span class="end-bracket" style="--level:{level}">]</span>
+				{:else}
+					<span class="end-bracket" style="--level:{level}">{String.fromCodePoint(0x007d)}</span>
+				{/if}
 			{/if}
 		</details>
 	{:else}

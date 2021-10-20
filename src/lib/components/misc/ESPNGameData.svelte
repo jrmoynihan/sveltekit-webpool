@@ -17,7 +17,7 @@
 			showArrow={false}
 			cloudyBackground={false}
 			expandTitle={`Game ${i + 1} -- ${game.date.substring(0, 10)} ${game.name}`}
-			customSummaryStyles="color:var(--alternate-color);padding:1rem"
+			customSummaryStyles="padding:1rem;"
 			customDetailsStyles="max-height: 26vh; scrollbar-width: thin;"
 		>
 			<svelte:fragment slot="content">

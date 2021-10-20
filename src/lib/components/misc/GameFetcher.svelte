@@ -353,7 +353,7 @@
 	</div>
 </section>
 
-<Grid max={'100%'} repeat={selectedGames === 'both' ? 2 : undefined}>
+<Grid max={'100%'} repeat={selectedGames === 'both' ? 2 : 'auto-fit'}>
 	{#await promise}
 		<div class="padded">
 			<LoadingSpinner />
