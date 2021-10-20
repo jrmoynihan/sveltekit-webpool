@@ -27,5 +27,6 @@
 		position: relative;
 		max-width: 100%;
 		background-size: cover;
+		will-change: opacity transform;
 	}
 </style>

@@ -6,6 +6,7 @@
 	export let selectedUser: WebUser;
 	export let userPromise: Promise<WebUser[]> = getWeeklyUsers(false);
 	export let customStyles = '';
+	export let adminOnly = false;
 
 	const dispatch = createEventDispatcher();
 </script>
@@ -15,6 +16,7 @@
 {:then users}
 	<select
 		id="user-select"
+		class:adminOnly
 		style={customStyles}
 		bind:value={selectedUser}
 		on:change={() => dispatch('userChanged', selectedUser)}
@@ -27,19 +29,9 @@
 
 <style lang="scss">
 	select {
-		@include frostedGlassHighContrast;
-		@include rounded;
-		display: inline-flex;
-		padding: 1rem;
-		font-weight: bold;
-		width: max-content;
-		max-width: 100%;
-		place-self: center;
-		&:focus {
-			@include nightShadow;
-		}
-		&:hover {
-			@include dayShadow;
+		@include defaultSelect;
+		&.adminOnly {
+			@include admin;
 		}
 	}
 </style>

@@ -1,6 +1,7 @@
 <script lang="ts">
+	import DeletionButton from '$lib/components/buttons/DeletionButton.svelte';
+	import StyledButton from '$lib/components/buttons/StyledButton.svelte';
 	import type { WebUser } from '$scripts/classes/webUser';
-	import { largerThanMobile } from '$scripts/store';
 	import {
 		createTiebreakersForAllUsers,
 		createTiebreakersForUser,
@@ -17,33 +18,30 @@
 </script>
 
 <AdminExpandSection summaryText="Tiebreakers" bind:min>
-	<button on:click={() => createTiebreakersForAllUsers()}>
+	<StyledButton on:click={() => createTiebreakersForAllUsers()}>
 		Create Tiebreakers for All Users
-	</button>
+	</StyledButton>
 	{#if selectedUser}
-		<button on:click={() => createTiebreakersForUser(selectedUser, undefined, undefined, true)}>
+		<StyledButton
+			on:click={() => createTiebreakersForUser(selectedUser, undefined, undefined, true)}
+		>
 			Create All Tiebreakers for {selectedUser.name}
-		</button>
-		<button
+		</StyledButton>
+		<StyledButton
 			on:click={() => createTiebreakersForUser(selectedUser, selectedWeek, selectedYear, true)}
 		>
 			Create Tiebreakers for {selectedUser.name} for Week {selectedWeek}, {selectedYear}
-		</button>
-		<button class="deletion" on:click={() => deleteTiebreakersForUser(selectedUser)}>
+		</StyledButton>
+		<DeletionButton on:click={() => deleteTiebreakersForUser(selectedUser)}>
 			Delete All Tiebreakers for {selectedUser.name}
-		</button>
-		<button
-			class="deletion"
+		</DeletionButton>
+		<DeletionButton
 			on:click={() => deleteTiebreakersForUser(selectedUser, selectedWeek, selectedYear)}
 		>
 			Delete Tiebreakers for {selectedUser.name} for Week {selectedWeek}, {selectedYear}
-		</button>
+		</DeletionButton>
 	{/if}
-	<button class="deletion" on:click={() => deleteTiebreakersForAllUsers()}>
+	<DeletionButton on:click={() => deleteTiebreakersForAllUsers()}>
 		Delete Tiebreakers for All Users
-	</button>
+	</DeletionButton>
 </AdminExpandSection>
-
-<style lang="scss">
-	@include adminButton;
-</style>

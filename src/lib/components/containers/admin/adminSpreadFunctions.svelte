@@ -1,4 +1,6 @@
 <script lang="ts">
+	import StyledButton from '$lib/components/buttons/StyledButton.svelte';
+
 	import { largerThanMobile } from '$scripts/store';
 	import { updateGameSpreads } from '$scripts/weekly/weeklyAdmin';
 	import AdminExpandSection from './adminExpandSection.svelte';
@@ -13,11 +15,7 @@
 </script>
 
 <AdminExpandSection summaryText="Spreads" bind:min>
-	<button on:click={() => updateGameSpreads(selectedWeek, selectedYear)}>
+	<StyledButton on:click={() => updateGameSpreads(selectedWeek, selectedYear)}>
 		<span>Update Spreads for <b> Week {selectedWeek}, {selectedYear}</b></span>
-	</button>
+	</StyledButton>
 </AdminExpandSection>
-
-<style lang="scss">
-	@include adminButton(false);
-</style>

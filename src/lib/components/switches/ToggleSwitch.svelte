@@ -14,6 +14,7 @@
 	export let sliderStyles = '';
 	export let labelStyles = '';
 	export let customButtonStyles = '';
+	export let adminOnly = false;
 	export let bgColorHue = 207;
 	export let bgColorSaturation = 90;
 	export let bgColorLuminosity = 54;
@@ -42,6 +43,7 @@
 		checked = !checked;
 		toggleClicked();
 	}}
+	class:adminOnly
 	class="switch"
 	style="grid-area: {area};--toggleBgColorActive:{toggleBgColorActive}; --toggleBgColorActiveHovered:{toggleBgColorActiveHovered}; {customButtonStyles}"
 >
@@ -97,7 +99,7 @@
 			height: $slider-height; /* or 26px */
 			width: $slider-width; /* or 26px */
 			left: 10%; //5px or max(3px, 0.5vmin)
-			top: 20%; /* or 4px */
+			top: 15%; /* or 4px */
 			background-color: $slider-color;
 			-webkit-transition: all 300ms ease-in-out;
 			transition: all 300ms ease-in-out;
@@ -139,5 +141,8 @@
 	}
 	button {
 		@include discreetButtonStyles;
+		&.adminOnly {
+			@include admin;
+		}
 	}
 </style>

@@ -23,7 +23,7 @@
 <label class="game-info rounded" for="{id}-none">
 	<!-- <WinLossAt {promiseScores} {promiseStatus} {homeTeam} {awayTeam} {selectedTeam} {spread} {isATSwinner} /> -->
 	<WinLossAt {isATSwinner} />
-	<StatusInfo {promiseStatus} {promiseScores} {spread} />
+	<StatusInfo {promiseStatus} {promiseScores} {spread} {isATSwinner} />
 	<SpreadOrPossession {spread} {disabled} {awayTeam} {homeTeam} {promiseSituation} />
 	<DateTimeOrDownDistance {timestamp} {promiseStatus} {promiseSituation} />
 	<input id="{id}-none" type="radio" bind:group={selectedTeam} value="" {disabled} />
@@ -31,7 +31,7 @@
 		<div style="grid-area:IDs">{id}</div>
 	{/if}
 	{#if $showSpreads}
-		<div style="grid-area:spreads">{spread}</div>
+		<div style="grid-area:spreads">{spread > 0 ? `+${spread}` : spread}</div>
 	{/if}
 </label>
 

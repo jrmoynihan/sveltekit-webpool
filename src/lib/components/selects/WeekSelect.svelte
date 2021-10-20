@@ -39,17 +39,6 @@
 
 <style lang="scss">
 	select {
-		@include frostedGlassHighContrast;
-		@include rounded;
-		display: inline-flex;
-		padding: 1rem;
-		font-weight: bold;
-		max-width: 100%;
-		&:focus {
-			@include nightShadow;
-		}
-		&:hover {
-			@include dayShadow;
-		}
+		@include defaultSelect;
 	}
 </style>

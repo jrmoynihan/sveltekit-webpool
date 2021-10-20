@@ -6,12 +6,16 @@
 		<link rel="alternate icon" href="/favicon.png" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="theme-color" content="darkgreen" />
-		<link
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<!-- <link
 			rel="stylesheet"
 			type="text/css"
-			href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@200;300;400;500;600;700;800&amp;display=swap"
-		/>
+			href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@200;300;400;500;600;700;800&amp;display=swap" /> -->
 		%svelte.head%
+		<link rel="stylesheet" media="print" onload="this.onload=null;this.removeAttribute('media');" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@200;300;400;500;600;700;800&amp;display=swap" />
+		<noscript>
+			<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@200;300;400;500;600;700;800&amp;display=swap	"/>
+		</noscript>
 	</head>
 	<body>
 		<div id="svelte">%svelte.body%</div>

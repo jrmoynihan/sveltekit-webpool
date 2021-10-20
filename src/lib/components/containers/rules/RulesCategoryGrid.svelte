@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { editing } from '$scripts/store';
-	import { getDocs, query, collection, orderBy } from '@firebase/firestore';
+	import { getDocs, query, collection, orderBy, CollectionReference } from '@firebase/firestore';
 	import EditableRule from '$containers/rules/EditableRule.svelte';
 	import ViewOnlyRule from '$containers/rules/ViewOnlyRule.svelte';
 	import { ruleConverter } from '$scripts/converters';
 	import type { Rule } from '$scripts/classes/rules';
 
-	export let selectedTab;
+	export let selectedTab: { [x: string]: CollectionReference };
 
 	const getRuleData = async () => {
 		const rules: Rule[] = [];

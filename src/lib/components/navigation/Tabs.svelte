@@ -10,7 +10,13 @@
 	<div class="tab-header defaultTransition">
 		{#if tabs}
 			{#each tabs as tab}
-				<input type="radio" bind:group={selectedTab} value={tab} id={tab.name} />
+				<input
+					type="radio"
+					bind:group={selectedTab}
+					value={tab}
+					id={tab.name}
+					on:change={() => console.log(`tab changed`)}
+				/>
 				<label
 					class="defaultTransition {$useDarkTheme ? 'dark' : 'light'}
 					{$largerThanMobile ? '' : 'mobile'}"

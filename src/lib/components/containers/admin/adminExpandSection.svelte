@@ -1,5 +1,5 @@
 <script lang="ts">
-	import AccordionDetails from '../AccordionDetails.svelte';
+	import AccordionDetails from '../accordions/AccordionDetails.svelte';
 	import Grid from '../Grid.svelte';
 
 	export let summaryText = '';

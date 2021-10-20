@@ -1,5 +1,5 @@
 <script lang="ts">
-	import AccordionDetails from '$lib/components/containers/AccordionDetails.svelte';
+	import AccordionDetails from '$lib/components/containers/accordions/AccordionDetails.svelte';
 	import Grid from '$lib/components/containers/Grid.svelte';
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
 	import ErrorModal from '$lib/components/modals/ErrorModal.svelte';
@@ -47,16 +47,20 @@
 </script>
 
 <PageTitle>Manage Users</PageTitle>
-Nickname: {nicknameUpdate}
+
 {#await userPromise}
 	Loading users...
 {:then}
 	{#if selectedUser}
-		<UserSelect bind:selectedUser bind:userPromise on:userChanged={updateDisplayedUser} />
-
 		<Grid
 			customStyles="{gridStyles} grid-template-columns: auto max-content;text-align:left;justify-self:center;"
 		>
+			<UserSelect
+				bind:selectedUser
+				bind:userPromise
+				on:userChanged={updateDisplayedUser}
+				customStyles="grid-column:span 2"
+			/>
 			<p class="title">Name:</p>
 			<p>{selectedUser.name}</p>
 			<p class="title">Email:</p>
@@ -86,7 +90,7 @@ Nickname: {nicknameUpdate}
 			<input id="amountPaid" type="number" value={selectedUser.amountPaidToPools} />
 
 			<label for="winningsSummary" class="title"> Weekly Winnings </label>
-			<AccordionDetails customDetailsStyles="background-color:white;" showArrow={false}>
+			<AccordionDetails showArrow={false}>
 				<div id="winningsSummary" slot="summary">
 					<p class="title">${selectedUser.weeklyWinnings.total} total</p>
 					<p><small><i>(click to reveal breakdown)</i></small></p>

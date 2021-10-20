@@ -19,14 +19,13 @@
 	import { onMount } from 'svelte';
 	import Fa from 'svelte-fa';
 	import { fly, slide } from 'svelte/transition';
-	import AccordionDetails from '../containers/AccordionDetails.svelte';
+	import AccordionDetails from '../containers/accordions/AccordionDetails.svelte';
 	import Grid from '../containers/Grid.svelte';
 	import LoadingSpinner from '../misc/LoadingSpinner.svelte';
-	import ModalOnly from '../modals/ModalOnly.svelte';
+	import ModalOnly from '../modals/Modal.svelte';
 	import ToggleSwitch from '../switches/ToggleSwitch.svelte';
 
 	export let modalOnlyComponent: ModalOnly;
-	let debugCounter = 0;
 	let nickname: string = '';
 	let creatingNewAccount = false;
 	let buttonHidden = true;
@@ -244,7 +243,7 @@
 			) {
 				$godMode = false;
 				$godSequence = [];
-				console.log('an incorrect character', $godSequence);
+				// console.log('an incorrect character', $godSequence);
 				return;
 			}
 			if (e.key === 'G' || e.key === 'g') {
@@ -277,8 +276,8 @@
 	export const checkForEnter = (
 		e: KeyboardEvent & { currentTarget: EventTarget & HTMLInputElement }
 	) => {
-		console.log(e.code);
 		if (e.code === 'Enter') {
+			console.log('pressed Enter');
 			nicknameEntered = true;
 		}
 	};
@@ -350,7 +349,7 @@
 				<h5 class="reveal two-column" transition:slide={{ duration: 500 }}>
 					Click to show/hide pool descriptions
 				</h5>
-				{#each poolsToJoin as pool, i}
+				{#each poolsToJoin as pool}
 					<div class="accordionWrapper" transition:slide={{ duration: 500 }}>
 						<AccordionDetails
 							showArrow={false}

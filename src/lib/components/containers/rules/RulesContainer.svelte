@@ -1,24 +1,17 @@
 <script lang="ts">
-	import {
-		orderBy,
-		query,
-		DocumentReference,
-		CollectionReference,
-		getDocs,
-		DocumentData
-	} from '@firebase/firestore';
+	import { orderBy, query, DocumentReference, CollectionReference } from '@firebase/firestore';
 	import ToggleSwitch from '$switches/ToggleSwitch.svelte';
 	import { userData } from '$scripts/auth/auth';
 	import Fa from 'svelte-fa';
 	import { faLock, faUnlock } from '@fortawesome/free-solid-svg-icons';
-	import { ruleCategoryConverter, ruleConverter } from '$scripts/converters';
+	import { ruleCategoryConverter } from '$scripts/converters';
 	import PrizeCard from '$containers/rules/PrizeCard.svelte';
 	import RulesCategoryGrid from '$containers/rules/RulesCategoryGrid.svelte';
 	import Tabs from '$navigation/Tabs.svelte';
 	import { editing } from '$scripts/store';
 	import type { WebUser } from '$scripts/classes/webUser';
-	import type { Rule, RuleCategory } from '$scripts/classes/rules';
-	import { collection, onSnapshot } from 'firebase/firestore';
+	import type { RuleCategory } from '$scripts/classes/rules';
+	import { onSnapshot } from 'firebase/firestore';
 	import { onDestroy } from 'svelte';
 	import { myLog } from '$scripts/classes/constants';
 

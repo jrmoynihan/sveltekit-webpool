@@ -1,5 +1,9 @@
 <script lang="ts">
-	import { updateTeamRecords } from '$scripts/scorePicks';
+	import DeletionButton from '$lib/components/buttons/DeletionButton.svelte';
+
+	import StyledButton from '$lib/components/buttons/StyledButton.svelte';
+
+	import { updateTeamRecordsEverywhere } from '$scripts/scorePicks';
 	import { largerThanMobile } from '$scripts/store';
 	import { resetTeamRecords } from '$scripts/teams';
 	import AdminExpandSection from './adminExpandSection.svelte';
@@ -9,17 +13,13 @@
 </script>
 
 <AdminExpandSection summaryText="NFL Teams" bind:min>
-	<button
+	<StyledButton
 		on:click={() => {
 			const proceed = confirm('Have you already updated the game winners?  If so, click OK.');
 			if (proceed) {
-				updateTeamRecords();
+				updateTeamRecordsEverywhere();
 			}
-		}}>Update Team Records</button
+		}}>Update Team Records</StyledButton
 	>
-	<button class="deletion" on:click={() => resetTeamRecords()}>Reset Team Records</button>
+	<DeletionButton on:click={() => resetTeamRecords()}>Reset Team Records</DeletionButton>
 </AdminExpandSection>
-
-<style lang="scss">
-	@include adminButton;
-</style>

@@ -20,6 +20,7 @@ import { userConverter } from '../converters';
 import { myError, myLog } from '../classes/constants';
 import { WeeklyPickRecord, UserWinnings } from '$scripts/classes/userRecord';
 import { userQueryAsStore } from '$scripts/store';
+import { saveUserData } from '$scripts/localStorage';
 
 export const currentUser = writable<User>(firestoreAuth.currentUser);
 export const userData = writable<WebUser>();
@@ -75,6 +76,7 @@ export const startSignIn = async (loginPlatform: string, useRedirect: boolean) =
 
 	// Store the promised user credential that the auth provider returns
 	if (useRedirect) {
+		myLog('signing in with redirect...');
 		await signInWithRedirect(firestoreAuth, provider);
 	}
 };
@@ -126,16 +128,23 @@ export const createNewUserDocument = async (
 
 export const startSignOut = async (): Promise<void> => {
 	userData.set(undefined);
+	myLog(`userData is ${userData}`);
+	currentUser.set(undefined);
+	myLog(`currentUser is ${currentUser}`);
 	signOut(firestoreAuth);
+	myLog(`firestoreAuth is ${firestoreAuth}`);
 	goto('/'); // go to the index page, navigating the user away from any authorized page they may be on currently
 };
 firestoreAuth.onAuthStateChanged(
 	() => {
 		if (firestoreAuth.currentUser) {
 			currentUser.set(firestoreAuth.currentUser);
+			saveUserData();
 			myLog(`the current user is ${get(currentUser).displayName}`, 'auth.ts => onAuthStateChanged');
 		} else {
-			myLog(`auth state changed, but current user is null or undefined: ${currentUser}`);
+			myLog(
+				`auth state changed, but current user is falsy (null or undefined): currentUser is ${currentUser}`
+			);
 		}
 	},
 	(error) => myError('auth.ts => onAuthStateChanged', error)

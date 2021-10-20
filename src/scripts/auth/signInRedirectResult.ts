@@ -37,6 +37,6 @@ if (!dev && browser) {
 			(reason) => myLog(`no redirect result returned: ${reason}`)
 		);
 	} catch (error) {
-		myError('signInRedirectResult', error);
+		myError('signInRedirectResult.ts', error);
 	}
 }

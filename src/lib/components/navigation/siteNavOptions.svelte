@@ -1,43 +1,43 @@
 <script lang="ts">
 	import { PageOptions } from '$scripts/site';
 	import NavLink from '$navigation/NavLink.svelte';
-	import { currentUser, userData, userDataSnapshot } from '$scripts/auth/auth';
+	import { currentUser, userData } from '$scripts/auth/auth';
 </script>
 
 {#each PageOptions as pageOption, index}
 	{#if pageOption.requiresAdmin === true}
-		{#if $userDataSnapshot !== undefined && $currentUser !== undefined}
-			{#if $userDataSnapshot.admin === true}
+		{#if $userData !== undefined && $currentUser !== undefined}
+			{#if $userData.admin === true}
 				<NavLink {index} {pageOption} />
 			{/if}
 		{/if}
 	{:else if pageOption.requiresWeekly}
-		{#if $userDataSnapshot !== undefined && $currentUser !== undefined}
-			{#if $userDataSnapshot.weekly === true}
+		{#if $userData !== undefined && $currentUser !== undefined}
+			{#if $userData.weekly === true}
 				<NavLink {index} {pageOption} />
 			{/if}
 		{/if}
 	{:else if pageOption.requiresSurvivor}
-		{#if $userDataSnapshot !== undefined && $currentUser !== undefined}
-			{#if $userDataSnapshot.survivor === true}
+		{#if $userData !== undefined && $currentUser !== undefined}
+			{#if $userData.survivor === true}
 				<NavLink {index} {pageOption} />
 			{/if}
 		{/if}
 	{:else if pageOption.requiresPick6}
-		{#if $userDataSnapshot !== undefined && $currentUser !== undefined}
-			{#if $userDataSnapshot.pick6 === true}
+		{#if $userData !== undefined && $currentUser !== undefined}
+			{#if $userData.pick6 === true}
 				<NavLink {index} {pageOption} />
 			{/if}
 		{/if}
 	{:else if pageOption.requiresPlayoffs}
-		{#if $userDataSnapshot !== undefined && $currentUser !== undefined}
-			{#if $userDataSnapshot.playoffs === true}
+		{#if $userData !== undefined && $currentUser !== undefined}
+			{#if $userData.playoffs === true}
 				<NavLink {index} {pageOption} />
 			{/if}
 		{/if}
 	{:else if pageOption.requiresCollege}
-		{#if $userDataSnapshot !== undefined && $currentUser !== undefined}
-			{#if $userDataSnapshot.college === true}
+		{#if $userData !== undefined && $currentUser !== undefined}
+			{#if $userData.college === true}
 				<NavLink {index} {pageOption} />
 			{/if}
 		{/if}

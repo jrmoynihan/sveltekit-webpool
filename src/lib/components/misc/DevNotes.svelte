@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { dev } from '$app/env';
-	import AccordionDetails from '$containers/AccordionDetails.svelte';
+	import AccordionDetails from '../containers/accordions/AccordionDetails.svelte';
 
 	export let customStyles: string = '';
 </script>

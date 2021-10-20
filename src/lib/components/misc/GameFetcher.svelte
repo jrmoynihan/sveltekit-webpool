@@ -1,14 +1,14 @@
 <script lang="ts">
-	import type { Game } from '$scripts/classes/game';
+	import { ESPNGame, ESPNGamePruned, Game } from '$scripts/classes/game';
 	import { gameConverter } from '$scripts/converters';
 	import { firestoreDB } from '$scripts/firebaseInit';
 	import { scheduleCollection } from '$scripts/collections';
 	import { allTeams } from '$scripts/teams';
 	import { deleteDoc, doc, getDocs, query, setDoc, Timestamp, where } from '@firebase/firestore';
-	import AccordionDetails from '../containers/AccordionDetails.svelte';
+	import AccordionDetails from '../containers/accordions/AccordionDetails.svelte';
 	import WeekSelect from '../selects/WeekSelect.svelte';
 	import PageTitle from './PageTitle.svelte';
-	import { myLog, seasonTypes, stopSign } from '$scripts/classes/constants';
+	import { key, myError, myLog, seasonTypes, stopSign } from '$scripts/classes/constants';
 	import SeasonTypeSelect from '../selects/SeasonTypeSelect.svelte';
 	import type { SeasonType } from '$scripts/classes/seasonType';
 	import YearSelect from '../selects/YearSelect.svelte';
@@ -21,15 +21,21 @@
 		getRegularSeasonWeeks
 	} from '$scripts/functions';
 	import LoadingSpinner from './LoadingSpinner.svelte';
+	import AccordionJson from '../containers/accordions/AccordionJSON.svelte';
+	import { aggregateObjectSizes, formatByteSize } from '$scripts/memorySizeOf';
+	import Grid from '../containers/Grid.svelte';
+	import DeletionButton from '../buttons/DeletionButton.svelte';
+	import StyledButton from '../buttons/StyledButton.svelte';
+	import ErrorModal from '../modals/ErrorModal.svelte';
+	import EspnGameData from './ESPNGameData.svelte';
 
-	let message = '';
-	let submessage = '';
-	let promise: Promise<any[]>;
+	let currentlySetting = false;
+	let promise: Promise<{ originalGames: ESPNGame[]; prunedGames: ESPNGamePruned[] }>;
 	let weeks: number[] = [];
 	let selectedYear: number = 2021;
 	let selectedSeasonType: SeasonType = seasonTypes[1];
 	let selectedWeek: number;
-	let games = [];
+	let selectedGames: string = 'pruned';
 
 	const fetchWeek = async (
 		selectedYear: number,
@@ -61,7 +67,7 @@
 	};
 	const fetchGameData = async (referenceURLs: string[]) => {
 		try {
-			const gameData = [];
+			const gameData: ESPNGame[] = [];
 
 			for await (const url of referenceURLs) {
 				const httpUrl = url;
@@ -83,16 +89,99 @@
 	) => {
 		const weekReferences = await fetchWeek(selectedYear, selectedSeasonType, selectedWeek);
 		const gameUrls = await unpackReferenceURLs(weekReferences);
-		const gameDataObjects = await fetchGameData(gameUrls);
-		games = gameDataObjects;
-		console.log('fetched games:', games);
-		return gameDataObjects;
+
+		const originalGames = await fetchGameData(gameUrls);
+		const originalSize = originalGames.reduce(aggregateObjectSizes, 0);
+		console.log('fetched games:', originalGames, `memory: ${formatByteSize(originalSize)}`);
+
+		const prunedGames = await pruneESPNGames(originalGames);
+		const reducedSize = prunedGames.reduce(aggregateObjectSizes, 0);
+		console.log('pruned games:', prunedGames, `memory: ${formatByteSize(reducedSize)}`);
+
+		return { originalGames, prunedGames };
 	};
 
-	// selectedYear:number,selectedSeasonType:number,selectedWeek: number
-	const queryChanged = () => {
-		message = '';
-		games = [];
+	/**
+	 * Limit how much of the ESPN game object we store
+	 */
+	export const pruneESPNGames = async (gameDataObjects: ESPNGame[]) => {
+		let prunedGames: ESPNGamePruned[] = JSON.parse(JSON.stringify(gameDataObjects));
+		const propertiesToPrune: string[] = [
+			'uid',
+			'timeValid',
+			'weather',
+			'venues',
+			'links',
+			'league'
+		];
+		const competitionPropsToPrune: string[] = [
+			'guid',
+			'uid',
+			'attendance',
+			'type',
+			'necessary',
+			'timeValid',
+			'neutralSite',
+			'divisionCompetition',
+			'conferenceCompetition',
+			'previewAvailable',
+			'recapAvailable',
+			'boxscoreAvailable',
+			'lineupAvailable',
+			'gamecastAvailable',
+			'playByPlayAvailable',
+			'conversationAvailable',
+			'commentaryAvailable',
+			'pickcenterAvailable',
+			'summaryAvailable',
+			'liveAvailable',
+			'ticketsAvailable',
+			'shotChartAvailable',
+			'timeoutsAvailable',
+			'possessionArrowAvailable',
+			'onWatchESPN',
+			'recent',
+			'bracketAvailable',
+			'gameSource',
+			'boxscoreSource',
+			'playByPlaySource',
+			'linescoreSource',
+			'statsSource',
+			'venue',
+			'notes',
+			'broadcasts',
+			'officials',
+			'links',
+			'powerIndexes',
+			'format',
+			'drives',
+			'tickets',
+			'weather'
+		];
+		const teamCompetitorPropsToPrune = [
+			'id',
+			'nextCompetition',
+			'previousCompetition',
+			'order',
+			'type',
+			'uid'
+		];
+		for await (const game of prunedGames) {
+			propertiesToPrune.forEach((property) => {
+				delete game[property];
+			});
+			competitionPropsToPrune.forEach((property) => {
+				delete game.competitions[0][property];
+			});
+			teamCompetitorPropsToPrune.forEach((property) => {
+				delete game.competitions[0].competitors[0][property];
+				delete game.competitions[0].competitors[1][property];
+			});
+		}
+		return prunedGames;
+	};
+
+	const queryChanged = async () => {
 		promise = getData(selectedYear, selectedSeasonType, selectedWeek);
 	};
 	const changeWeeksAvailable = async () => {
@@ -103,22 +192,44 @@
 		}
 	};
 
-	const setGames = async () => {
-		if (games && selectedWeek) {
-			console.log('setting games...');
-			games.forEach((game, i) => {
-				setGame(game, i);
-			});
-			console.log('all done!');
+	const setGames = async (
+		selectedWeek: number,
+		selectedYear: number,
+		selectedSeasonType: SeasonType
+	) => {
+		try {
+			if (promise) {
+				const allGames = await promise;
+				const gamesToSet = allGames.prunedGames;
+				currentlySetting = true;
+				myLog('setting games...');
+				defaultToast({
+					title: 'Setting Games',
+					msg: `Creating/overriting game documents for ${selectedWeek}.`
+				});
+
+				gamesToSet.forEach((game) => {
+					setGame(game, selectedWeek, selectedYear, selectedSeasonType);
+				});
+
+				myLog('games set!');
+			}
+			currentlySetting = false;
+			defaultToast({ title: 'Games Set', msg: `Created game documents for ${selectedWeek}!` });
+		} catch (error) {
+			myError('GameFetcher => setGames', error);
 		}
-		message = 'Games Set!';
 	};
-	const setGame = async (game: Game, i) => {
-		message = `setting Week ${selectedWeek}, Game #${i}`;
+	const setGame = async (
+		game: ESPNGamePruned,
+		selectedWeek: number,
+		selectedYear: number,
+		selectedSeasonType: SeasonType
+	) => {
 		const gameDocRef = doc(firestoreDB, scheduleCollection.path, game.id);
 
 		// Load the game to a new object that will gain Firebase-friendly formatting changes
-		const gameFormatted = game;
+		const gameFormatted = new Game({ ...game });
 
 		// Start with adding that docRef to the document itself
 		gameFormatted.docRef = gameDocRef;
@@ -207,59 +318,75 @@
 
 <section>
 	<PageTitle>Fetch ESPN Game Data</PageTitle>
-	<SeasonTypeSelect
-		bind:selectedSeasonType
-		on:seasonTypeChanged={() => {
-			queryChanged();
-			changeWeeksAvailable();
-		}}
-	/>
-	<YearSelect bind:selectedYear on:yearChanged={queryChanged} />
-	<WeekSelect bind:selectedWeek bind:weeks on:weekChanged={queryChanged} />
-	<button on:click={deleteAllGames}>Delete All Games</button>
-	<button on:click={() => deleteGameWeek(selectedWeek, selectedYear, selectedSeasonType)}
-		>Delete Selected Week</button
-	>
-	{#if games}
-		{#if games.length > 0}
-			<span class="padded">
-				<button on:click={setGames}>Set Games</button>
-				<span class:padded={message}>{message}</span>
-				<span class:padded={submessage}>{submessage}</span>
-			</span>
-		{/if}
-	{/if}
+	<Grid>
+		<DeletionButton on:click={deleteAllGames}>Delete All Games</DeletionButton>
+		<DeletionButton on:click={() => deleteGameWeek(selectedWeek, selectedYear, selectedSeasonType)}
+			>Delete Selected Week</DeletionButton
+		>
+	</Grid>
+	<div class="flex">
+		<SeasonTypeSelect
+			bind:selectedSeasonType
+			on:seasonTypeChanged={() => {
+				queryChanged();
+				changeWeeksAvailable();
+			}}
+		/>
+		<YearSelect bind:selectedYear on:yearChanged={queryChanged} />
+		<WeekSelect bind:selectedWeek bind:weeks on:weekChanged={queryChanged} />
+		<select bind:value={selectedGames}>
+			<option value="pruned">Pruned Games (DB)</option>
+			<option value="full">Full Games (ESPN API)</option>
+			<option value="both">Both</option>
+		</select>
+		{#await promise then games}
+			<StyledButton
+				on:click={() => setGames(selectedWeek, selectedYear, selectedSeasonType)}
+				disabled={currentlySetting}>Set Games</StyledButton
+			>
+		{:catch error}
+			<ErrorModal>
+				Unable to load games: {error}
+			</ErrorModal>
+		{/await}
+		<div />
+	</div>
+</section>
+
+<Grid max={'100%'} repeat={selectedGames === 'both' ? 2 : undefined}>
 	{#await promise}
 		<div class="padded">
 			<LoadingSpinner />
 		</div>
 	{:then gameData}
-		<div class="padded">
-			{#if gameData}
-				{#each gameData as { name, date }, i}
-					<AccordionDetails
-						showArrow={false}
-						expandTitle={`Game ${i + 1} -- ${date.substring(0, 10)}`}
-					>
-						<p slot="summary">{name}</p>
-					</AccordionDetails>
-				{/each}
+		{#if gameData}
+			{#if selectedGames === 'pruned'}
+				<EspnGameData gameData={gameData.prunedGames} />
+			{:else if selectedGames === 'full'}
+				<EspnGameData gameData={gameData.originalGames} />
+			{:else if selectedGames === 'both'}
+				<EspnGameData gameData={gameData.prunedGames} title="Pruned Games for DB" />
+				<EspnGameData gameData={gameData.originalGames} title="Original ESPN Games" />
 			{/if}
-		</div>
-	{:catch}
-		An error occurred
+		{/if}
+	{:catch error}
+		<ErrorModal>
+			Error displaying game data: {error}
+		</ErrorModal>
 	{/await}
-</section>
+</Grid>
 
 <style lang="scss">
-	button {
-		@include defaultButtonStyles;
-		@include styledButton;
-		color: white;
-		margin: 0.5rem;
-		max-width: max-content;
-	}
 	.padded {
 		padding: 1rem;
+		max-width: 100%;
+	}
+	.flex {
+		@include flexCenter($gap: 1rem);
+		padding: 1rem;
+		flex-wrap: wrap;
+	}
+	select {
+		@include defaultSelect;
 	}
 </style>

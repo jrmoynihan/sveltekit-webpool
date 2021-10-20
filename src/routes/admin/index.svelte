@@ -1,7 +1,7 @@
 <script lang="ts">
 	import NewUserForm from '$lib/components/forms/NewUserForm.svelte';
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
-	import type ModalOnly from '$lib/components/modals/ModalOnly.svelte';
+	import type ModalOnly from '$lib/components/modals/Modal.svelte';
 
 	let modalOnlyComponent: ModalOnly;
 </script>

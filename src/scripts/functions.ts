@@ -4,7 +4,6 @@ import {
 	maxPreseasonWeeks,
 	maxRegularSeasonWeeks,
 	myError,
-	myLog,
 	policeCarLight
 } from './classes/constants';
 import type { WeeklyPickDoc } from './classes/picks';

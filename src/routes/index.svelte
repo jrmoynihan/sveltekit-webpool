@@ -7,6 +7,11 @@
 	// const teamsPromise = async () => {
 	// 	return await import('../scripts/teams').then((module) => module.default);
 	// };
+	export async function load() {
+		// Cache assets for 1 year
+		const output = { maxage: 31536000 };
+		return output;
+	}
 </script>
 
 <script lang="ts">

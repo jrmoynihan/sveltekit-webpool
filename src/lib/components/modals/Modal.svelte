@@ -1,30 +1,31 @@
 <script lang="ts">
-	// import dialogPolyfill from 'dialog-polyfill';
 	import {
 		checkForEscape,
 		displayModal,
 		hideThisModalDelayed
 	} from '$scripts/modals/modalFunctions';
+
+	// import dialogPolyfill from 'dialog-polyfill';
 	import { nanoid } from 'nanoid';
-	export let displayModalButtonText = '';
-	export let defaultButton = true;
-	export let discreetButton = false;
-	export let styledButton = false;
-	export let modalButtonStyles = '';
+	import { onMount } from 'svelte';
 	export let modalForegroundStyles = '';
 	export let dialogStyles = '';
 	// Apply a random Universally Unique ID to allow more than one modal component to be present in the same window, but be targeted separately for opening/closing
 	export let modalID = nanoid();
 	export let dialogOpen = false;
+	export let isError = false;
 	let modal: HTMLDialogElement;
 	export const close = async (): Promise<void> => {
 		dialogOpen = false;
-		await hideThisModalDelayed(modal);
+		hideThisModalDelayed(modal);
 	};
-	export const open = async () => {
+	export const open = async (): Promise<void> => {
 		dialogOpen = true;
-		await displayModal(modal);
+		displayModal(modal);
 	};
+	onMount(() => {
+		dialogOpen ? open() : null;
+	});
 </script>
 
 <!-- <svelte:head>
@@ -33,48 +34,24 @@
 
 <dialog
 	class="fixed"
-	class:dialogOpen
+	class:isError
 	id={`modal-${modalID}`}
-	style={dialogStyles}
-	on:click|capture|self={() => close()}
+	style="{dialogOpen ? 'opacity:1' : 'opacity:0'}; {dialogStyles}"
+	on:click|capture|self={close}
 	bind:this={modal}
 >
 	<div class="modal-foreground" style={modalForegroundStyles}>
 		<slot name="modal-content">slotted modal content goes here</slot>
 	</div>
 </dialog>
-<button
-	on:click={() => open()}
-	class:discreetButton
-	class:defaultButton
-	class:styledButton
-	style={modalButtonStyles}
->
-	{displayModalButtonText}
-	<slot name="button-icon" />
-</button>
-<svelte:window on:keydown={(e) => checkForEscape(e, modal)} />
+
+<svelte:window on:keydown|self={(e) => checkForEscape(e, modal)} />
 
 <style lang="scss">
-	// @import 'src/Styles/Mixins.scss';
-	button {
-		display: flex;
-		align-items: center;
-		gap: 10px;
-		&.defaultButton {
-			@include defaultButtonStyles;
-		}
-		&.discreetButton {
-			@include discreetButtonStyles;
-		}
-		&.styledButton {
-			@include styledButton;
-		}
-	}
 	dialog {
 		@include frostedGlass;
-		@include gridCenter;
 		position: fixed;
+		transition: all 300ms ease-in-out;
 		border: 0;
 		border-radius: 25px;
 		box-shadow: 0 0 10px var(--main-color, rgb(255, 255, 255));
@@ -82,29 +59,26 @@
 		color: var(--main-color, rgb(255, 255, 255));
 		font-size: initial;
 		margin: auto; // centers the dialog for bad browser user-agent stylesheets that default to top-left
-		padding: revert;
-		opacity: 0;
-		pointer-events: none;
-		transition: all 300ms ease-out;
 
 		&::backdrop {
 			background-color: rgba(0, 0, 0, 0.4);
-			backdrop-filter: blur(5px);
+			&.isError {
+				background-color: rgba(192, 106, 106, 0.4);
+			}
 		}
 	}
-	.dialogOpen {
-		opacity: 1;
-		pointer-events: all;
-	}
 	.modal-foreground {
-		@include defaultTransition;
 		display: grid;
 		grid-auto-rows: max-content;
-		grid-auto-columns: minmax(0, 1fr);
+		grid-auto-columns: 1fr;
 		gap: 15px;
 		z-index: 10;
 		align-items: center;
 		justify-items: center;
 		padding: 1rem;
+	}
+	.isError {
+		background-color: pink;
+		color: darkred;
 	}
 </style>

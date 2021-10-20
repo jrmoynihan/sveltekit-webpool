@@ -55,10 +55,8 @@
 	.collapsed {
 		@include accelerate;
 		margin: 0;
-		// max-height: 0.2em;
 		opacity: 0;
 		pointer-events: none;
-		// transform: rotateX(90deg);
 	}
 	nav {
 		display: flex;
@@ -67,12 +65,6 @@
 	}
 	.modal {
 		grid-area: unset;
-		// position: fixed;
-		// width: 90%;
-		// left: 5%;
-		// right: 5%;
-		// height: auto;
-		// top: 25%;
 		border-radius: 2rem;
 		padding: 1rem;
 	}

@@ -1,18 +1,27 @@
 <script lang="ts">
 	import { useDarkTheme } from '$scripts/store';
-	import { fade, fly, slide } from 'svelte/transition';
+	import { fly } from 'svelte/transition';
 
 	export let evenRow: boolean = false;
-	export let inTheMoney: boolean;
+	export let inTheMoney: boolean = false;
+	export let delay = 0;
+	export let xEvenRow = 250;
+	export let xOddRow = -250;
+	export let duration = 600;
 	let dark = $useDarkTheme;
 </script>
 
 {#if evenRow}
-	<div in:fly={{ x: 200, duration: 500 }} class:evenRow class:dark class:redZone={inTheMoney}>
+	<div
+		in:fly={{ x: xEvenRow, duration, delay }}
+		class:evenRow
+		class:dark
+		class:redZone={inTheMoney}
+	>
 		<slot />
 	</div>
 {:else}
-	<div in:fly={{ x: -200, duration: 500 }} class:evenRow class:dark class:redZone={inTheMoney}>
+	<div in:fly={{ x: xOddRow, duration, delay }} class:evenRow class:dark class:redZone={inTheMoney}>
 		<slot />
 	</div>
 {/if}

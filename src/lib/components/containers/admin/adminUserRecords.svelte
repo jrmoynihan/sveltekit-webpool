@@ -1,4 +1,6 @@
 <script lang="ts">
+	import DeletionButton from '$lib/components/buttons/DeletionButton.svelte';
+
 	import { resetWeeklyUserRecords } from '$scripts/scorePicks';
 	import { largerThanMobile } from '$scripts/store';
 	import Tooltip from '../Tooltip.svelte';
@@ -11,12 +13,8 @@
 <AdminExpandSection summaryText="User Records" bind:min>
 	<Tooltip tooltipTop="-150%" customStyleTooltipParent="color:var(--main-color);">
 		<p slot="text">User pick records are created when games are <i>scored</i>.</p>
-		<button slot="content" class="deletion" on:click={() => resetWeeklyUserRecords()}
-			>Reset User Records</button
+		<DeletionButton slot="content" on:click={() => resetWeeklyUserRecords()}
+			>Reset User Records</DeletionButton
 		>
 	</Tooltip>
 </AdminExpandSection>
-
-<style lang="scss">
-	@include adminButton;
-</style>

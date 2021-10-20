@@ -21,11 +21,11 @@ export const defaultToast = ({
 	toastProgressBorderRadius = '5rem',
 	toastBarHeight = '4px'
 }) => {
-	const msgBuilder = `<div style="display:grid;text-align:center;font-weight:${textFontWeight}">
+	const msgBuilder = `<div style="display:grid;grid-template-columns:minmax(0,auto);text-align:center;font-weight:${textFontWeight}">
 						<h3>
 							${title}
 						</h3>
-						<section>
+						<section style="overflow:auto;word-wrap:anywhere;">
 							${msg}
 						</section>
 					</div>`;
@@ -63,11 +63,11 @@ export const defaultToast = ({
 	return id;
 };
 
-export const errorToast = (msg: string) => {
+export const errorToast = (msg: string, duration = 30_000) => {
 	const id = defaultToast({
 		title: 'Error!',
 		msg,
-		duration: 30_000,
+		duration,
 		toastColor: 'white',
 		toastBackground: 'darkred'
 	});

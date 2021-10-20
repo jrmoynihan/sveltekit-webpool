@@ -7,13 +7,7 @@
 	};
 </script>
 
-<label
-	class="switch"
-	tabindex="0"
-	on:keypress={(e) => {
-		$useDarkTheme = !$useDarkTheme;
-	}}
->
+<label class="switch" tabindex="0">
 	<input type="checkbox" bind:checked={$useDarkTheme} on:change={storeDarkThemePreference} />
 	<div>
 		<span />

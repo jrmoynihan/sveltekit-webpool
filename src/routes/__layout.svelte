@@ -8,14 +8,11 @@
 
 <script lang="ts">
 	import '../app.css';
-	import { userConverter } from '$scripts/converters';
-	import { currentUser, userDataSnapshot } from '$scripts/auth/auth';
 	import {
 		chosenMixBlendMode,
 		largerThanMobile,
 		navChecked,
 		useDarkTheme,
-		userQueryAsStore,
 		windowWidth
 	} from '$scripts/store';
 	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
@@ -26,15 +23,9 @@
 	import { SvelteToast } from '@zerodevx/svelte-toast';
 	import { mobileBreakpoint } from '$scripts/site';
 	import { onMount } from 'svelte';
-	import { getLocalStorageItem, saveUserData } from '$scripts/localStorage';
+	import { getLocalStorageItem } from '$scripts/localStorage';
 	import NewUserForm from '$lib/components/forms/NewUserForm.svelte';
-	import type ModalOnly from '$lib/components/modals/ModalOnly.svelte';
-	import { query, where } from '@firebase/firestore';
-	import { usersCollection } from '$scripts/collections';
-	import { get } from 'svelte/store';
-	// import { WebUser } from '$scripts/classes/webUser';
-	// import { usersCollection } from '$scripts/collections';
-	// import { doc, getDoc } from '@firebase/firestore';
+	import type ModalOnly from '$lib/components/modals/Modal.svelte';
 
 	export let refresh: any;
 	let modalOnlyComponent: ModalOnly;
@@ -52,11 +43,11 @@
 		}
 	};
 
-	$: if ($currentUser && userConverter) {
-		saveUserData();
-		const q = query(usersCollection, where('id', '==', $currentUser.uid));
-		$userDataSnapshot = get(userQueryAsStore(q));
-	}
+	// $: if ($currentUser && userConverter) {
+	// 	saveUserData();
+	// 	const q = query(usersCollection, where('id', '==', $currentUser.uid));
+	// 	$userDataSnapshot = get(userQueryAsStore(q));
+	// }
 
 	onMount(() => {
 		checkWindowWidth();

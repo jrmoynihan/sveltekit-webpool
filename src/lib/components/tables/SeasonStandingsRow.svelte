@@ -27,24 +27,22 @@
 	{/if}
 </RowData>
 <RowData {evenRow} {inTheMoney}>
-	{player.weeklyPickRecord.total.wins}
+	{player.totalWeeklyWins}
 </RowData>
 <RowData {evenRow} {inTheMoney}>
-	{player.weeklyPickRecord.total.losses}
+	{player.totalWeeklyLosses}
 </RowData>
 <RowData {evenRow} {inTheMoney}>
 	<div class="percentage">
-		{#if player.weeklyPickRecord.total.wins > 0 || player.weeklyPickRecord.total.losses > 0}
+		{#if player.totalWeeklyWins > 0 || player.totalWeeklyLosses > 0}
 			{(
-				(player.weeklyPickRecord.total.wins /
-					(player.weeklyPickRecord.total.wins + player.weeklyPickRecord.total.losses)) *
+				(player.totalWeeklyWins / (player.totalWeeklyWins + player.totalWeeklyLosses)) *
 				100
 			).toFixed(2)}%
 			{#if $largerThanMobile}
 				<span
 					style="--win-radii:{(
-						(player.weeklyPickRecord.total.wins /
-							(player.weeklyPickRecord.total.wins + player.weeklyPickRecord.total.losses)) *
+						(player.totalWeeklyWins / (player.totalWeeklyWins + player.totalWeeklyLosses)) *
 						100
 					).toString()}%"
 				/>
@@ -68,7 +66,7 @@
 	}
 	span {
 		aspect-ratio: 1/1;
-		background: conic-gradient(var(--main-color, rgb(255, 255, 255)) $radii, transparent $radii);
+		background: conic-gradient(currentColor, rgb(255, 255, 255) $radii, transparent $radii);
 		border-radius: 50%;
 		display: inline-block;
 		height: 100%;

@@ -5,16 +5,20 @@
 	import Fa from 'svelte-fa';
 
 	export let expandTitle: string = '';
-	export let showArrow: boolean = true;
+	export let showArrow: boolean = false;
 	export let customExpandIcon: IconDefinition = null;
 	export let iconClass: string = 'fa-CaretDown';
 	export let expandDuration: number = 300;
 	export let customContentStyles: string = '';
 	export let customDetailsStyles: string = '';
 	export let customSummaryStyles: string = '';
-	export let cloudyBackground = true;
+	export let cloudyBackground = false;
 	export let frostedGlass = true;
 	export let open = false;
+	export let adminOnly = false;
+	export let overflowY = 'auto';
+	export let overflow_X = 'auto';
+	let detailsElement: HTMLDetailsElement;
 	export class Accordion {
 		el: HTMLDetailsElement;
 		summary: HTMLElement;
@@ -23,14 +27,19 @@
 		isClosing: boolean;
 		isExpanding: boolean;
 		open: boolean;
+		userAppliedOverflowYStyle: string;
+		userAppliedOverflowXStyle: string;
 
-		constructor(element: HTMLDetailsElement) {
+		constructor(element: HTMLDetailsElement, overflow_Y?: string) {
 			// Store the <details> element
 			this.el = element;
 			// Store the <summary> element
 			this.summary = element.querySelector('summary');
 			// Store the <div class="content"> element
 			this.content = element.querySelector('.content');
+			// Store any user-applied overflow styling
+			this.userAppliedOverflowXStyle = overflow_X;
+			this.userAppliedOverflowYStyle = overflow_Y;
 
 			// Store the animation object (so we can cancel it if needed)
 			this.animation = null;
@@ -142,15 +151,16 @@
 			this.isExpanding = false;
 			// Remove the overflow hidden and the fixed height
 			this.el.style.height = '';
-			this.el.style.overflow = '';
+			this.el.style.overflowY = this.userAppliedOverflowYStyle;
+			this.el.style.overflowX = this.userAppliedOverflowXStyle;
 		}
 	}
 	let accordion: Accordion;
 	onMount(() => {
 		if (browser) {
-			document.querySelectorAll('details').forEach((el) => {
-				accordion = new Accordion(el);
-			});
+			// this.querySelectorAll('details').forEach((el) => {
+			accordion = new Accordion(detailsElement, overflowY);
+			// });
 		}
 	});
 
@@ -166,7 +176,7 @@
 
 	const clicked = (element: string) => {
 		dispatch('click');
-		console.log(`clicked ${element}`);
+		// console.log(`clicked ${element}`);
 	};
 	const checkforSpace = async (e: KeyboardEvent & { currentTarget: EventTarget & HTMLElement }) => {
 		if (e.code === 'Space') {
@@ -180,22 +190,30 @@
 </script>
 
 <details
+	bind:this={detailsElement}
 	class:cloudyBackground
 	class:frostedGlass
-	{open}
-	on:click={() => clicked('details')}
+	class:adminOnly
+	bind:open
+	on:click|self|preventDefault|stopPropagation={() => clicked('details')}
 	on:keydown|preventDefault={(e) => checkforSpace(e)}
 	tabindex="0"
 	style={customDetailsStyles}
 >
 	<summary
+		class:adminOnly
 		class={showArrow ? '' : 'hideArrow'}
-		style="{showArrow ? 'display:list-item' : 'display:flex'}; {customSummaryStyles}"
+		style="display:{showArrow ? 'list-item' : 'flex'}; {customSummaryStyles}"
 	>
-		{#if customExpandIcon}<Fa icon={customExpandIcon} class={iconClass} />{/if}
-		{expandTitle}
+		{#if customExpandIcon}
+			<Fa icon={customExpandIcon} class={iconClass} />
+		{/if}
+		{#if expandTitle !== ''}
+			{expandTitle}
+		{/if}
 		<slot name="summary" />
 	</summary>
+
 	<div class="content" style={customContentStyles} on:click={() => clicked('content')}>
 		<slot name="content" />
 	</div>
@@ -205,13 +223,20 @@
 	// @import 'src/Styles/Mixins.scss';
 	details,
 	summary {
+		@include defaultTransition;
+		@include rounded;
 		outline: none;
-		transition: all 100ms ease-in-out;
 		width: 100%;
 	}
 	details {
+		@include accelerate;
 		@include thinnestBorder;
 		@include noOutline;
+		color: var(--main-color);
+		&:hover,
+		&:focus-within {
+			@include dayShadow;
+		}
 		&.cloudyBackground {
 			@include cloudyBackground;
 		}
@@ -238,21 +263,17 @@
 			transform: translateY(0);
 		}
 	}
-	// .content {
-	// 	display: grid;
-	// 	grid-template-columns: 75% minmax(0, 1fr);
-	// 	padding: 1em;
-	// 	justify-items: center;
-	// 	align-items: center;
-	// 	box-sizing: border-box;
-	// 	gap: 5px;
-	// }
 
 	summary {
+		color: black;
 		padding: 0.5em;
-		transition: all 300ms ease-in-out;
+		transition: border-radius 0ms;
 		cursor: pointer;
 		justify-content: center;
+		position: sticky;
+		top: 0;
+		background: rgb(255 255 255);
+		z-index: 1;
 		&::marker,
 		&::-webkit-details-marker {
 			&::before {
@@ -271,16 +292,11 @@
 			content: '';
 		}
 	}
-	details {
-		@include rounded;
-		@include defaultTransition;
-		&:hover,
-		&:focus-within {
-			@include dayShadow;
-		}
-	}
 	.content {
 		padding: 1rem;
 		width: 100%;
+	}
+	.adminOnly {
+		@include admin;
 	}
 </style>

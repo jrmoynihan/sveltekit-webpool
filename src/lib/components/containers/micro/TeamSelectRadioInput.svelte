@@ -66,6 +66,7 @@
 	label {
 		@include defaultTransition;
 		@include rounded;
+		cursor: pointer;
 		place-items: center;
 		display: grid;
 		padding: 0.7rem;

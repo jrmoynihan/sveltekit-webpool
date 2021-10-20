@@ -23,7 +23,6 @@
 	transition: box-shadow 200ms ease-in-out;
 }
 @mixin nightShadow {
-	// box-shadow: -2px -2px 20px 0px rgba(0, 255, 234, 0.541), 2px 2px 15px 2px rgba(0, 19, 128, 0.5);
 	box-shadow: -2px -2px 20px 0px rgba(83, 168, 53, 0.54),
 		2px 2px 15px 2px rgba(var(--accentValue-color), 0.5);
 	transition: box-shadow 200ms ease-in-out;
@@ -83,7 +82,6 @@
 	font-size: 1rem;
 	padding: 0.5em;
 	display: flex;
-	border: none;
 	border-radius: 2vh; // or 20px?
 	box-sizing: border-box;
 	background-color: white;
@@ -110,7 +108,6 @@
 }
 @mixin editableInput($frosted: true) {
 	@include editableCell($frosted);
-	@include cursorPointerAlways;
 }
 
 @mixin padded1M {
@@ -329,14 +326,29 @@
 	width: 0;
 	display: none;
 }
-@mixin adminButton($useDeletionButtons: true) {
-	button {
-		@include styledButton;
-		@if ($useDeletionButtons) {
-			&.deletion {
-				background: darkred;
-				border: 4px solid firebrick;
-			}
-		}
+
+@mixin deletionButton() {
+	@include styledButton;
+	background: darkred;
+	border: 4px solid firebrick;
+}
+@mixin defaultSelect {
+	@include frostedGlassHighContrast;
+	@include rounded;
+	@include cursorPointerAlways;
+	display: inline-flex;
+	padding: 1rem;
+	font-weight: bold;
+	max-width: 100%;
+	&:focus {
+		@include nightShadow;
 	}
+	&:hover {
+		@include dayShadow;
+	}
+}
+@mixin admin {
+	color: var(--admin-color, darkred);
+	border: var(--adminBorder-color, darkred) solid 1px;
+	background: var(--adminBackground-color, hsl(0, 35%, 75%));
 }

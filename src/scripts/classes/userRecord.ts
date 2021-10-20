@@ -1,5 +1,4 @@
 export class WeeklyPickRecord {
-	total: { wins: number; losses: number };
 	week_1: UserRecord;
 	week_2: UserRecord;
 	week_3: UserRecord;
@@ -19,7 +18,6 @@ export class WeeklyPickRecord {
 	week_17: UserRecord;
 	week_18: UserRecord;
 	constructor({ ...args }) {
-		this.total = args.total || { wins: 0, losses: 0 };
 		this.week_1 = args.week_1 || { ...new UserRecord({}) };
 		this.week_2 = args.week_2 || { ...new UserRecord({}) };
 		this.week_3 = args.week_3 || { ...new UserRecord({}) };

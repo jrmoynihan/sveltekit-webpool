@@ -1,8 +1,8 @@
 import preprocess from 'svelte-preprocess';
 import firebase from 'svelte-adapter-firebase';
 import path from 'path';
-import mkcert from 'vite-plugin-mkcert';
-import { imagetools } from 'vite-imagetools';
+// import mkcert from 'vite-plugin-mkcert';
+// import { imagetools } from 'vite-imagetools';
 // import autoprefixer from 'autoprefixer';
 
 /** @type {import('@sveltejs/kit').Config} */
@@ -40,14 +40,36 @@ const config = {
 					$majorFeatures: path.resolve('./src/lib/majorFeatures'),
 					$static: path.resolve('./static/')
 				}
-			},
+			}
+			// build: {
+			// minify: 'terser',
+			// legalComments: 'none',
+			// terserOptions: {
+			// 	format: {
+			// 		comments: false
+			// 	}
+			// }
+			// 	rollupOptions: {
+			// 		output: {
+			// 			manualChunks: undefined
+			// 		}
+			// 	}
+			// },
+			// esbuild: {
+			// 	legalComments: 'none'
+			// },
+			// optimizeDeps: {
+			// 	esbuildOptions: {
+			// 		legalComments: 'none'
+			// 	}
+			// },
 			// ssr: {
 			// 	external: ['@firebase/firestore']
 			// },
-			server: {
-				https: true
-			},
-			plugins: [mkcert, imagetools()]
+			// server: {
+			// 	https: true
+			// },
+			// plugins: [mkcert, imagetools()]
 		}
 	}
 };

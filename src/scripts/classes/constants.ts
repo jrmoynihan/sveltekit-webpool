@@ -43,6 +43,7 @@ export const home = String.fromCodePoint(0x1f3e0);
 export const stopSign = String.fromCodePoint(0x1f6d1);
 export const bread = String.fromCodePoint(0x1f35e);
 export const bomb = String.fromCodePoint(0x1f4a3);
+export const detective = String.fromCodePoint(0x1f575);
 // console.log(bread)
 
 export const defaultConsoleLogStyle = [

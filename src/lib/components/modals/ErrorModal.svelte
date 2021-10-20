@@ -1,7 +1,9 @@
 <script lang="ts">
-	import ModalOnly from './ModalOnly.svelte';
+	import Modal from './Modal.svelte';
+	export let error = '';
 </script>
 
-<ModalOnly dialogOpen={true} isError={true}>
+<Modal dialogOpen={true} isError={true}>
 	<slot slot="modal-content" />
-</ModalOnly>
+	{error}
+</Modal>

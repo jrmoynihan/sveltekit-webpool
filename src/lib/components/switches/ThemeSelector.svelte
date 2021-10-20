@@ -30,14 +30,20 @@
 		main: 'rgb(0,0,0)',
 		alternate: 'rgb(255,255,255)',
 		// accent: 'rgb(99,144,233)'
-		accent: 'rgb(36,50,36)'
+		accent: 'rgb(36,50,36)',
+		admin: 'hsl(220,100%,35%)',
+		adminBorder: 'hsl(220,100%,35%)',
+		adminBackground: 'hsl(220, 40%, 85%)'
 	};
 	export let darkThemeColors = {
 		main: 'rgb(255,255,255)',
 		// alternate: 'rgb(22, 29, 45)',
 		alternate: 'rgb(36,50,36)',
 		// accent: 'rgb(99, 144, 233)'
-		accent: 'rgb(233, 181, 99)'
+		accent: 'rgb(233, 181, 99)',
+		admin: 'hsl(220,100%,35%)',
+		adminBorder: 'hsl(220,100%,35%)',
+		adminBackground: 'hsl(220, 40%, 80%)'
 	};
 	export let colors = { ...darkThemeColors };
 
@@ -46,37 +52,31 @@
 	const lightResets = { ...lightThemeColors };
 
 	// Set globally available CSS custom properties (AKA variables) on the root element
-	const setCSSvariable = (colors: { [s: string]: unknown } | ArrayLike<unknown>) => {
+	const setCSSvariable = (colors: { [x: string]: string }) => {
 		// console.table(colors);
-		Object.entries(colors).forEach((entry: [string, string]) => {
-			// Set a CSS custom property name and value for each theme array member; e.g. `--main-color: rgb(0,0,0)`
+		for (const key of Object.keys(colors)) {
+			const color = colors[key];
 			if (browser) {
-				root.style.setProperty(`--${entry[0]}-color`, entry[1]);
-			}
+				// Set a CSS custom property name and value for each theme array member; e.g. `--main-color: rgb(0,0,0)`
+				root.style.setProperty(`--${key}-color`, color);
 
-			// A regular expression to find elements within parentheses
-			let regExp = /\(([^)]+)\)/;
+				// A regular expression to find elements within parentheses
+				const regExp = /\(([^)]+)\)/;
 
-			// RegExp search returns an arrau of 3 elements:
-			// 0) everything to the left parentheses (including the parentheses), 1) everything in between parentheses, 2) everything to the right of the parentheses (including the parentheses)
-			let matches = regExp.exec(entry[1]);
-			let rgbColor: { r: any; g: any; b: any };
-			let rgbString: string;
-			if (matches) {
-				if (browser) {
-					root.style.setProperty(`--${entry[0]}Value-color`, matches[1]);
-				}
-			} else {
-				rgbColor = hexToRgb(entry[1]);
-				rgbString = `${rgbColor.r},${rgbColor.g},${rgbColor.b}`;
-			}
-			if (rgbColor) {
-				if (browser) {
-					root.style.setProperty(`--${entry[0]}Value-color`, rgbString);
+				// RegExp search returns an arrau of 3 elements:
+				// 0) everything to the left parentheses (including the parentheses), 1) everything in between parentheses, 2) everything to the right of the parentheses (including the parentheses)
+				const matches = regExp.exec(color);
+				if (matches) {
+					root.style.setProperty(`--${key}Value-color`, matches[1]);
+				} else {
+					const rgbColor = hexToRgb(color);
+					const rgbString = `${rgbColor.r},${rgbColor.g},${rgbColor.b}`;
+					root.style.setProperty(`--${key}Value-color`, rgbString);
 				}
 			}
-		});
+		}
 	};
+
 	// Converts hex color values from the default color picker to RGB for easier use
 	function hexToRgb(hex: string): { r: number; g: number; b: number } {
 		var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);

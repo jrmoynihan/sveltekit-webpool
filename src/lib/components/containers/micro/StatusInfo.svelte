@@ -4,9 +4,12 @@
 	export let promiseStatus: Promise<any>;
 	export let promiseScores: Promise<any>;
 	export let spread: number;
+	export let isATSwinner: boolean | null;
 
 	let min = 30;
 	let max = 60;
+	// let boxShadowMin = 0;
+	// let boxShadowMax = 4;
 	let topLeft = Math.floor(Math.random() * (max - min) + min);
 	let topLeftTwo = Math.floor(Math.random() * (max - min) + min);
 	let topRight = Math.floor(Math.random() * (max - min) + min);
@@ -15,6 +18,16 @@
 	let bottomLeftTwo = Math.floor(Math.random() * (max - min) + min);
 	let bottomRight = Math.floor(Math.random() * (max - min) + min);
 	let bottomRightTwo = Math.floor(Math.random() * (max - min) + min);
+	// let boxShadowOneX = Math.floor(Math.random() * (boxShadowMax - boxShadowMin) + boxShadowMin);
+	// let boxShadowOneY = Math.floor(Math.random() * (boxShadowMax - boxShadowMin) + boxShadowMin);
+	// let boxShadowTwoX = Math.floor(Math.random() * (boxShadowMax - boxShadowMin) + boxShadowMin);
+	// let boxShadowTwoY = Math.floor(Math.random() * (boxShadowMax - boxShadowMin) + boxShadowMin);
+	// let boxShadowOneSpread = Math.floor(
+	// 	Math.random() * (boxShadowMax - boxShadowMin) + boxShadowMin + 1
+	// );
+	// let boxShadowTwoSpread = Math.floor(
+	// 	Math.random() * (boxShadowMax - boxShadowMin) + boxShadowMin + 1
+	// );
 </script>
 
 <div class="grid status-info">
@@ -27,6 +40,7 @@
 			{#await promiseScores}
 				<div class="away">--</div>
 			{:then { awayScoreData, homeScoreData }}
+				<!-- --boxOneX:{boxShadowOneX}px; --boxOneY:{boxShadowOneY}px; --boxTwoX: {boxShadowTwoX}px; --boxTwoY:{boxShadowTwoY}px;--boxOneSpread:{boxShadowOneSpread}px;--boxTwoSpread:{boxShadowTwoSpread}px;" -->
 				<div
 					style="--topLeft:{topLeft}% {topLeftTwo}%; --topRight:{topRight}% {topRightTwo}%; --bottomLeft:{bottomLeft}% {bottomLeftTwo}%; --bottomRight:{bottomRight}% {bottomRightTwo}%;"
 					class="away score"
@@ -90,7 +104,7 @@
 	{:catch}
 		unable to get game status...
 	{/await}
-	<ScoresAts {promiseStatus} {promiseScores} {spread} />
+	<ScoresAts {promiseStatus} {promiseScores} {spread} {isATSwinner} />
 </div>
 
 <style lang="scss">
@@ -140,8 +154,8 @@
 	}
 	.higherScore {
 		// border-radius: 100%;
-		// outline:2px solid;
 		border-radius: var(--topLeft) var(--topRight) / var(--bottomRight) var(--bottomLeft);
 		outline: dashed;
+		// box-shadow: var(--boxOneX) var(--boxOneY) var(--boxOneSpread) 2px currentColor, // var(--boxTwoX) var(--boxTwoY) var(--boxTwoSpread) 2px currentColor;
 	}
 </style>

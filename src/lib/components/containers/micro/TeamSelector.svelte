@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { home } from '$scripts/classes/constants';
-
 	import type { Team } from '$scripts/classes/team';
 	import { scrollToNextGame } from '$scripts/functions';
 	import { useDarkTheme } from '$scripts/store';
@@ -19,7 +17,6 @@
 	export let showTeamNameImages: boolean;
 	let element: HTMLElement;
 	let showGameContainer: boolean = false;
-	let teamLocation: string;
 </script>
 
 <label

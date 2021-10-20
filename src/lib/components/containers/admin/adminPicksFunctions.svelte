@@ -1,7 +1,8 @@
 <script lang="ts">
 	import type { WebUser } from '$scripts/classes/webUser';
+	import StyledButton from '$lib/components/buttons/StyledButton.svelte';
+
 	import { resetScoredPicksForWeek, scorePicksForWeek } from '$scripts/scorePicks';
-	import { largerThanMobile } from '$scripts/store';
 	import {
 		createWeeklyPicksForAllUsers,
 		createWeeklyPicksForUser,
@@ -9,6 +10,7 @@
 		deleteWeeklyPicksForUser
 	} from '$scripts/weekly/weeklyAdmin';
 	import AdminExpandSection from './adminExpandSection.svelte';
+	import DeletionButton from '$lib/components/buttons/DeletionButton.svelte';
 
 	export let selectedWeek: number;
 	export let selectedYear: number;
@@ -19,28 +21,26 @@
 </script>
 
 <AdminExpandSection summaryText="Picks" bind:min>
-	<button on:click={() => scorePicksForWeek(selectedWeek, selectedYear)}>
+	<StyledButton on:click={() => scorePicksForWeek(selectedWeek, selectedYear)}>
 		<span>Score Picks For <b>Week {selectedWeek}, {selectedYear}</b></span>
-	</button>
+	</StyledButton>
 	{#if selectedUser}
-		<button
+		<StyledButton
 			on:click={() => {
 				const proceed = confirm(
 					'Are you sure?  These picks are created upon joining the pool.  You may want to delete all existing pick documents first, or delete/create picks for an individual user instead.'
 				);
-				if (proceed) {
-					createWeeklyPicksForUser(selectedUser, false, true);
-				}
+				if (proceed) createWeeklyPicksForUser(selectedUser, false, true);
 			}}
 		>
 			<span>Create All Picks for <b>{selectedUser.name}</b></span>
-		</button>
-		<button
+		</StyledButton>
+		<StyledButton
 			on:click={() => {
 				const proceed = confirm(
 					'Are you sure?  These picks are created upon joining the pool.  You may want to delete all existing pick documents first, or delete/create picks for an individual user instead.'
 				);
-				if (proceed) {
+				if (proceed)
 					createWeeklyPicksForUser(
 						selectedUser,
 						false,
@@ -49,32 +49,24 @@
 						selectedWeek,
 						selectedYear
 					);
-				}
 			}}
 		>
 			<span
 				>Create Picks for <b>{selectedUser.name} for Week {selectedWeek}, {selectedYear}</b></span
 			>
-		</button>
-		<button on:click={createWeeklyPicksForAllUsers}>Create Picks for All Users</button>
-		<button
-			class="deletion"
+		</StyledButton>
+		<StyledButton on:click={createWeeklyPicksForAllUsers} text="Create Picks for All Users" />
+		<DeletionButton
 			on:click={() => deleteWeeklyPicksForUser(selectedUser, selectedWeek, selectedYear)}
 		>
 			<span
 				>Delete All Picks for <b>{selectedUser.name} for Week {selectedWeek}, {selectedYear}</b
 				></span
 			>
-		</button>
+		</DeletionButton>
 	{/if}
-	<button class="deletion" on:click={deleteWeeklyPicksForAllUsers}>
-		<span />Delete All Picks for All Users
-	</button>
-	<button class="deletion" on:click={() => resetScoredPicksForWeek(selectedWeek, selectedYear)}>
+	<DeletionButton on:click={deleteWeeklyPicksForAllUsers} text="Delete All Picks for All Users" />
+	<DeletionButton on:click={() => resetScoredPicksForWeek(selectedWeek, selectedYear)}>
 		<span>Reset Scored Picks For <b>Week {selectedWeek}, {selectedYear}</b></span>
-	</button>
+	</DeletionButton>
 </AdminExpandSection>
-
-<style lang="scss">
-	@include adminButton;
-</style>

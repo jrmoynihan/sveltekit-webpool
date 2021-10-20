@@ -4,14 +4,14 @@
 	import Fa from 'svelte-fa';
 	import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
 	import ToggleSwitch from '$lib/components/switches/ToggleSwitch.svelte';
-	import ModalButtonAndSlot from '$lib/components/modals/ModalButtonAndSlot.svelte';
+	import ModalButtonAndSlot from '$lib/components/modals/ModalWithButton.svelte';
 	import GoogleLoginButton from '$lib/components/buttons/GoogleLoginButton.svelte';
 	import FacebookLoginButton from '$lib/components/buttons/FacebookLoginButton.svelte';
 	import { dev } from '$app/env';
 	import { userNotFound } from '$scripts/auth/signInRedirectResult';
 	import OnlineStatusIndicator from '$lib/components/containers/micro/OnlineStatusIndicator.svelte';
 	import NewUserForm from '$lib/components/forms/NewUserForm.svelte';
-	import type ModalOnly from '$lib/components/modals/ModalOnly.svelte';
+	import type ModalOnly from '$lib/components/modals/Modal.svelte';
 
 	export let useRedirect = true;
 	let newUserFormComponent: ModalOnly;
@@ -65,10 +65,11 @@
 			<picture transition:fade>
 				{#if $currentUser.photoURL !== undefined && $currentUser.photoURL !== null}
 					<img
-						lazy-loading
+						loading="lazy"
 						alt={`${$currentUser.displayName}`}
 						src={$currentUser.photoURL}
 						width="50px"
+						height="50px"
 					/>
 					<OnlineStatusIndicator />
 				{:else}

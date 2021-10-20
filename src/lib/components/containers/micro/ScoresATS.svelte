@@ -4,6 +4,7 @@
 	export let promiseStatus: Promise<any>;
 	export let promiseScores: Promise<any>;
 	export let spread: number;
+	export let isATSwinner: boolean | null;
 
 	let min = 30;
 	let max = 60;
@@ -25,7 +26,7 @@
 				<div
 					style="--topLeft:{topLeft}% {topLeftTwo}%; --topRight:{topRight}% {topRightTwo}%; --bottomLeft:{bottomLeft}% {bottomLeftTwo}%; --bottomRight:{bottomRight}% {bottomRightTwo}%"
 					class="awayATS ATSscore"
-					class:higherATSscore={scores.awayScoreData.value - spread > scores.homeScoreData.value}
+					class:higherATSscore={isATSwinner}
 				>
 					{scores.awayScoreData.value - spread}
 				</div>
@@ -40,7 +41,7 @@
 				<div
 					style="--topLeft:{topLeft}% {topLeftTwo}%; --topRight:{topRight}% {topRightTwo}%; --bottomLeft:{bottomLeft}% {bottomLeftTwo}%; --bottomRight:{bottomRight}% {bottomRightTwo}%"
 					class="homeATS ATSscore"
-					class:higherATSscore={scores.homeScoreData.value > scores.awayScoreData.value - spread}
+					class:higherATSscore={isATSwinner}
 				>
 					{scores.homeScoreData.value}
 				</div>
@@ -48,8 +49,7 @@
 				<div
 					style="--topLeft:{topLeft}% {topLeftTwo}%; --topRight:{topRight}% {topRightTwo}%; --bottomLeft:{bottomLeft}% {bottomLeftTwo}%; --bottomRight:{bottomRight}% {bottomRightTwo}%"
 					class="awayATS ATSscore"
-					class:higherATSscore={scores.awayScoreData.value >
-						scores.homeScoreData.value - spread * -1}
+					class:higherATSscore={isATSwinner}
 				>
 					{scores.awayScoreData.value}
 				</div>
@@ -64,8 +64,7 @@
 				<div
 					style="--topLeft:{topLeft}% {topLeftTwo}%; --topRight:{topRight}% {topRightTwo}%; --bottomLeft:{bottomLeft}% {bottomLeftTwo}%; --bottomRight:{bottomRight}% {bottomRightTwo}%"
 					class="homeATS ATSscore"
-					class:higherATSscore={scores.homeScoreData.value - spread * -1 >
-						scores.awayScoreData.value}
+					class:higherATSscore={isATSwinner}
 				>
 					{scores.homeScoreData.value - spread * -1}
 				</div>

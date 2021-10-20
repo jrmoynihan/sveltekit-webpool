@@ -1,0 +1,37 @@
+<script lang="ts">
+	import type { ESPNGame, ESPNGamePruned } from '$scripts/classes/game';
+
+	import AccordionDetails from '../containers/accordions/AccordionDetails.svelte';
+	import AccordionJson from '../containers/accordions/AccordionJSON.svelte';
+
+	export let gameData: ESPNGame[] | ESPNGamePruned[];
+	export let title = '';
+</script>
+
+<section>
+	{#if title}
+		<p>{title}</p>
+	{/if}
+	{#each gameData as game, i (game.id)}
+		<AccordionDetails
+			showArrow={false}
+			cloudyBackground={false}
+			expandTitle={`Game ${i + 1} -- ${game.date.substring(0, 10)} ${game.name}`}
+			customSummaryStyles="color:var(--alternate-color);padding:1rem"
+			customDetailsStyles="max-height: 26vh; scrollbar-width: thin;"
+		>
+			<svelte:fragment slot="content">
+				{#each Object.entries(game) as [key, value] (key)}
+					<AccordionJson {key} {value} />
+				{/each}
+			</svelte:fragment>
+		</AccordionDetails>
+	{/each}
+</section>
+
+<style lang="scss">
+	p {
+		width: 100%;
+		font-weight: bold;
+	}
+</style>

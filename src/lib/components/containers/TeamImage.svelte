@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { dev } from '$app/env';
 	import type { Team } from '$scripts/classes/team';
 	import { fade } from 'svelte/transition';
 

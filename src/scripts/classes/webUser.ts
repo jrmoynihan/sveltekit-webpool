@@ -13,6 +13,8 @@ export class WebUser {
 	pick6: boolean;
 	playoffs: boolean;
 	survivor: boolean;
+	totalWeeklyLosses: number;
+	totalWeeklyWins: number;
 	weekly: boolean;
 	weeklyPickRecord: WeeklyPickRecord;
 	weeklyWinnings: UserWinnings;
@@ -30,10 +32,12 @@ export class WebUser {
 		this.pick6 = args.pick6 || false;
 		this.playoffs = args.playoffs || false;
 		this.survivor = args.survivor || false;
+		this.totalWeeklyLosses = args.totalWeeklyLosses || 0;
+		this.totalWeeklyWins = args.totalWeeklyWins || 0;
 		this.weekly = args.weekly || false;
 		this.weeklyPickRecord = args.weeklyPickRecord;
-		this.weeklyWinnings = args.weeklyWinnings;
-		this.amountOwedToPools = args.amountOwedToPools;
-		this.amountPaidToPools = args.amountPaidToPools;
+		this.weeklyWinnings = args.weeklyWinnings || 0;
+		this.amountOwedToPools = args.amountOwedToPools || 0;
+		this.amountPaidToPools = args.amountPaidToPools || 0;
 	}
 }

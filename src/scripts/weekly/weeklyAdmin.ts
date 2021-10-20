@@ -1,4 +1,4 @@
-import { myLog, myError, okHand } from '$scripts/classes/constants';
+import { myLog, myError } from '$scripts/classes/constants';
 import { Game } from '$scripts/classes/game';
 import { WeeklyPickDoc } from '$scripts/classes/picks';
 import type { WebUser } from '$scripts/classes/webUser';

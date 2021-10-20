@@ -21,7 +21,7 @@
 		dispatch('pressedEnter', event.detail);
 	}
 
-	function onKeyPress(e: { key?: any; preventDefault?: any; target?: any; detail?: any }): void {
+	function onKeyPress(e: { key?: any; preventDefault?: any; target: any; detail: any }): void {
 		if (e.key === 'Enter') {
 			// e.preventDefault();
 			handleInput(e);

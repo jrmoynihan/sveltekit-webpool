@@ -1,4 +1,4 @@
-import { getAuth } from '@firebase/auth';
+import { getAuth, setPersistence, browserLocalPersistence } from '@firebase/auth';
 // import { getStorage } from '@firebase/storage';
 import { getFirestore } from '@firebase/firestore';
 import { getApp, getApps, initializeApp } from '@firebase/app';
@@ -33,6 +33,8 @@ if (getApps().length === 0) {
 
 export const firestoreDB = getFirestore(myApp);
 export const firestoreAuth = getAuth(myApp);
+setPersistence(firestoreAuth, browserLocalPersistence);
+
 // export const firestoreStorage = getStorage(myApp);
 
 if (browser && !dev) {

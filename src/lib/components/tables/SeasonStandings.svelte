@@ -32,7 +32,7 @@
 		const weeklyUserQuery = query(
 			usersCollection,
 			where('weekly', '==', true),
-			orderBy(`weeklyPickRecord.total.wins`, 'desc')
+			orderBy('totalWeeklyWins', 'desc')
 		);
 		weeklyUserPromise = getWeeklyUsers(false, weeklyUserQuery);
 	};
@@ -60,12 +60,10 @@
 <style lang="scss">
 	.grid {
 		display: grid;
-		// gap: 0.5em;
 		width: 100%;
 	}
 	.table {
 		grid-template-columns: repeat(var(--columns), minmax(max-content, 1fr));
-		overflow: auto;
 		padding-bottom: 1rem;
 		column-gap: 0;
 	}

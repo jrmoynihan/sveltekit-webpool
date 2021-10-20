@@ -1,43 +1,9 @@
 <script lang="ts">
-	import AccordionDetails from '$lib/components/containers/AccordionDetails.svelte';
+	import AccordionDetails from '$lib/components/containers/accordions/AccordionDetails.svelte';
 	import LoadingSpinner from '$lib/components/misc/LoadingSpinner.svelte';
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
-	import { myError, myLog } from '$scripts/classes/constants';
 	import type { Game } from '$scripts/classes/game';
 	import type { WebUser } from '$scripts/classes/webUser';
-	import { scheduleCollection } from '$scripts/collections';
-	import { gameConverter } from '$scripts/converters';
-	import { defaultToast, errorToast } from '$scripts/toasts';
-	import { faSync } from '@fortawesome/free-solid-svg-icons';
-	import { getDocs, query, where, updateDoc } from '@firebase/firestore';
-	import Fa from 'svelte-fa';
-	import { getConsensusSpread } from '$scripts/functions';
-	import WeekSelect from '$lib/components/selects/WeekSelect.svelte';
-	import YearSelect from '$lib/components/selects/YearSelect.svelte';
-	import {
-		resetScoredPicksForWeek,
-		removeWinnersFromGames,
-		resetWeeklyUserRecords,
-		scorePicksForWeek,
-		updateGamesAndATSWinners,
-		updateTeamRecords
-	} from '$scripts/scorePicks';
-	import { resetTeamRecords } from '$scripts/teams';
-	import { findWeekDateTimeBounds } from '$scripts/schedule';
-	import { getWeeklyUsers } from '$scripts/weekly/weeklyUsers';
-	import {
-		createTiebreakersForAllUsers,
-		createTiebreakersForUser,
-		createWeeklyPicksForAllUsers,
-		createWeeklyPicksForUser,
-		deleteTiebreakersForAllUsers,
-		deleteTiebreakersForUser,
-		deleteWeeklyPicksForAllUsers,
-		deleteWeeklyPicksForUser,
-		getAllGames
-	} from '$scripts/weekly/weeklyAdmin';
-	import UserSelect from '$lib/components/selects/UserSelect.svelte';
-	import Tooltip from '$lib/components/containers/Tooltip.svelte';
 	import Grid from '$lib/components/containers/Grid.svelte';
 	import AdminSelectors from '$lib/components/containers/admin/adminSelectors.svelte';
 	import AdminSpreadFunctions from '$lib/components/containers/admin/adminSpreadFunctions.svelte';
