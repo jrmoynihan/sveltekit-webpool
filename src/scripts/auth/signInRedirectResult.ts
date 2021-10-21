@@ -1,17 +1,17 @@
-import { browser, dev } from '$app/env';
+import { browser } from '$app/env';
 import { myError, myLog } from '$scripts/classes/constants';
 import { usersCollection } from '$scripts/collections';
 import { firestoreAuth } from '$scripts/firebaseInit';
-import { getRedirectResult } from '@firebase/auth';
-import { getDoc, doc } from '@firebase/firestore';
+import { browserPopupRedirectResolver, getRedirectResult } from 'firebase/auth';
+import { getDoc, doc } from 'firebase/firestore';
 import { get, writable } from 'svelte/store';
 import { currentUser } from './auth';
 
 export const userNotFound = writable(false);
 
-if (!dev && browser) {
+if (browser) {
 	try {
-		getRedirectResult(firestoreAuth).then(
+		getRedirectResult(firestoreAuth, browserPopupRedirectResolver).then(
 			// On fulfillment of the Promise...
 			async (result) => {
 				try {

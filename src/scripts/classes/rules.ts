@@ -1,4 +1,4 @@
-import { collection, CollectionReference, DocumentReference } from '@firebase/firestore';
+import { collection, CollectionReference, DocumentReference } from 'firebase/firestore';
 
 export class Rule {
 	docRef: DocumentReference;

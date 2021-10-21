@@ -1,10 +1,14 @@
-import { getAuth, setPersistence, browserLocalPersistence } from '@firebase/auth';
-// import { getStorage } from '@firebase/storage';
-import { getFirestore } from '@firebase/firestore';
-import { getApp, getApps, initializeApp } from '@firebase/app';
-import type { FirebaseApp } from '@firebase/app';
-import { browser, dev } from '$app/env';
-import { enableIndexedDbPersistence } from '@firebase/firestore';
+import {
+	browserLocalPersistence,
+	browserPopupRedirectResolver,
+	getAuth,
+	indexedDBLocalPersistence,
+	initializeAuth
+} from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+import { getApp, getApps, initializeApp } from 'firebase/app';
+import type { FirebaseApp } from 'firebase/app';
+// import { browser, dev } from '$app/env';
 
 // TODO: API key should be stored in a environment variable (see: privateStuff.env) so it is not exposed publicly
 export const API_KEY = import.meta.env.VITE_API_KEY;
@@ -32,22 +36,27 @@ if (getApps().length === 0) {
 }
 
 export const firestoreDB = getFirestore(myApp);
-export const firestoreAuth = getAuth(myApp);
-setPersistence(firestoreAuth, browserLocalPersistence);
+
+// NOTE https://firebase.google.com/docs/auth/web/custom-dependencies
+// export const firestoreAuth = getAuth(myApp)		// calls a persistence function by default  that depends on window being available, which fails under SSR
+export const firestoreAuth = initializeAuth(myApp, {
+	persistence: indexedDBLocalPersistence
+});
 
 // export const firestoreStorage = getStorage(myApp);
 
-if (browser && !dev) {
-	enableIndexedDbPersistence(firestoreDB).catch((err) => {
-		if (err.code == 'failed-precondition') {
-			// Multiple tabs open, persistence can only be enabled
-			// in one tab at a a time.
-			// ...
-		} else if (err.code == 'unimplemented') {
-			console.warn(
-				`🔥 The current browser does not support all of the features required to enable persistence. 🔥`
-			);
-		}
-	});
-	// Subsequent queries will use persistence, if it was enabled successfully
-}
+// if (browser && !dev) {
+// 	setPersistence(firestoreAuth, browserLocalPersistence);
+// 	enableIndexedDbPersistence(firestoreDB).catch((err) => {
+// 		if (err.code == 'failed-precondition') {
+// 			// Multiple tabs open, persistence can only be enabled
+// 			// in one tab at a a time.
+// 			// ...
+// 		} else if (err.code == 'unimplemented') {
+// 			console.warn(
+// 				`🔥 The current browser does not support all of the features required to enable persistence. 🔥`
+// 			);
+// 		}
+// 	});
+// 	// Subsequent queries will use persistence, if it was enabled successfully
+// }

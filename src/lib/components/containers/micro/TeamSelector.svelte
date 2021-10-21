@@ -16,7 +16,7 @@
 	export let totalGameCount: number;
 	export let showTeamNameImages: boolean;
 	let element: HTMLElement;
-	let showGameContainer: boolean = false;
+	let showGameContainer = false;
 </script>
 
 <label

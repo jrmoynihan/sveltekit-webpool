@@ -10,7 +10,7 @@
 		createWeeklyPicksForUser,
 		getAllGames
 	} from '$scripts/weekly/weeklyAdmin';
-	import { doc } from '@firebase/firestore';
+	import { doc } from 'firebase/firestore';
 	import {
 		faArrowAltCircleRight,
 		faFootballBall,

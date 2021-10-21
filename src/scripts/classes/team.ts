@@ -1,4 +1,4 @@
-import type { DocumentReference } from '@firebase/firestore';
+import type { DocumentReference } from 'firebase/firestore';
 
 export class Team {
 	name: string;

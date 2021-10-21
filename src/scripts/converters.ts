@@ -1,4 +1,4 @@
-import type { QueryDocumentSnapshot, SnapshotOptions } from '@firebase/firestore';
+import type { QueryDocumentSnapshot, SnapshotOptions } from 'firebase/firestore';
 import { Team } from '$scripts/classes/team';
 import { Rule, RuleCategory } from '$scripts/classes/rules';
 import { Game } from './classes/game';

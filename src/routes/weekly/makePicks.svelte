@@ -1,7 +1,6 @@
 <script lang="ts">
 	import MatchupContainer from '$lib/components/containers/MatchupContainer.svelte';
 	import Clock from '$lib/components/misc/Clock.svelte';
-	import DevNotes from '$lib/components/misc/DevNotes.svelte';
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
 	import WeekSelect from '$lib/components/selects/WeekSelect.svelte';
 	import ToggleSwitch from '$lib/components/switches/ToggleSwitch.svelte';
@@ -34,7 +33,7 @@
 		query,
 		updateDoc,
 		where
-	} from '@firebase/firestore';
+	} from 'firebase/firestore';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
 	import { focusTiebreaker, getUserId, isBeforeGameTime } from '$scripts/functions';
@@ -54,7 +53,7 @@
 		seasonTypes
 	} from '$scripts/classes/constants';
 	import { onMount } from 'svelte';
-	import { defaultToast, errorToast, errorToastIt, toastIt } from '$scripts/toasts';
+	import { defaultToast, errorToast } from '$scripts/toasts';
 	import SeasonTypeSelect from '$lib/components/selects/SeasonTypeSelect.svelte';
 	import YearSelect from '$lib/components/selects/YearSelect.svelte';
 	import TiebreakerInput from '$lib/components/inputs/TiebreakerInput.svelte';
@@ -71,10 +70,9 @@
 	import { getWeeklyUsers } from '$scripts/weekly/weeklyUsers';
 	import Fa from 'svelte-fa';
 	import { faLock, faUnlock } from '@fortawesome/free-solid-svg-icons';
-	import Tooltip from '$lib/components/containers/Tooltip.svelte';
 	import ErrorModal from '$lib/components/modals/ErrorModal.svelte';
-	import AdminAccordion from '$lib/components/containers/accordions/AdminAccordion.svelte';
 	import Grid from '$lib/components/containers/Grid.svelte';
+	import AdminControlsModal from '$lib/components/modals/AdminControlsModal.svelte';
 
 	let uid: string;
 	let picksPromise: Promise<WeeklyPickDoc[]>;
@@ -629,9 +627,9 @@
 		class="first-row grid"
 		style={$largerThanMobile ? `margin-right:${offsetRightPercentage}%;` : ''}
 	>
-		<div class="admin" style="width:100%; grid-area:admin;">
-			<AdminAccordion>
-				<Grid slot="content" repeat={2}>
+		<div class="admin">
+			<AdminControlsModal>
+				<Grid slot="modal-content" repeat={2}>
 					<p>Show Game IDs</p>
 					<ToggleSwitch bind:checked={$showIDs} />
 					<p>Show Timestamps</p>
@@ -650,14 +648,13 @@
 					{:then}
 						<p>Select User</p>
 						<UserSelect
-							adminOnly={true}
 							bind:selectedUser
 							bind:userPromise
 							on:userChanged={() => changedQuery(true)}
 						/>
 					{/await}
 				</Grid>
-			</AdminAccordion>
+			</AdminControlsModal>
 		</div>
 		<WeekSelect
 			customStyles="grid-area:week;"
@@ -761,19 +758,19 @@
 				'devOrAdmin main';
 		}
 	}
-	.dev-notes {
-		@include defaultTransition;
-		position: fixed;
-		left: 0;
-		top: 20%;
-		grid-area: devNotes;
-		align-self: start;
-		justify-self: left;
-		z-index: 50;
-		border-radius: 5vh;
-		min-width: min-content;
-		max-width: 35%;
-	}
+	// .dev-notes {
+	// 	@include defaultTransition;
+	// 	position: fixed;
+	// 	left: 0;
+	// 	top: 20%;
+	// 	grid-area: devNotes;
+	// 	align-self: start;
+	// 	justify-self: left;
+	// 	z-index: 50;
+	// 	border-radius: 5vh;
+	// 	min-width: min-content;
+	// 	max-width: 35%;
+	// }
 	.game-container {
 		@include defaultContainerStyles;
 		// background-color: black(30%); // for use with background images
@@ -793,11 +790,9 @@
 	}
 	.first-row {
 		grid-area: firstRow;
-		grid-template-rows: auto 1fr;
+		grid-template-rows: auto;
 		grid-template-columns: repeat(auto-fit, minmax(0, max-content));
-		grid-template-areas:
-			'admin admin'
-			'week reset';
+		grid-template-areas: 'week admin reset';
 	}
 	.second-row {
 		grid-area: secondRow;

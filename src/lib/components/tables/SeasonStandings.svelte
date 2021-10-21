@@ -3,7 +3,7 @@
 	import { mobileBreakpoint } from '$scripts/site';
 	import { windowWidth } from '$scripts/store';
 	import SeasonStandingsRow from './SeasonStandingsRow.svelte';
-	import { query, where, orderBy } from '@firebase/firestore';
+	import { query, where, orderBy } from 'firebase/firestore';
 	import { usersCollection } from '$scripts/collections';
 	import { getWeeklyUsers } from '$scripts/weekly/weeklyUsers';
 	import { onMount } from 'svelte';

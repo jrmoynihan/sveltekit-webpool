@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { teamConverter } from '$scripts/converters';
-	import { doc, DocumentReference, setDoc } from '@firebase/firestore';
+	import { doc, DocumentReference, setDoc } from 'firebase/firestore';
 	import { allTeams, teamsCollection } from '$scripts/teams';
 	import type { Team } from '$scripts/classes/team';
 	import { conferences, divisions } from '$scripts/classes/constants';

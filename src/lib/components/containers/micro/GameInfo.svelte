@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Team } from '$scripts/classes/team';
 	import { showIDs, showSpreads } from '$scripts/store';
-	import type { Timestamp } from '@firebase/firestore';
+	import type { Timestamp } from 'firebase/firestore';
 	import DateTimeOrDownDistance from './DateTimeOrDownDistance.svelte';
 	import SpreadOrPossession from './SpreadOrPossession.svelte';
 	import StatusInfo from './StatusInfo.svelte';
@@ -10,12 +10,12 @@
 	export let promiseStatus: Promise<any>;
 	export let promiseScores: Promise<any>;
 	export let promiseSituation: Promise<any>;
-	export let selectedTeam: string = '';
+	export let selectedTeam = '';
 	export let homeTeam: Team;
 	export let awayTeam: Team;
 	export let spread: number;
-	export let disabled: boolean = false;
-	export let id: string = '';
+	export let disabled = false;
+	export let id = '';
 	export let timestamp: Timestamp;
 	export let isATSwinner: boolean | null;
 </script>

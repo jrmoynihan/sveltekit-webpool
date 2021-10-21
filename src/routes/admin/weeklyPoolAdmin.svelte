@@ -15,7 +15,7 @@
 	import AdminScheduleFunctions from '$lib/components/containers/admin/adminScheduleFunctions.svelte';
 	import { largerThanMobile } from '$scripts/store';
 
-	let selectedWeek: number = 1;
+	let selectedWeek = 1;
 	let selectedYear: number = new Date().getFullYear();
 	let selectedUser: WebUser;
 	let userPromise: Promise<WebUser[]>;

@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { fly } from 'svelte/transition';
 
-	export let refresh: any;
-	export let customStyles: string = '';
-	export let customClasses: string = '';
+	export let refresh: unknown;
+	export let customStyles = '';
+	export let customClasses = '';
 	export let inTransition = fly;
 	export let inTransitionParams = { duration: 200, x: -50, delay: 400 };
 	export let outTransition = fly;

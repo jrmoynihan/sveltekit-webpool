@@ -17,7 +17,7 @@ export function sizeOf(obj: Object): number {
 			case 'object':
 				var objClass = Object.prototype.toString.call(obj).slice(8, -1);
 				if (objClass === 'Object' || objClass === 'Array') {
-					for (var key in obj) {
+					for (const key in obj) {
 						if (!obj.hasOwnProperty(key)) continue;
 						bytes += sizeOf(obj[key]);
 					}

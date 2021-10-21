@@ -7,13 +7,14 @@ import {
 	signInWithPopup,
 	signInWithRedirect,
 	signOut,
-	getRedirectResult
-} from '@firebase/auth';
-import type { User, UserCredential, AuthProvider } from '@firebase/auth';
+	getRedirectResult,
+	browserPopupRedirectResolver
+} from 'firebase/auth';
+import type { User, UserCredential, AuthProvider } from 'firebase/auth';
 import { firestoreAuth } from '$scripts/firebaseInit';
 import { get, writable } from 'svelte/store';
 import { WebUser } from '$scripts/classes/webUser';
-import { doc, setDoc, query } from '@firebase/firestore';
+import { doc, setDoc, query } from 'firebase/firestore';
 import { usersCollection } from '$scripts/collections';
 import { goto } from '$app/navigation';
 import { userConverter } from '../converters';
@@ -77,7 +78,7 @@ export const startSignIn = async (loginPlatform: string, useRedirect: boolean) =
 	// Store the promised user credential that the auth provider returns
 	if (useRedirect) {
 		myLog('signing in with redirect...');
-		await signInWithRedirect(firestoreAuth, provider);
+		await signInWithRedirect(firestoreAuth, provider, browserPopupRedirectResolver);
 	}
 };
 

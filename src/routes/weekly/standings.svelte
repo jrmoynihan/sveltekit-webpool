@@ -3,7 +3,6 @@
 	import WeekStandings from '$tables/WeekStandings.svelte';
 	import Tabs from '$navigation/Tabs.svelte';
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
-	import DevNotes from '$lib/components/misc/DevNotes.svelte';
 	import { writable } from 'svelte/store';
 
 	const standingsTabs = [
@@ -14,12 +13,6 @@
 </script>
 
 <PageTitle>Standings</PageTitle>
-
-<DevNotes>
-	<svelte:fragment>
-		Season table doesn't really need to show weeks that aren't the current week
-	</svelte:fragment>
-</DevNotes>
 
 <section class="standings">
 	<Tabs bind:selectedTab={$selectedStandingsTab} tabs={standingsTabs} />

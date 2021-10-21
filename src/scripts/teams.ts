@@ -1,4 +1,4 @@
-import { collection, query, getDocs, onSnapshot, updateDoc } from '@firebase/firestore';
+import { collection, query, getDocs, onSnapshot, updateDoc } from 'firebase/firestore';
 import { firestoreDB } from './firebaseInit';
 import { teamConverter } from './converters';
 import { defaultToast } from './toasts';

@@ -5,6 +5,7 @@
 	export let defaultButton = true;
 	export let discreetButton = false;
 	export let styledButton = false;
+	export let adminButton = false;
 	export let modalButtonStyles = '';
 	export let modalForegroundStyles = '';
 	export let dialogStyles = '';
@@ -40,6 +41,7 @@
 	class:discreetButton
 	class:defaultButton
 	class:styledButton
+	class:adminButton
 	style={modalButtonStyles}
 >
 	{displayModalButtonText}
@@ -59,6 +61,9 @@
 		}
 		&.styledButton {
 			@include styledButton;
+		}
+		&.adminButton {
+			@include admin;
 		}
 	}
 	// dialog {

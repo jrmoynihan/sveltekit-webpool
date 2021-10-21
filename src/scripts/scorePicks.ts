@@ -1,5 +1,6 @@
 import type { Game } from './classes/game';
-import type { DocumentReference, QuerySnapshot, QueryConstraint } from '@firebase/firestore';
+import type { DocumentReference, QuerySnapshot, QueryConstraint } from 'firebase/firestore';
+import { updateDoc, getDocs, query, where, increment, doc } from 'firebase/firestore';
 import { myLog, everyoneWinsResult, myError, checkmark } from './classes/constants';
 import {
 	scheduleCollection,
@@ -16,7 +17,6 @@ import {
 } from './converters';
 import { getStatus, getScores } from './functions';
 import { defaultToast, errorToast } from './toasts';
-import { updateDoc, getDocs, query, where, increment, doc } from '@firebase/firestore';
 import { resetTeamRecords, teamsCollection } from './teams';
 import type { Team } from './classes/team';
 import type { WeeklyTiebreaker } from './classes/tiebreaker';
@@ -95,7 +95,7 @@ export const scorePicksForWeek = async (
 export const updateUserRecordTotals = (userRef: DocumentReference, userData: WebUser) => {
 	let totalWins = 0;
 	let totalLosses = 0;
-	let weekRecords: UserRecord[] = Object.values(userData.weeklyPickRecord);
+	const weekRecords: UserRecord[] = Object.values(userData.weeklyPickRecord);
 	for (const week of weekRecords) {
 		totalWins = +week.wins;
 		totalLosses = +week.losses;
@@ -110,8 +110,8 @@ export const updateUserRecordForWeek = async (
 	userRef: DocumentReference,
 	userPicks: QuerySnapshot<WeeklyPickDoc>
 ) => {
-	let correctPicks = userPicks.docs.filter((doc) => doc.data().isCorrect === true);
-	let incorrectPicks = userPicks.docs.filter((doc) => doc.data().isCorrect === false);
+	const correctPicks = userPicks.docs.filter((doc) => doc.data().isCorrect === true);
+	const incorrectPicks = userPicks.docs.filter((doc) => doc.data().isCorrect === false);
 	await updateDoc(userRef, {
 		[`weeklyPickRecord.week_${selectedWeek}.wins`]: correctPicks.length,
 		[`weeklyPickRecord.week_${selectedWeek}.losses`]: incorrectPicks.length

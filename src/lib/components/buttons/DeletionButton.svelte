@@ -3,7 +3,7 @@
 
 	export let text = '';
 	const dispatch = createEventDispatcher();
-	function buttonClicked(event: { detail: any }): void {
+	function buttonClicked(event: { detail: unknown }): void {
 		dispatch('click', event.detail);
 	}
 </script>

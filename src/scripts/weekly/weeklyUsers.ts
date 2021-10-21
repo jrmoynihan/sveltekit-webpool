@@ -1,4 +1,4 @@
-import { query, where, getDocs } from '@firebase/firestore';
+import { query, where, getDocs } from 'firebase/firestore';
 import { myLog, myError } from '../classes/constants';
 import { WebUser } from '../classes/webUser';
 import { usersCollection } from '../collections';

@@ -9,8 +9,8 @@ import {
 	updateDoc,
 	doc,
 	DocumentReference
-} from '@firebase/firestore';
-import type { QuerySnapshot } from '@firebase/firestore';
+} from 'firebase/firestore';
+import type { QuerySnapshot } from 'firebase/firestore';
 import { myError, myLog } from './classes/constants';
 import type { Game } from './classes/game';
 import type { WeekBound } from './classes/weekBound';

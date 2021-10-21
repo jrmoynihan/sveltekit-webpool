@@ -1,4 +1,4 @@
-import type { DocumentReference, Timestamp } from '@firebase/firestore';
+import type { DocumentReference, Timestamp } from 'firebase/firestore';
 import type { Team } from './team';
 
 export class Game {
@@ -7,18 +7,18 @@ export class Game {
 	competitions: Record<string, unknown>[];
 	date: string;
 	id: string;
-	league: { $ref: string };
-	links: Record<string, unknown>[];
+	// league: { $ref: string };
+	// links: Record<string, unknown>[];
 	loser: string;
 	name: string;
 	season: { $ref: string };
 	seasonType: { $ref: string };
 	shortName: string;
 	spread: number;
-	timeValid: boolean;
+	// timeValid: boolean;
 	timestamp: Timestamp;
-	uid: string;
-	venues: Record<string, unknown>[];
+	// uid: string;
+	// venues: Record<string, unknown>[];
 	year: number;
 	week: number;
 	type: string;
@@ -35,27 +35,27 @@ export class Game {
 		this.competitions = args.competitions;
 		this.date = args.date;
 		this.id = args.id;
-		this.league = args.league;
-		this.links = args.links;
-		this.loser = args.loser;
 		this.name = args.name;
 		this.season = args.season;
 		this.seasonType = args.seasonType;
 		this.shortName = args.shortName;
 		this.spread = args.spread;
-		this.timeValid = args.timeValid;
 		this.timestamp = args.timestamp;
-		this.uid = args.uid;
-		this.venues = args.venues;
 		this.year = args.year;
 		this.week = args.week;
 		this.type = args.type;
 		this.homeTeam = args.homeTeam;
 		this.awayTeam = args.awayTeam;
-		this.winner = args.winner;
-		this.ATSwinner = args.ATSwinner;
-		this.totalScore = args.totalScore;
-		this.isLastGameOfWeek = args.isLastGameOfWeek;
+		this.winner = args.winner || '';
+		this.loser = args.loser || '';
+		this.ATSwinner = args.ATSwinner || '';
+		this.totalScore = args.totalScore || null;
+		this.isLastGameOfWeek = args.isLastGameOfWeek || false;
+		// this.uid = args.uid;
+		// this.venues = args.venues;
+		// this.timeValid = args.timeValid;
+		// this.league = args.league;
+		// this.links = args.links;
 	}
 }
 export class ESPNGame {

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { editing } from '$scripts/store';
-	import { getDocs, query, collection, orderBy, CollectionReference } from '@firebase/firestore';
+	import { getDocs, query, collection, orderBy, CollectionReference } from 'firebase/firestore';
 	import EditableRule from '$containers/rules/EditableRule.svelte';
 	import ViewOnlyRule from '$containers/rules/ViewOnlyRule.svelte';
 	import { ruleConverter } from '$scripts/converters';

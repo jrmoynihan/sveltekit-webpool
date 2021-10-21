@@ -1,7 +1,7 @@
 import { WebUser } from './classes/webUser';
 import { usersCollection } from './collections';
 import { userConverter } from './converters';
-import { doc, getDoc } from '@firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { currentUser, userData } from './auth/auth';
 import { get } from 'svelte/store';
 import { browser } from '$app/env';

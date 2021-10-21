@@ -11,7 +11,7 @@
 		"deploy": "firebase deploy",
 		"check": "svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
-		"lint": "prettier --check --plugin-search-dir=. . && eslint --ignore-path .gitignore .",
+		"lint": "prettier --check --plugin-search-dir=. . && eslint --fix --ignore-path .gitignore .",
 		"format": "prettier --write --plugin-search-dir=. .",
 		"host-firebase-preview-channel": "firebase hosting:channel:deploy preview-test",
 		"clone-preview-channel-to-live": "firebase hosting:clone tonyswebpool:preview-test tonyswebpool:live"
@@ -20,8 +20,8 @@
 		"@sveltejs/kit": "^1.0.0-next.184",
 		"@types/cookie": "^0.4.1",
 		"@types/uuid": "^8.3.1",
-		"@typescript-eslint/eslint-plugin": "^4.32.0",
-		"@typescript-eslint/parser": "^4.32.0",
+		"@typescript-eslint/eslint-plugin": "^5.0.0",
+		"@typescript-eslint/parser": "^5.0.0",
 		"@zerodevx/svelte-toast": "^0.6.1",
 		"eslint": "^8.0.1",
 		"eslint-config-prettier": "^8.3.0",
@@ -51,11 +51,13 @@
 		"firebase-admin": "^10.0.0",
 		"firebase-functions": "^3.15.7",
 		"firebase-tools": "^9.20.0",
+		"nanoid": "^3.1.30",
 		"sass": "^1.43.2",
 		"svelte-adapter-firebase": "0.13.1",
 		"svelte-fa": "^2.3.3",
 		"svelte-intersection-observer": "^0.9.0",
 		"svelte-simple-modal": "^1.0.3",
+		"typescript-eslint": "^0.0.1-alpha.0",
 		"uuid": "^8.3.2",
 		"vite-plugin-mkcert": "^1.5.2"
 	}

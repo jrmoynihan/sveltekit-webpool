@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { windowWidth } from '$scripts/store';
-
-	import type { Timestamp } from '@firebase/firestore';
+	import type { Timestamp } from 'firebase/firestore';
 
 	export let timestamp: Timestamp;
 	let date = timestamp.toDate();

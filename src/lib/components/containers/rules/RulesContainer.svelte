@@ -1,5 +1,11 @@
 <script lang="ts">
-	import { orderBy, query, DocumentReference, CollectionReference } from '@firebase/firestore';
+	import {
+		orderBy,
+		query,
+		DocumentReference,
+		CollectionReference,
+		onSnapshot
+	} from 'firebase/firestore';
 	import ToggleSwitch from '$switches/ToggleSwitch.svelte';
 	import { userData } from '$scripts/auth/auth';
 	import Fa from 'svelte-fa';
@@ -11,7 +17,6 @@
 	import { editing } from '$scripts/store';
 	import type { WebUser } from '$scripts/classes/webUser';
 	import type { RuleCategory } from '$scripts/classes/rules';
-	import { onSnapshot } from 'firebase/firestore';
 	import { onDestroy } from 'svelte';
 	import { myLog } from '$scripts/classes/constants';
 

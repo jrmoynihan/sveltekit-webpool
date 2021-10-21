@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { getScores, getSituation, getStatus, isBeforeGameTime } from '$scripts/functions';
 	import { overrideDisabled, windowWidth } from '$scripts/store';
-	import type { Timestamp } from '@firebase/firestore';
+	import type { Timestamp } from 'firebase/firestore';
 	import type { Team } from '$scripts/classes/team';
 	import type { WeeklyPickDoc } from '$scripts/classes/picks';
 	import { onDestroy, onMount } from 'svelte';

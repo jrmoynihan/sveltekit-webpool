@@ -4,7 +4,7 @@ interface HTMLDialogElement extends HTMLDialogElement {
 	show(): void;
 	showModal(): void;
 }
-declare var HTMLDialogElement: {
+declare let HTMLDialogElement: {
 	prototype: HTMLDialogElement;
 	new (): HTMLDialogElement;
 };

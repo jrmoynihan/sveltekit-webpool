@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { updateDoc } from '@firebase/firestore';
+	import { updateDoc } from 'firebase/firestore';
 	import type { Rule } from '$scripts/classes/rules';
 	import { myLog } from '$scripts/classes/constants';
 	import { errorToast } from '$scripts/toasts';

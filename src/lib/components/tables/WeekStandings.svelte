@@ -6,7 +6,7 @@
 	import { mobileBreakpoint } from '$scripts/site';
 	import { showIDs, windowWidth } from '$scripts/store';
 	import { onMount } from 'svelte';
-	import { query, where, orderBy, DocumentData, Query, getDocs } from '@firebase/firestore';
+	import { query, where, orderBy, DocumentData, Query, getDocs } from 'firebase/firestore';
 	import {
 		scheduleCollection,
 		usersCollection,
@@ -22,7 +22,7 @@
 	import { findCurrentWeekOfSchedule } from '$scripts/schedule';
 	import ErrorModal from '../modals/ErrorModal.svelte';
 	import Grid from '../containers/Grid.svelte';
-	import AdminAccordion from '../containers/accordions/AdminAccordion.svelte';
+	import AdminControlsModal from '../modals/AdminControlsModal.svelte';
 
 	let initialWeekHeaders: string[] = ['Rank', 'Player', 'Wins', 'Losses', 'Tiebreaker', 'Prize'];
 	let abbreviatedWeekHeaders: string[] = ['#', 'Name', 'W', 'L', 'T', '$'];
@@ -32,7 +32,7 @@
 	let weeklyUserPromise: Promise<WebUser[]>;
 	let lastGamePromise: Promise<Game>;
 	let weeklyUserQuery: Query<DocumentData>;
-	let showNetTiebreakers: boolean = false;
+	let showNetTiebreakers = false;
 	let headerCount: number;
 
 	export const getAllTiebreakers = async (
@@ -99,14 +99,14 @@
 		$windowWidth < mobileBreakpoint - 500 ? abbreviatedWeekHeaders : initialWeekHeaders;
 </script>
 
-<AdminAccordion>
-	<Grid slot="content">
-		<span>Show Net Tiebreakers:</span>
+<AdminControlsModal>
+	<Grid slot="modal-content" repeat={2}>
+		<span>Show Net Tiebreakers</span>
 		<ToggleSwitch adminOnly={true} bind:checked={showNetTiebreakers} />
 		<span>Show UIDs</span>
 		<ToggleSwitch adminOnly={true} bind:checked={$showIDs} />
 	</Grid>
-</AdminAccordion>
+</AdminControlsModal>
 <div class="week grid" style="--columns:{headerCount}">
 	<WeekSelect gridArea="selector" bind:selectedWeek on:weekChanged={() => getData(selectedWeek)} />
 	<div class="table grid">

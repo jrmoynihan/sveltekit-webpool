@@ -1,7 +1,7 @@
 import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
-import { doc, updateDoc, onSnapshot, query } from '@firebase/firestore';
-import type { Query, FirestoreDataConverter } from '@firebase/firestore';
+import { doc, updateDoc, onSnapshot, query } from 'firebase/firestore';
+import type { Query, FirestoreDataConverter } from 'firebase/firestore';
 import { userConverter } from './converters';
 import { WebUser } from '$scripts/classes/webUser';
 import { usersCollection } from './collections';

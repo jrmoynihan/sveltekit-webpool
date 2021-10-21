@@ -10,8 +10,8 @@
 	export let selectedWeek: number;
 	export let tiebreaker: WeeklyTiebreaker;
 	export let lastGame: Game;
-	export let showNetTiebreakers: boolean = false;
-	export let showUID: boolean = false;
+	export let showNetTiebreakers = false;
+	export let showUID = false;
 
 	const isEvenRow = (index: number) => {
 		if ((index + 1) % 2 === 0) {

@@ -10,8 +10,8 @@ import {
 import { gameConverter, weeklyPickConverter, weeklyTiebreakerConverter } from '$scripts/converters';
 import { defaultToast, errorToast } from '$scripts/toasts';
 import { getWeeklyUsers } from './weeklyUsers';
-import { updateDoc, deleteDoc, doc, getDocs, query, setDoc, where } from '@firebase/firestore';
-import type { QueryConstraint } from '@firebase/firestore';
+import { updateDoc, deleteDoc, doc, getDocs, query, setDoc, where } from 'firebase/firestore';
+import type { QueryConstraint } from 'firebase/firestore';
 import { findCurrentWeekOfSchedule } from '$scripts/schedule';
 import { getConsensusSpread } from '$scripts/functions';
 
@@ -79,7 +79,7 @@ const getMaxGameWeek = async (): Promise<number> => {
 		myLog(msg, 'getMaxGameWeek');
 		return maxWeek;
 	} catch (error) {
-		let msg = `Encountered an error while finding max game week.`;
+		const msg = `Encountered an error while finding max game week.`;
 		errorToast(msg);
 		myError('getMaxGameWeek', error, msg);
 	}
@@ -223,7 +223,7 @@ export const createTiebreakersForUser = async (
 	user: WebUser,
 	selectedWeek?: number,
 	selectedYear?: number,
-	logAll: boolean = true
+	logAll = true
 ) => {
 	try {
 		const uid = user.id;

@@ -8,9 +8,9 @@
 	import Tooltip from '../Tooltip.svelte';
 
 	export let invisible = false;
-	export let currentPickCount: number = 0;
-	export let totalGameCount: number = 0;
-	export let upcomingGamesCount: number = 0;
+	export let currentPickCount = 0;
+	export let totalGameCount = 0;
+	export let upcomingGamesCount = 0;
 	// export let playedGamesCount: number = 0;
 	export let currentPicks: WeeklyPickDoc[] = [];
 </script>

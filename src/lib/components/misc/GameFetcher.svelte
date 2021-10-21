@@ -4,11 +4,10 @@
 	import { firestoreDB } from '$scripts/firebaseInit';
 	import { scheduleCollection } from '$scripts/collections';
 	import { allTeams } from '$scripts/teams';
-	import { deleteDoc, doc, getDocs, query, setDoc, Timestamp, where } from '@firebase/firestore';
-	import AccordionDetails from '../containers/accordions/AccordionDetails.svelte';
+	import { deleteDoc, doc, getDocs, query, setDoc, Timestamp, where } from 'firebase/firestore';
 	import WeekSelect from '../selects/WeekSelect.svelte';
 	import PageTitle from './PageTitle.svelte';
-	import { key, myError, myLog, seasonTypes, stopSign } from '$scripts/classes/constants';
+	import { myError, myLog, seasonTypes, stopSign } from '$scripts/classes/constants';
 	import SeasonTypeSelect from '../selects/SeasonTypeSelect.svelte';
 	import type { SeasonType } from '$scripts/classes/seasonType';
 	import YearSelect from '../selects/YearSelect.svelte';
@@ -21,8 +20,6 @@
 		getRegularSeasonWeeks
 	} from '$scripts/functions';
 	import LoadingSpinner from './LoadingSpinner.svelte';
-	import AccordionJson from '../containers/accordions/AccordionJSON.svelte';
-	import { aggregateObjectSizes, formatByteSize } from '$scripts/memorySizeOf';
 	import Grid from '../containers/Grid.svelte';
 	import DeletionButton from '../buttons/DeletionButton.svelte';
 	import StyledButton from '../buttons/StyledButton.svelte';
@@ -91,12 +88,12 @@
 		const gameUrls = await unpackReferenceURLs(weekReferences);
 
 		const originalGames = await fetchGameData(gameUrls);
-		const originalSize = originalGames.reduce(aggregateObjectSizes, 0);
-		console.log('fetched games:', originalGames, `memory: ${formatByteSize(originalSize)}`);
+		// const originalSize = originalGames.reduce(aggregateObjectSizes, 0);
+		// console.log('fetched games:', originalGames, `memory: ${formatByteSize(originalSize)}`);
 
 		const prunedGames = await pruneESPNGames(originalGames);
-		const reducedSize = prunedGames.reduce(aggregateObjectSizes, 0);
-		console.log('pruned games:', prunedGames, `memory: ${formatByteSize(reducedSize)}`);
+		// const reducedSize = prunedGames.reduce(aggregateObjectSizes, 0);
+		// console.log('pruned games:', prunedGames, `memory: ${formatByteSize(reducedSize)}`);
 
 		return { originalGames, prunedGames };
 	};
@@ -353,28 +350,38 @@
 	</div>
 </section>
 
-<Grid max={'100%'} repeat={selectedGames === 'both' ? 2 : 'auto-fit'}>
+<section>
 	{#await promise}
 		<div class="padded">
 			<LoadingSpinner />
 		</div>
 	{:then gameData}
-		{#if gameData}
-			{#if selectedGames === 'pruned'}
-				<EspnGameData gameData={gameData.prunedGames} />
-			{:else if selectedGames === 'full'}
-				<EspnGameData gameData={gameData.originalGames} />
-			{:else if selectedGames === 'both'}
-				<EspnGameData gameData={gameData.prunedGames} title="Pruned Games for DB" />
-				<EspnGameData gameData={gameData.originalGames} title="Original ESPN Games" />
+		<Grid
+			useInAndOutTransitions={true}
+			inTransitionType="slide"
+			inTransitionConfig={{ delay: 200 }}
+			outTransitionType="fade"
+			outTransitionConfig={{ x: 200 }}
+			max={'100%'}
+			repeat={selectedGames === 'both' ? 2 : 'auto-fit'}
+		>
+			{#if gameData}
+				{#if selectedGames === 'pruned'}
+					<EspnGameData gameData={gameData.prunedGames} />
+				{:else if selectedGames === 'full'}
+					<EspnGameData gameData={gameData.originalGames} />
+				{:else if selectedGames === 'both'}
+					<EspnGameData gameData={gameData.prunedGames} title="Pruned Games for DB" />
+					<EspnGameData gameData={gameData.originalGames} title="Original ESPN Games" />
+				{/if}
 			{/if}
-		{/if}
+		</Grid>
 	{:catch error}
 		<ErrorModal>
 			Error displaying game data: {error}
 		</ErrorModal>
 	{/await}
-</Grid>
+</section>
 
 <style lang="scss">
 	.padded {

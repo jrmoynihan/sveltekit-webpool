@@ -7,7 +7,7 @@ import {
 	policeCarLight
 } from './classes/constants';
 import type { WeeklyPickDoc } from './classes/picks';
-import type { Timestamp } from '@firebase/firestore';
+import type { Timestamp } from 'firebase/firestore';
 import { getLocalStorageItem } from './localStorage';
 import { get } from 'svelte/store';
 
