@@ -1,4 +1,5 @@
 import { collection, CollectionReference, DocumentReference } from 'firebase/firestore';
+import type { SvelteComponentDev } from 'node_modules/svelte/internal';
 
 export class Rule {
 	docRef: DocumentReference;
@@ -38,4 +39,10 @@ export class RuleCategory {
 			(this.hasWeeklyPayout = args.hasWeeklyPayout),
 			(this.rules = collection(args.docRef, 'Rules'));
 	}
+}
+export class RuleTab {
+	name: string;
+	component: typeof SvelteComponentDev;
+	data: {};
+	ref: DocumentReference;
 }

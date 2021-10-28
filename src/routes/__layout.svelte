@@ -94,45 +94,47 @@
 
 <style lang="scss">
 	:root {
-		font-family: 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Open Sans', 'Helvetica Neue',
-			sans-serif;
-		box-sizing: border-box;
-		font-display: swap;
-		color: var(--main-color, rgb(255, 255, 255));
-		scrollbar-width: thin;
-		scrollbar-color: var(--accent-color, rgb(233, 181, 99)) var(--alternate-color, rgb(36, 50, 36));
+		/* stylelint-disable custom-property-pattern */
 		--toastContainerTop: 15%;
 		--toastWidth: 100%;
 		--toastContainerLeft: 2%;
 		--toastContainerRight: 2%;
+
 		@include responsive_desktop_only {
-			--toastContainerLeft: max(5%, 2rem);
-			--toastContainerRight: 5%;
+			--toastContainerLeft: math.max(5%, 2rem);
+			--toastContainerRight: 70%;
 			--toastWidth: clamp(45ch, 25%, 75ch);
 		}
+		/* stylelint-enable custom-property-pattern */
+
+		font-family: Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+		box-sizing: border-box;
+		font-display: swap;
+		color: var(--main-color, rgb(255 255 255));
+		scrollbar-width: thin;
+		scrollbar-color: var(--accent-color, rgb(233 181 99)) var(--alternate-color, rgb(36 50 36));
 	}
 	* {
 		box-sizing: border-box;
 	}
 	.app-wrapper {
-		padding: 0 5px 5px 5px;
+		padding: 0 5px 5px;
 		display: grid;
 		background: var(--alternate-color, rgb(36, 50, 36));
 		position: relative;
-		opacity: 0.99;
+		opacity: 99%;
 		min-height: 100vh;
 		width: 100%;
 		grid-template-areas:
 			'menu'
-			// 'nav'
 			'main';
 		grid-template-columns: 100%;
-		grid-template-rows: repeat(3, minmax(min(0px, 100%), max-content));
+		grid-template-rows: repeat(auto-fit, minmax(min(0px, 100%), max-content));
 
 		@include responsive_desktop_only {
 			grid-template-areas: 'nav menu' 'main menu';
-			grid-template-columns: minmax(min(0px, 100%), 1fr) max-content;
-			grid-template-rows: minmax(min(0px, 100%), max-content) 1fr;
+			grid-template-columns: 1fr max-content;
+			grid-template-rows: max-content 1fr;
 		}
 		&.pseudo:before {
 			content: '';
@@ -145,7 +147,7 @@
 			z-index: -2;
 			mix-blend-mode: var(--mix-blend-mode);
 			filter: blur(3px);
-			// background-image: url('/static/friday-night-lights-high-res.jpg');
+			/* background-image: url('/static/friday-night-lights-high-res.jpg'); */
 		}
 	}
 	main {
@@ -154,7 +156,7 @@
 		box-sizing: border-box;
 		padding-bottom: 2rem;
 
-		// my styles
+		/* my styles */
 		@include gridAndGap(15px);
 		color: var(--main-color, rgb(255, 255, 255));
 		grid-template-rows: repeat(auto-fit, minmax(min(0px, 100%), 1fr));

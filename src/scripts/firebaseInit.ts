@@ -1,13 +1,13 @@
 import {
-	browserLocalPersistence,
-	browserPopupRedirectResolver,
-	getAuth,
+	debugErrorMap,
 	indexedDBLocalPersistence,
-	initializeAuth
+	initializeAuth,
+	prodErrorMap
 } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getApp, getApps, initializeApp } from 'firebase/app';
 import type { FirebaseApp } from 'firebase/app';
+import { dev } from '$app/env';
 // import { browser, dev } from '$app/env';
 
 // TODO: API key should be stored in a environment variable (see: privateStuff.env) so it is not exposed publicly
@@ -33,6 +33,7 @@ if (getApps().length === 0) {
 	myApp = initializeApp(firebaseConfig);
 } else {
 	myApp = getApp();
+	
 }
 
 export const firestoreDB = getFirestore(myApp);
@@ -40,7 +41,8 @@ export const firestoreDB = getFirestore(myApp);
 // NOTE https://firebase.google.com/docs/auth/web/custom-dependencies
 // export const firestoreAuth = getAuth(myApp)		// calls a persistence function by default  that depends on window being available, which fails under SSR
 export const firestoreAuth = initializeAuth(myApp, {
-	persistence: indexedDBLocalPersistence
+	persistence: indexedDBLocalPersistence,
+	errorMap: dev ? debugErrorMap : prodErrorMap
 });
 
 // export const firestoreStorage = getStorage(myApp);

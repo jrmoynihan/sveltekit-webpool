@@ -1,0 +1,40 @@
+dialog {
+	position: absolute;
+	left: 0;
+	right: 0;
+	width: fit-content;
+	height: fit-content;
+	margin: auto;
+	border: solid;
+	padding: 1em;
+	background: hsl(360deg 100% 100%);
+	color: hsl(0deg 0% 0%);
+	display: block;
+}
+
+dialog:not([open]) {
+	display: none;
+}
+
+dialog + .backdrop {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	background: rgb(0 0 0 / 10%);
+}
+
+._dialog_overlay {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+}
+
+dialog.fixed {
+	position: fixed;
+	top: 50%;
+	transform: translate(0, -50%);
+}

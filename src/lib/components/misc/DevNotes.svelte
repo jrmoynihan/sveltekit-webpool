@@ -2,7 +2,7 @@
 	import { dev } from '$app/env';
 	import AccordionDetails from '../containers/accordions/AccordionDetails.svelte';
 
-	export let customStyles: string = '';
+	export let customStyles = '';
 </script>
 
 {#if dev}

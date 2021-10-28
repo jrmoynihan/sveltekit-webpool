@@ -3,10 +3,10 @@
 
 	export let minItemSize = '200px';
 	export let maxItemSize = '1fr';
-	export let customStyles: string = '';
+	export let customStyles = '';
 	export let useModal = false;
 	export let offsetTop = false;
-	export let modalID: string = '';
+	export let modalID = '';
 </script>
 
 <nav
@@ -28,26 +28,30 @@
 		box-sizing: border-box;
 	}
 	.navigationList {
-		@include gridAndGap(0.5rem);
 		place-items: center;
 		text-align: center;
 		font-weight: bold;
+
 		grid-area: nav;
-		grid-template-columns: repeat(auto-fit, minmax($minItemSize, $maxItemSize));
+
 		max-width: 100%;
 		padding: 0.2rem 0;
 		top: 0;
 		transition: all 300ms ease-in-out;
 		width: 100%;
-		z-index: 10;
+		z-index: 30;
 		background: radial-gradient(
-			rgba(var(--alternateValue-color, rgb(36, 50, 36)), 90%) 70%,
+			rgba(var(--alternateValue-color, rgb(36, 50, 36)) / 90%) 70%,
 			transparent
 		);
 		@include responsive_desktop_only {
+			display: flex;
+			gap: 0.5rem;
 			position: sticky;
 		}
 		@include responsive_mobile_only {
+			@include gridAndGap(0.5rem);
+			grid-template-columns: repeat(auto-fit, minmax($minItemSize, $maxItemSize));
 			font-size: 1.5rem;
 			margin-top: 0.5rem;
 		}

@@ -13,26 +13,25 @@
 	import YearSelect from '../selects/YearSelect.svelte';
 	import { onMount } from 'svelte';
 	import { defaultToast } from '$scripts/toasts';
-	import {
-		convertToHttps,
-		getConsensusSpread,
-		getPreSeasonWeeks,
-		getRegularSeasonWeeks
-	} from '$scripts/functions';
+	import { getPreSeasonWeeks, getRegularSeasonWeeks } from '$scripts/functions';
 	import LoadingSpinner from './LoadingSpinner.svelte';
 	import Grid from '../containers/Grid.svelte';
 	import DeletionButton from '../buttons/DeletionButton.svelte';
 	import StyledButton from '../buttons/StyledButton.svelte';
 	import ErrorModal from '../modals/ErrorModal.svelte';
 	import EspnGameData from './ESPNGameData.svelte';
+	import { convertToHttps, getConsensusSpread } from '$scripts/dataFetching';
 
 	let currentlySetting = false;
 	let promise: Promise<{ originalGames: ESPNGame[]; prunedGames: ESPNGamePruned[] }>;
 	let weeks: number[] = [];
-	let selectedYear: number = 2021;
+	let selectedYear = 2021;
 	let selectedSeasonType: SeasonType = seasonTypes[1];
 	let selectedWeek: number;
-	let selectedGames: string = 'pruned';
+	let selectedGames = 'pruned';
+	let maxGameHeight = 100;
+	let minGameHeight = 10;
+	let setGameHeight = 50;
 
 	const fetchWeek = async (
 		selectedYear: number,
@@ -205,14 +204,14 @@
 					msg: `Creating/overriting game documents for ${selectedWeek}.`
 				});
 
-				gamesToSet.forEach((game) => {
+				for await (const game of gamesToSet) {
 					setGame(game, selectedWeek, selectedYear, selectedSeasonType);
-				});
+				}
 
 				myLog('games set!');
+				defaultToast({ title: 'Games Set', msg: `Created game documents for ${selectedWeek}!` });
 			}
 			currentlySetting = false;
-			defaultToast({ title: 'Games Set', msg: `Created game documents for ${selectedWeek}!` });
 		} catch (error) {
 			myError('GameFetcher => setGames', error);
 		}
@@ -267,7 +266,7 @@
 		}
 
 		// Set/update the game document with the formatted data
-		setDoc(gameDocRef.withConverter(gameConverter), gameFormatted);
+		await setDoc(gameDocRef.withConverter(gameConverter), gameFormatted);
 	};
 	const deleteAllGames = async () => {
 		const continueDelete = confirm(
@@ -320,6 +319,13 @@
 		<DeletionButton on:click={() => deleteGameWeek(selectedWeek, selectedYear, selectedSeasonType)}
 			>Delete Selected Week</DeletionButton
 		>
+		<input
+			type="range"
+			min={minGameHeight}
+			max={maxGameHeight}
+			bind:value={setGameHeight}
+			step="5"
+		/>
 	</Grid>
 	<div class="flex">
 		<SeasonTypeSelect
@@ -366,14 +372,24 @@
 			repeat={selectedGames === 'both' ? 2 : 'auto-fit'}
 		>
 			{#if gameData}
-				{#if selectedGames === 'pruned'}
-					<EspnGameData gameData={gameData.prunedGames} />
-				{:else if selectedGames === 'full'}
-					<EspnGameData gameData={gameData.originalGames} />
-				{:else if selectedGames === 'both'}
-					<EspnGameData gameData={gameData.prunedGames} title="Pruned Games for DB" />
-					<EspnGameData gameData={gameData.originalGames} title="Original ESPN Games" />
-				{/if}
+				{#key setGameHeight}
+					{#if selectedGames === 'pruned'}
+						<EspnGameData maxHeight={setGameHeight} gameData={gameData.prunedGames} />
+					{:else if selectedGames === 'full'}
+						<EspnGameData maxHeight={setGameHeight} gameData={gameData.originalGames} />
+					{:else if selectedGames === 'both'}
+						<EspnGameData
+							maxHeight={setGameHeight}
+							gameData={gameData.prunedGames}
+							title="Pruned Games for DB"
+						/>
+						<EspnGameData
+							maxHeight={setGameHeight}
+							gameData={gameData.originalGames}
+							title="Original ESPN Games"
+						/>
+					{/if}
+				{/key}
 			{/if}
 		</Grid>
 	{:catch error}

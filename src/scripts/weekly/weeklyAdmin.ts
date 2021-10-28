@@ -13,7 +13,7 @@ import { getWeeklyUsers } from './weeklyUsers';
 import { updateDoc, deleteDoc, doc, getDocs, query, setDoc, where } from 'firebase/firestore';
 import type { QueryConstraint } from 'firebase/firestore';
 import { findCurrentWeekOfSchedule } from '$scripts/schedule';
-import { getConsensusSpread } from '$scripts/functions';
+import { getConsensusSpread } from '$scripts/dataFetching';
 
 export const getAllGames = async (showToast = true) => {
 	try {
@@ -74,7 +74,7 @@ const getMaxGameWeek = async (): Promise<number> => {
 		const gameWeeks = weeklyGames.map((game) => {
 			return game.week;
 		});
-		const maxWeek: number = Math.max.apply(Math, gameWeeks);
+		const maxWeek: number = Math.max(...gameWeeks);
 		const msg = `determined the max game week was ${maxWeek}`;
 		myLog(msg, 'getMaxGameWeek');
 		return maxWeek;
@@ -324,7 +324,7 @@ export const deleteTiebreakersForUser = async (
 			userTiebreakerDocs.forEach((doc) => deleteDoc(doc.ref));
 			const title = `Deleted Weekly Tiebreakers for ${user.name}!`;
 			const msg = `All tiebreaker documents were deleted ${
-				selectedWeek ? selectedYear : null ? `for Week ${selectedWeek}, ${selectedYear}` : null
+				selectedWeek && selectedYear ? `for Week ${selectedWeek}, ${selectedYear}` : null
 			}.`;
 			defaultToast({ title, msg });
 			myLog(msg, 'deleteWeeklyTiebreakersForUser');

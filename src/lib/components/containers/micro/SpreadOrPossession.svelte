@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { ESPNSituation } from '$scripts/classes/game';
 	import type { Team } from '$scripts/classes/team';
 	import {
 		faArrowCircleLeft,
@@ -11,7 +12,7 @@
 
 	export let spread: number;
 	export let disabled: boolean;
-	export let promiseSituation: Promise<any>;
+	export let promiseSituation: Promise<ESPNSituation>;
 	export let awayTeam: Team;
 	export let homeTeam: Team;
 </script>

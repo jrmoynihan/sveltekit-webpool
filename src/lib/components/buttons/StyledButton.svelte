@@ -4,7 +4,7 @@
 	export let text = '';
 	export let disabled = false;
 	const dispatch = createEventDispatcher();
-	function buttonClicked(event: { detail: any }): void {
+	function buttonClicked(event: MouseEvent): void {
 		dispatch('click', event.detail);
 	}
 </script>

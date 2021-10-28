@@ -1,6 +1,8 @@
 import { toast } from '@zerodevx/svelte-toast';
 import SeenToast from '$switches/SeenToast.svelte';
-import { policeCarLight } from './classes/constants';
+import { bread, myError, myLog, policeCarLight } from './classes/constants';
+import { query, where, getDocs } from 'firebase/firestore';
+import { toastsCollection } from './collections';
 
 export const defaultToast = ({
 	title = '',
@@ -73,15 +75,32 @@ export const errorToast = (msg: string, duration = 30_000) => {
 	});
 	return id;
 };
-export const toastIt = (title: string, msg: string) => {
+export const toastIt = (title: string, msg: string, useSeenToastComponent = true) => {
 	const id = defaultToast({
 		title,
 		msg,
 		duration: 200_000,
 		textFontWeight: '600',
-		useSeenToastComponent: true
+		useSeenToastComponent
 	});
 	return id;
 };
 export const errorToastIt = () =>
 	errorToast(`${policeCarLight} This is a test error. Try to avoid the real thing.`);
+
+export const getToast = async (page: string) => {
+	try {
+		let msg: string;
+		let title: string;
+		const q = query(toastsCollection, where('page', '==', page));
+		const querySnapshot = await getDocs(q);
+		querySnapshot.forEach((doc) => {
+			msg = doc.data().message;
+			title = doc.data().title;
+		});
+		myLog('got toast', null, bread);
+		return { msg: msg, title: title };
+	} catch (error) {
+		myError('getToast', error, null, bread);
+	}
+};

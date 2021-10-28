@@ -7,19 +7,19 @@ import { get } from 'svelte/store';
 import { browser } from '$app/env';
 import { detective, myError, myLog } from './classes/constants';
 
-export const getLocalStorageItem = async (key: string): Promise<any> => {
+export const getLocalStorageItem = async <T>(key: string): Promise<T | null> => {
 	if (browser) {
 		const item = JSON.parse(localStorage.getItem(key));
-		return item;
+		return item !== null ? item : null;
 	} else {
-		myLog('unable to check for local storage');
+		myLog('unable to check for local storage without the browser available');
 	}
 };
 export const setLocalStorageItem = async (key: string, value: string): Promise<void> => {
 	if (browser) {
 		localStorage.setItem(key, JSON.stringify(value));
 	} else {
-		myLog('unable to set item in local storage');
+		myLog('unable to set item in local storage without the browser available');
 	}
 };
 

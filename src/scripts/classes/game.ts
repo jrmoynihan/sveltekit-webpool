@@ -4,7 +4,7 @@ import type { Team } from './team';
 export class Game {
 	docRef: DocumentReference;
 	$ref: string;
-	competitions: Record<string, unknown>[];
+	competitions: PrunedCompetition[];
 	date: string;
 	id: string;
 	// league: { $ref: string };
@@ -30,7 +30,7 @@ export class Game {
 	isLastGameOfWeek: boolean;
 
 	constructor({ ...args }) {
-		this.docRef = args.docRef;
+		// this.docRef = args.docRef;
 		this.$ref = args.$ref;
 		this.competitions = args.competitions;
 		this.date = args.date;
@@ -58,6 +58,79 @@ export class Game {
 		// this.links = args.links;
 	}
 }
+export interface ESPNCompetition {
+	$ref: string;
+	id: string;
+	guid: string;
+	uid: string;
+	date: string;
+	attendance: number;
+	type: {
+		abbreviation: string;
+		id: string;
+		slug: string;
+		text: string;
+		type: string;
+	};
+	necessary: boolean;
+	timeValid: boolean;
+	neutralSite: boolean;
+	divisionCompetition: boolean;
+	conferenceCompetiton: boolean;
+	previewAvailable: boolean;
+	recapAvailable: boolean;
+	boxscoreAvailable: boolean;
+	lineupAvailable: boolean;
+	gamecastAvailable: boolean;
+	playByPlayAvailable: boolean;
+	conversationAvailable: boolean;
+	commentaryAvailable: boolean;
+	pickcenterAvailable: boolean;
+	summaryAvailable: boolean;
+	liveAvailable: boolean;
+	ticketsAvailable: boolean;
+	shotChartAvailable: boolean;
+	timeoutsAvailable: boolean;
+	possessionArrowAvailable: boolean;
+	onWatchESPN: boolean;
+	recent: boolean;
+	bracketAvailable: boolean;
+	gameSource: SourceESPN;
+	boxscoreSource: SourceESPN;
+	playByPlaySource: SourceESPN;
+	linescoreSource: SourceESPN;
+	statsSource: SourceESPN;
+	venue: ESPNVenue;
+	competitors: CompetitorESPN[];
+	notes: [];
+	situation: RefOnlyESPN;
+	status: RefOnlyESPN;
+	odds: RefOnlyESPN;
+	broadcasts: RefOnlyESPN;
+	officials: RefOnlyESPN;
+	details: RefOnlyESPN;
+	leaders: RefOnlyESPN;
+	links: LinkESPN[];
+	predictor: RefOnlyESPN;
+	probabilities: RefOnlyESPN;
+	powerIndexes: RefOnlyESPN;
+	format: {
+		overtime: GameClockFormatESPN;
+		regulation: GameClockFormatESPN;
+	};
+	drives: RefOnlyESPN;
+}
+export interface ESPNVenue {
+	$ref: string;
+	address: AddressESPN;
+	capacity: number;
+	fullName: string;
+	grass: boolean;
+	id: string;
+	images: VenueImageESPN[];
+	indoor: boolean;
+}
+
 export class ESPNGame {
 	$ref: string;
 	id: string;
@@ -69,79 +142,7 @@ export class ESPNGame {
 	seasonType: RefOnlyESPN;
 	week: RefOnlyESPN;
 	timeValid: boolean;
-	competitions: [
-		{
-			$ref: string;
-			id: string;
-			guid: string;
-			uid: string;
-			date: string;
-			attendance: number;
-			type: {
-				abbreviation: string;
-				id: string;
-				slug: string;
-				text: string;
-				type: string;
-			};
-			necessary: boolean;
-			timeValid: boolean;
-			neutralSite: boolean;
-			divisionCompetition: boolean;
-			conferenceCompetiton: boolean;
-			previewAvailable: boolean;
-			recapAvailable: boolean;
-			boxscoreAvailable: boolean;
-			lineupAvailable: boolean;
-			gamecastAvailable: boolean;
-			playByPlayAvailable: boolean;
-			conversationAvailable: boolean;
-			commentaryAvailable: boolean;
-			pickcenterAvailable: boolean;
-			summaryAvailable: boolean;
-			liveAvailable: boolean;
-			ticketsAvailable: boolean;
-			shotChartAvailable: boolean;
-			timeoutsAvailable: boolean;
-			possessionArrowAvailable: boolean;
-			onWatchESPN: boolean;
-			recent: boolean;
-			bracketAvailable: boolean;
-			gameSource: SourceESPN;
-			boxscoreSource: SourceESPN;
-			playByPlaySource: SourceESPN;
-			linescoreSource: SourceESPN;
-			statsSource: SourceESPN;
-			venue: {
-				$ref: string;
-				address: AddressESPN;
-				capacity: number;
-				fullName: string;
-				grass: boolean;
-				id: string;
-				images: VenueImageESPN[];
-				indoor: boolean;
-			};
-			competitors: CompetitorESPN[];
-			notes: [];
-			situation: RefOnlyESPN;
-			status: RefOnlyESPN;
-			odds: RefOnlyESPN;
-			broadcasts: RefOnlyESPN;
-			officials: RefOnlyESPN;
-			details: RefOnlyESPN;
-			leaders: RefOnlyESPN;
-			links: LinkESPN[];
-			predictor: RefOnlyESPN;
-			probabilities: RefOnlyESPN;
-			powerIndexes: RefOnlyESPN;
-			format: {
-				overtime: GameClockFormatESPN;
-				regulation: GameClockFormatESPN;
-			};
-			drives: RefOnlyESPN;
-		}
-	];
+	competitions: ESPNCompetition[];
 }
 export class CompetitorESPN {
 	$ref: string;
@@ -163,7 +164,7 @@ export class CompetitorESPN {
 	uid: string;
 	winner: boolean;
 }
-export class RefOnlyESPN {
+export interface RefOnlyESPN {
 	$ref: string;
 }
 export class GameClockFormatESPN {
@@ -209,77 +210,141 @@ export interface ESPNGamePruned {
 	seasonType: RefOnlyESPN;
 	week: RefOnlyESPN;
 	// timeValid: boolean;
-	competitions: [
-		{
-			$ref: string;
-			id: string;
-			// guid: string;
-			// uid: string;
-			date: string;
-			// attendance: number;
-			// type: {
-			// 	abbreviation: string;
-			// 	id: string;
-			// 	slug: string;
-			// 	text: string;
-			// 	type: string;
-			// };
-			// necessary: boolean;
-			// timeValid: boolean;
-			// neutralSite: boolean;
-			// divisionCompetition: boolean;
-			// conferenceCompetiton: boolean;
-			// previewAvailable: boolean;
-			// recapAvailable: boolean;
-			// boxscoreAvailable: boolean;
-			// lineupAvailable: boolean;
-			// gamecastAvailable: boolean;
-			// playByPlayAvailable: boolean;
-			// conversationAvailable: boolean;
-			// commentaryAvailable: boolean;
-			// pickcenterAvailable: boolean;
-			// summaryAvailable: boolean;
-			// liveAvailable: boolean;
-			// ticketsAvailable: boolean;
-			// shotChartAvailable: boolean;
-			// timeoutsAvailable: boolean;
-			// possessionArrowAvailable: boolean;
-			// onWatchESPN: boolean;
-			// recent: boolean;
-			// bracketAvailable: boolean;
-			// gameSource: SourceESPN;
-			// boxscoreSource: SourceESPN;
-			// playByPlaySource: SourceESPN;
-			// linescoreSource: SourceESPN;
-			// statsSource: SourceESPN;
-			// venue: {
-			// 	$ref: string;
-			// 	address: AddressESPN;
-			// 	capacity: number;
-			// 	fullName: string;
-			// 	grass: boolean;
-			// 	id: string;
-			// 	images: VenueImageESPN[];
-			// 	indoor: boolean;
-			// };
-			competitors: CompetitorESPN[];
-			// notes: [];
-			situation: RefOnlyESPN;
-			status: RefOnlyESPN;
-			odds: RefOnlyESPN;
-			// broadcasts: RefOnlyESPN;
-			// officials: RefOnlyESPN;
-			details: RefOnlyESPN;
-			leaders: RefOnlyESPN;
-			// links: LinkESPN[];
-			predictor: RefOnlyESPN;
-			probabilities: RefOnlyESPN;
-			// powerIndexes: RefOnlyESPN;
-			// format: {
-			// 	overtime: GameClockFormatESPN;
-			// 	regulation: GameClockFormatESPN;
-			// };
-			// drives: RefOnlyESPN;
-		}
-	];
+	competitions: PrunedCompetition[];
+}
+export interface PrunedCompetition {
+	$ref: string;
+	competitors: CompetitorESPN[];
+	date: string;
+	details: RefOnlyESPN;
+	id: string;
+	leaders: RefOnlyESPN;
+	odds: RefOnlyESPN;
+	predictor: RefOnlyESPN;
+	probabilities: RefOnlyESPN;
+	situation: RefOnlyESPN;
+	status: RefOnlyESPN;
+}
+export interface ESPNSituation {
+	$ref: string;
+	lastPlay: RefOnlyESPN;
+	down: number;
+	team: RefOnlyESPN;
+	yardLine: number;
+	distance: number;
+	downDistanceText: string;
+	shortDownDistanceText: string;
+	possessionText: string;
+	isRedZone: boolean;
+	homeTimeouts: number;
+	awayTimeouts: number;
+}
+export interface ESPNStatus {
+	$ref: string;
+	clock: number;
+	displayClock: string;
+	period: number;
+	type: {
+		id: string;
+		name: string;
+		state: string;
+		completed: boolean;
+		description: string;
+		detail: string;
+		shortDetail: string;
+	};
+}
+export interface ESPNScore {
+	$ref: string;
+	value: number;
+	displayValue: string;
+	source: {
+		id: string;
+		description: string;
+	};
+	winner?: boolean;
+}
+export interface ESPNRecord {
+	count: number;
+	pageIndex: number;
+	pageSize: number;
+	pageCount: number;
+	items: ESPNRecordItem[];
+}
+export interface ESPNRecordItem {
+	$ref: string;
+	id: string;
+	name: string;
+	abbreviation: string;
+	displayName: string;
+	shortDisplayName: string;
+	description: string;
+	type: string;
+	summary: string;
+	displayValue: string;
+	value: number;
+	// Stats Array:
+	// [0] playoff seed; [1] wins, [2] losses, [3] win percent, [4] games behind, [5] ties, [6] OT wins, [7] OT losses,
+	// [8] games played, [9] points For, [10] points Against, [11] avg points For, [12] avg points against, [13] total points, [14] point differential,
+	//  [15] streak, [16] division win percentage, [17] league win percentage, [18] division record, [19] division wins, [20] division ties, [21] division losses,
+	stats: ESPNRecordStats[];
+}
+export interface ESPNRecordStats {
+	name: string;
+	displayName: string;
+	shortDisplayName: string;
+	description: string;
+	abbreviation: string;
+	type: string;
+	value: number;
+	displayValue: string;
+}
+
+//** Example: http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/2021/teams/2?lang=en&region=us */
+export interface ESPNTeamData {
+	$ref: string;
+	id: string;
+	guid: string;
+	uid: string;
+	alternateIds: {
+		sdr: string;
+	};
+	slug: string;
+	location: string;
+	name: string;
+	nickname: string;
+	abbreviation: string;
+	displayName: string;
+	shortDisplayName: string;
+	color: string;
+	alternateColor: string;
+	isActive: boolean;
+	isAllStar: boolean;
+	logos: ESPNTeamLogo[];
+	record: RefOnlyESPN;
+	oddsRecords: RefOnlyESPN;
+	athletes: RefOnlyESPN;
+	venue: ESPNVenue;
+	groups: RefOnlyESPN;
+	ranks: RefOnlyESPN;
+	statistics: RefOnlyESPN;
+	leaders: RefOnlyESPN;
+	links: LinkESPN[];
+	injuries: RefOnlyESPN;
+	notes: RefOnlyESPN;
+	againstTheSpreadRecords: RefOnlyESPN;
+	franchise: RefOnlyESPN;
+	depthCharts: RefOnlyESPN;
+	projection: RefOnlyESPN;
+	events: RefOnlyESPN;
+	transactions: RefOnlyESPN;
+	coaches: RefOnlyESPN;
+}
+export interface ESPNTeamLogo {
+	href: string;
+	width: number;
+	height: number;
+	alt: string;
+	rel: string[];
+	lastUpdated: string;
 }

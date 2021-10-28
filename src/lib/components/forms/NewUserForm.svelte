@@ -18,15 +18,16 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import { onMount } from 'svelte';
 	import Fa from 'svelte-fa';
-	import { fly, slide } from 'svelte/transition';
+	import { fade, fly, slide } from 'svelte/transition';
 	import AccordionDetails from '../containers/accordions/AccordionDetails.svelte';
 	import Grid from '../containers/Grid.svelte';
 	import LoadingSpinner from '../misc/LoadingSpinner.svelte';
 	import ModalOnly from '../modals/Modal.svelte';
 	import ToggleSwitch from '../switches/ToggleSwitch.svelte';
+	import { cubicInOut } from 'svelte/easing';
 
 	export let modalOnlyComponent: ModalOnly;
-	let nickname: string = '';
+	let nickname = '';
 	let creatingNewAccount = false;
 	let buttonHidden = true;
 	let nicknameEntered = false;
@@ -102,6 +103,7 @@
 			]
 		}
 	];
+	let slideParameters = { easing: cubicInOut, duration: 500 };
 	const createAccount = async () => {
 		try {
 			const sanitizedNickname = nickname.trimStart().trimEnd().replace(alphaNumericRegex, '');
@@ -232,7 +234,7 @@
 	) => {
 		// console.log(e.key);
 		const secretCode = ['G', 'O', 'D'];
-		if (!$godMode && $userData.admin) {
+		if (!$godMode && $userData?.admin) {
 			if (
 				e.key !== 'G' &&
 				e.key !== 'g' &&
@@ -288,7 +290,8 @@
 		enableGodMode(e);
 	}}
 />
-<ModalOnly bind:this={modalOnlyComponent} modalForegroundStyles={'width: min(100vw, 500px);'}>
+
+<ModalOnly bind:this={modalOnlyComponent} dialogStyles={'width: min(100vw, 600px);'}>
 	<input type="text" placeholder="test" />
 	<Grid
 		slot="modal-content"
@@ -299,7 +302,7 @@
 			<!-- <div class="nickname-grid "> -->
 			<label for="nickname" class="two-column">
 				{#if !nicknameEntered}
-					<h3 transition:slide={{ duration: 500 }}>Enter Your Nickname</h3>
+					<h3 transition:slide={slideParameters}>Enter Your Nickname</h3>
 				{/if}
 				<input
 					id="nickname"
@@ -345,18 +348,21 @@
 				<sub>we encourage humorous names</sub>
 			{/if}
 			{#if nicknameEntered && !typing && !nicknameTooLong && !illegalCharacters}
-				<h3 class="two-column" transition:slide={{ duration: 500 }}>Pick Your Pools</h3>
-				<h5 class="reveal two-column" transition:slide={{ duration: 500 }}>
+				<h3 class="two-column" transition:slide={slideParameters}>Pick Your Pools</h3>
+				<h5 class="reveal two-column" transition:slide={slideParameters}>
 					Click to show/hide pool descriptions
 				</h5>
 				{#each poolsToJoin as pool}
-					<div class="accordionWrapper" transition:slide={{ duration: 500 }}>
+					<div class="accordionWrapper" transition:slide={slideParameters}>
 						<AccordionDetails
 							showArrow={false}
-							customContentStyles="max-width:50ch;"
+							customContentStyles="max-width:50ch;color:var(--main-color);"
 							customDetailsStyles="max-width:50ch;transition:background 300ms ease-out;{pool.toggled
-								? `background:darkolivegreen;color:white;`
-								: ``}"
+								? `background:olivegreen;color:white;overflow:auto;`
+								: `overflow:auto;`}"
+							customSummaryStyles={pool.toggled
+								? `background:darkolivegreen;color:white;border:#ccc 1px inset;`
+								: ``}
 						>
 							<p slot="summary" class="summary">{pool.name}</p>
 							<svelte:fragment slot="content">
@@ -375,7 +381,7 @@
 							</svelte:fragment>
 						</AccordionDetails>
 					</div>
-					<div class="toggle-slide" transition:slide={{ duration: 500 }}>
+					<div class="toggle-slide" transition:slide={slideParameters}>
 						<ToggleSwitch
 							bgColorHue={82}
 							bgColorSaturation={39}
@@ -387,11 +393,13 @@
 				{/each}
 			{/if}
 			{#if !buttonHidden && nicknameEntered && !illegalCharacters}
-				<span transition:slide={{ duration: 500 }} class="two-column">
-					${totalPriceToEnter} total to enter
-				</span>
+				{#key totalPriceToEnter}
+					<span in:fly={{ x: 100, delay: 400, duration: 200 }} class="two-column price">
+						${totalPriceToEnter} total to enter
+					</span>
+				{/key}
 				<button
-					transition:slide={{ duration: 500 }}
+					transition:slide={slideParameters}
 					disabled={buttonHidden}
 					tabindex={buttonHidden ? -1 : 0}
 					class="two-column"
@@ -479,10 +487,18 @@
 		font-size: 1rem;
 	}
 	.continue-button {
-		@include absolute($right: -2px, $bottom: -2px);
+		@include absolute($right: -2px, $bottom: 0px);
 		width: min-content;
 		height: min-content;
 		color: var(--alternate-color);
 		padding: 0.5rem;
+	}
+	.price {
+		@include pulse($iterationCount: 2, $opacity: 100%, $duration: 2s);
+		@include rounded;
+		@include centerAIJC;
+		max-width: max-content;
+		margin: auto;
+		padding: 0.5rem 1rem;
 	}
 </style>

@@ -6,7 +6,7 @@
 	import { spring } from 'svelte/motion';
 	import { fade } from 'svelte/transition';
 
-	export let customStyles: string = '';
+	export let customStyles = '';
 	export let showProgressRadial = false;
 	export let showProgressBar = true;
 	export let showButton = true;

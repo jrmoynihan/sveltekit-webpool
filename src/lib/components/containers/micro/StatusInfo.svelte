@@ -1,10 +1,16 @@
 <script lang="ts">
+	import type { ESPNScore, ESPNStatus } from '$scripts/classes/game';
+	import type { Team } from '$scripts/classes/team';
+	import FinalGameScore from './FinalGameScore.svelte';
 	import ScoresAts from './ScoresATS.svelte';
+	import ErrorModal from '$lib/components/modals/ErrorModal.svelte';
 
-	export let promiseStatus: Promise<any>;
-	export let promiseScores: Promise<any>;
+	export let promiseStatus: Promise<ESPNStatus>;
+	export let promiseScores: Promise<{ homeScoreData: ESPNScore; awayScoreData: ESPNScore }>;
 	export let spread: number;
-	export let isATSwinner: boolean | null;
+	export let ATSwinner: string;
+	export let homeTeam: Team;
+	export let awayTeam: Team;
 
 	let min = 30;
 	let max = 60;
@@ -39,33 +45,22 @@
 		{#if status.type.description === 'Final'}
 			{#await promiseScores}
 				<div class="away">--</div>
-			{:then { awayScoreData, homeScoreData }}
-				<!-- --boxOneX:{boxShadowOneX}px; --boxOneY:{boxShadowOneY}px; --boxTwoX: {boxShadowTwoX}px; --boxTwoY:{boxShadowTwoY}px;--boxOneSpread:{boxShadowOneSpread}px;--boxTwoSpread:{boxShadowTwoSpread}px;" -->
-				<div
-					style="--topLeft:{topLeft}% {topLeftTwo}%; --topRight:{topRight}% {topRightTwo}%; --bottomLeft:{bottomLeft}% {bottomLeftTwo}%; --bottomRight:{bottomRight}% {bottomRightTwo}%;"
-					class="away score"
-					class:higherScore={awayScoreData.value > homeScoreData.value}
-				>
-					{awayScoreData.value}
-				</div>
-			{:catch}
-				<div class="away">--</div>
-			{/await}
-
-			<div class="finalOrTime">Final</div>
-
-			{#await promiseScores}
+				<div class="finalOrTime">Final</div>
 				<div class="home">--</div>
 			{:then { awayScoreData, homeScoreData }}
-				<div
-					style="--topLeft:{topLeft}% {topLeftTwo}%; --topRight:{topRight}% {topRightTwo}%; --bottomLeft:{bottomLeft}% {bottomLeftTwo}%; --bottomRight:{bottomRight}% {bottomRightTwo}%;"
-					class="home score"
-					class:higherScore={homeScoreData.value > awayScoreData.value}
-				>
-					{homeScoreData.value}
-				</div>
-			{:catch}
-				<div class="home">--</div>
+				<FinalGameScore
+					isHigherScore={awayScoreData.value > homeScoreData.value}
+					displayedScore={awayScoreData}
+					gridArea={'away'}
+				/>
+				<div class="finalOrTime">Final</div>
+				<FinalGameScore
+					isHigherScore={homeScoreData.value > awayScoreData.value}
+					displayedScore={homeScoreData}
+					gridArea={'home'}
+				/>
+			{:catch error}
+				<ErrorModal {error} />
 			{/await}
 		{:else if status.type.description === 'Scheduled'}
 			<!-- <div class="away" />
@@ -73,38 +68,33 @@
 			<div class="home" /> -->
 		{:else if status.type.description !== 'Canceled'}
 			{#await promiseScores}
-				<div class="away">--</div>
-			{:then { awayScoreData }}
+				<div class="away score">--</div>
+				<div class="finalOrTime">--</div>
+				<div class="home score">--</div>
+			{:then { awayScoreData, homeScoreData }}
 				<div class="away score">{awayScoreData.value}</div>
-			{:catch}
-				<div class="away">--</div>
-			{/await}
-
-			<div class="grid period-clock finalOrTime">
-				{#if status.type.completed === false}
-					{#if status.type.description === 'Halftime'}
-						<div>{status.type.description}</div>
-					{:else if status.type.description !== 'Canceled'}
-						<div>Q{status.period}</div>
-						<div>{status.displayClock}</div>
-					{:else}
-						<div><strong>Canceled</strong></div>
+				<div class="grid period-clock finalOrTime">
+					{#if status.type.completed === false}
+						{#if status.type.description === 'Halftime'}
+							<div>{status.type.description}</div>
+						{:else if status.type.description !== 'Canceled'}
+							<div>Q{status.period}</div>
+							<div>{status.displayClock}</div>
+						{:else}
+							<div><strong>Canceled</strong></div>
+						{/if}
 					{/if}
-				{/if}
-			</div>
-
-			{#await promiseScores}
-				<div class="home">--</div>
-			{:then { homeScoreData }}
+				</div>
 				<div class="home score">{homeScoreData.value}</div>
-			{:catch}
-				<div class="home">--</div>
+			{:catch error}
+				<div class="away">--</div>
+				<ErrorModal {error} />
 			{/await}
 		{/if}
-	{:catch}
-		unable to get game status...
+	{:catch error}
+		<ErrorModal {error} />
 	{/await}
-	<ScoresAts {promiseStatus} {promiseScores} {spread} {isATSwinner} />
+	<ScoresAts {promiseStatus} {promiseScores} {spread} {ATSwinner} {homeTeam} {awayTeam} />
 </div>
 
 <style lang="scss">
@@ -151,11 +141,5 @@
 		font-size: min(2.5rem, 5vw);
 		min-width: 2ch;
 		padding: min(0.5rem, 1.4vw);
-	}
-	.higherScore {
-		// border-radius: 100%;
-		border-radius: var(--topLeft) var(--topRight) / var(--bottomRight) var(--bottomLeft);
-		outline: dashed;
-		// box-shadow: var(--boxOneX) var(--boxOneY) var(--boxOneSpread) 2px currentColor, // var(--boxTwoX) var(--boxTwoY) var(--boxTwoSpread) 2px currentColor;
 	}
 </style>

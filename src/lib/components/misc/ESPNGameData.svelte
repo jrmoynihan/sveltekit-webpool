@@ -6,6 +6,7 @@
 
 	export let gameData: ESPNGame[] | ESPNGamePruned[];
 	export let title = '';
+	export let maxHeight = 25;
 </script>
 
 <section>
@@ -18,7 +19,7 @@
 			cloudyBackground={false}
 			expandTitle={`Game ${i + 1} -- ${game.date.substring(0, 10)} ${game.name}`}
 			customSummaryStyles="padding:1rem;"
-			customDetailsStyles="max-height: 26vh; scrollbar-width: thin;"
+			customDetailsStyles={`max-height: ${maxHeight}vh; scrollbar-width: thin;`}
 		>
 			<svelte:fragment slot="content">
 				{#each Object.entries(game) as [key, value] (key)}

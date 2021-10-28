@@ -41,7 +41,7 @@
 	</p> -->
 </div>
 
-<style>
+<style lang="postcss">
 	.content {
 		width: 100%;
 		max-width: var(--column-width);

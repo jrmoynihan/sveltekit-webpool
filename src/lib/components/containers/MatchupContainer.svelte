@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getScores, getSituation, getStatus, isBeforeGameTime } from '$scripts/functions';
+	import { isBeforeGameTime } from '$scripts/functions';
 	import { overrideDisabled, windowWidth } from '$scripts/store';
 	import type { Timestamp } from 'firebase/firestore';
 	import type { Team } from '$scripts/classes/team';
@@ -7,6 +7,8 @@
 	import { onDestroy, onMount } from 'svelte';
 	import GameInfo from './micro/GameInfo.svelte';
 	import TeamSelectRadioInput from './micro/TeamSelectRadioInput.svelte';
+	import type { ESPNScore, ESPNSituation, ESPNStatus, Game } from '$scripts/classes/game';
+	import { getScores, getSituation, getStatus } from '$scripts/dataFetching';
 
 	export let id = 'id';
 	export let index: number;
@@ -14,14 +16,15 @@
 	export let homeTeam: Team;
 	export let awayTeam: Team;
 	export let timestamp: Timestamp;
-	export let selectedTeam: string = '';
+	export let selectedTeam = '';
 	export let competitions = [];
 	export let currentPicks: WeeklyPickDoc[] = [];
 	export let gridColumns = 1;
 	export let isATSwinner: null | boolean = null;
+	export let ATSwinner: string;
 	let layoutBreakpoint = 620;
 	let showTeamNameImages = false;
-	let disabled: boolean = false;
+	let disabled = false;
 	let gameIsOver = false;
 	let beforeGameTime = false;
 	let element: HTMLElement;
@@ -47,9 +50,10 @@
 		}
 	};
 
-	let promiseStatus = getStatus(competitions);
-	let promiseScores = getScores(competitions);
-	let promiseSituation = getSituation(competitions);
+	let promiseStatus: Promise<ESPNStatus> = getStatus(competitions);
+	let promiseScores: Promise<{ homeScoreData: ESPNScore; awayScoreData: ESPNScore }> =
+		getScores(competitions);
+	let promiseSituation: Promise<ESPNSituation> = getSituation(competitions);
 	let statusInterval: NodeJS.Timer;
 	let recheckGameTimeInterval: NodeJS.Timer;
 
@@ -123,6 +127,8 @@
 		bind:promiseStatus
 		bind:promiseSituation
 		bind:isATSwinner
+		bind:ATSwinner
+		bind:gameIsOver
 	/>
 	<TeamSelectRadioInput
 		bind:homeOrAwayTeam={homeTeam}

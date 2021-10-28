@@ -27,23 +27,23 @@
 	];
 
 	export let lightThemeColors = {
-		main: 'rgb(0,0,0)',
-		alternate: 'rgb(255,255,255)',
+		main: 'rgb(0 0 0)',
+		alternate: 'rgb(255 255 255)',
 		// accent: 'rgb(99,144,233)'
-		accent: 'rgb(36,50,36)',
-		admin: 'hsl(220,100%,35%)',
-		adminBorder: 'hsl(220,100%,35%)',
-		adminBackground: 'hsl(220, 40%, 85%)'
+		accent: 'rgb(36 50 36)',
+		admin: 'hsl(220 100% 35%)',
+		adminBorder: 'hsl(220 100% 35%)',
+		adminBackground: 'hsl(220 40% 85%)'
 	};
 	export let darkThemeColors = {
-		main: 'rgb(255,255,255)',
+		main: 'rgb(255 255 255)',
 		// alternate: 'rgb(22, 29, 45)',
-		alternate: 'rgb(36,50,36)',
+		alternate: 'rgb(36 50 36)',
 		// accent: 'rgb(99, 144, 233)'
-		accent: 'rgb(233, 181, 99)',
-		admin: 'hsl(220,100%,35%)',
-		adminBorder: 'hsl(220,100%,35%)',
-		adminBackground: 'hsl(220, 40%, 80%)'
+		accent: 'rgb(233 181 99)',
+		admin: 'hsl(220 100% 35%)',
+		adminBorder: 'hsl(220 100% 35%)',
+		adminBackground: 'hsl(220 40% 80%)'
 	};
 	export let colors = { ...darkThemeColors };
 

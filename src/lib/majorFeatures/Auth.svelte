@@ -12,6 +12,7 @@
 	import OnlineStatusIndicator from '$lib/components/containers/micro/OnlineStatusIndicator.svelte';
 	import NewUserForm from '$lib/components/forms/NewUserForm.svelte';
 	import type ModalOnly from '$lib/components/modals/Modal.svelte';
+	import { myLog } from '$scripts/classes/constants';
 
 	export let useRedirect = true;
 	let newUserFormComponent: ModalOnly;
@@ -31,7 +32,7 @@
 	};
 
 	$: {
-		console.log(`User ${$userNotFound ? 'not' : ''} found.`);
+		myLog(`User ${$userNotFound ? 'not' : ''} found: ${$currentUser?.displayName}`);
 		if ($userNotFound) {
 			newUserFormComponent.open();
 		}

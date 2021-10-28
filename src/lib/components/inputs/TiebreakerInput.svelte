@@ -6,8 +6,8 @@
 
 	export let tiebreaker: number;
 	const dispatch = createEventDispatcher();
-	function changed(event: { detail: any }): void {
-		dispatch('change', event.detail);
+	function changed(event: Event & { currentTarget: EventTarget & HTMLInputElement }): void {
+		dispatch('change', event.currentTarget);
 	}
 </script>
 
@@ -23,7 +23,7 @@
 				id="tiebreaker-input"
 				type="number"
 				bind:value={tiebreaker}
-				on:input={() => changed}
+				on:input={(e) => changed(e)}
 				placeholder="tiebreaker"
 				min="0"
 				in:fade={{ delay: 250, duration: 200 }}

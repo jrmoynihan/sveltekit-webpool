@@ -4,6 +4,7 @@
 		@content;
 	}
 }
+
 @mixin responsive_mobile_only($max-width: 1024px) {
 	@media only screen and (max-width: $max-width) {
 		@content;
@@ -11,34 +12,38 @@
 }
 //** Text Effects **
 @mixin textWithShadow($color: var(--alternate-color), $shadowWidth: 2px) {
-	text-shadow: 0px 0px $shadowWidth $color;
+	text-shadow: 0 0 $shadowWidth $color;
 }
 //********************************************************************************
 
 // *** Box-Shadows ***
 @mixin dayShadow {
 	// box-shadow: -2px -2px 20px 0px gold, 2px 2px 15px 2px purple;
-	box-shadow: -2px -2px 20px 0px rgba(71, 112, 173, 0.63),
-		2px 2px 15px 2px rgba(var(--accentValue-color), 0.5);
+	box-shadow: -2px -2px 20px 0 rgb(71 112 173 / 63%),
+		2px 2px 15px 2px rgba(var(--accentValue-color) / 50%);
 	transition: box-shadow 200ms ease-in-out;
 }
+
 @mixin nightShadow {
-	box-shadow: -2px -2px 20px 0px rgba(83, 168, 53, 0.54),
-		2px 2px 15px 2px rgba(var(--accentValue-color), 0.5);
+	box-shadow: -2px -2px 20px 0 rgb(83 168 53 / 54%),
+		2px 2px 15px 2px rgba(var(--accentValue-color) / 50%);
 	transition: box-shadow 200ms ease-in-out;
 }
+
 @mixin normalShadow {
-	box-shadow: 0 0 4px 2px rgba(var(--mainValue-color), 50%);
+	box-shadow: 0 0 4px 2px rgba(var(--mainValue-color) / 50%);
 }
+
 @mixin hoverBoxShadow {
 	&:hover {
-		box-shadow: 0 0px 10px 5px rgba(0, 0, 0, 0.2);
+		box-shadow: 0 0 10px 5px rgba(0 0 0 / 20%);
 		transform: scale(0.98);
 		@content;
 	}
 }
+
 @mixin glassShadow {
-	box-shadow: 0px 0px 15px 0px rgb(0 0 0 / 50%);
+	box-shadow: 0 0 15px 0 rgba(0 0 0 / 50%);
 }
 // ******************************************
 
@@ -46,33 +51,40 @@
 @mixin rounded($radius: 3rem) {
 	border-radius: $radius;
 }
+
 @mixin fillAvailableWidth {
 	width: auto;
-	width: -webkit-fill-available;
-	width: -moz-available;
+	width: fill-available;
+	width: available;
 }
+
 @mixin centerAIJC {
 	align-items: center;
 	justify-content: center;
 }
+
 @mixin flexCenter($gap: null) {
 	@include centerAIJC;
 	display: flex;
 	gap: $gap;
 }
+
 @mixin gridCenter($grid: grid, $gap: null) {
 	@include centerAIJC;
 	display: $grid;
 	gap: $gap;
 }
+
 @mixin stickyToTop {
 	position: sticky;
 	top: 0;
 }
+
 @mixin gridAndGap($gap: 10px) {
 	display: grid;
 	gap: $gap;
 }
+
 @mixin cell {
 	@include centerAIJC;
 	@include defaultTransition;
@@ -87,25 +99,32 @@
 	background-color: white;
 	color: black;
 }
+
 @mixin editableCell($frosted: true) {
 	@include cell;
+
 	@if ($frosted) {
 		@include frostedGlass;
 	}
+
 	@include normalShadow;
 	width: max-content;
 	max-width: 100%;
+
 	&:hover,
 	&:focus {
 		cursor: text;
 		filter: brightness(105%);
 		outline: none;
+
 		@include dayShadow;
+
 		&:focus {
 			@include nightShadow;
 		}
 	}
 }
+
 @mixin editableInput($frosted: true) {
 	@include editableCell($frosted);
 }
@@ -113,6 +132,7 @@
 @mixin padded1M {
 	padding: 1em;
 }
+
 @mixin centeredButton {
 	@include centerAIJC;
 	margin: auto;
@@ -121,36 +141,43 @@
 @mixin defaultTransition {
 	transition: all 300ms ease-in-out;
 }
+
 @mixin noBorder {
 	border: none;
 }
+
 @mixin thinnestBorder {
-	border: 0.1px solid rgba(0, 0, 0, 0.2);
+	border: 0.1px solid rgb(0 0 0 / 20%);
 }
+
 @mixin cursorPointerAlways {
 	cursor: pointer;
+
 	&:hover,
 	&:focus {
 		cursor: pointer;
 	}
 }
+
 @mixin noOutline {
 	outline: none;
 }
+
 @mixin frostedGlass {
 	backdrop-filter: blur(3px);
-	-webkit-backdrop-filter: blur(3px);
+	backdrop-filter: blur(3px);
 }
+
 @mixin frostedGlassHighContrast {
 	backdrop-filter: blur(3px);
-	-webkit-backdrop-filter: blur(3px);
+	backdrop-filter: blur(3px);
 	color: black;
 }
 
 @mixin cloudyBackground {
 	color: black; // override the default color to maintain high contrast with whitish background
 	box-shadow: 0 0 10px 5px rgb(255 255 255 / 30%);
-	background: radial-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.3));
+	background: radial-gradient(rgb(255 255 255 / 70%), rgb(255 255 255 / 30%));
 }
 
 @mixin defaultButtonStyles {
@@ -170,13 +197,16 @@
 	@include thinnestBorder;
 	@include cursorPointerAlways;
 	@include noOutline;
+
 	&:focus {
 		@include nightShadow;
 	}
+
 	&:hover {
 		@include dayShadow;
 	}
 }
+
 @mixin discreetButtonStyles {
 	background: transparent;
 	box-shadow: none;
@@ -189,74 +219,83 @@
 
 	@keyframes fadeOut {
 		from {
-			opacity: 1;
+			opacity: 100%;
 		}
+
 		to {
-			opacity: 0;
+			opacity: 0%;
 		}
 	}
 }
 
+// trick the browser into using hardware acceleration (GPU) for expensive animations
 @mixin accelerate {
-	transform: translate3d(
-		0,
-		0,
-		0
-	); // trick the browser into using hardware acceleration (GPU) for expensive animations
+	--webkit-transform: translate3d(0, 0, 0);
+	transform: translate3d(0, 0, 0);
 }
+
 @mixin active(
-	$color: white,
-	$textDecorationColor: white,
-	$backgroundColor: var(--accentValue-color),
+	$color: var(--accentValue-color, currentColor),
+	$textDecorationColor: var(--accentValue-color, currentColor),
+	$backgroundColor: var(--accentValue-color, currentColor),
 	$backgroundAlpha: 0.8
 ) {
 	color: $color;
 	text-decoration: underline 2px $textDecorationColor;
-	background-color: rgba($backgroundColor, $backgroundAlpha);
+	background-color: rgba($backgroundColor / $backgroundAlpha);
 }
 
 @mixin pulse(
 	$color: var(--accentValue-color),
 	$pulseDistance: 10px,
-	$pulseDuration: 2.5s,
-	$opacity: 40%
+	$duration: 2.5s,
+	$opacity: 40%,
+	$iterationCount: infinite
 ) {
-	animation: pulse $pulseDuration infinite;
+	animation: pulse $duration $iterationCount;
 
-	@-webkit-keyframes pulse {
-		0% {
-			-webkit-box-shadow: 0 0 0 0 rgba($color, $opacity);
-		}
-		50% {
-			-webkit-box-shadow: 0 0 0 $pulseDistance rgba($color, 0%);
-		}
-		100% {
-			-webkit-box-shadow: 0 0 0 0 rgba($color, 0%);
-		}
-	}
 	@keyframes pulse {
 		0% {
-			-moz-box-shadow: 0 0 0 0 rgba($color, $opacity);
-			box-shadow: 0 0 0 0 rgba($color, $opacity);
+			box-shadow: 0 0 0 0 rgba($color / $opacity);
 		}
+
 		50% {
-			-moz-box-shadow: 0 0 0 $pulseDistance rgba($color, 0%);
-			box-shadow: 0 0 0 $pulseDistance rgba($color, 0%);
+			box-shadow: 0 0 0 $pulseDistance rgba($color / 0%);
 		}
+
 		100% {
-			-moz-box-shadow: 0 0 0 0 rgba($color, 0%);
-			box-shadow: 0 0 0 0 rgba($color, 0%);
+			box-shadow: 0 0 0 0 rgba($color / 0%);
 		}
 	}
+
+	@keyframes pulse {
+		0% {
+			box-shadow: 0 0 0 0 rgba($color / $opacity);
+			box-shadow: 0 0 0 0 rgba($color / $opacity);
+		}
+
+		50% {
+			box-shadow: 0 0 0 $pulseDistance rgba($color / 0%);
+			box-shadow: 0 0 0 $pulseDistance rgba($color / 0%);
+		}
+
+		100% {
+			box-shadow: 0 0 0 0 rgba($color / 0%);
+			box-shadow: 0 0 0 0 rgba($color / 0%);
+		}
+	}
+
 	&:hover,
 	&:focus-within {
 		animation: none;
 	}
 }
+
 @mixin defaultContainerStyles {
 	width: auto;
 	font-size: 1rem;
 	color: var(--main-color);
+
 	@include glassShadow;
 	@include rounded(5vh);
 	@include padded1M;
@@ -264,26 +303,33 @@
 	@include defaultTransition;
 	@include thinnestBorder;
 	@include noOutline;
+
 	&:focus {
 		@include nightShadow;
 	}
 }
+
 @mixin accentedContainer($lightModeAlpha: 100%, $darkModeAlpha: 40%) {
-	background-color: rgba(var(--accentValue-color), $lightModeAlpha);
+	background-color: rgba(var(--accentValue-color) / $lightModeAlpha);
+
 	&.dark-mode {
-		background-color: rgba(var(--accentValue-color), $darkModeAlpha);
-		box-shadow: 0 0 6px 3px rgba(var(--accentValue-color), 30%);
+		background-color: rgba(var(--accentValue-color) / $darkModeAlpha);
+		box-shadow: 0 0 6px 3px rgba(var(--accentValue-color) / 30%);
 	}
 }
+
 @mixin spin {
 	animation: spin 0.3s infinite cubic-bezier(0.6, 0.04, 0.98, 0.335);
+
 	@keyframes spin {
 		0% {
 			transform: rotateX(0deg);
 		}
+
 		50% {
 			transform: rotateX(180deg);
 		}
+
 		100% {
 			transform: rotate3d(360deg);
 		}
@@ -297,6 +343,7 @@
 	bottom: $bottom;
 	left: $left;
 }
+
 @mixin absolute($args...) {
 	@include position(absolute, $args...);
 }
@@ -308,18 +355,29 @@
 @mixin relative($args...) {
 	@include position(relative, $args...);
 }
+
 @mixin styledButton {
 	@include defaultButtonStyles;
 	font-weight: bold;
 	color: white;
+	text-shadow: 1px 1px 10px black;
 	width: 100%;
-	box-shadow: 4px 4px 15px 5px rgba(0, 0, 0, 0.5);
-	border: 4px solid rgba(var(--accentValue-color), 80%);
+	box-shadow: 4px 4px 15px 5px rgba(0 0 0 / 50%);
+	border: 4px solid rgba(var(--accentValue-color) / 80%);
 	background: radial-gradient(
-		rgba(var(--accentValue-color), 70%),
-		rgba(var(--accentValue-color), 40%)
+		rgba(var(--accentValue-color) / 70%) 50%,
+		rgba(var(--accentValue-color) / 40%) 100%
 	);
 }
+@mixin styledButtonDark {
+	@include styledButton;
+	text-shadow: none;
+	background: radial-gradient(
+		rgba(var(--accentValue-color) / 20%) 40%,
+		rgba(var(--accentValue-color) / 40%) 80%
+	);
+}
+
 @mixin hiddenInput {
 	visibility: hidden;
 	height: 0;
@@ -332,6 +390,7 @@
 	background: darkred;
 	border: 4px solid firebrick;
 }
+
 @mixin defaultSelect {
 	@include frostedGlassHighContrast;
 	@include rounded;
@@ -340,15 +399,18 @@
 	padding: 1rem;
 	font-weight: bold;
 	max-width: 100%;
+
 	&:focus {
 		@include nightShadow;
 	}
+
 	&:hover {
 		@include dayShadow;
 	}
 }
+
 @mixin admin {
 	color: var(--admin-color, darkred);
 	border: var(--adminBorder-color, darkred) solid 1px;
-	background: var(--adminBackground-color, hsl(0, 35%, 75%));
+	background: var(--adminBackground-color, hsl(0deg 35% 75%));
 }

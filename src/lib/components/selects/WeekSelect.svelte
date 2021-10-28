@@ -5,7 +5,7 @@
 	import { createEventDispatcher, onMount } from 'svelte';
 
 	export let weeks: number[] = [];
-	export let selectedWeek: number;
+	export let selectedWeek: number = 5;
 	export let gridArea = '';
 	export let selectedSeasonType: SeasonType = { id: 2, text: 'Regular Season' };
 	export let customStyles = '';

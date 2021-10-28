@@ -8,7 +8,6 @@
 	import type { WeeklyPickDoc } from '$scripts/classes/picks';
 	import {
 		scheduleCollection,
-		toastsCollection,
 		weeklyPicksCollection,
 		weeklyTiebreakersCollection
 	} from '$scripts/collections';
@@ -40,7 +39,6 @@
 	import {
 		airplaneDeparture,
 		bomb,
-		bread,
 		checkmark,
 		dogFace,
 		home,
@@ -53,7 +51,7 @@
 		seasonTypes
 	} from '$scripts/classes/constants';
 	import { onMount } from 'svelte';
-	import { defaultToast, errorToast } from '$scripts/toasts';
+	import { defaultToast, errorToast, getToast } from '$scripts/toasts';
 	import SeasonTypeSelect from '$lib/components/selects/SeasonTypeSelect.svelte';
 	import YearSelect from '$lib/components/selects/YearSelect.svelte';
 	import TiebreakerInput from '$lib/components/inputs/TiebreakerInput.svelte';
@@ -79,7 +77,7 @@
 	let tiebreakerPromise: Promise<WeeklyTiebreaker>;
 	let gamesPromise: Promise<Game[]>;
 	let userPromise: Promise<WebUser[]>;
-	let editingToast = false;
+	// let editingToast = false;
 	let showSubmitPicks = false;
 	let selectedUser: WebUser;
 	let selectedWeek = 3;
@@ -88,14 +86,14 @@
 	let currentPicks: WeeklyPickDoc[] = [];
 	let selectedGames: Game[] = [];
 	let currentPickCount = 0;
-	let upcomingGamesCount: number = 0;
+	let upcomingGamesCount = 0;
 	let playedGamesCount = 0;
 	let isCorrectCount = 0;
 	let totalGameCount = 16;
 	let tiebreakerDocRef: DocumentReference;
-	let tiebreaker: number = 0;
-	let toastMsg = ``;
-	let toastTitle = '';
+	let tiebreaker = 0;
+	// let toastMsg = ``;
+	// let toastTitle = '';
 	let gridColumns = 1;
 	let widthMeasure = 85;
 	let offsetRightPercentage = 15;
@@ -129,27 +127,11 @@
 			selectedUser = await userPromise.then((users) => users[0]);
 		}
 
-		await changedQuery();
+		await changedQuery(selectedWeek);
 	};
 	const changeUser = () => {
 		uid = selectedUser.id;
 		return uid;
-	};
-	const getToast = async (page: string) => {
-		try {
-			let msg: string;
-			let title: string;
-			const q = query(toastsCollection, where('page', '==', page));
-			const querySnapshot = await getDocs(q);
-			querySnapshot.forEach((doc) => {
-				msg = doc.data().message;
-				title = doc.data().title;
-			});
-			myLog('got toast', null, bread);
-			return { msg: msg, title: title };
-		} catch (error) {
-			myError('getToast', error, null, bread);
-		}
 	};
 
 	const getPicks = async (selectedWeek: number, uid: string) => {
@@ -168,7 +150,7 @@
 				orderBy('timestamp'),
 				orderBy('gameId')
 			);
-			const querySnapshot = await getDocsFromServer(q.withConverter(weeklyPickConverter));
+			const querySnapshot = await getDocs(q.withConverter(weeklyPickConverter));
 			querySnapshot.forEach((doc) => {
 				picks.push(doc.data());
 			});
@@ -199,7 +181,7 @@
 				where('week', '==', selectedWeek),
 				orderBy('timestamp')
 			);
-			const querySnapshot = await getDocsFromServer(q.withConverter(gameConverter));
+			const querySnapshot = await getDocs(q.withConverter(gameConverter));
 			querySnapshot.forEach((doc) => {
 				games.push(doc.data());
 			});
@@ -255,7 +237,7 @@
 				where('week', '==', selectedWeek),
 				where('uid', '==', uid)
 			);
-			const querySnapshot = await getDocsFromServer(q.withConverter(weeklyTiebreakerConverter));
+			const querySnapshot = await getDocs(q.withConverter(weeklyTiebreakerConverter));
 			querySnapshot.forEach((doc) => {
 				if (doc.exists()) {
 					const data = doc.data();
@@ -480,17 +462,37 @@
 		}
 	};
 
-	const changedQuery = async (changedUser = false) => {
+	const changedQuery = async (selectedWeek: number, changedUser = false) => {
 		try {
-			if (changedUser) {
+			if (changedUser || !uid) {
 				uid = changeUser();
 			}
-			gamesPromise = getGames(selectedWeek);
-			picksPromise = getPicks(selectedWeek, uid);
-			tiebreakerPromise = getTiebreaker(selectedWeek, uid);
+			if (selectedWeek) {
+				gamesPromise = getGames(selectedWeek);
+				picksPromise = getPicks(selectedWeek, uid);
+				tiebreakerPromise = getTiebreaker(selectedWeek, uid);
+			} else {
+				throw 'selected week is undefined';
+			}
 		} catch (error) {
-			errorToast('Error in picking changing query... see console log.');
+			errorToast(`Error in changing query... ${error}`);
 			myError('changedQuery', error);
+		}
+	};
+	const isATSwinner = (pickDoc: WeeklyPickDoc, game: Game): boolean => {
+		// console.log(`game: ${game.name} (${game.id})`);
+		if (pickDoc.pick === '') {
+			// console.log(`pick is empty`);
+			return false;
+		} else if (game.ATSwinner === 'push') {
+			// console.log(`game is a push`);
+			return true;
+		} else if (game.ATSwinner === pickDoc.pick) {
+			// console.log(`pick is correct`);
+			return true;
+		} else {
+			// console.log(`Game is either unscored/incomplete or pick is incorrect`, pickDoc.pick, game.ATSwinner);
+			return false;
 		}
 	};
 
@@ -640,9 +642,12 @@
 					<p>Override Locked Games <Fa icon={$overrideDisabled ? faUnlock : faLock} /></p>
 					<ToggleSwitch bind:checked={$overrideDisabled} />
 					<p>Select Season Type</p>
-					<SeasonTypeSelect bind:selectedSeasonType on:seasonTypeChanged={() => changedQuery()} />
+					<SeasonTypeSelect
+						bind:selectedSeasonType
+						on:seasonTypeChanged={() => changedQuery(selectedWeek)}
+					/>
 					<p>Select Year</p>
-					<YearSelect bind:selectedYear on:yearChanged={() => changedQuery()} />
+					<YearSelect bind:selectedYear on:yearChanged={() => changedQuery(selectedWeek)} />
 					{#await userPromise}
 						Loading Users...
 					{:then}
@@ -650,7 +655,7 @@
 						<UserSelect
 							bind:selectedUser
 							bind:userPromise
-							on:userChanged={() => changedQuery(true)}
+							on:userChanged={() => changedQuery(selectedWeek, true)}
 						/>
 					{/await}
 				</Grid>
@@ -660,7 +665,7 @@
 			customStyles="grid-area:week;"
 			bind:selectedWeek
 			bind:selectedSeasonType
-			on:weekChanged={() => changedQuery()}
+			on:weekChanged={() => changedQuery(selectedWeek)}
 		/>
 		<button
 			style="grid-area:reset;"
@@ -712,11 +717,8 @@
 									awayTeam={game.awayTeam}
 									timestamp={game.timestamp}
 									competitions={game.competitions}
-									isATSwinner={game.ATSwinner === pickDoc.pick
-										? true
-										: game.ATSwinner === 'push'
-										? true
-										: null}
+									isATSwinner={isATSwinner(pickDoc, game)}
+									ATSwinner={game.ATSwinner}
 								/>
 							</div>
 						{/if}
@@ -758,22 +760,9 @@
 				'devOrAdmin main';
 		}
 	}
-	// .dev-notes {
-	// 	@include defaultTransition;
-	// 	position: fixed;
-	// 	left: 0;
-	// 	top: 20%;
-	// 	grid-area: devNotes;
-	// 	align-self: start;
-	// 	justify-self: left;
-	// 	z-index: 50;
-	// 	border-radius: 5vh;
-	// 	min-width: min-content;
-	// 	max-width: 35%;
-	// }
 	.game-container {
 		@include defaultContainerStyles;
-		// background-color: black(30%); // for use with background images
+		/* background-color: black(30%); // for use with background images */
 		box-shadow: 0px 0px 15px 0px rgba(var(--mainValue-color, rgb(255, 255, 255)), 0.5);
 		cursor: initial;
 		width: 100%;
@@ -847,9 +836,9 @@
 
 	.hotkeys {
 		@include styledButton;
-	}
-	input[type='range'] {
-		display: inline-block;
+		&.dark-mode {
+			@include styledButtonDark;
+		}
 	}
 	.winner {
 		background-color: rgba(green, 20%);

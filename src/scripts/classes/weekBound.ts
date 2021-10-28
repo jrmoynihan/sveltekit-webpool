@@ -18,6 +18,7 @@ export class WeekBoundDoc {
 	week_15: WeekBound;
 	week_16: WeekBound;
 	week_17: WeekBound;
+	week_18: WeekBound;
 	constructor({ ...args }) {
 		(this.week_1 = args.week_1),
 			(this.week_2 = args.week_2),
@@ -36,10 +37,16 @@ export class WeekBoundDoc {
 			(this.week_15 = args.week_15),
 			(this.week_16 = args.week_16),
 			(this.week_17 = args.week_17);
+		this.week_18 = args.week_18;
 	}
 }
 export class WeekBound {
 	firstGameTime: Timestamp;
 	lastGameTime: Timestamp;
 	week: number;
+	constructor({ ...args }) {
+		(this.firstGameTime = args.firstGameTime),
+			(this.lastGameTime = args.lastGameTime),
+			(this.week = args.week);
+	}
 }

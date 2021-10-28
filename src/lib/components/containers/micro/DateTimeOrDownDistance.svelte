@@ -1,11 +1,12 @@
 <script lang="ts">
-	import { showTimestamps } from '$scripts/store';
+	import type { ESPNSituation, ESPNStatus } from '$scripts/classes/game';
 	import type { Timestamp } from 'firebase/firestore';
+	import { showTimestamps } from '$scripts/store';
 	import GameTime from './GameTime.svelte';
 
 	export let timestamp: Timestamp;
-	export let promiseStatus: Promise<any>;
-	export let promiseSituation: Promise<any>;
+	export let promiseStatus: Promise<ESPNStatus>;
+	export let promiseSituation: Promise<ESPNSituation>;
 </script>
 
 <div class="dateTime info">

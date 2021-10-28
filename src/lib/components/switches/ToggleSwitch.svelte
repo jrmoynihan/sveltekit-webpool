@@ -3,8 +3,8 @@
 	import { nanoid } from 'nanoid';
 
 	// Expose a property to the bind:checked event and disabled states of the toggle
-	export let checked: boolean = false;
-	export let disabled: boolean = false;
+	export let checked = false;
+	export let disabled = false;
 	// A property to target a grid-area
 	export let area = '';
 	// An id property for a label to target
@@ -19,8 +19,8 @@
 	export let bgColorSaturation = 90;
 	export let bgColorLuminosity = 54;
 	export let darkenHoverPercentage = 20;
-	export let toggleBgColorActive: string = `hsl(${bgColorHue},${bgColorSaturation}%,${bgColorLuminosity}%)`;
-	export let toggleBgColorActiveHovered: string = `hsl(${bgColorHue},${bgColorSaturation}%,${
+	export let toggleBgColorActive = `hsl(${bgColorHue},${bgColorSaturation}%,${bgColorLuminosity}%)`;
+	export let toggleBgColorActiveHovered = `hsl(${bgColorHue},${bgColorSaturation}%,${
 		bgColorLuminosity - darkenHoverPercentage
 	}%)`;
 

@@ -28,3 +28,4 @@ export class Team {
 		this.docID = args.docID;
 	}
 }
+

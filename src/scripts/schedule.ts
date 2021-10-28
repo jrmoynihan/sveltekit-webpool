@@ -2,22 +2,20 @@ import {
 	query,
 	where,
 	getDocs,
-	Timestamp,
-	collection,
 	getDoc,
 	setDoc,
 	updateDoc,
 	doc,
-	DocumentReference
+	Timestamp,
+	getDocFromServer
 } from 'firebase/firestore';
-import type { QuerySnapshot } from 'firebase/firestore';
+import type { QuerySnapshot, DocumentReference } from 'firebase/firestore';
 import { myError, myLog } from './classes/constants';
 import type { Game } from './classes/game';
-import type { WeekBound } from './classes/weekBound';
+import { WeekBound } from './classes/weekBound';
 import { scheduleCollection, weekBoundsCollection } from './collections';
 import { gameConverter, weekBoundConverter } from './converters';
-import { firestoreDB } from './firebaseInit';
-import { defaultToast } from './toasts';
+import { defaultToast, errorToast } from './toasts';
 import { getRegularSeasonWeeks } from './functions';
 import { toast } from '@zerodevx/svelte-toast';
 
@@ -39,7 +37,8 @@ export const findWeekDateTimeBounds = async (): Promise<void> => {
 		const scheduleQuery = query(scheduleCollection, ...wheres);
 		const weekOfGames = await getDocs(scheduleQuery.withConverter(gameConverter));
 		const times = await getFirstAndLastGameTime(weekOfGames);
-		await setBounds(week, times.first, times.last);
+		const weekBound = new WeekBound({ week, firstGameTime: times.first, lastGameTime: times.last });
+		await setBounds(weekBound);
 		myLog(`finished week ${week}`);
 	}
 	myLog(`finished all weeks!`);
@@ -64,10 +63,12 @@ export const getFirstAndLastGameTime = async (
 		const gameTime = data.timestamp;
 		if (firstGameofWeekTime === undefined || gameTime < firstGameofWeekTime) {
 			firstGameofWeekTime = gameTime;
+			// alert(`gameTime: ${gameTime.toDate()} is less than ${firstGameofWeekTime.toDate()}`);
 		}
 		if (lastGameofWeekTime === undefined || gameTime > lastGameofWeekTime) {
 			lastGameofWeekTime = gameTime;
 			lastGameRef = game.ref;
+			// alert(`gameTime: ${gameTime.toDate()} is greater than ${lastGameofWeekTime.toDate()}`);
 		}
 	}
 	// Set the flag to indicate that this game's score will be used for the tiebreaker comparison
@@ -75,23 +76,17 @@ export const getFirstAndLastGameTime = async (
 	return { first: firstGameofWeekTime, last: lastGameofWeekTime };
 };
 
-export const setBounds = async (
-	week: number,
-	firstGameTime: Timestamp,
-	lastGameTime: Timestamp,
-	year?: number
-): Promise<void> => {
+export const setBounds = async (weekBound: WeekBound, year?: number): Promise<void> => {
 	try {
-		myLog(`week ${week} firstGameTime: ${firstGameTime}`);
-		myLog(`week ${week} lastGameTime: ${lastGameTime}`);
-		const weekBoundsCollection = collection(firestoreDB, 'WeekScheduleBounds');
+		myLog(`week ${weekBound.week} firstGameTime: ${weekBound.firstGameTime}`);
+		myLog(`week ${weekBound.week} lastGameTime: ${weekBound.lastGameTime}`);
 		const currentYear = year || new Date().getFullYear();
 		const docRef = doc(weekBoundsCollection, currentYear.toString());
 		const data = {
-			[`week_${week}`]: {
-				firstGameTime,
-				lastGameTime,
-				week
+			[`week_${weekBound.week}`]: {
+				firstGameTime: weekBound.firstGameTime,
+				lastGameTime: weekBound.lastGameTime,
+				week: weekBound.week
 			}
 		};
 		const boundsDoc = await getDoc(docRef);
@@ -107,34 +102,39 @@ export const setBounds = async (
 	}
 };
 export const findCurrentWeekOfSchedule = async (): Promise<number> => {
-	const now = new Date();
-	const currentYear = now.getFullYear();
-	const boundsDoc = doc(weekBoundsCollection, currentYear.toString());
-	const allBounds = await getDoc(boundsDoc.withConverter(weekBoundConverter));
+	try {
+		const now = new Date();
+		const currentYear = now.getFullYear();
+		const boundsDoc = doc(weekBoundsCollection, currentYear.toString());
+		const allBounds = await getDocFromServer(boundsDoc.withConverter(weekBoundConverter));
 
-	// This is the offset from the start of the last game of the week when the function will return the next week.
-	// i.e. if it has been 8 hours after the MNF game for week 3, it should return weekBounds.week = 4
-	const hoursSinceLastGame = 8;
-	// This is a multiplier for the hours above to get the number into milliseconds for a Date.getTime()
-	const millisecondsPerHour = 3_600_000;
+		// This is the offset from the start of the last game of the week when the function will return the next week.
+		// i.e. if it has been 8 hours after the MNF game for week 3, it should return weekBounds.week = 4
+		const hoursSinceLastGame = 8;
+		// This is a multiplier for the hours above to get the number into milliseconds for a Date.getTime()
+		const millisecondsPerHour = 3_600_000;
 
-	if (allBounds.exists) {
-		myLog('got gameBounds doc!');
-		const data = allBounds.data();
-		const regSeasonWeeks = await getRegularSeasonWeeks();
-		for (const week of regSeasonWeeks) {
-			const weekBounds: WeekBound = data[`week_${week}`];
-			const firstGameTime = weekBounds.firstGameTime.toDate();
-			const lastGameTime = weekBounds.lastGameTime.toDate();
-			if (now < firstGameTime && week === 1) {
-				return 1;
-			}
-			if (now.getTime() > lastGameTime.getTime() + hoursSinceLastGame * millisecondsPerHour) {
-				continue;
-			} else {
-				myLog(`current week is ${weekBounds.week}!`);
-				return weekBounds.week;
+		if (allBounds.exists) {
+			myLog('got gameBounds doc!');
+			const data = allBounds.data();
+			const regSeasonWeeks = await getRegularSeasonWeeks();
+			for (const week of regSeasonWeeks) {
+				const weekBounds: WeekBound = data[`week_${week}`];
+				const firstGameTime = weekBounds.firstGameTime.toDate();
+				const lastGameTime = weekBounds.lastGameTime.toDate();
+				if (now < firstGameTime && week === 1) {
+					return 1;
+				}
+				if (now.getTime() > lastGameTime.getTime() + hoursSinceLastGame * millisecondsPerHour) {
+					continue;
+				} else {
+					myLog(`current week is ${weekBounds.week}!`);
+					return weekBounds.week;
+				}
 			}
 		}
+	} catch (error) {
+		myError('findCurrentWeekOfSchedule', error);
+		errorToast(`findCurrentWeekOfSchedule had an error: ${error}`);
 	}
 };

@@ -77,7 +77,6 @@
 		gap: 5px;
 	}
 	.selected {
-		@include defaultTransition;
 		@include normalShadow;
 		@include accentedContainer;
 		color: white;
@@ -88,8 +87,12 @@
 	}
 	.dayShadow:hover {
 		@include nightShadow;
+		transition: all 300ms ease-in-out;
+		transform: scale(1.03);
 	}
 	.nightShadow:focus {
 		@include nightShadow;
+		transition: all 300ms ease-in-out;
+		transform: scale(1.03);
 	}
 </style>

@@ -1,7 +1,21 @@
+import type {
+	ESPNRecord,
+	ESPNScore,
+	ESPNTeamData,
+	PrunedCompetition,
+	RefOnlyESPN
+} from './classes/game';
 import type { Game } from './classes/game';
-import type { DocumentReference, QuerySnapshot, QueryConstraint } from 'firebase/firestore';
+import {
+	DocumentReference,
+	QuerySnapshot,
+	QueryConstraint,
+	getDocsFromServer,
+	getDoc,
+	getDocFromServer
+} from 'firebase/firestore';
 import { updateDoc, getDocs, query, where, increment, doc } from 'firebase/firestore';
-import { myLog, everyoneWinsResult, myError, checkmark } from './classes/constants';
+import { myLog, everyoneWinsResult, myError, checkmark, HomeOrAway } from './classes/constants';
 import {
 	scheduleCollection,
 	usersCollection,
@@ -15,15 +29,15 @@ import {
 	weeklyPickConverter,
 	weeklyTiebreakerConverter
 } from './converters';
-import { getStatus, getScores } from './functions';
 import { defaultToast, errorToast } from './toasts';
-import { resetTeamRecords, teamsCollection } from './teams';
+import { teamsCollection } from './teams';
 import type { Team } from './classes/team';
 import type { WeeklyTiebreaker } from './classes/tiebreaker';
 import type { WeeklyPickDoc } from './classes/picks';
 import { toast } from '@zerodevx/svelte-toast';
 import type { WebUser } from './classes/webUser';
 import type { UserRecord } from './classes/userRecord';
+import { getStatus, getScores, convertToHttps } from './dataFetching';
 
 // Score all picks for a given week
 export const scorePicksForWeek = async (
@@ -45,17 +59,15 @@ export const scorePicksForWeek = async (
 		const gameQuery = query(scheduleCollection, ...wheres);
 		const pickQuery = query(weeklyPicksCollection, ...wheres);
 		const tiebreakerQuery = query(weeklyTiebreakersCollection, ...wheres);
-		const teamQuery = query(teamsCollection);
 		const userQuery = query(usersCollection, where('weekly', '==', true));
 		const games = await getDocs(gameQuery.withConverter(gameConverter));
 		const picks = await getDocs(pickQuery.withConverter(weeklyPickConverter));
 		const tiebreakers = await getDocs(tiebreakerQuery.withConverter(weeklyTiebreakerConverter));
-		const teams = await getDocs(teamQuery.withConverter(teamConverter));
 		const users = await getDocs(userQuery.withConverter(userConverter));
 		games.forEach((game) => {
 			const gameData = game.data();
 			const gameRef = game.ref;
-			updateGameandATSWinner(gameData, gameRef, teams);
+			updateGameandATSWinner(gameData, gameRef);
 			scoreNetTiebreakers(gameData, tiebreakers, selectedWeek);
 			markIfPickIsCorrect(picks, gameData);
 
@@ -223,30 +235,29 @@ export const updateGamesAndATSWinners = async (
 			where('type', '==', seasonType)
 		];
 		const gameQuery = query(scheduleCollection, ...wheres);
-		const teamQuery = query(teamsCollection);
 		const games = await getDocs(gameQuery.withConverter(gameConverter));
-		const teams = await getDocs(teamQuery.withConverter(teamConverter));
 		games.forEach(async (game) => {
 			const gameData = game.data();
 			const gameRef = game.ref;
 			myLog(`updating game ${gameData.id}...`);
-			await updateGameandATSWinner(gameData, gameRef, teams);
+			await updateGameandATSWinner(gameData, gameRef);
 		});
 		defaultToast({
 			title: `Completed!`,
 			msg: `Winners have been added/updated to each game document.`
 		});
-	} catch (error) {}
+	} catch (error) {
+		myError('updateGamesAndATSWinners', error);
+	}
 };
 
 export const updateGameandATSWinner = async (
 	gameData: Game,
-	gameRef: DocumentReference,
-	teams: QuerySnapshot<Team>
+	gameRef: DocumentReference
 ): Promise<{ winnerAndLoser: { winner: string; loser: string }; ATSwinner: string }> => {
 	try {
 		// if (!gameData.winner) {
-		const competitions: any[] = gameData.competitions;
+		const competitions: PrunedCompetition[] = gameData.competitions;
 		const statusData = await getStatus(competitions);
 		if (statusData.type?.completed) {
 			myLog(`${gameData.id} completed: ${statusData.type.completed}`);
@@ -284,7 +295,7 @@ export const updateGameandATSWinner = async (
 };
 
 export const findWinnerAndLoser = async (
-	scores: { homeScoreData: { winner: boolean }; awayScoreData: { winner: boolean } },
+	scores: { homeScoreData: ESPNScore; awayScoreData: ESPNScore },
 	gameData: Game
 ): Promise<{ winner: string; loser: string }> => {
 	try {
@@ -413,73 +424,218 @@ export const removeWinnersFromGames = async (
 };
 // TODO: turn this into a cloud function listener!
 // ** Update the team records on both team and game documents **
-export const updateTeamRecordsEverywhere = async (
-	selectedYear = new Date().getFullYear(),
-	seasonType = 'Regular Season',
-	games?: QuerySnapshot<Game>,
-	teams?: QuerySnapshot<Team>
-): Promise<void> => {
+// export const updateTeamRecordsEverywhere = async (
+// 	selectedYear = new Date().getFullYear(),
+// 	seasonType = 'Regular Season',
+// 	games?: QuerySnapshot<Game>,
+// 	teams?: QuerySnapshot<Team>
+// ): Promise<void> => {
+// 	try {
+// 		const wheres = [where('year', '==', selectedYear), where('type', '==', seasonType)];
+// 		const gamesQuery = query(scheduleCollection, ...wheres);
+// 		const teamQuery = query(teamsCollection);
+// 		// If the games or teams have already been queried, they should be passed as arguments to the function
+// 		if (!games) {
+// 			games = await getDocs(gamesQuery.withConverter(gameConverter));
+// 		}
+// 		if (!teams) {
+// 			teams = await getDocs(teamQuery.withConverter(teamConverter));
+// 		}
+// 		// Reset team records to stay in sync since we're iterating over EVERY game
+// 		// await resetTeamRecords(true);
+
+// 		games.forEach(async (game) => {
+// 			const gameData = game.data();
+// 			const gameRef = game.ref;
+// 			const winner = gameData.winner;
+// 			const loser = gameData.loser;
+// 			const winnerAndLoser = { winner, loser };
+// 			// Update the record on the team doc; the central source of team info
+// 			await updateTeamRecordOnTeamDoc(winnerAndLoser, teams, gameData);
+
+// 			// Re-query the newly updated team info (could use a snapshot listerner instead?);
+// 			// Otherwise, the update on the schedule docs will be using stale data!
+// 			const updatedTeams = await getDocsFromServer(teamQuery.withConverter(teamConverter));
+// 			console.log(updatedTeams);
+
+// 			// Then update the team's record on the game docs displayed for each week
+// 			await updateTeamRecordOnGameDocs(updatedTeams, gameData, gameRef);
+// 		});
+// 		defaultToast({
+// 			title: 'Updated Teams!',
+// 			msg: 'Successfully updated teams on scheduled game documents!'
+// 		});
+// 	} catch (error) {
+// 		errorToast('Error updating teams on scheduled game documents!');
+// 		myError('updateTeamRecords', error);
+// 	}
+// };
+export const updateTeamRecordsFromESPN = async (
+	selectedYear: number = new Date().getFullYear()
+) => {
 	try {
-		const wheres = [where('year', '==', selectedYear), where('type', '==', seasonType)];
-		const gamesQuery = query(scheduleCollection, ...wheres);
-		const teamQuery = query(teamsCollection);
-		// If the games or teams have already been queried, they should be passed as arguments to the function
-		if (!games) {
-			games = await getDocs(gamesQuery.withConverter(gameConverter));
-		}
-		if (!teams) {
-			teams = await getDocs(teamQuery.withConverter(teamConverter));
-		}
-		// Reset team records to stay in sync since we're iterating over EVERY game
-		await resetTeamRecords(true);
-
-		games.forEach(async (game) => {
-			const gameData = game.data();
-			const gameRef = game.ref;
-			const winner = gameData.winner;
-			const loser = gameData.loser;
-			const winnerAndLoser = { winner, loser };
-			// Update the record on the team doc; the central source of team info
-			await updateTeamRecordOnTeamDoc(winnerAndLoser, teams, gameData);
-
-			// Re-query the newly updated team info (could use a snapshot listerner instead?);
-			// Otherwise, the update on the schedule docs will be using stale data!
-			teams = await getDocs(teamQuery.withConverter(teamConverter));
-
-			// Then update the team's record on the game docs displayed for each week
-			await updateTeamRecordOnGameDocs(teams, gameData, gameRef);
+		let writeCount = 0;
+		const toastId = defaultToast({
+			title: 'Updating Team Records',
+			msg: 'Starting to update team records... ',
+			duration: 360000
 		});
-		defaultToast({
-			title: 'Updated Teams!',
-			msg: 'Successfully updated teams on scheduled game documents!'
-		});
+		const gameQuery = query(
+			scheduleCollection.withConverter(gameConverter),
+			where('year', '==', selectedYear)
+		);
+		const games = await getDocsFromServer(gameQuery);
+
+		// Gets references to all teams data from ESPN; the limit=50 condition is important, because it will default to only 25 teams returned otherwise despite there being 32 total.
+		const teamFetchResponse = await fetch(
+			`https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/${selectedYear}/teams?lang=en&region=us&limit=50`
+		);
+		const teamsData = await teamFetchResponse.json();
+		const teamsRefs: RefOnlyESPN[] = teamsData.items;
+
+		myLog('teamsData', null, null, teamsData);
+		myLog('Retrieving Team Record Data from ESPN:');
+
+		for await (const team of teamsRefs) {
+			const teamResponse = await fetch(await convertToHttps(team.$ref));
+			const teamData: ESPNTeamData = await teamResponse.json();
+			const teamAbbreviation = teamData.abbreviation;
+			const teamRecordRef: RefOnlyESPN = teamData.record;
+			const recordResponse = await fetch(await convertToHttps(teamRecordRef.$ref));
+			const recordData: ESPNRecord = await recordResponse.json();
+			const wins = recordData.items[0].stats[1].value;
+			const losses = recordData.items[0].stats[2].value;
+			const ties = recordData.items[0].stats[5].value;
+			const teamDoc = doc(teamsCollection, teamAbbreviation);
+
+			toast.set(toastId, { msg: `Updating ${teamData.displayName}`, duration: 30000 });
+
+			myLog(`${teamAbbreviation} || wins: ${wins}, losses: ${losses}, ties: ${ties}`);
+			// Update the information on the team document (didn't need any reads to do this!)
+			updateDoc(teamDoc.withConverter(teamConverter), {
+				wins: wins,
+				losses: losses,
+				ties: ties
+			});
+			writeCount++;
+
+			// Iterate through all games to keep team records up to date on those documents
+			writeCount = await updateTeamRecordOnGameDocs(
+				games,
+				teamAbbreviation,
+				wins,
+				losses,
+				ties,
+				writeCount
+			);
+		}
+		toast.set(toastId, { msg: `Finished updating teams!`, duration: 10000 });
+		toast.push({ msg: `wrote ${writeCount} times!`, duration: 30000 });
+		myLog(`made ${writeCount} writes to update the records on team and game documents`);
 	} catch (error) {
-		errorToast('Error updating teams on scheduled game documents!');
-		myError('updateTeamRecords', error);
+		myError('updateTeamRecordsFromESPN', error);
 	}
 };
 
 export const updateTeamRecordOnGameDocs = async (
-	teams: QuerySnapshot<Team>,
-	gameData: Game,
-	gameRef: DocumentReference<Game>
+	games: QuerySnapshot<Game>,
+	teamAbbreviation: string,
+	wins: number,
+	losses: number,
+	ties: number,
+	writeCount: number
 ) => {
 	try {
-		for await (const team of teams.docs) {
-			const teamData = team.data();
-			const teamID = team.id;
-			if (gameData.awayTeam.abbreviation === teamID) {
-				updateDoc(gameRef, { awayTeam: { ...teamData } });
-				myLog(`updated ${teamData.abbreviation} on game ${gameData.id}`);
-			}
-			if (gameData.homeTeam.abbreviation === teamID) {
-				updateDoc(gameRef, { homeTeam: { ...teamData } });
-				myLog(`updated ${teamData.abbreviation} on game ${gameData.id}`);
+		for await (const game of games.docs) {
+			const gameData: Game = game.data();
+			const gameRef = game.ref;
+
+			if (gameData.awayTeam.abbreviation === teamAbbreviation) {
+				writeCount = await updateTeamRecord(
+					gameData,
+					gameRef,
+					HomeOrAway.Away,
+					wins,
+					losses,
+					ties,
+					writeCount
+				);
+			} else if (gameData.homeTeam.abbreviation === teamAbbreviation) {
+				writeCount = await updateTeamRecord(
+					gameData,
+					gameRef,
+					HomeOrAway.Home,
+					wins,
+					losses,
+					ties,
+					writeCount
+				);
 			}
 		}
+		return writeCount;
 	} catch (error) {
 		myError('updateTeamRecordOnGameDocs', error);
 		errorToast(`Unable to update team record on game doc.`);
+	}
+};
+export const updateTeamRecord = async (
+	gameData: Game,
+	gameRef: DocumentReference,
+	homeOrAway: HomeOrAway,
+	wins: number,
+	losses: number,
+	ties: number,
+	writeCount: number
+) => {
+	// Copy the current data to a new Game object, then modify its typed fields
+	const newData: Game = JSON.parse(JSON.stringify(gameData));
+
+	// Modify the team record fields needed
+	if (homeOrAway === HomeOrAway.Away) {
+		newData.awayTeam.wins = wins;
+		newData.awayTeam.losses = losses;
+		newData.awayTeam.ties = ties;
+
+		//** Update the doc if the record does NOT match the fresh ESPN data (don't write unnecessarily)
+		// if (!doesExistingRecordMatchNewRecord(newData.awayTeam, gameData.awayTeam)) {
+		await updateDoc(gameRef, {
+			'awayTeam.wins': wins,
+			'awayTeam.losses': losses,
+			'awayTeam.ties': ties,
+			'awayTeam.docRef': `/Teams/${gameData.awayTeam.abbreviation}`
+		});
+		writeCount++;
+		// }
+	} else {
+		newData.homeTeam.wins = wins;
+		newData.homeTeam.losses = losses;
+		newData.homeTeam.ties = ties;
+
+		//** Update the doc if the record does NOT match the fresh ESPN data (don't write unnecessarily)
+		// if (!doesExistingRecordMatchNewRecord(newData.homeTeam, gameData.homeTeam)) {
+		await updateDoc(gameRef, {
+			'homeTeam.wins': wins,
+			'homeTeam.losses': losses,
+			'homeTeam.ties': ties,
+			'homeTeam.docRef': `/Teams/${gameData.homeTeam.abbreviation}`
+		});
+		writeCount++;
+		// }
+	}
+	return writeCount;
+};
+export const doesExistingRecordMatchNewRecord = async (
+	newTeamData: Team,
+	existingTeamData: Team
+) => {
+	if (
+		newTeamData.wins === existingTeamData.wins &&
+		newTeamData.losses === existingTeamData.losses &&
+		newTeamData.ties === existingTeamData.ties
+	) {
+		return true;
+	} else {
+		return false;
 	}
 };
 

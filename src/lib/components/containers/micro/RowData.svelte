@@ -2,8 +2,8 @@
 	import { useDarkTheme } from '$scripts/store';
 	import { fly } from 'svelte/transition';
 
-	export let evenRow: boolean = false;
-	export let inTheMoney: boolean = false;
+	export let evenRow = false;
+	export let inTheMoney = false;
 	export let delay = 0;
 	export let xEvenRow = 250;
 	export let xOddRow = -250;

@@ -31,13 +31,9 @@
 	}
 	img {
 		@include accelerate;
-		@include defaultTransition;
 		// padding: clamp(0.2rem, 5vw, 0.5rem) clamp(1rem, 5vw, 2rem);
 		max-width: 100%;
 		max-height: 6rem;
-		&:hover {
-			transform: scale(1.1);
-		}
 	}
 	.grayscale {
 		filter: grayscale(100%);

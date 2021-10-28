@@ -178,10 +178,4 @@
 		padding-bottom: 0.5rem;
 		border-bottom: 2px solid rgba(var(--accentValue-color, rgb(233, 181, 99)), 50%);
 	}
-	.admin {
-		@include admin;
-		padding: 0.25rem 1rem;
-		border-radius: 3rem;
-		width: max-content;
-	}
 </style>

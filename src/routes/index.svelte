@@ -88,6 +88,6 @@
 	}
 	.football-wrapper {
 		filter: saturate(0.6);
-		z-index: 0;
+		/* z-index: 0; */
 	}
 </style>

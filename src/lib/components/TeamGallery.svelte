@@ -20,7 +20,7 @@
     {/await} -->
 </div>
 
-<style lang="scss">
+<style lang="postcss">
 	.team-gallery {
 		@include rounded;
 		box-sizing: border-box;

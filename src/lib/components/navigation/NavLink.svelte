@@ -51,11 +51,7 @@
 		href={pageOption.path}
 		class={$useDarkTheme ? 'dark-mode' : 'light-mode'}
 	>
-		<Fa
-			icon={faFootballBall}
-			size="lg"
-			style={$page.path === pageOption.path ? 'color:var(--alternate-color);' : ''}
-		/>
+		<Fa icon={faFootballBall} size="lg" />
 		<h2>{pageOption.navigationText}</h2>
 	</a>
 </label>
@@ -67,7 +63,7 @@
 		@include flexCenter;
 		position: relative;
 		color: var(--main-color, rgb(255, 255, 255));
-		box-shadow: 0 0 2px 2px rgba(var(--accentValue-color, rgb(233, 181, 99)), 0.3);
+		box-shadow: 0 0 2px 2px rgba(var(--accentValue-color, rgb(233, 181, 99)) / 30%);
 		width: 100%;
 		height: 2em;
 
@@ -84,8 +80,10 @@
 		}
 		&:hover:not(.active),
 		&:focus:not(.active) {
-			background: radial-gradient(var(--alternate-color, rgb(36, 50, 36)) 30%, transparent 90%);
-			background-color: rgba(var(--accentValue-color, rgb(233, 181, 99)), 50%);
+			// background: radial-gradient(transparent 60%, rgba(var(--accentValue-color) / 50%) 100%);
+			background-color: rgba(var(--accentValue-color, rgb(233, 181, 99)) / 25%);
+			transform: scale3d(1.15, 1.2, 1.1);
+			margin: 0 2rem;
 		}
 		// Current page indicator
 		&.active {
@@ -115,10 +113,8 @@
 		}
 		&.active,
 		&:active {
-			color: var(--alternate-color, rgb(36, 50, 36));
-			&.dark-mode {
-				color: var(--main-color, rgb(255, 255, 255));
-			}
+			color: white;
+			text-decoration: underline 2px white;
 		}
 	}
 </style>

@@ -17,32 +17,26 @@
 	export let selectedItem = {};
 
 	const dispatch = createEventDispatcher();
-	function forwardToParent(event: { detail: any }): void {
+	function forwardToParent(event: KeyboardEvent): void {
 		dispatch('pressedEnter', event.detail);
 	}
 
-	function onKeyPress(e: { key?: any; preventDefault?: any; target: any; detail: any }): void {
+	function onKeyPress(e: KeyboardEvent): void {
 		if (e.key === 'Enter') {
-			// e.preventDefault();
-			handleInput(e);
+			e.preventDefault();
 			forwardToParent(e);
 			inputBGcolor = '';
 		}
 		if (e.key === 'ArrowDown') {
 			e.preventDefault();
-			e.target.value = '';
-			e.target.focus();
+			// e.target.value = '';
+			// e.target.focus();
 		}
 	}
-	const handleInput = (event: {
-		key?: any;
-		preventDefault?: any;
-		target: any;
-		detail?: any;
-	}): void => {
+	const handleInput = (event: InputEvent): void => {
 		// Update the bound selected item (i.e. the whole object)
 		if (items instanceof Array) {
-			selectedItem = items.find((item) => buildItemString(item) === event.target.value);
+			selectedItem = items.find((item) => buildItemString(item) === event.detail.toString());
 		}
 		blur();
 	};
@@ -140,8 +134,6 @@
 </datalist>
 
 <style lang="scss">
-	// @import 'src/styles/mixins.scss';
-
 	input {
 		width: 100%;
 		padding: 0.5em 1em;

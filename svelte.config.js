@@ -1,9 +1,9 @@
 import preprocess from 'svelte-preprocess';
 import firebase from 'svelte-adapter-firebase';
 import path from 'path';
-// import mkcert from 'vite-plugin-mkcert';
+import mkcert from 'vite-plugin-mkcert';
 // import { imagetools } from 'vite-imagetools';
-// import autoprefixer from 'autoprefixer';
+import autoprefixer from 'autoprefixer';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -12,6 +12,7 @@ const config = {
 	preprocess: preprocess({
 		// postcss: {
 		// 	plugins: [autoprefixer()]
+		// prependData: `@import('src/styles/mixins.scss', 'src/styles/functions.scss');`
 		// },
 		sourceMap: true,
 		scss: {
@@ -40,7 +41,10 @@ const config = {
 					$majorFeatures: path.resolve('./src/lib/majorFeatures'),
 					$static: path.resolve('./static/')
 				}
-			}
+			},
+			build: {
+				target: 'esnext'
+			},
 			// build: {
 			// minify: 'terser',
 			// legalComments: 'none',
@@ -66,10 +70,10 @@ const config = {
 			// ssr: {
 			// 	external: ['@firebase/firestore']
 			// },
-			// server: {
-			// 	https: true
-			// },
-			// plugins: [mkcert, imagetools()]
+			server: {
+				https: true
+			},
+			plugins: [mkcert]
 		}
 	}
 };

@@ -1,11 +1,6 @@
 import { browser } from '$app/env';
 import { overrideDisabled, showPickWarning } from './store';
-import {
-	maxPreseasonWeeks,
-	maxRegularSeasonWeeks,
-	myError,
-	policeCarLight
-} from './classes/constants';
+import { maxPreseasonWeeks, maxRegularSeasonWeeks, myError } from './classes/constants';
 import type { WeeklyPickDoc } from './classes/picks';
 import type { Timestamp } from 'firebase/firestore';
 import { getLocalStorageItem } from './localStorage';
@@ -16,16 +11,30 @@ export const isPropertyOf = <T>(
 	propertyToCheckFor: keyof T
 ): varToBeChecked is T => (varToBeChecked as T)[propertyToCheckFor] !== undefined;
 
+export const capitalizeWord = (str: string) => {
+	return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
 export function getWindowSize(): number {
 	return window.innerWidth;
 }
-export const matchPath = (testPath: string, currentPath: string): boolean => {
+export const matchPath = (testPath: string, currentPath: string) => {
 	try {
-		let replaced = testPath;
-		replaced = replaced + `\\W*`;
-		const regex = new RegExp(replaced);
-		// console.log(`current: ${currentPath}`, regex.test(currentPath));
-		return regex.test(currentPath);
+		const currentPathSegments = currentPath.split('/');
+		const testPathSegments = testPath.split('/');
+
+		let didNotMatch = false;
+
+		testPathSegments.forEach((testSegment) => {
+			// if the segment isn't found, trigger the flag, otherwise keep matching substring segments
+			if (!currentPathSegments.includes(testSegment)) {
+				didNotMatch = true;
+			}
+		});
+
+		// return the inverse of the matching (yes, it's a little confusing that way)
+		return !didNotMatch;
+		
 	} catch (err) {
 		console.error('An error occurred in functions:{matchPath}');
 	}
@@ -108,78 +117,6 @@ export const scrollToTopSmooth = (top = 0): void => {
 	}
 };
 
-export const convertToHttps = async (httpAddress: string): Promise<string> => {
-	return httpAddress.replace('http', 'https');
-};
-export const getStatus = async (competitions: { status: { $ref: string } }[]): Promise<any> => {
-	const httpGameStatusEndpoint: string = competitions[0].status.$ref;
-	const httpsGameStatusEndpoint: string = await convertToHttps(httpGameStatusEndpoint);
-	// console.log(httpsGameStatusEndpoint)
-	const statusResponse = await fetch(httpsGameStatusEndpoint);
-	const statusData = statusResponse.json();
-	return statusData;
-};
-export const getSituation = async (
-	competitions: { situation: { $ref: string } }[]
-): Promise<any> => {
-	const httpGameSituationEndpoint: string = competitions[0].situation.$ref;
-	const httpsGameSituationEndpoint: string = await convertToHttps(httpGameSituationEndpoint);
-	const situationResponse = await fetch(httpsGameSituationEndpoint);
-	const situationData = situationResponse.json();
-	// console.table(situationData);
-	return situationData;
-};
-
-export const getScores = async (
-	competitions: { competitors: { score: { $ref: any } }[] }[]
-): Promise<{ homeScoreData: any; awayScoreData: any }> => {
-	try {
-		let homeScoreData: any;
-		let awayScoreData: any;
-		const httpHomeEndpoint = competitions[0].competitors[0].score.$ref;
-		const httpAwayEndpoint = competitions[0].competitors[1].score.$ref;
-		const httpsHomeEndpoint = await convertToHttps(httpHomeEndpoint);
-		const httpsAwayEndpoint = await convertToHttps(httpAwayEndpoint);
-		const homeScoreResponse = await fetch(httpsHomeEndpoint);
-		const awayScoreResponse = await fetch(httpsAwayEndpoint);
-
-		if (homeScoreResponse.ok) {
-			homeScoreData = await homeScoreResponse.json();
-		}
-		if (awayScoreResponse.ok) {
-			awayScoreData = await awayScoreResponse.json();
-		}
-		if (homeScoreData !== undefined && awayScoreData !== undefined) {
-			return { homeScoreData, awayScoreData };
-		} else {
-			throw `error getting scores`;
-		}
-	} catch (error) {
-		console.error(`%c${policeCarLight} error getting scores!`);
-	}
-};
-
-export const getConsensusSpread = async (gameID: string): Promise<number> => {
-	try {
-		const response = await fetch(
-			`https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events/${gameID}/competitions/${gameID}/odds`
-		);
-		const data = await response.json();
-		const spreadProviders = data.items;
-		let consensus: number;
-		for (const spreadProvider of spreadProviders) {
-			if (spreadProvider.provider.name === 'consensus') {
-				consensus = spreadProvider.spread;
-			}
-		}
-		if (consensus === undefined) {
-			consensus = null;
-		}
-		return consensus;
-	} catch (error) {
-		console.error(error);
-	}
-};
 export const findMissedPick = async (currentPicks: WeeklyPickDoc[]): Promise<number> => {
 	for (const [i, value] of currentPicks.entries()) {
 		if (value.pick === '') {

@@ -13,17 +13,15 @@
 	$: hour_offset = modulo($displayed_hour, 1);
 	$: minute_offset = modulo($displayed_minute, 1);
 	$: second_offset = modulo($displayed_second, 1);
-	let interval: NodeJS.Timer;
 
-	onMount(() => {
-		// Make a clock timer that updates every 1000ms (1 second)
-		interval = setInterval(() => {
-			currentTime = new Date();
-		}, 1000);
-	});
+	// Make a timer that updates every 1000ms (1 second) for the clock
+	let interval: NodeJS.Timer = setInterval(() => {
+		currentTime = new Date();
+	}, 1000);
 
 	onDestroy(() => {
-		clearInterval(interval); // Prevent memory leak
+		// Prevent memory leak by removing the timer from memory when the component is removed from the DOM
+		clearInterval(interval);
 	});
 
 	function modulo(n: number, m: number) {

@@ -15,15 +15,15 @@ export const getTeams = onSnapshot(teamsCollection.withConverter(teamConverter),
 		});
 	});
 });
-export const getAllTeams = async (): Promise<Team[]> => {
-	let teamsToReturn: Team[];
-	const teamDocs = await getDocs(query(teamsCollection).withConverter(teamConverter));
-	teamDocs.forEach((teamDoc) => {
-		const teamData = teamDoc.data();
-		teamsToReturn.push(teamData);
-	});
-	return teamsToReturn;
-};
+// export const getAllTeams = async (): Promise<Team[]> => {
+// 	let teamsToReturn: Team[];
+// 	const teamDocs = await getDocs(query(teamsCollection).withConverter(teamConverter));
+// 	teamDocs.forEach((teamDoc) => {
+// 		const teamData = teamDoc.data();
+// 		teamsToReturn.push(teamData);
+// 	});
+// 	return teamsToReturn;
+// };
 
 export const resetTeamRecords = async (skipConfirmation = false) => {
 	let proceed: boolean;

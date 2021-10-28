@@ -12,13 +12,14 @@
 	import { PageOption } from '$scripts/classes/pageOption';
 	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
 
-	export let refresh: any;
+	export let refresh: unknown;
 
 	const adminTabs: PageOption[] = [
 		new PageOption({ navigationText: 'Manage Users', path: '/admin/manageUsers' }),
 		new PageOption({ navigationText: 'Manage Teams', path: '/admin/manageTeams' }),
 		new PageOption({ navigationText: 'Game Data', path: '/admin/setGames' }),
-		new PageOption({ navigationText: 'Weekly Pool Admin', path: '/admin/weeklyPoolAdmin' })
+		new PageOption({ navigationText: 'Weekly Pool Admin', path: '/admin/weeklyPoolAdmin' }),
+		new PageOption({ navigationText: 'The Sandbox', path: '/admin/sandbox' })
 	];
 
 	const textLengths: number[] = adminTabs.map((tab) => {
@@ -28,7 +29,7 @@
 	const maxLengthText: number = Math.max(...textLengths);
 </script>
 
-<Navigator minItemSize="{maxLengthText}ch" maxItemSize="max-content" customStyles="top:2.5rem;">
+<Navigator minItemSize="{maxLengthText}ch" maxItemSize="max-content" customStyles="top:3.2rem;">
 	{#each adminTabs as tab, index}
 		<!-- {#if dev} -->
 		<NavLink {index} pageOption={tab} fullyRounded={true} />

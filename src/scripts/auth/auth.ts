@@ -44,6 +44,15 @@ export const getProvider = async (loginPlatform: string): Promise<AuthProvider> 
 	return provider;
 };
 
+export const setPendingProviderInSessionStorage = async (provider: AuthProvider) => {
+	const pendingProvider = sessionStorage.setItem('pendingProvider', JSON.stringify(provider));
+	return pendingProvider;
+};
+export const getPendingProviderFromSessionStorage = async () => {
+	const pendingProvider = sessionStorage.getItem('pendingProvider');
+	return pendingProvider;
+};
+
 export const signInWithRedirectOrPopup = async (
 	provider: AuthProvider,
 	useRedirect: boolean
@@ -64,15 +73,35 @@ export const signInWithRedirectOrPopup = async (
 	}
 };
 
-export const startSignIn = async (loginPlatform: string, useRedirect: boolean) => {
+export const startSignIn = async (loginPlatform: string, useRedirect = true) => {
 	// Set which Auth provider we want to use to authenticate the user
 	const provider = await getProvider(loginPlatform);
 
+	// Store which provider we're using in session storage for the browser tab
+	// We might need to look this up again if the login failed
+	await setPendingProviderInSessionStorage(provider);
+
+	// Save the credential in session storage so that it can be retrieved after a redirect login
+	switch (provider.providerId) {
+		case 'google.com': {
+			// const pendingCredential = GoogleAuthProvider.credential();
+			// sessionStorage.setItem('pendingCredential', JSON.stringify(pendingCredential));
+		}
+		case 'facebook.com':
+			{
+				// const pendingCredential = FacebookAuthProvider.credential();
+				// sessionStorage.setItem('pendingCredential', JSON.stringify(pendingCredential));
+			}
+			break;
+	}
+
 	// If the user is already signed in, this will link the new provider credentials with the existing user account under the initial login provider
 	if (firestoreAuth.currentUser) {
-		useRedirect
-			? await linkWithRedirect(firestoreAuth.currentUser, provider)
-			: await linkWithPopup(firestoreAuth.currentUser, provider);
+		if (useRedirect) {
+			await linkWithRedirect(firestoreAuth.currentUser, provider, browserPopupRedirectResolver);
+		} else {
+			await linkWithPopup(firestoreAuth.currentUser, provider);
+		}
 	}
 
 	// Store the promised user credential that the auth provider returns
@@ -144,7 +173,9 @@ firestoreAuth.onAuthStateChanged(
 			myLog(`the current user is ${get(currentUser).displayName}`, 'auth.ts => onAuthStateChanged');
 		} else {
 			myLog(
-				`auth state changed, but current user is falsy (null or undefined): currentUser is ${currentUser}`
+				`auth state changed, but current user is falsy (null or undefined): currentUser is ${
+					get(currentUser)?.displayName
+				}`
 			);
 		}
 	},

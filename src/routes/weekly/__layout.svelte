@@ -13,7 +13,7 @@
 	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
 	import { navChecked } from '$scripts/store';
 
-	export let refresh: any;
+	export let refresh: unknown;
 
 	const weeklyTabs: PageOption[] = [
 		new PageOption({ navigationText: 'Make Picks', path: '/weekly/makePicks' }),
@@ -21,12 +21,6 @@
 		new PageOption({ navigationText: 'Standings', path: '/weekly/standings' }),
 		new PageOption({ navigationText: 'Rules', path: '/weekly/rules' })
 	];
-
-	// const textLengths: number[] = weeklyTabs.map((tab) => {
-	// 	return tab.navigationText.length;
-	// });
-
-	// const maxLengthText: number = Math.max(...textLengths);
 </script>
 
 <Navigator minItemSize="10rem" maxItemSize="max-content">

@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { BuiltInTransition, BuiltInTransitionConfig } from '$scripts/classes/constants';
-	import { fade, blur, fly, slide, scale } from 'svelte/transition';
+	import type { BuiltInTransition, BuiltInTransitionConfig } from '$scripts/transitions';
+	import { variableTransition } from '$scripts/transitions';
 
 	export let customStyles = '';
 	export let min: string | number = 0;
@@ -17,30 +17,6 @@
 	export let transitionConfig: BuiltInTransitionConfig = { duration: 200 };
 	export let inTransitionConfig: BuiltInTransitionConfig = { duration: 200 };
 	export let outTransitionConfig: BuiltInTransitionConfig = { duration: 200 };
-
-	const variableTransition = (
-		node: Element | (SVGElement & { getTotalLength(): number }),
-		args: {
-			useTransition: boolean;
-			transitionType: BuiltInTransition;
-			transitionConfig: BuiltInTransitionConfig;
-		}
-	) => {
-		if (args.useTransition) {
-			switch (args.transitionType) {
-				case 'fade':
-					return fade(node, args.transitionConfig);
-				case 'blur':
-					return blur(node, args.transitionConfig);
-				case 'fly':
-					return fly(node, args.transitionConfig);
-				case 'slide':
-					return slide(node, args.transitionConfig);
-				case 'scale':
-					return scale(node, args.transitionConfig);
-			}
-		}
-	};
 </script>
 
 {#if useInAndOutTransitions}

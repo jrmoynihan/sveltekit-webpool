@@ -1,11 +1,30 @@
+<script context="module" lang="ts">
+	// import type { DialogPolyfillType } from 'dialog-polyfill';
+
+	// let dialogPolyfill: DialogPolyfillType;
+
+	// async function getPolyfill() {
+	// 	dialogPolyfill = (await import('dialog-polyfill')).default;
+	// 	await import('dialog-polyfill/dialog-polyfill.css');
+	// }
+
+	// function isDialogSupported() {
+	// 	if (browser && window.HTMLDialogElement === undefined) {
+	// 		return false;
+	// 	} else if (browser) {
+	// 		console.log('dialogs supported', window.HTMLDialogElement);
+	// 		return true;
+	// 	}
+	// }
+	// isDialogSupported() ? getPolyfill() : null;
+</script>
+
 <script lang="ts">
 	import {
 		checkForEscape,
 		displayModal,
 		hideThisModalDelayed
 	} from '$scripts/modals/modalFunctions';
-
-	// import dialogPolyfill from 'dialog-polyfill';
 	import { nanoid } from 'nanoid';
 	import { onMount } from 'svelte';
 	export let modalForegroundStyles = '';
@@ -25,12 +44,16 @@
 	};
 	onMount(() => {
 		dialogOpen ? open() : null;
+
+		// if (dialogPolyfill === undefined) {
+		// 	console.log('getting polyfill...');
+		// 	getPolyfill();
+		// } else {
+		// 	console.log('registering dialog...', modal.id);
+		// 	dialogPolyfill.registerDialog(modal);
+		// }
 	});
 </script>
-
-<!-- <svelte:head>
-	<link rel="stylesheet" type="text/css" href="dist/dialog-polyfill.css" />
-</svelte:head> -->
 
 <dialog
 	class="fixed"
@@ -50,6 +73,7 @@
 <style lang="scss">
 	dialog {
 		@include frostedGlass;
+		scrollbar-width: thin;
 		position: fixed;
 		transition: all 300ms ease-in-out;
 		border: 0;
@@ -62,6 +86,7 @@
 
 		&::backdrop {
 			background-color: rgba(0, 0, 0, 0.4);
+			padding: 10rem;
 			&.isError {
 				background-color: rgba(192, 106, 106, 0.4);
 			}

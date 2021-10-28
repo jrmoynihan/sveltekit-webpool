@@ -1,4 +1,6 @@
 <script lang="ts">
+	import type { ESPNScore, ESPNSituation, ESPNStatus, Game } from '$scripts/classes/game';
+
 	import type { Team } from '$scripts/classes/team';
 	import { showIDs, showSpreads } from '$scripts/store';
 	import type { Timestamp } from 'firebase/firestore';
@@ -7,9 +9,9 @@
 	import StatusInfo from './StatusInfo.svelte';
 	import WinLossAt from './WinLossAt.svelte';
 
-	export let promiseStatus: Promise<any>;
-	export let promiseScores: Promise<any>;
-	export let promiseSituation: Promise<any>;
+	export let promiseStatus: Promise<ESPNStatus>;
+	export let promiseScores: Promise<{ homeScoreData: ESPNScore; awayScoreData: ESPNScore }>;
+	export let promiseSituation: Promise<ESPNSituation>;
 	export let selectedTeam = '';
 	export let homeTeam: Team;
 	export let awayTeam: Team;
@@ -17,13 +19,15 @@
 	export let disabled = false;
 	export let id = '';
 	export let timestamp: Timestamp;
-	export let isATSwinner: boolean | null;
+	export let isATSwinner: boolean;
+	export let ATSwinner: string;
+	export let gameIsOver: boolean = false;
 </script>
 
 <label class="game-info rounded" for="{id}-none">
 	<!-- <WinLossAt {promiseScores} {promiseStatus} {homeTeam} {awayTeam} {selectedTeam} {spread} {isATSwinner} /> -->
-	<WinLossAt {isATSwinner} />
-	<StatusInfo {promiseStatus} {promiseScores} {spread} {isATSwinner} />
+	<WinLossAt {isATSwinner} {gameIsOver} />
+	<StatusInfo {promiseStatus} {promiseScores} {spread} {ATSwinner} {homeTeam} {awayTeam} />
 	<SpreadOrPossession {spread} {disabled} {awayTeam} {homeTeam} {promiseSituation} />
 	<DateTimeOrDownDistance {timestamp} {promiseStatus} {promiseSituation} />
 	<input id="{id}-none" type="radio" bind:group={selectedTeam} value="" {disabled} />

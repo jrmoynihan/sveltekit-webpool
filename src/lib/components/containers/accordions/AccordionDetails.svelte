@@ -203,7 +203,9 @@
 	<summary
 		class:adminOnly
 		class={showArrow ? '' : 'hideArrow'}
-		style="display:{showArrow ? 'list-item' : 'flex'}; {customSummaryStyles}"
+		style="display:{showArrow ? 'list-item' : 'flex'}; border-radius:{open
+			? '0'
+			: 'inherit'}; {customSummaryStyles}"
 	>
 		{#if customExpandIcon}
 			<Fa icon={customExpandIcon} class={iconClass} />

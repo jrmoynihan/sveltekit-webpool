@@ -1,12 +1,3 @@
-import type {
-	FadeParams,
-	BlurParams,
-	FlyParams,
-	SlideParams,
-	ScaleParams,
-	DrawParams,
-	CrossfadeParams
-} from 'node_modules/svelte/types/runtime/transition';
 import type { SeasonType } from './seasonType';
 
 export const maxRegularSeasonWeeks = 18;
@@ -34,13 +25,7 @@ export const seasonTypes: SeasonType[] = [
 	{ id: 2, text: 'Regular Season' }
 ];
 export const everyoneWinsResult = 'push';
-export declare type BuiltInTransition = 'fade' | 'blur' | 'fly' | 'slide' | 'scale';
-export declare type BuiltInTransitionConfig =
-	| FadeParams
-	| BlurParams
-	| FlyParams
-	| SlideParams
-	| ScaleParams;
+
 // CSS emoji for console logging (https://unicode.org/emoji/charts/full-emoji-list.html)
 export const okHand = String.fromCodePoint(0x1f44c);
 export const policeCarLight = String.fromCodePoint(0x1f6a8);

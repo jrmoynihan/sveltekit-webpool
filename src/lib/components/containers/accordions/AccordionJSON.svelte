@@ -1,5 +1,5 @@
 <script lang="ts">
-	export let key: string = '';
+	export let key = '';
 	export let value: unknown;
 	export let open = false;
 	export let level = 1;
@@ -83,7 +83,7 @@
 	a {
 		font-weight: 600;
 		color: var(--alternate-color);
-		background-color: rgba(var(--accentValue-color), 50%);
+		background-color: rgba(var(--accentValue-color) / 50%);
 		border-radius: 1rem;
 		padding: 0 0.5rem;
 		text-decoration: underline;

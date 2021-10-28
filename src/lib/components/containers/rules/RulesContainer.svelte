@@ -1,11 +1,5 @@
 <script lang="ts">
-	import {
-		orderBy,
-		query,
-		DocumentReference,
-		CollectionReference,
-		onSnapshot
-	} from 'firebase/firestore';
+	import { orderBy, query, CollectionReference, onSnapshot } from 'firebase/firestore';
 	import ToggleSwitch from '$switches/ToggleSwitch.svelte';
 	import { userData } from '$scripts/auth/auth';
 	import Fa from 'svelte-fa';
@@ -16,7 +10,7 @@
 	import Tabs from '$navigation/Tabs.svelte';
 	import { editing } from '$scripts/store';
 	import type { WebUser } from '$scripts/classes/webUser';
-	import type { RuleCategory } from '$scripts/classes/rules';
+	import type { RuleCategory, RuleTab } from '$scripts/classes/rules';
 	import { onDestroy } from 'svelte';
 	import { myLog } from '$scripts/classes/constants';
 
@@ -57,13 +51,13 @@
 		myLog('unsubscribed from rule document changes!');
 	});
 
-	let tabs: { name: string; component: any; data: {}; ref: DocumentReference }[] = [];
+	let tabs: RuleTab[] = [];
 
 	$: {
 		if (ruleCategories) {
 			ruleCategories.forEach((ruleCategory) => {
 				// Package the categories into objects that are consumable by my Tabs components
-				const tab = {
+				const tab: RuleTab = {
 					name: ruleCategory.title,
 					component: RulesCategoryGrid,
 					data: ruleCategory,
