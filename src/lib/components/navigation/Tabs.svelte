@@ -81,7 +81,7 @@
 		display: none;
 		&:checked + label {
 			&.light {
-				@include active;
+				@include active($color: var(--alternate-color));
 			}
 			&.dark {
 				@include active($backgroundAlpha: 0.4);

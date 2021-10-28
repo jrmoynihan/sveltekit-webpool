@@ -57,6 +57,32 @@
 </label>
 
 <style lang="scss">
+	a {
+		@include flexCenter;
+		color: var(--main-color, rgb(255, 255, 255));
+		font-weight: 700;
+		font-size: 0.8rem;
+		gap: 0.7em;
+		height: 100%;
+		letter-spacing: 10%;
+		padding: 0 1em;
+		text-decoration: none;
+		text-transform: uppercase;
+		transition: color 0.2s linear;
+		width: 100%;
+		&:visited:not(.active) {
+			color: var(--main-color, rgb(255, 255, 255));
+		}
+		&.active,
+		&:active {
+			color: white;
+			text-decoration: underline 2px white;
+		}
+		&:hover:not(.active),
+		&:focus:not(.active) {
+			color: var(--alternate-color);
+		}
+	}
 	label {
 		@include rounded;
 		@include defaultTransition;
@@ -80,10 +106,16 @@
 		}
 		&:hover:not(.active),
 		&:focus:not(.active) {
-			// background: radial-gradient(transparent 60%, rgba(var(--accentValue-color) / 50%) 100%);
-			background-color: rgba(var(--accentValue-color, rgb(233, 181, 99)) / 25%);
 			transform: scale3d(1.15, 1.2, 1.1);
 			margin: 0 2rem;
+			&.dark-mode {
+				// background: radial-gradient(transparent 60%, rgba(var(--accentValue-color) / 50%) 100%);
+				background-color: rgba(var(--accentValue-color, rgb(233, 181, 99)) / 25%);
+			}
+			&.light-mode {
+				background-color: rgba(var(--accentValue-color, forestgreen) / 60%);
+				color: var(--alternate-color);
+			}
 		}
 		// Current page indicator
 		&.active {
@@ -93,28 +125,6 @@
 			&.light-mode {
 				@include active;
 			}
-		}
-	}
-	a {
-		@include flexCenter;
-		color: var(--main-color, rgb(255, 255, 255));
-		font-weight: 700;
-		font-size: 0.8rem;
-		gap: 0.7em;
-		height: 100%;
-		letter-spacing: 10%;
-		padding: 0 1em;
-		text-decoration: none;
-		text-transform: uppercase;
-		transition: color 0.2s linear;
-		width: 100%;
-		&:visited {
-			color: var(--main-color, rgb(255, 255, 255));
-		}
-		&.active,
-		&:active {
-			color: white;
-			text-decoration: underline 2px white;
 		}
 	}
 </style>

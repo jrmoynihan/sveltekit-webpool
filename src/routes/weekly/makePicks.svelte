@@ -24,15 +24,7 @@
 		showTimestamps,
 		useDarkTheme
 	} from '$scripts/store';
-	import {
-		DocumentReference,
-		getDocs,
-		getDocsFromServer,
-		orderBy,
-		query,
-		updateDoc,
-		where
-	} from 'firebase/firestore';
+	import { DocumentReference, getDocs, orderBy, query, updateDoc, where } from 'firebase/firestore';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
 	import { focusTiebreaker, getUserId, isBeforeGameTime } from '$scripts/functions';
@@ -67,7 +59,12 @@
 	import type { WebUser } from '$scripts/classes/webUser';
 	import { getWeeklyUsers } from '$scripts/weekly/weeklyUsers';
 	import Fa from 'svelte-fa';
-	import { faLock, faUnlock } from '@fortawesome/free-solid-svg-icons';
+	import {
+		faChevronLeft,
+		faChevronRight,
+		faLock,
+		faUnlock
+	} from '@fortawesome/free-solid-svg-icons';
 	import ErrorModal from '$lib/components/modals/ErrorModal.svelte';
 	import Grid from '$lib/components/containers/Grid.svelte';
 	import AdminControlsModal from '$lib/components/modals/AdminControlsModal.svelte';
@@ -661,12 +658,27 @@
 				</Grid>
 			</AdminControlsModal>
 		</div>
-		<WeekSelect
-			customStyles="grid-area:week;"
-			bind:selectedWeek
-			bind:selectedSeasonType
-			on:weekChanged={() => changedQuery(selectedWeek)}
-		/>
+		<div class="weekSelectors">
+			<button
+				class="arrow"
+				on:click={() => {
+					selectedWeek--;
+					changedQuery(selectedWeek);
+				}}><Fa icon={faChevronLeft} /></button
+			>
+			<WeekSelect
+				bind:selectedWeek
+				bind:selectedSeasonType
+				on:weekChanged={() => changedQuery(selectedWeek)}
+			/>
+			<button
+				class="arrow"
+				on:click={() => {
+					selectedWeek++;
+					changedQuery(selectedWeek);
+				}}><Fa icon={faChevronRight} /></button
+			>
+		</div>
 		<button
 			style="grid-area:reset;"
 			on:click={resetPicks}
@@ -702,7 +714,7 @@
 								class="game-container"
 								in:fly={{ x: -100, duration: 300, delay: 0 }}
 								out:fly={{ x: 100, duration: 300 }}
-								class:winner={game.ATSwinner === pickDoc.pick}
+								class:winner={game.ATSwinner === pickDoc.pick && game.ATSwinner !== ''}
 								class:loser={game.ATSwinner ? game.ATSwinner !== pickDoc.pick : null}
 								class:dark={$useDarkTheme}
 							>
@@ -781,7 +793,10 @@
 		grid-area: firstRow;
 		grid-template-rows: auto;
 		grid-template-columns: repeat(auto-fit, minmax(0, max-content));
-		grid-template-areas: 'week admin reset';
+		grid-template-areas: 'admin admin' 'week reset';
+		@include responsive_desktop_only {
+			grid-template-areas: 'week admin reset';
+		}
 	}
 	.second-row {
 		grid-area: secondRow;
@@ -841,15 +856,29 @@
 		}
 	}
 	.winner {
-		background-color: rgba(green, 20%);
+		background-color: rgba(darkgreen, 20%);
 		&.dark {
-			background-color: rgba(green, 10%);
+			background-color: rgba(darkgreen, 10%);
 		}
 	}
 	.loser {
 		background-color: rgba(darkred, 10%);
 		&.dark {
 			background-color: rgba(darkred, 20%);
+		}
+	}
+	.arrow {
+		@include discreetButtonStyles;
+		color: var(--main-color);
+	}
+	.weekSelectors {
+		@include gridAndGap;
+		grid-template-columns: max-content 1fr max-content;
+		grid-area: week;
+	}
+	.admin {
+		@include responsive_mobile_only {
+			grid-column: span 2;
 		}
 	}
 </style>
