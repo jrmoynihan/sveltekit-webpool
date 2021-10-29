@@ -12,7 +12,7 @@
 
 {#key refresh}
 	<div
-		class="transitionWrapper {customClasses}"
+		class="transition-wrapper {customClasses}"
 		style={customStyles}
 		in:inTransition={inTransitionParams}
 		out:outTransition={outTransitionParams}
@@ -22,7 +22,7 @@
 {/key}
 
 <style lang="scss">
-	.transitionWrapper {
+	.transition-wrapper {
 		box-sizing: border-box;
 		position: relative;
 		max-width: 100%;

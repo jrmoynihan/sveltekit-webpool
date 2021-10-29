@@ -90,6 +90,22 @@
 	}
 	img {
 		border-radius: 50%;
+		font-size: 0.5rem;
+		text-align: center;
+		overflow: hidden;
+
+		&::after {
+			content: attr(alt);
+			position: absolute;
+			inset: 0;
+			width: 100%;
+			height: 100%;
+			border-radius: inherit;
+			background: white;
+			color: black;
+			display: grid;
+			align-content: center;
+		}
 	}
 	picture {
 		display: grid;

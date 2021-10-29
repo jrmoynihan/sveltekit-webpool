@@ -28,18 +28,21 @@
 </button>
 
 <style lang="scss">
-	button {
+	.submit {
 		@include defaultTransition;
 		@include styledButton;
-		&.submit {
-			gap: 0.5rem;
-			align-items: center;
-			align-self: center;
-			padding: max(2%, 1rem);
-			font-weight: bold;
-			margin: unset;
-			grid-area: pickCount;
-			max-height: 5rem;
+		gap: 0.5rem;
+		align-items: center;
+		align-self: center;
+		padding: max(2%, 1rem);
+		font-weight: bold;
+		margin: unset;
+		grid-area: pickCount;
+		max-height: 5rem;
+		&::before {
+			@include defaultPseudoElement;
+			background: var(--accent-color);
+			z-index: var(--below);
 		}
 	}
 	.pulse {

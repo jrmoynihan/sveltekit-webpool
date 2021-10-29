@@ -5,7 +5,7 @@
 	export let inputID = nanoid();
 	// An array of objects to use as the datasource
 	export let items: ArrayLike<unknown>;
-	// Which of hte object's keynames will be displayed in the dropdown
+	// Which of the object's keynames will be displayed in the dropdown
 	export let displayedKeyNames = Object.keys(items[0]);
 	// How to separate each keyname in the dropdown; you can make a different delimiter after each keyword
 	export let delimeters: string[] = [];
@@ -90,7 +90,7 @@
 	{placeholder}
 	style="background-color: {inputBGcolor};"
 	on:keydown={onKeyPress}
-	on:input={handleInput}
+	on:input={() => handleInput}
 	on:focus={selectText}
 	on:change={handleChange}
 />

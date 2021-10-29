@@ -44,14 +44,14 @@ export const getProvider = async (loginPlatform: string): Promise<AuthProvider> 
 	return provider;
 };
 
-export const setPendingProviderInSessionStorage = async (provider: AuthProvider) => {
-	const pendingProvider = sessionStorage.setItem('pendingProvider', JSON.stringify(provider));
-	return pendingProvider;
-};
-export const getPendingProviderFromSessionStorage = async () => {
-	const pendingProvider = sessionStorage.getItem('pendingProvider');
-	return pendingProvider;
-};
+// export const setPendingProviderInSessionStorage = async (provider: AuthProvider) => {
+// 	const pendingProvider = sessionStorage.setItem('pendingProvider', JSON.stringify(provider));
+// 	return pendingProvider;
+// };
+// export const getPendingProviderFromSessionStorage = async () => {
+// 	const pendingProvider = sessionStorage.getItem('pendingProvider');
+// 	return pendingProvider;
+// };
 
 export const signInWithRedirectOrPopup = async (
 	provider: AuthProvider,
@@ -79,7 +79,7 @@ export const startSignIn = async (loginPlatform: string, useRedirect = true) => 
 
 	// Store which provider we're using in session storage for the browser tab
 	// We might need to look this up again if the login failed
-	await setPendingProviderInSessionStorage(provider);
+	// await setPendingProviderInSessionStorage(provider);
 
 	// Save the credential in session storage so that it can be retrieved after a redirect login
 	switch (provider.providerId) {
@@ -166,7 +166,7 @@ export const startSignOut = async (): Promise<void> => {
 	goto('/'); // go to the index page, navigating the user away from any authorized page they may be on currently
 };
 firestoreAuth.onAuthStateChanged(
-	() => {
+	async () => {
 		if (firestoreAuth.currentUser) {
 			currentUser.set(firestoreAuth.currentUser);
 			saveUserData();

@@ -1,6 +1,4 @@
 <script context="module" lang="ts">
-	// import type { DialogPolyfillType } from 'dialog-polyfill';
-
 	// let dialogPolyfill: DialogPolyfillType;
 
 	// async function getPolyfill() {
@@ -20,6 +18,7 @@
 </script>
 
 <script lang="ts">
+	// import dialogPolyfill from 'dialog-polyfill';
 	import {
 		checkForEscape,
 		displayModal,
@@ -43,6 +42,7 @@
 		displayModal(modal);
 	};
 	onMount(() => {
+		// dialogPolyfill.registerDialog(modal);
 		dialogOpen ? open() : null;
 
 		// if (dialogPolyfill === undefined) {
@@ -75,14 +75,17 @@
 		@include frostedGlass;
 		scrollbar-width: thin;
 		position: fixed;
+		// top: 50%;
+		// transform: translate(-50vw, -50%);
 		transition: all 300ms ease-in-out;
-		border: 0;
+		border: none;
 		border-radius: 25px;
 		box-shadow: 0 0 10px var(--main-color, rgb(255, 255, 255));
 		background-color: var(--alternate-color, rgb(36, 50, 36));
 		color: var(--main-color, rgb(255, 255, 255));
 		font-size: initial;
 		margin: auto; // centers the dialog for bad browser user-agent stylesheets that default to top-left
+		width: max-content;
 
 		&::backdrop {
 			background-color: rgba(0, 0, 0, 0.4);

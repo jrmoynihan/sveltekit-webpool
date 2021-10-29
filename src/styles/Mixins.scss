@@ -414,3 +414,9 @@
 	border: var(--adminBorder-color, darkred) solid 1px;
 	background: var(--adminBackground-color, hsl(0deg 35% 75%));
 }
+@mixin defaultPseudoElement {
+	content: '';
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+}

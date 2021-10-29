@@ -40,7 +40,7 @@
 
 	<Auth />
 
-	<div id="settings-wrapper">
+	<div class="settings-wrapper">
 		<LightDarkToggle />
 
 		<ModalButtonAndSlot discreetButton={true} modalButtonStyles={'background:transparent;'}>
@@ -56,7 +56,7 @@
 </aside>
 
 <style lang="scss">
-	#app-menu {
+	aside {
 		@include frostedGlass;
 		border-radius: 1em 0 0 1em;
 		background: linear-gradient(
@@ -64,13 +64,13 @@
 			rgba(var(--menu-background-gradient), 10%),
 			transparent
 		);
-		font-size: x-small;
-		text-rendering: optimizespeed;
+		font-size: 0.75rem;
+		text-rendering: optimizeSpeed;
 		box-sizing: border-box;
 		display: grid;
 		gap: 0.75em;
 		right: 0;
-		z-index: 999;
+		z-index: var(--zSticky);
 		transition: all 200ms ease-in-out;
 		color: var(--alternate-color, rgb(36, 50, 36));
 		text-align: center;
@@ -117,7 +117,7 @@
 		box-shadow: 0 0 0 rgba(var(--accentValue-color, rgb(233, 181, 99)), 50%);
 		@include pulse;
 	}
-	#settings-wrapper {
+	.settings-wrapper {
 		display: grid;
 		gap: 0.5em;
 		place-items: center;

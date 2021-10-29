@@ -14,6 +14,12 @@
 	--h2-size: 1rem;
 	--pre-size: 1rem;
 	--font-mono: 'Fira Mono', monospace;
+	--below: -1;
+	--base: 0;
+	--above: 1;
+	--zFixed: calc(var(--above) + var(--base));
+	--zSticky: var(--zFixed);
+	--zModal: calc(var(--above) + var(--zFixed));
 }
 
 body {

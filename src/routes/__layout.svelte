@@ -110,7 +110,7 @@
 		font-family: Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 		box-sizing: border-box;
 		font-display: swap;
-		color: var(--main-color, rgb(255 255 255));
+		color: var(--main-color, rgba(255 255 255 / 100%));
 		scrollbar-width: thin;
 		scrollbar-color: var(--accent-color, rgb(233 181 99)) var(--alternate-color, rgb(36 50 36));
 	}
@@ -136,7 +136,7 @@
 			grid-template-columns: 1fr max-content;
 			grid-template-rows: max-content 1fr;
 		}
-		&.pseudo:before {
+		&.pseudo::before {
 			content: '';
 			position: absolute;
 			background-size: cover;
@@ -164,6 +164,5 @@
 		text-align: center;
 		position: relative;
 		grid-area: main;
-		transition: all 300ms ease-in-out;
 	}
 </style>

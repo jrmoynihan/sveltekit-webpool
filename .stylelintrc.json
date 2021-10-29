@@ -15,10 +15,11 @@
 
     "rules": {
         "color-named": "never",
-        "color-function-notation":"legacy",
+        "color-function-notation":null,
         "comment-empty-line-before":null,
         "custom-property-empty-line-before": null,
         "declaration-block-no-duplicate-custom-properties": true,
+        "declaration-block-no-redundant-longhand-properties":[true,{"ignoreShorthands": ["/grid/"]}],
         "declaration-colon-newline-after":null,
         "declaration-empty-line-before": null,
         "font-family-name-quotes": "always-where-recommended",
@@ -60,6 +61,7 @@
             ]
         ],
         "scss/dollar-variable-pattern": "^[a-z][a-zA-Z0-9]+$",
+        "scss/no-global-function-names": null,
         "selector-no-qualifying-type": [
             true,
             {

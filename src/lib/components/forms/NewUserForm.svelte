@@ -308,6 +308,7 @@
 					id="nickname"
 					type="text"
 					tabindex="0"
+					class:nicknameEntered
 					disabled={nicknameEntered}
 					bind:value={nickname}
 					on:keypress={(e) => checkForEnter(e)}
@@ -394,7 +395,7 @@
 			{/if}
 			{#if !buttonHidden && nicknameEntered && !illegalCharacters}
 				{#key totalPriceToEnter}
-					<span in:fly={{ x: 100, delay: 400, duration: 200 }} class="two-column price">
+					<span in:fly={{ x: 100, duration: 300 }} class="two-column price">
 						${totalPriceToEnter} total to enter
 					</span>
 				{/key}
@@ -500,5 +501,13 @@
 		max-width: max-content;
 		margin: auto;
 		padding: 0.5rem 1rem;
+	}
+	.nicknameEntered {
+		background: inherit;
+		color: var(--main-color);
+		border: 1px inset;
+		&:hover {
+			cursor: inherit;
+		}
 	}
 </style>

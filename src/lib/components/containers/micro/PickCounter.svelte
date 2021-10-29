@@ -17,10 +17,11 @@
 	out:fly={{ duration: 200, x: -150 }}
 >
 	{#if upcomingGamesCount === totalGameCount}
-		{currentPickCount} / {totalGameCount} Picks Made
+		<p>{currentPickCount} / {totalGameCount} Picks Made</p>
 		<MissedPickIndicator {currentPicks} />
 	{:else}
-		{currentPickCount} / {totalGameCount} Picks Made ({upcomingGamesCount} Left to Play)
+		<p>{currentPickCount} / {totalGameCount} Picks Made</p>
+		<p>({upcomingGamesCount} Left to Play)</p>
 		<MissedPickIndicator {currentPicks} />
 	{/if}
 </div>

@@ -87,7 +87,7 @@
 		width: 90%;
 	}
 	.football-wrapper {
-		filter: saturate(0.6);
+		filter: saturate(60%);
 		/* z-index: 0; */
 	}
 </style>

@@ -68,6 +68,7 @@
 	import ErrorModal from '$lib/components/modals/ErrorModal.svelte';
 	import Grid from '$lib/components/containers/Grid.svelte';
 	import AdminControlsModal from '$lib/components/modals/AdminControlsModal.svelte';
+	import DevNotes from '$lib/components/misc/DevNotes.svelte';
 
 	let uid: string;
 	let picksPromise: Promise<WeeklyPickDoc[]>;
@@ -503,10 +504,16 @@
 			}
 		}
 	}
-	$: showSubmitPicks = currentPickCount - playedGamesCount >= upcomingGamesCount;
+	$: showSubmitPicks = currentPickCount >= upcomingGamesCount;
 </script>
 
 <PageTitle>Make Weekly Picks</PageTitle>
+<DevNotes>
+	current: {currentPickCount}
+	played: {playedGamesCount}
+	upcoming: {upcomingGamesCount}
+	showSubmitPicks: {showSubmitPicks}
+</DevNotes>
 
 <section class="grid positioning">
 	<!-- <div class="dev-notes"> -->

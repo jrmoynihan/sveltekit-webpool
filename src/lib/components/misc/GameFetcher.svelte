@@ -319,8 +319,10 @@
 		<DeletionButton on:click={() => deleteGameWeek(selectedWeek, selectedYear, selectedSeasonType)}
 			>Delete Selected Week</DeletionButton
 		>
+		<!-- svelte-check ifnore -->
 		<input
 			type="range"
+			orient="vertical"
 			min={minGameHeight}
 			max={maxGameHeight}
 			bind:value={setGameHeight}
@@ -411,5 +413,9 @@
 	}
 	select {
 		@include defaultSelect;
+	}
+	input[type='range'] {
+		writing-mode: vertical-lr;
+		appearance: slider-vertical;
 	}
 </style>

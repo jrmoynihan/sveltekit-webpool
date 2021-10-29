@@ -33,7 +33,6 @@ if (getApps().length === 0) {
 	myApp = initializeApp(firebaseConfig);
 } else {
 	myApp = getApp();
-	
 }
 
 export const firestoreDB = getFirestore(myApp);

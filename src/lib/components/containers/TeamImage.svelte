@@ -27,7 +27,7 @@
 		@include accelerate;
 		@include flexCenter;
 		box-shadow: none;
-		z-index: 2;
+		// z-index: var(--above);
 	}
 	img {
 		@include accelerate;
