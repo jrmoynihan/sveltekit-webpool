@@ -19,6 +19,7 @@
 	import {
 		largerThanMobile,
 		overrideDisabled,
+		showATSwinner,
 		showIDs,
 		showSpreads,
 		showTimestamps,
@@ -27,7 +28,7 @@
 	import { DocumentReference, getDocs, orderBy, query, updateDoc, where } from 'firebase/firestore';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
-	import { focusTiebreaker, getUserId, isBeforeGameTime } from '$scripts/functions';
+	import { getUserId, isBeforeGameTime } from '$scripts/functions';
 	import {
 		airplaneDeparture,
 		bomb,
@@ -69,6 +70,7 @@
 	import Grid from '$lib/components/containers/Grid.svelte';
 	import AdminControlsModal from '$lib/components/modals/AdminControlsModal.svelte';
 	import DevNotes from '$lib/components/misc/DevNotes.svelte';
+	import { focusTiebreaker } from '$scripts/scrollAndFocus';
 
 	let uid: string;
 	let picksPromise: Promise<WeeklyPickDoc[]>;
@@ -128,7 +130,7 @@
 		await changedQuery(selectedWeek);
 	};
 	const changeUser = () => {
-		uid = selectedUser.id;
+		uid = selectedUser.uid;
 		return uid;
 	};
 
@@ -642,6 +644,8 @@
 					<ToggleSwitch bind:checked={$showTimestamps} />
 					<p>Show Spreads</p>
 					<ToggleSwitch bind:checked={$showSpreads} />
+					<p>Show ATS Winner</p>
+					<ToggleSwitch bind:checked={$showATSwinner} />
 
 					<p>Override Locked Games <Fa icon={$overrideDisabled ? faUnlock : faLock} /></p>
 					<ToggleSwitch bind:checked={$overrideDisabled} />

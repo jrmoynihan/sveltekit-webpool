@@ -89,11 +89,11 @@
 	@include centerAIJC;
 	@include defaultTransition;
 	@include fillAvailableWidth;
+	@include flexCenter;
 	font-family: 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Open Sans', 'Helvetica Neue',
 		'sans-serif';
 	font-size: 1rem;
-	padding: 0.5em;
-	display: flex;
+	padding: var(--padding-half-normal);
 	border-radius: 2vh; // or 20px?
 	box-sizing: border-box;
 	background-color: white;
@@ -165,38 +165,33 @@
 
 @mixin frostedGlass {
 	backdrop-filter: blur(3px);
-	backdrop-filter: blur(3px);
 }
 
 @mixin frostedGlassHighContrast {
-	backdrop-filter: blur(3px);
 	backdrop-filter: blur(3px);
 	color: black;
 }
 
 @mixin cloudyBackground {
 	color: black; // override the default color to maintain high contrast with whitish background
-	box-shadow: 0 0 10px 5px rgb(255 255 255 / 30%);
 	background: radial-gradient(rgb(255 255 255 / 70%), rgb(255 255 255 / 30%));
 }
 
 @mixin defaultButtonStyles {
-	display: flex;
-	width: auto;
-	font-size: 1rem;
-	color: var(--main-color);
-	// max-width: max-content;
-	// @include textWithShadow;
 	@include frostedGlass;
 	@include glassShadow;
 	@include rounded(5vh);
-	@include padded1M;
 	@include centeredButton;
 	@include hoverBoxShadow;
 	@include defaultTransition;
 	@include thinnestBorder;
 	@include cursorPointerAlways;
 	@include noOutline;
+	display: flex;
+	width: auto;
+	font-size: 1rem;
+	color: var(--main-color);
+	padding: var(--padding-normal);
 
 	&:focus {
 		@include nightShadow;
@@ -292,17 +287,16 @@
 }
 
 @mixin defaultContainerStyles {
-	width: auto;
-	font-size: 1rem;
-	color: var(--main-color);
-
 	@include glassShadow;
 	@include rounded(5vh);
-	@include padded1M;
 	@include centeredButton;
 	@include defaultTransition;
 	@include thinnestBorder;
 	@include noOutline;
+	width: auto;
+	font-size: 1rem;
+	color: var(--main-color);
+	padding: var(--padding-normal);
 
 	&:focus {
 		@include nightShadow;
@@ -336,12 +330,16 @@
 	}
 }
 
-@mixin position($position, $top: null, $right: null, $bottom: null, $left: null) {
+@mixin position($position, $top: null, $right: null, $bottom: null, $left: null, $inset: null) {
 	position: $position;
-	top: $top;
-	right: $right;
-	bottom: $bottom;
-	left: $left;
+	@if ($inset) {
+		inset: $inset;
+	} @else {
+		top: $top;
+		right: $right;
+		bottom: $bottom;
+		left: $left;
+	}
 }
 
 @mixin absolute($args...) {
@@ -396,7 +394,7 @@
 	@include rounded;
 	@include cursorPointerAlways;
 	display: inline-flex;
-	padding: 1rem;
+	padding: var(--padding-normal);
 	font-weight: bold;
 	max-width: 100%;
 
@@ -415,8 +413,7 @@
 	background: var(--adminBackground-color, hsl(0deg 35% 75%));
 }
 @mixin defaultPseudoElement {
+	@include absolute($inset: 0);
 	content: '';
-	position: absolute;
-	inset: 0;
 	border-radius: inherit;
 }

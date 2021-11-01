@@ -14,20 +14,24 @@ import type { User, UserCredential, AuthProvider } from 'firebase/auth';
 import { firestoreAuth } from '$scripts/firebaseInit';
 import { get, writable } from 'svelte/store';
 import { WebUser } from '$scripts/classes/webUser';
-import { doc, setDoc, query } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import { usersCollection } from '$scripts/collections';
 import { goto } from '$app/navigation';
 import { userConverter } from '../converters';
 import { myError, myLog } from '../classes/constants';
 import { WeeklyPickRecord, UserWinnings } from '$scripts/classes/userRecord';
-import { userQueryAsStore } from '$scripts/store';
 import { saveUserData } from '$scripts/localStorage';
 
 export const currentUser = writable<User>(firestoreAuth.currentUser);
 export const userData = writable<WebUser>();
-const currentUserQuery = query(usersCollection);
-export const userDataSnapshot = userQueryAsStore(currentUserQuery);
+// const currentUserQuery = query(usersCollection);
+// export const userDataSnapshot = userQueryAsStore(currentUserQuery);
 
+/**
+ *
+ * @param {string} loginPlatform - The name of the Auth provider being used
+ * @returns {Promise<AuthProvider>} An instance of the correct AuthProvider needed for the chosen login platform
+ */
 export const getProvider = async (loginPlatform: string): Promise<AuthProvider> => {
 	let provider: AuthProvider;
 	switch (loginPlatform) {
@@ -43,15 +47,6 @@ export const getProvider = async (loginPlatform: string): Promise<AuthProvider> 
 	}
 	return provider;
 };
-
-// export const setPendingProviderInSessionStorage = async (provider: AuthProvider) => {
-// 	const pendingProvider = sessionStorage.setItem('pendingProvider', JSON.stringify(provider));
-// 	return pendingProvider;
-// };
-// export const getPendingProviderFromSessionStorage = async () => {
-// 	const pendingProvider = sessionStorage.getItem('pendingProvider');
-// 	return pendingProvider;
-// };
 
 export const signInWithRedirectOrPopup = async (
 	provider: AuthProvider,
@@ -73,28 +68,17 @@ export const signInWithRedirectOrPopup = async (
 	}
 };
 
-export const startSignIn = async (loginPlatform: string, useRedirect = true) => {
+/**
+ * Finds the right Auth provider interface to use for the chosen platform, and then calls
+ * Firebase login functions to sign in with a page redirect or a popup window.
+ * @param {string} loginPlatform - The name of the Auth provider to be used
+ * @param {boolean} useRedirect - If the login process should use a page redirect (true) or a popup (false).
+ */
+export const startSignIn = async (loginPlatform: string, useRedirect: boolean = true) => {
 	// Set which Auth provider we want to use to authenticate the user
 	const provider = await getProvider(loginPlatform);
 
-	// Store which provider we're using in session storage for the browser tab
-	// We might need to look this up again if the login failed
-	// await setPendingProviderInSessionStorage(provider);
-
-	// Save the credential in session storage so that it can be retrieved after a redirect login
-	switch (provider.providerId) {
-		case 'google.com': {
-			// const pendingCredential = GoogleAuthProvider.credential();
-			// sessionStorage.setItem('pendingCredential', JSON.stringify(pendingCredential));
-		}
-		case 'facebook.com':
-			{
-				// const pendingCredential = FacebookAuthProvider.credential();
-				// sessionStorage.setItem('pendingCredential', JSON.stringify(pendingCredential));
-			}
-			break;
-	}
-
+	// @TODO move this to its own function and UI
 	// If the user is already signed in, this will link the new provider credentials with the existing user account under the initial login provider
 	if (firestoreAuth.currentUser) {
 		if (useRedirect) {
@@ -111,6 +95,18 @@ export const startSignIn = async (loginPlatform: string, useRedirect = true) => 
 	}
 };
 
+/**
+ * Sets a new user document in the Users collection
+ * @param {string} nickname - The nickname the user wants to use for the new account
+ * @param pools - The pools the user will join.
+ * @param pools.college - If the user will join the College Bowl pool
+ * @param pools.pick6 - If the user join the Pick6 pool
+ * @param pools.playoffs - If the user join the NFL Playoffs pool
+ * @param pools.survivor - If the user join the Survivor pool
+ * @param pools.weekly - If the user join the Weekly ATS pool
+ * @param amountOwedToPools - The amount they owe the pool upon joining (default: $0, but this total should be provided to the function when calling it)
+ * @param amountPaidToPools - The amount they have already paid the pool (default: $0)
+ */
 export const createNewUserDocument = async (
 	nickname: string,
 	pools: {
@@ -129,7 +125,7 @@ export const createNewUserDocument = async (
 		const newUserRef = doc(usersCollection, newUser.uid);
 
 		const newUserData = new WebUser({
-			id: newUser.uid,
+			uid: newUser.uid,
 			ref: newUserRef,
 			name: newUser.displayName,
 			nickname: nickname || newUser.displayName,

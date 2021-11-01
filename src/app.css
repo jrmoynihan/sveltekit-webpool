@@ -13,13 +13,17 @@
 	--h1-size: 2.5rem;
 	--h2-size: 1rem;
 	--pre-size: 1rem;
+	--padding-normal: 1rem;
+	--padding-double: calc(var(--padding-normal) * 2)
+	--padding-two-and-a-half: calc(var(--padding-normal) * 2.5)
+	--padding-half-normal: calc(var(--padding-normal) / 2);
 	--font-mono: 'Fira Mono', monospace;
 	--below: -1;
 	--base: 0;
 	--above: 1;
 	--zFixed: calc(var(--above) + var(--base));
 	--zSticky: var(--zFixed);
-	--zModal: calc(var(--above) + var(--zFixed));
+	--zModal: calc(var(--above) + var(--zFixed))
 }
 
 body {
@@ -59,7 +63,7 @@ pre {
 	background-color: rgba(255 255 255 45%);
 	border-radius: 3px;
 	box-shadow: 2px 2px 6px rgba(255 255 255 25%);
-	padding: 0.5em;
+	padding: var(--padding-half-normal)
 	overflow-x: auto;
 	color: var(--text-color);
 }

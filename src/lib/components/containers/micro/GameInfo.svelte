@@ -1,8 +1,9 @@
 <script lang="ts">
+	import { userData } from '$scripts/auth/auth';
 	import type { ESPNScore, ESPNSituation, ESPNStatus, Game } from '$scripts/classes/game';
-
 	import type { Team } from '$scripts/classes/team';
-	import { showIDs, showSpreads } from '$scripts/store';
+	import { mobileBreakpoint } from '$scripts/site';
+	import { showATSwinner, showIDs, showSpreads, windowWidth } from '$scripts/store';
 	import type { Timestamp } from 'firebase/firestore';
 	import DateTimeOrDownDistance from './DateTimeOrDownDistance.svelte';
 	import SpreadOrPossession from './SpreadOrPossession.svelte';
@@ -37,6 +38,12 @@
 	{#if $showSpreads}
 		<div style="grid-area:spreads">{spread > 0 ? `+${spread}` : spread}</div>
 	{/if}
+	<!-- @NOTE: Shows the ATS winner to admins if it hasn't been set AND the game is already over. i.e. the admin is able to score it now -->
+	{#if $showATSwinner || ($userData.admin && gameIsOver && !ATSwinner)}
+		<div class="admin">
+			{ATSwinner ? ATSwinner : 'Score Games!'}
+		</div>
+	{/if}
 </label>
 
 <style lang="scss">
@@ -51,9 +58,16 @@
 			'spreadOrPossession'
 			'dateTimeOrDownDistance'
 			'spreads'
-			'IDs';
+			'IDs'
+			'ATSwinner';
 	}
 	input {
 		@include hiddenInput;
+	}
+	.admin {
+		@include admin;
+		@include rounded;
+		padding: var(--padding-normal);
+		grid-area: ATSwinner;
 	}
 </style>

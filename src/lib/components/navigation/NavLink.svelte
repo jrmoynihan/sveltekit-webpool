@@ -80,7 +80,7 @@
 		}
 		&:hover:not(.active),
 		&:focus:not(.active) {
-			color: var(--alternate-color);
+			color: white;
 		}
 	}
 	label {
@@ -106,8 +106,10 @@
 		}
 		&:hover:not(.active),
 		&:focus:not(.active) {
-			transform: scale3d(1.15, 1.2, 1.1);
-			margin: 0 2rem;
+			@include responsive_desktop_only {
+				transform: scale3d(1.15, 1.2, 1.1);
+				margin: 0 min(3%, 2.7rem);
+			}
 			&.dark-mode {
 				// background: radial-gradient(transparent 60%, rgba(var(--accentValue-color) / 50%) 100%);
 				background-color: rgba(var(--accentValue-color, rgb(233, 181, 99)) / 25%);
@@ -119,6 +121,10 @@
 		}
 		// Current page indicator
 		&.active {
+			@include responsive_desktop_only {
+				margin: 0 min(2%, 2.5rem);
+				transform: scale(1.2);
+			}
 			&.dark-mode {
 				@include active($backgroundAlpha: 0.4);
 			}

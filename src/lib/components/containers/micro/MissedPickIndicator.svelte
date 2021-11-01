@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { WeeklyPickDoc } from '$scripts/classes/picks';
-	import { goToMissedPick } from '$scripts/functions';
+	import { goToMissedPick } from '$scripts/scrollAndFocus';
 	import { showPickWarning } from '$scripts/store';
 	import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';

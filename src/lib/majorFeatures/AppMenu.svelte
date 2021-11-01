@@ -58,13 +58,9 @@
 <style lang="scss">
 	aside {
 		@include frostedGlass;
-		border-radius: 1em 0 0 1em;
-		background: linear-gradient(
-			transparent,
-			rgba(var(--menu-background-gradient), 10%),
-			transparent
-		);
-		font-size: 0.75rem;
+		border-radius: 0;
+		padding: 0.5rem;
+		font-size: inherit;
 		text-rendering: optimizeSpeed;
 		box-sizing: border-box;
 		display: grid;
@@ -81,21 +77,23 @@
 		position: sticky;
 		top: 0;
 		max-height: 100vh;
+		grid-template-columns: repeat(2, min-content) 1fr;
+		background: linear-gradient(
+			rgba(var(--alternateValue-color, rgb(36, 50, 36)), 90%) 90%,
+			rgba(var(--alternateValue-color, rgb(36, 50, 36)), 50%) 95%,
+			transparent 99%
+		);
 		@include responsive_mobile_only {
-			border-radius: 0;
-			padding: 0.5rem;
-			font-size: inherit;
-			grid-template-columns: repeat(2, min-content) 1fr;
-			background: linear-gradient(
-				rgba(var(--alternateValue-color, rgb(36, 50, 36)), 90%) 90%,
-				rgba(var(--alternateValue-color, rgb(36, 50, 36)), 50%) 95%,
-				transparent 99%
-			);
+			backdrop-filter: blur(5px);
+			border-radius: 0 0 1em 1em;
 		}
+
 		@include responsive_desktop_only {
-			grid-template-columns: min-content !important;
+			grid-template-columns: min-content;
 			grid-template-rows: repeat(2, min-content) 1fr; //** getting set above depending on user being logged in
 			padding: 0.5rem;
+			border-radius: 1em 0 0 1em;
+			font-size: 0.75rem;
 		}
 	}
 	// #nav-toggle {

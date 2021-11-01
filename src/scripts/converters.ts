@@ -14,9 +14,8 @@ export const userConverter = {
 	},
 	fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): WebUser => {
 		const data = snapshot.data(options);
-		const docRef = snapshot.ref;
-		const docID = snapshot.id;
-		return new WebUser({ id: docID, ref: docRef, ...data });
+		const { ref, id } = snapshot; // Destructure the ref and id props from snapshot object
+		return new WebUser({ id, ref, ...data });
 	}
 };
 export const teamConverter = {
@@ -25,9 +24,8 @@ export const teamConverter = {
 	},
 	fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): Team => {
 		const data = snapshot.data(options);
-		const docRef = snapshot.ref;
-		const docID = snapshot.id;
-		return new Team({ docID: docID, docRef: docRef, ...data });
+		const { ref, id } = snapshot; // Destructure the ref and id props from snapshot object
+		return new Team({ docRef: ref, docID: id, ...data });
 	}
 };
 export const ruleCategoryConverter = {
@@ -35,10 +33,9 @@ export const ruleCategoryConverter = {
 		return { ...rule };
 	},
 	fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): RuleCategory => {
-		const docRef = snapshot.ref;
-		const docID = snapshot.id;
+		const { ref, id } = snapshot; // Destructure the ref and id props from snapshot object
 		const data = snapshot.data(options);
-		return new RuleCategory({ docRef: docRef, docID: docID, ...data });
+		return new RuleCategory({ docRef: ref, docID: id, ...data });
 	}
 };
 export const ruleConverter = {
@@ -48,7 +45,7 @@ export const ruleConverter = {
 	fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): Rule => {
 		const data = snapshot.data(options);
 		const docRef = snapshot.ref;
-		return new Rule({ docRef: docRef, ...data });
+		return new Rule({ docRef, ...data });
 	}
 };
 
@@ -59,7 +56,7 @@ export const gameConverter = {
 	fromFirestore: (snapshot: QueryDocumentSnapshot): Game => {
 		const docRef = snapshot.ref;
 		const data = snapshot.data();
-		return new Game({ docRef: docRef, ...data });
+		return new Game({ docRef, ...data });
 	}
 };
 
@@ -70,7 +67,7 @@ export const weeklyPickConverter = {
 	fromFirestore: (snapshot: QueryDocumentSnapshot): WeeklyPickDoc => {
 		const docRef = snapshot.ref;
 		const data = snapshot.data();
-		return new WeeklyPickDoc({ docRef: docRef, ...data });
+		return new WeeklyPickDoc({ docRef, ...data });
 	}
 };
 export const weeklyTiebreakerConverter = {
@@ -88,9 +85,8 @@ export const weekBoundConverter = {
 		return { ...bound };
 	},
 	fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): WeekBoundDoc => {
-		const docRef = snapshot.ref;
-		const docID = snapshot.id;
 		const data = snapshot.data(options);
-		return new WeekBoundDoc({ docRef, docID, ...data });
+		const { ref, id } = snapshot; // Destructure the ref and id props from snapshot object
+		return new WeekBoundDoc({ docRef: ref, docID: id, ...data });
 	}
 };

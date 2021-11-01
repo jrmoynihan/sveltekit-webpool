@@ -1,9 +1,8 @@
 <script lang="ts">
 	import type { WeeklyPickDoc } from '$scripts/classes/picks';
 	import type { Team } from '$scripts/classes/team';
-	import { goToMissedPick } from '$scripts/functions';
-	import { useDarkTheme } from '$scripts/store';
-
+	import { goToMissedPick } from '$scripts/scrollAndFocus';
+	import { overrideDisabled, useDarkTheme } from '$scripts/store';
 	import IntersectionObserver from 'svelte-intersection-observer';
 	import TeamImage from '../TeamImage.svelte';
 	import TeamNameImage from '../TeamNameImage.svelte';
@@ -31,7 +30,11 @@
 		id="{id}-{homeOrAwayTeam.abbreviation}"
 		type="radio"
 		bind:group={selectedTeam}
-		on:change={() => goToMissedPick(currentPicks)}
+		on:change={() => {
+			if (!$overrideDisabled) {
+				goToMissedPick(currentPicks);
+			}
+		}}
 		value={homeOrAwayTeam.abbreviation}
 		{disabled}
 	/>

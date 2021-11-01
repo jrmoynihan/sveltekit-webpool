@@ -2,7 +2,7 @@ import type { DocumentReference } from 'firebase/firestore';
 import type { UserWinnings, WeeklyPickRecord } from './userRecord';
 
 export class WebUser {
-	id: string;
+	uid: string;
 	ref: DocumentReference;
 	name: string;
 	nickname: string;
@@ -21,7 +21,7 @@ export class WebUser {
 	amountOwedToPools: number;
 	amountPaidToPools: number;
 	constructor({ ...args }) {
-		(this.id = args.id),
+		(this.uid = args.uid),
 			(this.ref = args.ref),
 			(this.name = args.name),
 			(this.nickname = args.nickname),

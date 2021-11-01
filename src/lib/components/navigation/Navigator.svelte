@@ -24,26 +24,27 @@
 <style lang="scss">
 	$minItemSize: var(--minItemSize);
 	$maxItemSize: var(--maxItemSize);
-	* {
-		box-sizing: border-box;
-	}
+
 	.navigationList {
 		place-items: center;
 		text-align: center;
 		font-weight: bold;
-
 		grid-area: nav;
-
 		max-width: 100%;
 		padding: 0.2rem 0;
+		padding-bottom: 0.4rem;
 		top: 0;
-		transition: all 300ms ease-in-out;
+		transition: gap 500ms ease-in-out;
 		width: 100%;
 		z-index: 30;
-		background: radial-gradient(
-			rgba(var(--alternateValue-color, rgb(36, 50, 36)) / 90%) 70%,
-			transparent
+		background: linear-gradient(
+			rgba(var(--alternateValue-color, rgb(36, 50, 36)) / 90%) 50%,
+			transparent 120%
 		);
+		@supports (backdrop-filter: none) {
+			backdrop-filter: blur(5px);
+		}
+
 		@include responsive_desktop_only {
 			display: flex;
 			gap: 0.5rem;

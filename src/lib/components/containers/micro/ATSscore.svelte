@@ -48,13 +48,14 @@
 		align-self: center;
 		min-width: 2ch;
 		padding: 0.5rem;
-		font-size: min(2.5rem, 5vw);
+		font-size: clamp(1.5rem, 5.5%, 5vw);
 		font-weight: bold;
 	}
 	.higherATSscore {
 		// border-radius: 100%;
 		// outline: 2px solid;
 		border-radius: var(--topLeft) var(--topRight) / var(--bottomRight) var(--bottomLeft);
-		outline: dashed;
+		border: dashed;
+		overflow: hidden;
 	}
 </style>

@@ -65,16 +65,18 @@
 			showTeamNameImages = true;
 		}
 	}
-	// Re-check if the game is over periodically, preventing additional API calls for game statuses
+	// ******************
+	// Periodically re-check if the game is over
 	$: promiseStatus.then((status) => {
 		if (status?.type?.description === 'Final') {
 			gameIsOver = true;
 		}
 	});
+	// If the game isn't active, stop calling for status data, preventing unncessary API calls
 	$: if (gameIsOver || beforeGameTime) {
 		clearInterval(statusInterval);
 	}
-	// **************
+	// *****************
 
 	onMount(async () => {
 		checkGameTime();

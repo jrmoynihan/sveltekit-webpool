@@ -18,6 +18,7 @@ export const showPickWarning = writable(false);
 export const showIDs = writable(false);
 export const showSpreads = writable(false);
 export const showTimestamps = writable(false);
+export const showATSwinner = writable(false);
 export const overrideDisabled = writable(false);
 export const godMode = writable(false);
 export const godSequence = writable<string[]>([]);
@@ -42,7 +43,14 @@ export const writableQueryAsStore = (
 		});
 	});
 
-// ** Return a single user document as a dynamic store **
+/**
+ * Returns user documents as a dynamic store via a {@link userConverter}
+ * @param {Query} query - A Firebase {@link Query} to use
+ * @returns A Writable store of {@link WebUser} (the data returned from a {@link usersCollection} document)
+ * @example 
+ * const q : Query = query(usersCollection, where('id', '==', $currentUser.uid));
+	let $userDataSnapshot : Writable<WebUser> = get(userQueryAsStore(q));
+ */
 export const userQueryAsStore = (query: Query): Writable<WebUser> =>
 	writable<WebUser>(new WebUser({}), (set) => {
 		onSnapshot(query.withConverter(userConverter), async (snap) => {
@@ -66,7 +74,7 @@ export const userQueryAsStore = (query: Query): Writable<WebUser> =>
 // ): Readable<unknown[]> => queryAsStore(query(collection(firestoreDB, path)), converter);
 
 export const updateUser = async (userData: WebUser): Promise<void> => {
-	const docRef = doc(usersCollection, userData.id);
+	const docRef = doc(usersCollection, userData.uid);
 	try {
 		console.log(`attempting to update ${userData.name}`);
 		await updateDoc(docRef.withConverter(userConverter), { ...userData });

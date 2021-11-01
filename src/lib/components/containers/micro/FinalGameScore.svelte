@@ -44,7 +44,7 @@
 <style lang="scss">
 	.score {
 		font-weight: bold;
-		font-size: min(2.5rem, 5vw);
+		font-size: clamp(1.5rem, 5.5%, 5vw);
 		min-width: 2ch;
 		padding: min(0.5rem, 1.4vw);
 	}

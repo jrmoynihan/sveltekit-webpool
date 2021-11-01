@@ -28,7 +28,10 @@ if (browser) {
 		const errorTyped: AuthError = error; // recast the error type from 'any' to a useful type
 		myLog(`no redirect result returned: ${errorTyped}`);
 
-		if (error.code === 'auth/account-exists-with-different-credential') {
+		if (
+			error.code === 'auth/account-exists-with-different-credential' ||
+			error.code === 'auth/email-already-in-use'
+		) {
 			const email: string = errorTyped.customData.email as string;
 			// console.log('customData:', errorTyped.customData);
 			if (email) {
@@ -48,6 +51,10 @@ if (browser) {
 	}
 }
 
+/**
+ * Looks up the current Auth user, then tries to query for their user document from Firebase.
+ * If it exists, the userNotFound store is set to {true}, indicating a New User prompt should be displayed.
+ */
 async function getCurrentUserDoc(): Promise<void> {
 	const user = get(currentUser);
 	const userDoc = doc(usersCollection, user.uid);
