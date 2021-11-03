@@ -129,7 +129,7 @@
 	@include editableCell($frosted);
 }
 
-@mixin padded1M {
+@mixin padded {
 	padding: 1em;
 }
 
@@ -300,6 +300,9 @@
 
 	&:focus {
 		@include nightShadow;
+	}
+	&:hover {
+		@include dayShadow;
 	}
 }
 

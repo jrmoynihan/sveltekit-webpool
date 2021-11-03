@@ -4,7 +4,6 @@
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
 	import ErrorModal from '$lib/components/modals/ErrorModal.svelte';
 	import UserSelect from '$lib/components/selects/UserSelect.svelte';
-	import { userDataSnapshot } from '$scripts/auth/auth';
 	import type { WebUser } from '$scripts/classes/webUser';
 	import { getWeeklyUsers } from '$scripts/weekly/weeklyUsers';
 	import RoleToggle from '$switches/RoleToggle.svelte';
@@ -43,7 +42,6 @@
 		nicknameUpdate = selectedUser.nickname;
 		weeklyWinnings = sortWeeklyWinnings();
 	});
-	$: console.log($userDataSnapshot);
 </script>
 
 <PageTitle>Manage Users</PageTitle>
@@ -66,7 +64,7 @@
 			<p class="title">Email:</p>
 			<p>{selectedUser.email}</p>
 			<p class="title">UserID:</p>
-			<p>{selectedUser.id})</p>
+			<p>{selectedUser.uid})</p>
 			<p class="title">Nickname:</p>
 			<input type="text" bind:value={nicknameUpdate} />
 		</Grid>
