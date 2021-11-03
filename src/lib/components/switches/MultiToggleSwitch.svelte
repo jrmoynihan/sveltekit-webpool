@@ -4,13 +4,16 @@
 	import { faCheckCircle, IconDefinition } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 
-	export let items: { label: string; value: any }[] = [];
-	export let selectedItem = items[0].label;
+	type toggleItem = { label: string; value: any; icon?: IconDefinition };
+	export let items = [];
+	export let selectedItem = items[0];
+	export let selectedValue = selectedItem.value;
 	export let gridArea = '';
 	export let id = nanoid();
 	export let labelText = '';
+	let defaultIcon: IconDefinition = faCheckCircle;
 	// Add override styles
-	export let faIcon: IconDefinition = faCheckCircle;
+	export let faIcon: IconDefinition = defaultIcon;
 	export let showIcon: boolean = true;
 	export let labelStyles = '';
 	export let customButtonStyles = '';
@@ -35,18 +38,30 @@
 	function toggled() {
 		dispatch('toggle');
 	}
-	function changeSelection(
+	function changeSelectionWithKeys(
 		e: KeyboardEvent & { currentTarget: EventTarget & HTMLLabelElement },
 		i: number
 	) {
 		// Accessible selection with Spacebar or Enter key
 		if (e.key === ' ' || e.key === 'Enter') {
-			selectedItem = items[i].label;
+			selectedItem = items[i];
 		}
 	}
+	const checkSelectedItemIcon = (selectedItem: toggleItem) => {
+		if (selectedItem.icon) {
+			console.log(`selected item has icon: ${selectedItem.icon}`);
+			faIcon = selectedItem.icon;
+		} else {
+			console.log('no icon on selected item', selectedItem);
+			faIcon = defaultIcon;
+		}
+	};
+	const updateSelectedValue = (selectedItem: toggleItem) => (selectedValue = selectedItem.value);
 
 	$: if (document) {
-		selectedLabel = document.getElementById(`${id}-${selectedItem}-label`) as HTMLLabelElement;
+		selectedLabel = document.getElementById(
+			`${id}-${selectedItem.value}-label`
+		) as HTMLLabelElement;
 	}
 	$: if (selectedLabel && toggleContainer) {
 		const labelBounds = selectedLabel.getBoundingClientRect();
@@ -61,42 +76,49 @@
 		// console.log(divLeft);
 		// console.log(labelBounds.left);
 	}
+	$: checkSelectedItemIcon(selectedItem);
+	$: updateSelectedValue(selectedItem);
+
 	onMount(() => {
 		if (document) {
-			selectedLabel = document.getElementById(`${id}-${selectedItem}-label`) as HTMLLabelElement;
+			selectedLabel = document.getElementById(
+				`${id}-${selectedItem.value}-label`
+			) as HTMLLabelElement;
 		}
+		checkSelectedItemIcon(selectedItem);
 	});
 </script>
 
 <label class="label-text" class:adminOnly for={id} style={labelStyles}>
-	{#if labelText} {labelText}{/if}
-
+	{#if labelText}
+		{labelText}
+	{/if}
 	<div
 		bind:this={toggleContainer}
 		class:adminOnly
 		class="switch"
 		style="--divLeft:{divLeft} --count:{items.length}; grid-area: {gridArea};--toggleBgColorActive:{toggleBgColorActive}; --toggleBgColorActiveHovered:{toggleBgColorActiveHovered}; {customButtonStyles}"
 	>
-		{#each items as { label, value }, i}
+		{#each items as item, i}
 			<label
-				for="{id}-{label}"
-				id="{id}-{label}-label"
-				class:selected={selectedItem === label}
+				for="{id}-{item.value}"
+				id="{id}-{item.value}-label"
+				class:selected={selectedItem.value === item.value}
 				class:adminOnly
 				tabindex="0"
 				on:keydown={(e) => {
-					changeSelection(e, i);
+					changeSelectionWithKeys(e, i);
 					toggled;
 				}}
-				>{label}
+				>{item.label}
 				<!-- NOTE: Subtle fix made by changing this to on:change event instead of on:click -->
 				<input
 					type="radio"
 					name="toggleGroup-{id}"
 					bind:group={selectedItem}
 					on:change|stopPropagation={toggled}
-					id="{id}-{label}"
-					value={label}
+					id="{id}-{item.value}"
+					value={item}
 				/>
 			</label>
 		{/each}
