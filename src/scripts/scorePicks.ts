@@ -3,18 +3,21 @@ import type {
 	ESPNScore,
 	ESPNTeamData,
 	PrunedCompetition,
-	RefOnlyESPN
+	RefOnlyESPN,
+	Game
 } from './classes/game';
-import type { Game } from './classes/game';
 import {
 	DocumentReference,
 	QuerySnapshot,
 	QueryConstraint,
 	getDocsFromServer,
-	getDoc,
-	getDocFromServer
+	updateDoc,
+	getDocs,
+	query,
+	where,
+	increment,
+	doc
 } from 'firebase/firestore';
-import { updateDoc, getDocs, query, where, increment, doc } from 'firebase/firestore';
 import { myLog, everyoneWinsResult, myError, checkmark, HomeOrAway } from './classes/constants';
 import {
 	scheduleCollection,

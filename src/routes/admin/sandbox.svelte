@@ -2,7 +2,12 @@
 	import MultiToggleSwitch from '$lib/components/switches/MultiToggleSwitch.svelte';
 	import type { ScoreViewPreference } from '$scripts/classes/constants';
 	import { preferredScoreView } from '$scripts/store';
-	import { faFootballBall, IconDefinition } from '@fortawesome/free-solid-svg-icons';
+	import {
+		faCalculator,
+		faCheckDouble,
+		faFootballBall,
+		IconDefinition
+	} from '@fortawesome/free-solid-svg-icons';
 
 	let myItems = [
 		{ label: 'Alpha', value: 1 },
@@ -17,20 +22,27 @@
 	];
 	let viewPreferences: { label: string; value: ScoreViewPreference; icon?: IconDefinition }[] = [
 		{ label: 'Actual Scores Only', value: 'Actual', icon: faFootballBall },
-		{ label: 'ATS Only', value: 'ATS' },
-		{ label: 'Both', value: 'Both' }
+		{ label: 'ATS Only', value: 'ATS', icon: faCalculator },
+		{ label: 'Both', value: 'Both', icon: faCheckDouble }
 	];
 </script>
 
 <MultiToggleSwitch items={otherItems} selectedItem={otherItems[1]} />
-<MultiToggleSwitch items={myItems} adminOnly={true} labelText="Admin Options" />
 <MultiToggleSwitch
 	items={viewPreferences}
-	labelText="View Scores"
+	selectedItem={viewPreferences[2]}
+	showTooltip={false}
+	titlelabelStyles={'padding:0;'}
+	optionLabelStyles={'font-size:0.5rem;'}
+	showLabelText={true}
+	titleText="showTooltip: false"
+/>
+<MultiToggleSwitch items={myItems} adminOnly={true} titleText="Admin Options" />
+<MultiToggleSwitch
+	items={viewPreferences}
+	titleText="all true"
 	bind:selectedValue={$preferredScoreView}
 />
-
-{$preferredScoreView}
 
 <style lang="scss">
 </style>

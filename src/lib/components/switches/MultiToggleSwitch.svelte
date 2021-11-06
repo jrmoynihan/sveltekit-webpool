@@ -3,20 +3,31 @@
 	import { nanoid } from 'nanoid';
 	import { faCheckCircle, IconDefinition } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
+	import Tooltip from '../containers/Tooltip.svelte';
+	import MultiToggleLabelAndInputSwitch from './MultiToggleLabelAndInputSwitch.svelte';
+	import type { toggleItem } from '$scripts/types/toggleItem';
+	import MultiToggleLabelOnly from './MultiToggleLabelOnly.svelte';
+	import MultiToggleInputOnly from './MultiToggleInputOnly.svelte';
+	import { browser } from '$app/env';
 
-	type toggleItem = { label: string; value: any; icon?: IconDefinition };
-	export let items = [];
+	export let items: toggleItem[] = [];
 	export let selectedItem = items[0];
 	export let selectedValue = selectedItem.value;
 	export let gridArea = '';
 	export let id = nanoid();
-	export let labelText = '';
+	export let titleText = '';
 	let defaultIcon: IconDefinition = faCheckCircle;
 	// Add override styles
 	export let faIcon: IconDefinition = defaultIcon;
 	export let showIcon: boolean = true;
-	export let labelStyles = '';
-	export let customButtonStyles = '';
+	export let showLabel: boolean = true;
+	export let showLabelText: boolean = true;
+	export let showTooltip: boolean = false;
+	export let showSelectedValue: boolean = true;
+	export let iconTopPercentage: string | number = showTooltip ? 100 : 55;
+	export let titlelabelStyles = '';
+	export let optionLabelStyles = '';
+	export let customDivStyles = '';
 	export let adminOnly = false;
 	export let bgColorHue = 207;
 	export let bgColorSaturation = 90;
@@ -35,7 +46,8 @@
 	// Create an event dispatcher object
 	const dispatch = createEventDispatcher();
 	// A function when the input is changed; dispatches/triggers the event named "toggle" to the parent component
-	function toggled() {
+	function toggled(e, i) {
+		changeSelectionWithKeys(e, i);
 		dispatch('toggle');
 	}
 	function changeSelectionWithKeys(
@@ -58,7 +70,7 @@
 	};
 	const updateSelectedValue = (selectedItem: toggleItem) => (selectedValue = selectedItem.value);
 
-	$: if (document) {
+	$: if (browser && document) {
 		selectedLabel = document.getElementById(
 			`${id}-${selectedItem.value}-label`
 		) as HTMLLabelElement;
@@ -89,45 +101,79 @@
 	});
 </script>
 
-<label class="label-text" class:adminOnly for={id} style={labelStyles}>
-	{#if labelText}
-		{labelText}
+<label class="label-text" class:adminOnly for={id} style={titlelabelStyles}>
+	{#if titleText}
+		{titleText}
 	{/if}
 	<div
 		bind:this={toggleContainer}
 		class:adminOnly
 		class="switch"
-		style="--divLeft:{divLeft} --count:{items.length}; grid-area: {gridArea};--toggleBgColorActive:{toggleBgColorActive}; --toggleBgColorActiveHovered:{toggleBgColorActiveHovered}; {customButtonStyles}"
+		style="--divLeft:{divLeft}; --count:{items.length}; grid-area: {gridArea};--toggleBgColorActive:{toggleBgColorActive}; --toggleBgColorActiveHovered:{toggleBgColorActiveHovered}; {customDivStyles}"
 	>
 		{#each items as item, i}
-			<label
-				for="{id}-{item.value}"
-				id="{id}-{item.value}-label"
-				class:selected={selectedItem.value === item.value}
-				class:adminOnly
-				tabindex="0"
-				on:keydown={(e) => {
-					changeSelectionWithKeys(e, i);
-					toggled;
-				}}
-				>{item.label}
-				<!-- NOTE: Subtle fix made by changing this to on:change event instead of on:click -->
-				<input
-					type="radio"
-					name="toggleGroup-{id}"
-					bind:group={selectedItem}
-					on:change|stopPropagation={toggled}
-					id="{id}-{item.value}"
-					value={item}
+			{#if showTooltip}
+				<Tooltip
+					tooltipWidth="max-content"
+					tooltipTop="-500%"
+					customStyleTooltipSpan="border-radius:1rem;"
+				>
+					<MultiToggleLabelOnly
+						slot="text"
+						{item}
+						{id}
+						{adminOnly}
+						{optionLabelStyles}
+						{showLabelText}
+					/>
+					<!-- {#if showLabel}
+						<MultiToggleLabelAndInputSwitch
+							slot="content"
+							on:toggle{toggled(e,i)}
+							bind:selectedItem
+							{item}
+							{id}
+							{adminOnly}
+							{optionLabelStyles}
+							{showLabelText}
+						/>
+					{:else} -->
+					<MultiToggleInputOnly slot="content" {item} {id} bind:selectedItem />
+					<!-- {/if} -->
+				</Tooltip>
+			{:else if showLabel}
+				<MultiToggleLabelAndInputSwitch
+					on:toggle{toggled(e,i)}
+					bind:selectedItem
+					{item}
+					{id}
+					{adminOnly}
+					{optionLabelStyles}
+					{showLabelText}
 				/>
-			</label>
+			{:else}
+				<MultiToggleInputOnly {item} {id} bind:selectedItem />
+			{/if}
+			<!-- {#if i !== items.length}
+				<span class="spacer" />
+			{/if} -->
 		{/each}
 		{#if selectedLabel && showIcon}
-			<span style="--option:{selectedItem};--spanWidth:{spanWidth}px;--spanLeft:{spanLeft}px;">
-				<Fa icon={faIcon} />
+			<span
+				class="selected-icon"
+				class:showLabel
+				class:showTooltip
+				style="--option:{selectedItem};--spanWidth:{spanWidth}px;--spanLeft:{spanLeft}px;--iconTop:{iconTopPercentage}%;"
+			>
+				{#key faIcon}
+					<Fa icon={faIcon} />
+				{/key}
 			</span>
 		{/if}
 	</div>
+	{#if showSelectedValue}
+		<p>{selectedValue}</p>
+	{/if}
 </label>
 
 <style lang="scss">
@@ -141,53 +187,57 @@
 
 	div {
 		@include rounded;
-		padding: 1rem;
 		position: relative;
 		max-width: max-content;
 		min-width: calc(1rem * var(--count));
 		display: flex;
+		// display: grid;
+		// grid-template-columns: repeat(calc(var(--count) + (var(--count) - 1)), 1fr);
 		justify-items: center;
 		justify-self: center;
-		gap: 1rem;
-	}
-	input {
-		// @include hiddenInput;
-		visibility: hidden;
-		display: flex;
+		gap: 1.2rem;
+		z-index: var(--base);
+		&::before {
+			@include defaultPseudoElement;
+			background: rgba(0, 0, 0, 20%);
+			z-index: var(--below);
+			height: 50%;
+			transform: translateY(50%);
+		}
 	}
 	label {
 		@include defaultContainerStyles;
-		cursor: pointer;
-		display: flex;
-		flex-direction: column;
-		&:not(.label-text).adminOnly:hover {
-			@include dayShadow;
+		box-shadow: none;
+		border: none;
+		&:hover {
+			box-shadow: none;
 		}
 	}
-	span {
+	.selected-icon {
 		@include defaultTransition;
 		position: absolute;
-		top: 50%;
-		bottom: 0%;
+		top: var(--iconTop);
+		bottom: 70%;
 		height: $slider-height;
 		width: $slider-width;
 		transform: translateX($slider-transform);
 		border-radius: 50%;
+		color: var(--alternate-color);
+		pointer-events: none;
+		&.showTooltip {
+			color: var(--main-color);
+		}
 	}
 
 	.label-text {
 		max-width: none;
 		width: auto;
-		&:hover {
-			@include glassShadow;
-		}
-	}
-	.selected {
-		@include accentedContainer(50%);
-		font-weight: bold;
 	}
 	.adminOnly {
 		@include admin;
 		border: none;
+	}
+	p {
+		margin-top: 1rem;
 	}
 </style>

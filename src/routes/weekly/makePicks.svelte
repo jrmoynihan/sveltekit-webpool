@@ -112,7 +112,7 @@
 	$: gridColumns = $largerThanMobile ? 2 : 1;
 
 	onMount(async () => {
-		await getData();
+		getData();
 		const toastSeen = await getLocalStorageItem(toastSeenKey);
 		if (toastSeen !== 'true') {
 			const promisedToast = await getToast('Make Picks');

@@ -17,6 +17,7 @@
 		{width}
 		{height}
 		loading="lazy"
+		decoding="async"
 		class:grayscale
 		class:frosted
 	/>
