@@ -124,7 +124,7 @@ export const createWeeklyPicksForUser = async (
 				docRef: newWeeklyPickRef,
 				gameId: game.id,
 				pick: '',
-				uid: user.id,
+				uid: user.uid,
 				week: game.week,
 				year: game.timestamp.toDate().getFullYear(),
 				timestamp: game.timestamp,
@@ -184,7 +184,7 @@ export const deleteWeeklyPicksForUser = async (
 			selectedYear = new Date().getFullYear();
 		}
 		const wheres = [
-			where('uid', '==', user.id),
+			where('uid', '==', user.uid),
 			where('week', '==', selectedWeek),
 			where('year', '==', selectedYear)
 		];
@@ -226,7 +226,7 @@ export const createTiebreakersForUser = async (
 	logAll = true
 ) => {
 	try {
-		const uid = user.id;
+		const uid = user.uid;
 		if (!selectedYear) {
 			selectedYear = new Date().getFullYear();
 		}
@@ -312,7 +312,7 @@ export const deleteTiebreakersForUser = async (
 			} ${selectedYear ? selectedYear : ''}`
 		);
 		if (proceed) {
-			const wheres: QueryConstraint[] = [where('uid', '==', user.id)];
+			const wheres: QueryConstraint[] = [where('uid', '==', user.uid)];
 			if (selectedWeek) {
 				wheres.push(where('week', '==', selectedWeek));
 			}
@@ -340,14 +340,16 @@ export const updateGameSpreads = async (week: number, year: number) => {
 		// Update the pick game objects on the pick documents?
 		const q = query(scheduleCollection, where('week', '==', week), where('year', '==', year));
 		const games = await getDocs(q.withConverter(gameConverter));
-		games.forEach((gameDoc) => {
-			const game = gameDoc.data();
-			if (isNaN(game.spread)) {
-				getUpdatedSpread(game).then((updatedSpread) => {
-					updateDoc(gameDoc.ref, { spread: updatedSpread });
-				});
+		for await (const gameDoc of games.docs) {
+			const gameData = gameDoc.data();
+			if (gameData.spread === null || gameData.spread === undefined) {
+				myLog(`no spread found for game id:${gameData.id}`);
+				const updatedSpread = await getConsensusSpread(gameData.id);
+				updateDoc(gameDoc.ref, { spread: updatedSpread });
+			} else {
+				myLog(`existing spread found for game (${gameData.id}) was: ${gameData.spread}`);
 			}
-		});
+		}
 		defaultToast({
 			title: 'Updated Spreads!',
 			msg: `Week ${week} spreads were successfully updated!`
@@ -356,8 +358,4 @@ export const updateGameSpreads = async (week: number, year: number) => {
 		errorToast('Failed to update spreads.  See console logs.');
 		myError('updateSpreads', error);
 	}
-};
-export const getUpdatedSpread = async (game: Game) => {
-	const updatedSpread = await getConsensusSpread(game.id);
-	return updatedSpread;
 };

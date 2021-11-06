@@ -36,7 +36,7 @@
 		top: 0;
 		transition: gap 500ms ease-in-out;
 		width: 100%;
-		z-index: 30;
+		z-index: var(--above);
 		background: linear-gradient(
 			rgba(var(--alternateValue-color, rgb(36, 50, 36)) / 90%) 50%,
 			transparent 120%

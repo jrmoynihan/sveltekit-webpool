@@ -86,7 +86,7 @@ devDependencies:
   eslint-plugin-svelte3: 3.2.1_eslint@8.1.0+svelte@3.44.0
   firebase: 9.2.0
   firebase-functions: 3.16.0_firebase-admin@10.0.0
-  kit: github.com/sveltejs/kit/bdeb8b569d043fdc2da60be6e2cb956748e92203
+  kit: github.com/sveltejs/kit/2bf3328d9550d303819e077bd52e7ecc786bc73f
   postcss: 8.3.11
   postcss-load-config: 3.1.0
   postcss-scss: 4.0.2_postcss@8.3.11
@@ -7284,7 +7284,7 @@ packages:
   /wide-align/1.1.5:
     resolution: {integrity: sha512-eDMORYaPNZ4sQIuuYPDHdQvf4gyCF9rEEV/yPxGfwPkRodwEgiMUUXTx/dex+Me0wxx53S+NgUHaP7y3MGlDmg==}
     dependencies:
-      string-width: 1.0.2
+      string-width: 4.2.3
 
   /widest-line/3.1.0:
     resolution: {integrity: sha512-NsmoXalsWVDMGupxZ5R08ka9flZjjiLvHVAWYOKtiKM8ujtZWr9cRffak+uSE48+Ob8ObalXpwyeUiyDD6QFgg==}
@@ -7448,8 +7448,8 @@ packages:
       postcss-value-parser: 4.1.0
     dev: true
 
-  github.com/sveltejs/kit/bdeb8b569d043fdc2da60be6e2cb956748e92203:
-    resolution: {tarball: https://codeload.github.com/sveltejs/kit/tar.gz/bdeb8b569d043fdc2da60be6e2cb956748e92203}
+  github.com/sveltejs/kit/2bf3328d9550d303819e077bd52e7ecc786bc73f:
+    resolution: {tarball: https://codeload.github.com/sveltejs/kit/tar.gz/2bf3328d9550d303819e077bd52e7ecc786bc73f}
     name: kit
     version: 0.0.1
     dev: true

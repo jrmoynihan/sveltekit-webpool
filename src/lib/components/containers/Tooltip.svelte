@@ -4,6 +4,7 @@
 	export let tooltipWidth = '100%';
 	export let tooltipTop = '-300%';
 	export let customStyleTooltipParent = '';
+	export let customStyleTooltipSpan = '';
 	export let showArrow = true;
 </script>
 
@@ -11,7 +12,7 @@
 	<slot name="content" />
 	<span
 		class="tooltip"
-		style="--leftTip:{tooltipHorizontalPosition}; --widthTip:{tooltipWidth}; --topTip:{tooltipTop};"
+		style="--leftTip:{tooltipHorizontalPosition}; --widthTip:{tooltipWidth}; --topTip:{tooltipTop}; {customStyleTooltipSpan};"
 	>
 		<slot name="text">Tooltip text goes in the 'text' slot</slot>
 		{#if showArrow}
@@ -36,7 +37,7 @@
 			top: $topTip;
 			width: $widthTip;
 			height: auto;
-			z-index: 1;
+			z-index: var(--zModal);
 			left: 50%;
 			font-weight: normal;
 			font-size: 0.8rem;

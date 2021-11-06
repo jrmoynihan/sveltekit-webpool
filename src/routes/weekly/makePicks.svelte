@@ -41,6 +41,7 @@
 		okHand,
 		pick,
 		policeCarLight,
+		ScoreViewPreference,
 		seasonTypes
 	} from '$scripts/classes/constants';
 	import { onMount } from 'svelte';
@@ -92,6 +93,11 @@
 	let totalGameCount = 16;
 	let tiebreakerDocRef: DocumentReference;
 	let tiebreaker = 0;
+	let viewPreferences: { label: string; value: ScoreViewPreference }[] = [
+		{ label: 'Actual Scores Only', value: 'Actual' },
+		{ label: 'ATS Only', value: 'ATS' },
+		{ label: 'Both', value: 'Both' }
+	];
 	// let toastMsg = ``;
 	// let toastTitle = '';
 	let gridColumns = 1;
@@ -106,7 +112,7 @@
 	$: gridColumns = $largerThanMobile ? 2 : 1;
 
 	onMount(async () => {
-		await getData();
+		getData();
 		const toastSeen = await getLocalStorageItem(toastSeenKey);
 		if (toastSeen !== 'true') {
 			const promisedToast = await getToast('Make Picks');

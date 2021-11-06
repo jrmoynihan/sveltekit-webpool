@@ -28,6 +28,7 @@
 		{width}
 		{height}
 		loading="lazy"
+		decoding="async"
 	/>
 </picture>
 

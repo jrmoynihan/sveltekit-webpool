@@ -6,6 +6,7 @@ import { userConverter } from './converters';
 import { WebUser } from '$scripts/classes/webUser';
 import { usersCollection } from './collections';
 import { browser } from '$app/env';
+import type { ScoreViewPreference } from './classes/constants';
 
 export const useDarkTheme = writable(false);
 export const chosenMixBlendMode = writable('normal');
@@ -17,6 +18,7 @@ export const editing = writable(false);
 export const showPickWarning = writable(false);
 export const showIDs = writable(false);
 export const showSpreads = writable(false);
+export const preferredScoreView = writable<ScoreViewPreference>('Both');
 export const showTimestamps = writable(false);
 export const showATSwinner = writable(false);
 export const overrideDisabled = writable(false);
