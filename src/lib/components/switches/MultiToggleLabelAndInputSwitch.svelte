@@ -21,29 +21,29 @@
 	}
 </script>
 
-<label
-	for="{id}-{item.value}"
-	id="{id}-{item.value}-label"
-	class:selected={selectedItem.value === item.value}
-	class:adminOnly
-	style={optionLabelStyles}
-	tabindex="0"
-	on:keydown={(e) => toggled(e)}
->
-	{#if showLabelText}
-		<div>{item.label}</div>
-	{/if}
-	<!-- NOTE: Subtle fix made by changing this to on:change event instead of on:click -->
-	<input
-		type="radio"
-		name="toggleGroup-{id}"
-		bind:group={selectedItem}
-		on:change|stopPropagation={(e) => toggled(e)}
-		id="{id}-{item.value}"
-		value={item}
-	/>
-</label>
+<!-- <div> -->
+{#if showLabelText}
+	<label
+		for="{id}-{item.value}"
+		id="{id}-{item.value}-label"
+		class:selected={selectedItem.value === item.value}
+		class:adminOnly
+		style={optionLabelStyles}
+		tabindex="0"
+		on:keydown={(e) => toggled(e)}>{item.label}</label
+	>
+{/if}
+<!-- NOTE: Subtle fix made by changing this to on:change event instead of on:click -->
+<input
+	type="radio"
+	name="toggleGroup-{id}"
+	bind:group={selectedItem}
+	on:change|stopPropagation={(e) => toggled(e)}
+	id="{id}-{item.value}"
+	value={item}
+/>
 
+<!-- </div> -->
 <style lang="scss">
 	input {
 		visibility: hidden;
@@ -51,7 +51,9 @@
 	}
 	label {
 		@include defaultContainerStyles;
-		display: grid;
+		display: flex;
+		word-wrap: break-word;
+		max-width: 8ch;
 		place-items: center;
 		cursor: pointer;
 		aspect-ratio: 1 / 1;
@@ -61,10 +63,7 @@
 		}
 	}
 	div {
-		display: flex;
-		flex-direction: column;
-		word-wrap: break-word;
-		max-width: 8ch;
+		display: grid;
 	}
 	.selected {
 		@include accentedContainer(100%);

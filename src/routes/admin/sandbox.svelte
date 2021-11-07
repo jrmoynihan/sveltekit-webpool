@@ -27,20 +27,14 @@
 	];
 </script>
 
-<MultiToggleSwitch items={otherItems} selectedItem={otherItems[1]} />
-<MultiToggleSwitch
-	items={viewPreferences}
-	selectedItem={viewPreferences[2]}
-	showTooltip={false}
-	titlelabelStyles={'padding:0;'}
-	optionLabelStyles={'font-size:0.5rem;'}
-	showLabelText={true}
-	titleText="showTooltip: false"
-/>
-<MultiToggleSwitch items={myItems} adminOnly={true} titleText="Admin Options" />
+<MultiToggleSwitch items={otherItems} selectedItem={otherItems[1]} titleText="This is the Title" />
+
+<!-- <MultiToggleSwitch items={viewPreferences} adminOnly={true} titleText="Admin Options" /> -->
 <MultiToggleSwitch
 	items={viewPreferences}
 	titleText="all true"
+	selectedItem={viewPreferences[0]}
+	showIcon={false}
 	bind:selectedValue={$preferredScoreView}
 />
 

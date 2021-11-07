@@ -85,7 +85,13 @@
 		color: white;
 		text-shadow: none;
 		&.disabled {
-			@include accentedContainer(70%, 10%);
+			@include accentedContainer(70%);
+		}
+		&.dark-mode {
+			@include accentedContainerDarkMode;
+			&.disabled {
+				@include accentedContainer(10%);
+			}
 		}
 	}
 	.dayShadow:hover {

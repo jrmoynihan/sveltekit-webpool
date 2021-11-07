@@ -306,13 +306,12 @@
 	}
 }
 
-@mixin accentedContainer($lightModeAlpha: 100%, $darkModeAlpha: 40%) {
-	background-color: rgba(var(--accentValue-color) / $lightModeAlpha);
-
-	&.dark-mode {
-		background-color: rgba(var(--accentValue-color) / $darkModeAlpha);
-		box-shadow: 0 0 6px 3px rgba(var(--accentValue-color) / 30%);
-	}
+@mixin accentedContainer($alpha: 100%) {
+	background-color: rgba(var(--accentValue-color) / $alpha);
+}
+@mixin accentedContainerDarkMode($alpha: 40%) {
+	background-color: rgba(var(--accentValue-color) / $alpha);
+	box-shadow: 0 0 6px 3px rgba(var(--accentValue-color) / 30%);
 }
 
 @mixin spin {
