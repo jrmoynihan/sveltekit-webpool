@@ -18,7 +18,6 @@
 	export let faIcon: IconDefinition = defaultIcon;
 	export let showIcon: boolean = true;
 	export let showLabel: boolean = true;
-	export let showLabelText: boolean = true;
 	export let showTooltip: boolean = false;
 	export let showSelectedValue: boolean = true;
 	export let iconTopPercentage: number = showIcon ? 55 : 43;
@@ -108,7 +107,7 @@
 	style="--divLeft:{divLeft}; --count:{items.length}; grid-area: {gridArea};--toggleBgColorActive:{toggleBgColorActive}; --toggleBgColorActiveHovered:{toggleBgColorActiveHovered}; {customContainerStyles}"
 >
 	{#if titleText}
-		<p style="font-weight: bold;">{titleText}</p>
+		<p style="font-weight: bold; {titleLabelStyles}">{titleText}</p>
 	{/if}
 	<span class="connector" />
 	{#each items as item, i}
@@ -116,9 +115,9 @@
 			id="{id}-{item.label}-label"
 			for={item.label}
 			class:selected={selectedItem.value === item.value}
-			class:adminOnly>{item.label}</label
+			class:adminOnly
+			style={optionLabelStyles}>{item.label}</label
 		>
-		<!--svelte-check-ignore-->
 		<input
 			type="radio"
 			id={item.label}
@@ -211,11 +210,6 @@
 		color: white;
 		background: var(--accent-color);
 		pointer-events: none;
-	}
-
-	.label-text {
-		max-width: none;
-		width: auto;
 	}
 	p {
 		grid-column: span var(--count);
