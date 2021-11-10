@@ -1,5 +1,11 @@
 <script lang="ts">
-	import { largerThanMobile, navChecked } from '$scripts/store';
+	import {
+		largerThanMobile,
+		navChecked,
+		preferredScoreView,
+		showIDs,
+		showNetTiebreakers
+	} from '$scripts/store';
 	import { faBars, faCog } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import Auth from '$lib/majorFeatures/Auth.svelte';
@@ -8,10 +14,26 @@
 	import ThemeSelector from '$lib/components/switches/ThemeSelector.svelte';
 	import Navigator from '$lib/components/navigation/Navigator.svelte';
 	import SiteNavOptions from '$lib/components/navigation/siteNavOptions.svelte';
+	import { page } from '$app/stores';
+	import MultiToggleSwitch from '$lib/components/switches/MultiToggleSwitch.svelte';
+	import { getLocalStorageItem, setLocalStorageItem } from '$scripts/localStorage';
+	import type { ScoreViewPreference } from '$scripts/types/types';
+	import { onMount } from 'svelte';
+	import Grid from '$lib/components/containers/Grid.svelte';
+	import ToggleSwitch from '$lib/components/switches/ToggleSwitch.svelte';
 
 	function toggleNav(): void {
 		$navChecked = !$navChecked;
 	}
+	let storedScoreViewPreference: ScoreViewPreference;
+	let viewPreferences: { label: string; value: ScoreViewPreference }[] = [
+		{ label: 'Actual', value: 'Actual' },
+		{ label: 'ATS', value: 'ATS' },
+		{ label: 'Both', value: 'Both' }
+	];
+	onMount(async () => {
+		storedScoreViewPreference = await getLocalStorageItem('scoreViewPreference');
+	});
 </script>
 
 <menu />
@@ -49,7 +71,37 @@
 			</svelte:fragment>
 
 			<svelte:fragment slot="modal-content">
-				<ThemeSelector />
+				{#if $page.path === '/weekly/makePicks'}
+					<MultiToggleSwitch
+						titleText="View Scores"
+						showSelectedValue={false}
+						items={viewPreferences}
+						selectedItem={storedScoreViewPreference
+							? viewPreferences.find((preference) => preference.value === storedScoreViewPreference)
+							: viewPreferences[1]}
+						bind:selectedValue={$preferredScoreView}
+						on:toggle={() => setLocalStorageItem('scoreViewPreference', $preferredScoreView)}
+					/>
+					<label class="score-view-selector-label"
+						>View Scores
+						<select class="score-view-selector" bind:value={$preferredScoreView}>
+							{#each viewPreferences as preference}
+								<option selected={preference.value === $preferredScoreView} value={preference.value}
+									>{preference.label}</option
+								>
+							{/each}
+						</select>
+					</label>
+				{:else if $page.path === '/weekly/standings'}
+					<Grid slot="modal-content" repeat={2}>
+						<span>Show Net Tiebreakers</span>
+						<ToggleSwitch adminOnly={true} bind:checked={$showNetTiebreakers} />
+						<span>Show UIDs</span>
+						<ToggleSwitch adminOnly={true} bind:checked={$showIDs} />
+					</Grid>
+				{:else}
+					<ThemeSelector />
+				{/if}
 			</svelte:fragment>
 		</ModalButtonAndSlot>
 	</div>
@@ -128,6 +180,13 @@
 			position: absolute;
 			bottom: 0;
 			margin-bottom: 1em;
+		}
+	}
+	.score-view-selector {
+		@include defaultSelect;
+		&-label {
+			display: grid;
+			font-weight: bold;
 		}
 	}
 </style>

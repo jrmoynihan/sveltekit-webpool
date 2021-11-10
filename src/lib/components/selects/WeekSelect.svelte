@@ -2,13 +2,17 @@
 	import type { SeasonType } from '$scripts/classes/seasonType';
 	import { getPreSeasonWeeks, getRegularSeasonWeeks } from '$scripts/functions';
 	import { findCurrentWeekOfSchedule } from '$scripts/schedule';
+	import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 	import { createEventDispatcher, onMount } from 'svelte';
+	import Fa from 'svelte-fa';
 
 	export let weeks: number[] = [];
 	export let selectedWeek: number = 5;
-	export let gridArea = '';
 	export let selectedSeasonType: SeasonType = { id: 2, text: 'Regular Season' };
+	export let showButtons = true;
 	export let customStyles = '';
+	export let customSelectStyles = '';
+	export let customButtonStyles = '';
 
 	const dispatch = createEventDispatcher();
 
@@ -20,25 +24,61 @@
 			weeks = await getPreSeasonWeeks();
 		}
 	};
+	const increment = () => dispatch('incrementWeek', selectedWeek);
+	const decrement = () => dispatch('decrementWeek', selectedWeek);
+
 	onMount(async () => {
 		selectedWeek = await findCurrentWeekOfSchedule();
 	});
 	$: changeWeeksAvailable(selectedSeasonType);
 </script>
 
-<select
-	id="week-select"
-	bind:value={selectedWeek}
-	on:change={() => dispatch('weekChanged', selectedWeek)}
-	style="{customStyles};{gridArea ? gridArea : ''}"
->
-	{#each weeks as week}
-		<option value={week}>Week {week}</option>
-	{/each}
-</select>
+<div class="weekSelectors" style={customStyles}>
+	{#if showButtons}
+		<button
+			class="arrow"
+			style={customButtonStyles}
+			on:click={() => {
+				selectedWeek--;
+				decrement();
+			}}><Fa icon={faChevronLeft} /></button
+		>
+	{/if}
+	<select
+		id="week-select"
+		bind:value={selectedWeek}
+		on:change={() => dispatch('weekChanged', selectedWeek)}
+		style={customSelectStyles}
+	>
+		{#each weeks as week}
+			<option value={week}>Week {week}</option>
+		{/each}
+	</select>
+	{#if showButtons}
+		<button
+			class="arrow"
+			on:click={() => {
+				selectedWeek++;
+				increment();
+			}}><Fa icon={faChevronRight} /></button
+		>
+	{/if}
+</div>
 
 <style lang="scss">
 	select {
 		@include defaultSelect;
+	}
+	.arrow {
+		@include styledButton;
+		@include discreetButtonStyles;
+		@include defaultTransition;
+		text-shadow: none;
+		color: var(--main-color);
+	}
+	.weekSelectors {
+		@include gridAndGap;
+		grid-template-columns: max-content 1fr max-content;
+		grid-area: week;
 	}
 </style>

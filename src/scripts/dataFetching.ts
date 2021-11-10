@@ -1,5 +1,13 @@
 import { myError, policeCarLight } from './classes/constants';
-import type { RefOnlyESPN, ESPNStatus, ESPNSituation, ESPNScore } from './classes/game';
+import type {
+	RefOnlyESPN,
+	ESPNStatus,
+	ESPNSituation,
+	ESPNScore,
+	ESPNTeamData,
+	ESPNDrive,
+	ESPNDriveRef
+} from './classes/game';
 import { getLocalStorageItem } from './localStorage';
 
 export const getUserId = async (): Promise<any> => {
@@ -13,6 +21,12 @@ export const getUserId = async (): Promise<any> => {
 
 export const convertToHttps = async (httpAddress: string): Promise<string> => {
 	return httpAddress.replace('http', 'https');
+};
+export const fetchHttpsToJson = async (httpAddress: string) => {
+	const httpsAddress = await convertToHttps(httpAddress);
+	const response = await fetch(httpsAddress);
+	const data = await response.json();
+	return data;
 };
 export const getStatus = async (competitions: { status: RefOnlyESPN }[]): Promise<ESPNStatus> => {
 	const httpGameStatusEndpoint: string = competitions[0].status.$ref;
@@ -82,4 +96,16 @@ export const getConsensusSpread = async (gameID: string): Promise<number> => {
 	} catch (error) {
 		console.error(error);
 	}
+};
+export const getTeamWithPossession = async (teamRef: string) => {
+	const httpsAddress = await convertToHttps(teamRef);
+	const response = await fetch(httpsAddress);
+	const data: ESPNTeamData = await response.json();
+	return data.abbreviation;
+};
+export const getMostRecentDrive = async (drivesRef: string): Promise<ESPNDrive> => {
+	const data: ESPNDriveRef = await fetchHttpsToJson(drivesRef);
+	const lastDriveNumber = data.items.length - 1;
+	const lastDrive: ESPNDrive = data.items[lastDriveNumber];
+	return lastDrive;
 };

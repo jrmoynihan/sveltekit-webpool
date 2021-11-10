@@ -4,7 +4,7 @@
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
 	import WeekSelect from '$lib/components/selects/WeekSelect.svelte';
 	import ToggleSwitch from '$lib/components/switches/ToggleSwitch.svelte';
-	import { userData } from '$scripts/auth/auth';
+	import { currentUser, userData } from '$scripts/auth/auth';
 	import type { WeeklyPickDoc } from '$scripts/classes/picks';
 	import {
 		scheduleCollection,
@@ -41,7 +41,6 @@
 		okHand,
 		pick,
 		policeCarLight,
-		ScoreViewPreference,
 		seasonTypes
 	} from '$scripts/classes/constants';
 	import { onMount } from 'svelte';
@@ -56,7 +55,7 @@
 	import LoadingSpinner from '$lib/components/misc/LoadingSpinner.svelte';
 	import type { Game } from '$scripts/classes/game';
 	import { findCurrentWeekOfSchedule } from '$scripts/schedule';
-	import { getLocalStorageItem } from '$scripts/localStorage';
+	import { getLocalStorageItem, setLocalStorageItem } from '$scripts/localStorage';
 	import UserSelect from '$lib/components/selects/UserSelect.svelte';
 	import type { WebUser } from '$scripts/classes/webUser';
 	import { getWeeklyUsers } from '$scripts/weekly/weeklyUsers';
@@ -70,10 +69,9 @@
 	import ErrorModal from '$lib/components/modals/ErrorModal.svelte';
 	import Grid from '$lib/components/containers/Grid.svelte';
 	import AdminControlsModal from '$lib/components/modals/AdminControlsModal.svelte';
-	import DevNotes from '$lib/components/misc/DevNotes.svelte';
 	import { focusTiebreaker } from '$scripts/scrollAndFocus';
 
-	let uid: string;
+	let uid: string = $currentUser.uid;
 	let picksPromise: Promise<WeeklyPickDoc[]>;
 	let tiebreakerPromise: Promise<WeeklyTiebreaker>;
 	let gamesPromise: Promise<Game[]>;
@@ -93,11 +91,6 @@
 	let totalGameCount = 16;
 	let tiebreakerDocRef: DocumentReference;
 	let tiebreaker = 0;
-	let viewPreferences: { label: string; value: ScoreViewPreference }[] = [
-		{ label: 'Actual Scores Only', value: 'Actual' },
-		{ label: 'ATS Only', value: 'ATS' },
-		{ label: 'Both', value: 'Both' }
-	];
 	// let toastMsg = ``;
 	// let toastTitle = '';
 	let gridColumns = 1;
@@ -126,7 +119,7 @@
 		}
 	});
 	const getData = async () => {
-		uid = await getUserId();
+		uid ? null : (uid = await getUserId());
 		selectedWeek = await findCurrentWeekOfSchedule();
 		if ($userData.admin) {
 			userPromise = getWeeklyUsers(false);
@@ -135,14 +128,9 @@
 
 		await changedQuery(selectedWeek);
 	};
-	const changeUser = () => {
-		uid = selectedUser.uid;
-		return uid;
-	};
 
 	const getPicks = async (selectedWeek: number, uid: string) => {
 		try {
-			isCorrectCount = 0;
 			const picks: WeeklyPickDoc[] = [];
 			myLog(
 				`querying picks for week ${selectedWeek}, ${selectedYear}, ${selectedSeasonType.text}, ${uid}`
@@ -161,13 +149,6 @@
 				picks.push(doc.data());
 			});
 			myLog('got picks!', '', pick, picks);
-			currentPicks = picks;
-			totalGameCount = picks.length;
-			picks.forEach(async (pick) => {
-				if (pick.isCorrect) {
-					isCorrectCount++;
-				}
-			});
 			return picks;
 		} catch (error) {
 			errorToast(
@@ -471,15 +452,11 @@
 	const changedQuery = async (selectedWeek: number, changedUser = false) => {
 		try {
 			if (changedUser || !uid) {
-				uid = changeUser();
+				uid = selectedUser.uid;
 			}
-			if (selectedWeek) {
-				gamesPromise = getGames(selectedWeek);
-				picksPromise = getPicks(selectedWeek, uid);
-				tiebreakerPromise = getTiebreaker(selectedWeek, uid);
-			} else {
-				throw 'selected week is undefined';
-			}
+			gamesPromise = getGames(selectedWeek);
+			picksPromise = getPicks(selectedWeek, uid);
+			tiebreakerPromise = getTiebreaker(selectedWeek, uid);
 		} catch (error) {
 			errorToast(`Error in changing query... ${error}`);
 			myError('changedQuery', error);
@@ -512,96 +489,67 @@
 			}
 		}
 	}
+	const updateCurrentPicks = async (picksPromise: Promise<WeeklyPickDoc[]>) => {
+		if (picksPromise) {
+			currentPicks = await picksPromise;
+		}
+	};
+	$: updateCurrentPicks(picksPromise);
+	$: totalGameCount = currentPicks ? currentPicks.length : 0;
+	$: isCorrectCount = currentPicks
+		? currentPicks.filter((pick) => pick.isCorrect === true).length
+		: 0;
 	$: showSubmitPicks = currentPickCount >= upcomingGamesCount;
 </script>
 
 <PageTitle>Make Weekly Picks</PageTitle>
-<DevNotes>
+<!-- <DevNotes>
 	current: {currentPickCount}
 	played: {playedGamesCount}
 	upcoming: {upcomingGamesCount}
 	showSubmitPicks: {showSubmitPicks}
-</DevNotes>
+</DevNotes> -->
+<span class="flyout">
+	<AdminControlsModal
+		modalButtonStyles={`border-radius: 0 1rem 1rem 0; padding-left:3rem;`}
+		modalButtonHoverStyles={[
+			{ property: 'padding-left', value: '1.5rem' },
+			{ property: 'padding-right', value: '1.5rem' }
+		]}
+	>
+		<Grid slot="modal-content" repeat={2}>
+			<p>Show Game IDs</p>
+			<ToggleSwitch bind:checked={$showIDs} />
+			<p>Show Timestamps</p>
+			<ToggleSwitch bind:checked={$showTimestamps} />
+			<p>Show Spreads</p>
+			<ToggleSwitch bind:checked={$showSpreads} />
+			<p>Show ATS Winner</p>
+			<ToggleSwitch bind:checked={$showATSwinner} />
 
+			<p>Override Locked Games <Fa icon={$overrideDisabled ? faUnlock : faLock} /></p>
+			<ToggleSwitch bind:checked={$overrideDisabled} />
+			<p>Select Season Type</p>
+			<SeasonTypeSelect
+				bind:selectedSeasonType
+				on:seasonTypeChanged={() => changedQuery(selectedWeek)}
+			/>
+			<p>Select Year</p>
+			<YearSelect bind:selectedYear on:yearChanged={() => changedQuery(selectedWeek)} />
+			{#await userPromise}
+				Loading Users...
+			{:then}
+				<p>Select User</p>
+				<UserSelect
+					bind:selectedUser
+					bind:userPromise
+					on:userChanged={() => changedQuery(selectedWeek, true)}
+				/>
+			{/await}
+		</Grid>
+	</AdminControlsModal>
+</span>
 <section class="grid positioning">
-	<!-- <div class="dev-notes"> -->
-	<!-- <DevNotes>
-			<div style="display:grid; grid-template-columns: repeat(auto-fit,minmax(20rem, 1fr));">
-				Show Game IDs
-				<ToggleSwitch bind:checked={$showIDs} />
-				Show Timestamps
-				<ToggleSwitch bind:checked={$showTimestamps} />
-				Show Spreads
-				<ToggleSwitch bind:checked={$showSpreads} />
-				Override Disabled Picks: {$overrideDisabled}
-				<ToggleSwitch bind:checked={$overrideDisabled} />
-				Edit Toast
-				<ToggleSwitch bind:checked={editingToast} />
-				{#if selectedUser}
-					<p>Selected User ID: {selectedUser.id}</p>
-					<p>UID for queries and submission: {uid}</p>
-				{/if}
-				Select Season Type
-				<SeasonTypeSelect bind:selectedSeasonType on:seasonTypeChanged={() => changedQuery()} />
-				Select Year
-				<YearSelect bind:selectedYear on:yearChanged={() => changedQuery()} />
-				<p>
-					<span>Game Columns</span>
-					<input
-						type="range"
-						bind:value={gridColumns}
-						min="1"
-						max="4"
-						step="1"
-						style="max-width:100%;"
-					/>{gridColumns}
-				</p>
-				<p>
-					<span>Container Max-Width</span>
-					<input
-						type="range"
-						bind:value={widthMeasure}
-						min="1"
-						max="100"
-						step="1"
-						style="max-width:100%;"
-					/>{widthMeasure}
-				</p>
-				<button style="color:black;" on:click={() => toastIt(toastTitle, toastMsg)}
-					>Toast It!</button
-				>
-				{#if editingToast}
-					<textarea style="resize:both;min-height:5rem;" contenteditable bind:value={toastMsg} />
-				{:else}
-					<code>{@html toastMsg}</code>
-				{/if}
-				Upcoming Games Count
-				<p>{upcomingGamesCount}</p>
-				Total Games/Picks Count
-				<p>{totalGameCount}</p>
-				Current Pick Count
-				<p>{currentPickCount}</p>
-				<button on:click={errorToastIt}>Error Toast!</button>
-			</div>
-			{#if gamesPromise}
-				{#await gamesPromise}
-					Loading games...
-				{:then games}
-					{#each games as game (game.id)}
-						<p>
-							{game.awayTeam.abbreviation}: {game.awayTeam.wins}-{game.awayTeam.losses}-{game
-								.awayTeam.ties}
-						</p>
-						<p>
-							{game.homeTeam.abbreviation}: {game.homeTeam.wins}-{game.homeTeam.losses}-{game
-								.homeTeam.ties}
-						</p>
-					{/each}
-				{/await}
-			{/if}
-		</DevNotes> -->
-	<!-- </div> -->
-
 	<div class="pick-status fixed grid {$largerThanMobile ? 'bottom-left' : 'bottom-right'}">
 		{#if $largerThanMobile}
 			<Clock />
@@ -618,7 +566,7 @@
 			{/key}
 			{#if (showSubmitPicks && upcomingGamesCount !== 0) || $overrideDisabled}
 				<SubmitPicks
-					on:click={() => submitPicks(uid)}
+					on:click={() => submitPicks(selectedUser.uid)}
 					ableToTab={tiebreaker >= 10 ? 0 : -1}
 					pulse={tiebreaker >= 10}
 					invisible={tiebreaker < 10 || tiebreaker === undefined}
@@ -641,61 +589,12 @@
 		class="first-row grid"
 		style={$largerThanMobile ? `margin-right:${offsetRightPercentage}%;` : ''}
 	>
-		<div class="admin">
-			<AdminControlsModal>
-				<Grid slot="modal-content" repeat={2}>
-					<p>Show Game IDs</p>
-					<ToggleSwitch bind:checked={$showIDs} />
-					<p>Show Timestamps</p>
-					<ToggleSwitch bind:checked={$showTimestamps} />
-					<p>Show Spreads</p>
-					<ToggleSwitch bind:checked={$showSpreads} />
-					<p>Show ATS Winner</p>
-					<ToggleSwitch bind:checked={$showATSwinner} />
-
-					<p>Override Locked Games <Fa icon={$overrideDisabled ? faUnlock : faLock} /></p>
-					<ToggleSwitch bind:checked={$overrideDisabled} />
-					<p>Select Season Type</p>
-					<SeasonTypeSelect
-						bind:selectedSeasonType
-						on:seasonTypeChanged={() => changedQuery(selectedWeek)}
-					/>
-					<p>Select Year</p>
-					<YearSelect bind:selectedYear on:yearChanged={() => changedQuery(selectedWeek)} />
-					{#await userPromise}
-						Loading Users...
-					{:then}
-						<p>Select User</p>
-						<UserSelect
-							bind:selectedUser
-							bind:userPromise
-							on:userChanged={() => changedQuery(selectedWeek, true)}
-						/>
-					{/await}
-				</Grid>
-			</AdminControlsModal>
-		</div>
-		<div class="weekSelectors">
-			<button
-				class="arrow"
-				on:click={() => {
-					selectedWeek--;
-					changedQuery(selectedWeek);
-				}}><Fa icon={faChevronLeft} /></button
-			>
-			<WeekSelect
-				bind:selectedWeek
-				bind:selectedSeasonType
-				on:weekChanged={() => changedQuery(selectedWeek)}
-			/>
-			<button
-				class="arrow"
-				on:click={() => {
-					selectedWeek++;
-					changedQuery(selectedWeek);
-				}}><Fa icon={faChevronRight} /></button
-			>
-		</div>
+		<WeekSelect
+			customStyles="grid-area: week;"
+			bind:selectedWeek
+			bind:selectedSeasonType
+			on:weekChanged={() => changedQuery(selectedWeek)}
+		/>
 		<button
 			style="grid-area:reset;"
 			on:click={resetPicks}
@@ -806,28 +705,29 @@
 		padding-bottom: 3rem;
 		grid-area: main;
 	}
+	.first-row,
+	.second-row {
+		justify-content: space-evenly;
+		width: 100%;
+		max-width: min(100%, 35em);
+	}
 	.first-row {
+		gap: 1rem;
 		grid-area: firstRow;
 		grid-template-rows: auto;
-		grid-template-columns: repeat(auto-fit, minmax(0, max-content));
-		grid-template-areas: 'admin admin' 'week reset';
-		@include responsive_desktop_only {
-			grid-template-areas: 'week admin reset';
-		}
+		grid-template-columns: repeat(auto-fit, minmax(1fr, max-content));
+		grid-template-areas: 'scoreView scoreView' 'week reset';
+		// @include responsive_desktop_only {
+		// 	grid-template-areas: 'week reset' 'admin scoreView';
+		// }
 	}
 	.second-row {
+		gap: 0.5em;
 		grid-area: secondRow;
 		grid-template-columns: 1fr 1fr;
 		@include responsive_desktop_only {
 			grid-template-columns: repeat(4, minmax(0, max-content));
 		}
-	}
-	.first-row,
-	.second-row {
-		gap: 0.5em;
-		justify-content: space-evenly;
-		width: 100%;
-		max-width: min(100%, 35em);
 	}
 	button {
 		@include styledButton;
@@ -884,18 +784,14 @@
 			background-color: rgba(darkred, 20%);
 		}
 	}
-	.arrow {
-		@include discreetButtonStyles;
-		color: var(--main-color);
-	}
-	.weekSelectors {
-		@include gridAndGap;
-		grid-template-columns: max-content 1fr max-content;
-		grid-area: week;
-	}
-	.admin {
-		@include responsive_mobile_only {
-			grid-column: span 2;
+	.flyout {
+		@include defaultTransition;
+		border-radius: 0 1rem 1rem 0;
+		position: fixed;
+		left: 0%;
+		transform: translateX(-55%);
+		&:hover {
+			transform: translateX(-1%);
 		}
 	}
 </style>

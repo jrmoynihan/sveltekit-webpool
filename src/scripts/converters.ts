@@ -15,7 +15,7 @@ export const userConverter = {
 	fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): WebUser => {
 		const data = snapshot.data(options);
 		const { ref, id } = snapshot; // Destructure the ref and id props from snapshot object
-		return new WebUser({ id, ref, ...data });
+		return new WebUser({ uid: id, ref, ...data });
 	}
 };
 export const teamConverter = {

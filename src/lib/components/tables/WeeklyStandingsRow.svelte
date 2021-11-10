@@ -34,7 +34,7 @@
 		{player.name}
 	{/if}
 	{#if showUID}
-		({player.id})
+		({player.uid})
 	{/if}
 </RowData>
 <RowData {evenRow} {inTheMoney}>

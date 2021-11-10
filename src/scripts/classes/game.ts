@@ -131,7 +131,7 @@ export interface ESPNVenue {
 	indoor: boolean;
 }
 
-export class ESPNGame {
+export interface ESPNGame {
 	$ref: string;
 	id: string;
 	uid: string;
@@ -144,7 +144,7 @@ export class ESPNGame {
 	timeValid: boolean;
 	competitions: ESPNCompetition[];
 }
-export class CompetitorESPN {
+export interface CompetitorESPN {
 	$ref: string;
 	homeAway: string;
 	id: string;
@@ -347,4 +347,122 @@ export interface ESPNTeamLogo {
 	alt: string;
 	rel: string[];
 	lastUpdated: string;
+}
+export interface ESPNDriveRef {
+	$ref: string;
+	count: number;
+	pageIndex: number;
+	pageSize: number;
+	pageCount: number;
+	items: ESPNDrive[];
+}
+export interface ESPNPlaysRef {
+	$ref: string;
+	count: number;
+	pageIndex: number;
+	pageSize: number;
+	pageCount: number;
+	items: ESPNPlay[];
+}
+export interface ESPNDrive {
+	$ref: string;
+	id: string;
+	description: string;
+	sequenceNumber: string;
+	team: RefOnlyESPN;
+	endTeam: RefOnlyESPN;
+	start: ESPNDriveStartOrEnd;
+	end: ESPNDriveStartOrEnd;
+	timeElapsed: {
+		value: number;
+		displayValue: string;
+	};
+	yards: number;
+	isScore: boolean;
+	offensivePlays: number;
+	result: string;
+	shortDisplayResult: string;
+	displayResult: string;
+	source: SourceESPN;
+	plays: ESPNPlaysRef;
+}
+export interface ESPNPlay {
+	$ref: string;
+	id: string;
+	sequenceNumber: string;
+	type: {
+		id: string;
+		text: string;
+		abbreviation: string;
+	};
+	text: string;
+	shortText: string;
+	alternativeText: string;
+	shortAlternativeText: string;
+	awayScore: number;
+	homeScore: number;
+	period: {
+		number: number;
+	};
+	clock: ESPNClock;
+	scoringPlay: boolean;
+	priority: boolean;
+	scoreValue: number;
+	modified: string;
+	team: RefOnlyESPN;
+	participants: ESPNParticipant[];
+	probability: RefOnlyESPN;
+	wallclock: string;
+	drive: RefOnlyESPN;
+	start: ESPNPlayStart;
+	end: ESPNPlayEnd;
+	statYardage: number;
+}
+export interface ESPNParticipant {
+	athlete: RefOnlyESPN;
+	position: RefOnlyESPN;
+	statistics: RefOnlyESPN;
+	stats: ESPNStat[];
+	order: number;
+	type: string;
+}
+export interface ESPNStat {
+	name: string;
+	displayName: string;
+	shortDisplayName: string;
+	description: string;
+	abbreviation: string;
+	value: number;
+	displayValue: string;
+}
+export interface ESPNPlayStart {
+	down: number;
+	distance: number;
+	yardLine: number;
+	yardsToEndZone: number;
+	team: RefOnlyESPN;
+}
+export interface ESPNPlayEnd {
+	down: number;
+	distance: number;
+	yardLine: number;
+	yardsToEndZone: number;
+	downDistanceText: string;
+	shortDownDistanceText: string;
+	possessionText: string;
+	team: RefOnlyESPN;
+}
+export interface ESPNClock {
+	value: number;
+	displayValue: number;
+}
+export interface ESPNPeriod {
+	type: string;
+	number: number;
+}
+export interface ESPNDriveStartOrEnd {
+	period: ESPNPeriod;
+	clock: ESPNClock;
+	yardLine: number;
+	text: string;
 }

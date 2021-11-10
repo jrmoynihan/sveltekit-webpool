@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { ESPNSituation } from '$scripts/classes/game';
 	import type { Team } from '$scripts/classes/team';
+	import { getTeamWithPossession } from '$scripts/dataFetching';
 	import {
 		faArrowCircleLeft,
 		faArrowCircleRight,
@@ -22,18 +23,21 @@
 		{#if disabled}
 			{#await promiseSituation then situation}
 				{#if situation.possessionText}
-					{#if situation.possessionText.indexOf(awayTeam.abbreviation) >= 0}
-						<Fa icon={faFootballBall} size="lg" rotate={45} />
-						<Fa icon={faLock} size="lg" />
-						<span />
-					{/if}
-				{/if}
-				{#if situation.possessionText}
-					{#if situation.possessionText.indexOf(homeTeam.abbreviation) >= 0}
-						<span />
-						<Fa icon={faLock} size="lg" />
-						<Fa icon={faFootballBall} size="lg" rotate={45} />
-					{/if}
+					{#await getTeamWithPossession(situation.team.$ref) then teamWithPossession}
+						{#if teamWithPossession === awayTeam.abbreviation}
+							<Fa icon={faFootballBall} size="lg" rotate={45} />
+							<Fa icon={faLock} size="lg" />
+							<span />
+						{:else if teamWithPossession === homeTeam.abbreviation}
+							<span />
+							<Fa icon={faLock} size="lg" />
+							<Fa icon={faFootballBall} size="lg" rotate={45} />
+						{/if}
+					{/await}
+				{:else}
+					<span />
+					<Fa icon={faLock} size="lg" />
+					<span />
 				{/if}
 			{/await}
 		{:else}

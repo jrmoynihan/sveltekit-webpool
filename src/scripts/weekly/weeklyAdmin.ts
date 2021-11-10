@@ -14,6 +14,7 @@ import { updateDoc, deleteDoc, doc, getDocs, query, setDoc, where } from 'fireba
 import type { QueryConstraint } from 'firebase/firestore';
 import { findCurrentWeekOfSchedule } from '$scripts/schedule';
 import { getConsensusSpread } from '$scripts/dataFetching';
+import { toast } from '@zerodevx/svelte-toast';
 
 export const getAllGames = async (showToast = true) => {
 	try {
@@ -337,6 +338,10 @@ export const deleteTiebreakersForUser = async (
 };
 export const updateGameSpreads = async (week: number, year: number) => {
 	try {
+		const startToast = defaultToast({
+			title: 'Updating spreads...',
+			msg: `Getting consensus spreads from ESPN...`
+		});
 		// Update the pick game objects on the pick documents?
 		const q = query(scheduleCollection, where('week', '==', week), where('year', '==', year));
 		const games = await getDocs(q.withConverter(gameConverter));
@@ -350,6 +355,7 @@ export const updateGameSpreads = async (week: number, year: number) => {
 				myLog(`existing spread found for game (${gameData.id}) was: ${gameData.spread}`);
 			}
 		}
+		toast.pop(startToast);
 		defaultToast({
 			title: 'Updated Spreads!',
 			msg: `Week ${week} spreads were successfully updated!`

@@ -14,7 +14,7 @@ const config = {
 		// 	plugins: [autoprefixer()]
 		// prependData: `@import('src/styles/mixins.scss', 'src/styles/functions.scss');`
 		// },
-		sourceMap: true,
+		// sourceMap: true,
 		scss: {
 			prependData: `@import 'src/styles/mixins.scss', 'src/styles/functions.scss';`
 		}
@@ -45,28 +45,6 @@ const config = {
 			build: {
 				target: 'esnext'
 			},
-			// build: {
-			// minify: 'terser',
-			// legalComments: 'none',
-			// terserOptions: {
-			// 	format: {
-			// 		comments: false
-			// 	}
-			// }
-			// 	rollupOptions: {
-			// 		output: {
-			// 			manualChunks: undefined
-			// 		}
-			// 	}
-			// },
-			// esbuild: {
-			// 	legalComments: 'none'
-			// },
-			// optimizeDeps: {
-			// 	esbuildOptions: {
-			// 		legalComments: 'none'
-			// 	}
-			// },
 			// ssr: {
 			// 	external: ['@firebase/firestore']
 			// },

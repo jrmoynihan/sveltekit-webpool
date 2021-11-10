@@ -1,12 +1,14 @@
 <script lang="ts">
-	import type { ESPNScore, ESPNStatus } from '$scripts/classes/game';
+	import type { ESPNScore, ESPNSituation, ESPNStatus } from '$scripts/classes/game';
 	import type { Team } from '$scripts/classes/team';
 	import FinalGameScore from './FinalGameScore.svelte';
 	import ScoresAts from './ScoresATS.svelte';
 	import ErrorModal from '$lib/components/modals/ErrorModal.svelte';
+	import { preferredScoreView } from '$scripts/store';
 
 	export let promiseStatus: Promise<ESPNStatus>;
 	export let promiseScores: Promise<{ homeScoreData: ESPNScore; awayScoreData: ESPNScore }>;
+	export let promiseSituation: Promise<ESPNSituation>;
 	export let spread: number;
 	export let ATSwinner: string;
 	export let homeTeam: Team;
@@ -48,17 +50,19 @@
 				<div class="finalOrTime">Final</div>
 				<div class="home">--</div>
 			{:then { awayScoreData, homeScoreData }}
-				<FinalGameScore
-					isHigherScore={awayScoreData.value > homeScoreData.value}
-					displayedScore={awayScoreData}
-					gridArea={'away'}
-				/>
-				<div class="finalOrTime">Final</div>
-				<FinalGameScore
-					isHigherScore={homeScoreData.value > awayScoreData.value}
-					displayedScore={homeScoreData}
-					gridArea={'home'}
-				/>
+				{#if $preferredScoreView === 'Actual' || $preferredScoreView === 'Both'}
+					<FinalGameScore
+						isHigherScore={awayScoreData.value > homeScoreData.value}
+						displayedScore={awayScoreData}
+						gridArea={'away'}
+					/>
+					<div class="finalOrTime">Final</div>
+					<FinalGameScore
+						isHigherScore={homeScoreData.value > awayScoreData.value}
+						displayedScore={homeScoreData}
+						gridArea={'home'}
+					/>
+				{/if}
 			{:catch error}
 				<ErrorModal {error} />
 			{/await}
@@ -94,7 +98,9 @@
 	{:catch error}
 		<ErrorModal {error} />
 	{/await}
-	<ScoresAts {promiseStatus} {promiseScores} {spread} {ATSwinner} {homeTeam} {awayTeam} />
+	{#if $preferredScoreView === 'Both' || $preferredScoreView === 'ATS'}
+		<ScoresAts {promiseStatus} {promiseScores} {spread} {ATSwinner} {homeTeam} {awayTeam} />
+	{/if}
 </div>
 
 <style lang="scss">

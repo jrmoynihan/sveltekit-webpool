@@ -4,7 +4,7 @@
 	import WeekSelect from '$lib/components/selects/WeekSelect.svelte';
 	import WeeklyStandingsRow from '$lib/components/tables/WeeklyStandingsRow.svelte';
 	import { mobileBreakpoint } from '$scripts/site';
-	import { showIDs, windowWidth } from '$scripts/store';
+	import { showIDs, showNetTiebreakers, windowWidth } from '$scripts/store';
 	import { onMount } from 'svelte';
 	import { query, where, orderBy, DocumentData, Query, getDocs } from 'firebase/firestore';
 	import {
@@ -18,11 +18,8 @@
 	import { errorToast } from '$scripts/toasts';
 	import { myError } from '$scripts/classes/constants';
 	import type { Game } from '$scripts/classes/game';
-	import ToggleSwitch from '../switches/ToggleSwitch.svelte';
 	import { findCurrentWeekOfSchedule } from '$scripts/schedule';
 	import ErrorModal from '../modals/ErrorModal.svelte';
-	import Grid from '../containers/Grid.svelte';
-	import AdminControlsModal from '../modals/AdminControlsModal.svelte';
 
 	let initialWeekHeaders: string[] = ['Rank', 'Player', 'Wins', 'Losses', 'Tiebreaker', 'Prize'];
 	let abbreviatedWeekHeaders: string[] = ['#', 'Name', 'W', 'L', 'T', '$'];
@@ -32,7 +29,6 @@
 	let weeklyUserPromise: Promise<WebUser[]>;
 	let lastGamePromise: Promise<Game>;
 	let weeklyUserQuery: Query<DocumentData>;
-	let showNetTiebreakers = false;
 	let headerCount: number;
 
 	export const getAllTiebreakers = async (
@@ -91,6 +87,10 @@
 	onMount(async () => {
 		selectedWeek = await findCurrentWeekOfSchedule();
 		getData(selectedWeek);
+		const tiebreakers = await tiebreakerPromise;
+		const users = await weeklyUserPromise;
+		console.log(tiebreakers);
+		console.log(users);
 	});
 
 	// Reactive statements allow headers to update when the screen resizes
@@ -99,16 +99,14 @@
 		$windowWidth < mobileBreakpoint - 500 ? abbreviatedWeekHeaders : initialWeekHeaders;
 </script>
 
-<AdminControlsModal>
-	<Grid slot="modal-content" repeat={2}>
-		<span>Show Net Tiebreakers</span>
-		<ToggleSwitch adminOnly={true} bind:checked={showNetTiebreakers} />
-		<span>Show UIDs</span>
-		<ToggleSwitch adminOnly={true} bind:checked={$showIDs} />
-	</Grid>
-</AdminControlsModal>
 <div class="week grid" style="--columns:{headerCount}">
-	<WeekSelect gridArea="selector" bind:selectedWeek on:weekChanged={() => getData(selectedWeek)} />
+	<WeekSelect
+		customStyles="grid-area:selector;"
+		bind:selectedWeek
+		on:weekChanged={() => getData(selectedWeek)}
+		on:incrementWeek={() => getData(selectedWeek)}
+		on:decrementWeek={() => getData(selectedWeek)}
+	/>
 	<div class="table grid">
 		{#each weekHeaders as header}
 			<div class="header">{header}</div>
@@ -125,13 +123,13 @@
 					{:then lastGame}
 						{#each weeklyPlayerData as player, i}
 							{#each tiebreakers as tiebreaker}
-								{#if tiebreaker.uid === player.id}
+								{#if tiebreaker.uid === player.uid}
 									<WeeklyStandingsRow
 										{player}
 										{selectedWeek}
 										{i}
 										{tiebreaker}
-										{showNetTiebreakers}
+										showNetTiebreakers={$showNetTiebreakers}
 										{lastGame}
 										showUID={$showIDs}
 									/>

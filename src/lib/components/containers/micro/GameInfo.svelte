@@ -28,7 +28,15 @@
 <label class="game-info rounded" for="{id}-none">
 	<!-- <WinLossAt {promiseScores} {promiseStatus} {homeTeam} {awayTeam} {selectedTeam} {spread} {isATSwinner} /> -->
 	<WinLossAt {isATSwinner} {gameIsOver} />
-	<StatusInfo {promiseStatus} {promiseScores} {spread} {ATSwinner} {homeTeam} {awayTeam} />
+	<StatusInfo
+		{promiseStatus}
+		{promiseScores}
+		{promiseSituation}
+		{spread}
+		{ATSwinner}
+		{homeTeam}
+		{awayTeam}
+	/>
 	<SpreadOrPossession {spread} {disabled} {awayTeam} {homeTeam} {promiseSituation} />
 	<DateTimeOrDownDistance {timestamp} {promiseStatus} {promiseSituation} />
 	<input id="{id}-none" type="radio" bind:group={selectedTeam} value="" {disabled} />

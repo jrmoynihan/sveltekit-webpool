@@ -3,7 +3,7 @@
 	import { nanoid } from 'nanoid';
 	import { faCheckCircle, IconDefinition } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
-	import type { toggleItem } from '$scripts/types/toggleItem';
+	import type { toggleItem } from '$scripts/types/types';
 	import { browser } from '$app/env';
 	import { fade } from 'svelte/transition';
 
@@ -182,17 +182,21 @@
 		width: 80%;
 		left: 7.5%;
 		right: 7.5%;
-		grid-row: 2;
+		// grid-row: 2;
 		grid-column: 1 / span var(--count);
-		transform: translateY(220%);
+		transform: translateY(425%);
 	}
 	label {
 		@include defaultContainerStyles;
+		transition: all 1000ms;
+		transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
 		box-shadow: none;
-		border: none;
 		border-radius: 1rem;
 		padding: 0.5rem;
 		background: rgba(var(--alternateValue-color, transparent));
+		&:not(.selected) {
+			box-shadow: 0 0 1px 2px rgba(var(--mainValue-color) / 40%);
+		}
 	}
 
 	input {
