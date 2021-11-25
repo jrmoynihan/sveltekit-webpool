@@ -338,7 +338,13 @@
 			}}
 		/>
 		<YearSelect bind:selectedYear on:yearChanged={queryChanged} />
-		<WeekSelect bind:selectedWeek bind:weeks on:weekChanged={queryChanged} />
+		<WeekSelect
+			bind:selectedWeek
+			bind:weeks
+			on:weekChanged={queryChanged}
+			on:decrementWeek={queryChanged}
+			on:incrementWeek={queryChanged}
+		/>
 		<select bind:value={selectedGames}>
 			<option value="pruned">Pruned Games (DB)</option>
 			<option value="full">Full Games (ESPN API)</option>

@@ -8,7 +8,6 @@
 	export let repeat: string | number = 'auto-fit';
 	export let padding: string | number = '1rem';
 	export let gap: string | number = '1rem';
-	export let customGridColumns: string = undefined;
 	export let useTransition = true;
 	export let useInAndOutTransitions = false;
 	export let transitionType: BuiltInTransition = 'fade';
@@ -21,7 +20,7 @@
 
 {#if useInAndOutTransitions}
 	<div
-		class="grid"
+		class="grid {customClasses}"
 		in:variableTransition={{
 			useTransition: true,
 			transitionType: inTransitionType,
@@ -32,8 +31,7 @@
 			transitionType: outTransitionType,
 			transitionConfig: outTransitionConfig
 		}}
-		style="--min:{min}; --max:{max}; --repeat:{repeat};--padding:{padding}; --gap:{gap}; {customStyles};
-	{customGridColumns ? customGridColumns : null};"
+		style="--min:{min}; --max:{max}; --repeat:{repeat};--padding:{padding}; --gap:{gap}; {customStyles};"
 	>
 		<slot />
 	</div>
@@ -41,8 +39,7 @@
 	<div
 		class="grid"
 		transition:variableTransition={{ useTransition, transitionType, transitionConfig }}
-		style="--min:{min}; --max:{max}; --repeat:{repeat};--padding:{padding}; ; --gap:{gap}; {customStyles};
-	{customGridColumns ? customGridColumns : null};"
+		style="--min:{min}; --max:{max}; --repeat:{repeat};--padding:{padding}; ; --gap:{gap}; {customStyles};"
 	>
 		<slot />
 	</div>

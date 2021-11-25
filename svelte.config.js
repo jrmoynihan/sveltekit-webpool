@@ -11,7 +11,7 @@ const config = {
 	// for more information about preprocessors
 	preprocess: preprocess({
 		// postcss: {
-		// 	plugins: [autoprefixer()]
+		// plugins: [autoprefixer()],
 		// prependData: `@import('src/styles/mixins.scss', 'src/styles/functions.scss');`
 		// },
 		// sourceMap: true,
@@ -26,7 +26,7 @@ const config = {
 		// hydrate the <div id="svelte"> element in src/app.html
 		target: '#svelte',
 		adapter: firebase(),
-		ssr: true,
+		ssr: false,
 		vite: {
 			resolve: {
 				alias: {
@@ -45,9 +45,10 @@ const config = {
 			build: {
 				target: 'esnext'
 			},
-			// ssr: {
-			// 	external: ['@firebase/firestore']
-			// },
+			ssr: {
+				// external: ['@firebase/firestore']
+				external: ['whatwg-url', 'firebase']
+			},
 			server: {
 				https: true
 			},

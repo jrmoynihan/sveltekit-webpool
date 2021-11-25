@@ -509,28 +509,43 @@ export const updateTeamRecordsFromESPN = async (
 			const wins = recordData.items[0].stats[1].value;
 			const losses = recordData.items[0].stats[2].value;
 			const ties = recordData.items[0].stats[5].value;
+			const record = {
+				wins: wins,
+				losses: losses,
+				ties: ties
+			};
 			const teamDoc = doc(teamsCollection, teamAbbreviation);
 
 			toast.set(toastId, { msg: `Updating ${teamData.displayName}`, duration: 30000 });
 
 			myLog(`${teamAbbreviation} || wins: ${wins}, losses: ${losses}, ties: ${ties}`);
-			// Update the information on the team document (didn't need any reads to do this!)
-			updateDoc(teamDoc.withConverter(teamConverter), {
-				wins: wins,
-				losses: losses,
-				ties: ties
-			});
-			writeCount++;
 
-			// Iterate through all games to keep team records up to date on those documents
-			writeCount = await updateTeamRecordOnGameDocs(
-				games,
-				teamAbbreviation,
-				wins,
-				losses,
-				ties,
-				writeCount
-			);
+			// Update the information on the team document (didn't need any reads to do this!)
+			// TODO: remove this in favor of the records object used below; anywhere in the app that uses wins,losses,ties should use records.wins, records.losses, records.ties instead
+			const currentYear = new Date().getFullYear();
+			if (selectedYear === currentYear) {
+				updateDoc(teamDoc.withConverter(teamConverter), {
+					wins,
+					losses,
+					ties
+				});
+				writeCount++;
+
+				// Iterate through all games to keep team records up to date on those documents
+				writeCount = await updateTeamRecordOnGameDocs(
+					games,
+					teamAbbreviation,
+					wins,
+					losses,
+					ties,
+					writeCount
+				);
+			}
+
+			// Need to delay this write to be at least 1sec after the previous write
+			// TODO: move this up to replace the prior updateDoc function
+			updateDoc(teamDoc.withConverter(teamConverter), `records.${selectedYear}`, record);
+			writeCount++;
 		}
 		toast.set(toastId, { msg: `Finished updating teams!`, duration: 10000 });
 		toast.push({ msg: `wrote ${writeCount} times!`, duration: 30000 });

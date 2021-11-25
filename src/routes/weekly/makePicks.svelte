@@ -55,14 +55,12 @@
 	import LoadingSpinner from '$lib/components/misc/LoadingSpinner.svelte';
 	import type { Game } from '$scripts/classes/game';
 	import { findCurrentWeekOfSchedule } from '$scripts/schedule';
-	import { getLocalStorageItem, setLocalStorageItem } from '$scripts/localStorage';
+	import { getLocalStorageItem } from '$scripts/localStorage';
 	import UserSelect from '$lib/components/selects/UserSelect.svelte';
 	import type { WebUser } from '$scripts/classes/webUser';
 	import { getWeeklyUsers } from '$scripts/weekly/weeklyUsers';
 	import Fa from 'svelte-fa';
 	import {
-		faChevronLeft,
-		faChevronRight,
 		faLock,
 		faUnlock
 	} from '@fortawesome/free-solid-svg-icons';
@@ -76,7 +74,6 @@
 	let tiebreakerPromise: Promise<WeeklyTiebreaker>;
 	let gamesPromise: Promise<Game[]>;
 	let userPromise: Promise<WebUser[]>;
-	// let editingToast = false;
 	let showSubmitPicks = false;
 	let selectedUser: WebUser;
 	let selectedWeek = 3;
@@ -91,8 +88,6 @@
 	let totalGameCount = 16;
 	let tiebreakerDocRef: DocumentReference;
 	let tiebreaker = 0;
-	// let toastMsg = ``;
-	// let toastTitle = '';
 	let gridColumns = 1;
 	let widthMeasure = 85;
 	let offsetRightPercentage = 15;
@@ -129,7 +124,7 @@
 		await changedQuery(selectedWeek);
 	};
 
-	const getPicks = async (selectedWeek: number, uid: string) => {
+	const getPicksForUser = async (selectedWeek: number, uid: string) => {
 		try {
 			const picks: WeeklyPickDoc[] = [];
 			myLog(
@@ -266,7 +261,7 @@
 				}
 			});
 			myLog('updated/submitted picks!', '', okHand, currentPicks);
-			picksPromise = getPicks(selectedWeek, uid);
+			picksPromise = getPicksForUser(selectedWeek, uid);
 
 			await updateTiebreakerDoc(tiebreakerDocRef, uid, tiebreaker, selectedWeek, selectedYear);
 
@@ -455,7 +450,7 @@
 				uid = selectedUser.uid;
 			}
 			gamesPromise = getGames(selectedWeek);
-			picksPromise = getPicks(selectedWeek, uid);
+			picksPromise = getPicksForUser(selectedWeek, uid);
 			tiebreakerPromise = getTiebreaker(selectedWeek, uid);
 		} catch (error) {
 			errorToast(`Error in changing query... ${error}`);
@@ -594,6 +589,8 @@
 			bind:selectedWeek
 			bind:selectedSeasonType
 			on:weekChanged={() => changedQuery(selectedWeek)}
+			on:incrementWeek={() => changedQuery(selectedWeek)}
+			on:decrementWeek={() => changedQuery(selectedWeek)}
 		/>
 		<button
 			style="grid-area:reset;"

@@ -44,6 +44,7 @@ export const isBeforeGameTime = async (timestamp: Timestamp): Promise<boolean> =
 	// const now = new Date().getTime();
 	// console.log('gameTime', gameTime);
 	// console.log('now', now);
+	// console.log('timestamp', gameTime);
 	if (now < gameTime) {
 		// console.log(true);
 		return true;

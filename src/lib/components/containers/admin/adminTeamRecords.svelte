@@ -8,6 +8,8 @@
 	import { resetTeamRecords } from '$scripts/teams';
 	import AdminExpandSection from './adminExpandSection.svelte';
 
+	export let selectedYear: number = new Date().getFullYear();
+
 	let min: string | number;
 	$: min = $largerThanMobile ? 0 : '40%';
 </script>
@@ -17,7 +19,7 @@
 		on:click={() => {
 			// const proceed = confirm('Have you already updated the game winners?  If so, click OK.');
 			// if (proceed) {
-			updateTeamRecordsFromESPN();
+			updateTeamRecordsFromESPN(selectedYear);
 			// }
 		}}>Update Team Records</StyledButton
 	>
