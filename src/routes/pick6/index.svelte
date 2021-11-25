@@ -84,7 +84,11 @@
 		class="reset"
 		on:click={() => {
 			resetGroup(groupOneTeams);
+			resetGroup(groupTwoTeams);
+			resetGroup(groupThreeTeams);
 			groupOneTeams = groupOneTeams;
+			groupTwoTeams = groupTwoTeams;
+			groupThreeTeams = groupThreeTeams;
 		}}>Reset All</button
 	>
 
