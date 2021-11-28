@@ -14,8 +14,8 @@
 	--h2-size: 1rem;
 	--pre-size: 1rem;
 	--padding-normal: 1rem;
-	--padding-double: calc(var(--padding-normal) * 2)
-	--padding-two-and-a-half: calc(var(--padding-normal) * 2.5)
+	--padding-double: calc(var(--padding-normal) * 2);
+	--padding-two-and-a-half: calc(var(--padding-normal) * 2.5);
 	--padding-half-normal: calc(var(--padding-normal) / 2);
 	--font-mono: 'Fira Mono', monospace;
 	--below: -1;

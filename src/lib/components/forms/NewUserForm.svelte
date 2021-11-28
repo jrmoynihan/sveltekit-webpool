@@ -395,7 +395,11 @@
 			{/if}
 			{#if !buttonHidden && nicknameEntered && !illegalCharacters}
 				{#key totalPriceToEnter}
-					<span in:fly={{ x: 100, duration: 300 }} class="two-column price">
+					<span
+						class:hidden={buttonHidden || !nicknameEntered || illegalCharacters}
+						in:fly={{ x: 100, duration: 200 }}
+						class="two-column price"
+					>
 						${totalPriceToEnter} total to enter
 					</span>
 				{/key}
@@ -403,8 +407,8 @@
 					transition:slide={slideParameters}
 					disabled={buttonHidden}
 					tabindex={buttonHidden ? -1 : 0}
+					class:hidden={buttonHidden || !nicknameEntered || illegalCharacters}
 					class="two-column"
-					class:buttonHidden
 					on:click={() => {
 						creatingNewAccount = true;
 						setTimeout(async () => await createAccount(), 1500);
@@ -509,5 +513,13 @@
 		&:hover {
 			cursor: inherit;
 		}
+	}
+	.hidden {
+		opacity: 0;
+		pointer-events: none;
+		animation: none;
+		box-shadow: none;
+		appearance: none;
+		transition: all 400ms ease-in-out;
 	}
 </style>

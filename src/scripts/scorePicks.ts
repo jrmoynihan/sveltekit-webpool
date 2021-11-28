@@ -18,7 +18,7 @@ import {
 	increment,
 	doc
 } from 'firebase/firestore';
-import { myLog, everyoneWinsResult, myError, checkmark, HomeOrAway } from './classes/constants';
+import { myLog, everyoneWinsResult, myError, checkmark, HomeOrAway, weeklyPoolFee, commishCost, webDevCost, hostingCost, maxRegularSeasonWeeks, weeklyPayout, firstPlaceWeeklySeasonPercent, secondPlaceWeeklySeasonPercent, thirdPlaceWeeklySeasonPercent } from './classes/constants';
 import {
 	scheduleCollection,
 	usersCollection,
@@ -88,37 +88,114 @@ export const scorePicksForWeek = async (
 			const pickQuery = query(weeklyPicksCollection, ...wheres);
 			const userPicks = await getDocs(pickQuery.withConverter(weeklyPickConverter));
 			await updateUserRecordForWeek(selectedWeek, userRef, userPicks);
+			// const {totalWins, netTiebreaker, netTiebreakerAbsolute} = 
+			// if(totalWins >= mostWins){
+			// 	mostWins = totalWins
+			// }
+			// if(netTiebreakerAbsolute < smallestNetTiebreakerAbsolute){
+			// 	smallestNetTiebreakerAbsolute = netTiebreakerAbsolute
+			// }
 		});
 		// Get a fresh copy of the updated user docs
 		const updatedUsers = await getDocs(userQuery.withConverter(userConverter));
+
+		// Initialize variables to perform winner/tiebreaker comparisons
+	let mostWins: number = 0
+	let secondMostWins : number = 0
+	let thirdMostWins : number = 0
+	// Update weekly user season records
 		updatedUsers.forEach(async (user) => {
 			const userData = user.data();
 			const userRef = user.ref;
-			// TODO: Turn this into a cloud function
-			updateUserRecordTotals(userRef, userData);
+			// TODO: Turn this into a cloud function trigger
+			const totalWins = await updateWeeklyUserSeasonRecord(userRef, userData);
+
+			if(totalWins > mostWins){
+				mostWins = totalWins
+			}else if(totalWins > secondMostWins){
+				secondMostWins = totalWins
+			}else if(totalWins > thirdMostWins){
+				thirdMostWins = totalWins
+			}
 		});
+		const firstPlacers = await findWeeklyUserSeasonLeaders(updatedUsers,mostWins)
+		const secondPlacers = await findWeeklyUserSeasonLeaders(updatedUsers,secondMostWins)
+		const thirdPlacers = await findWeeklyUserSeasonLeaders(updatedUsers,thirdMostWins)
+		const paidWeeklyPlayers = updatedUsers.docs.filter(doc => doc.data().paidWeekly === true)
+		const seasonTotalPrizePool =  paidWeeklyPlayers.length * weeklyPoolFee
+		const seasonPrizePoolNetCosts = seasonTotalPrizePool - commishCost - webDevCost - hostingCost - (maxRegularSeasonWeeks * weeklyPayout)
+		let firstPlacePrize: number
+		let secondPlacePrize:number
+		let thirdPlacePrize :number
+
+		if(firstPlacers.length === 1){
+			firstPlacePrize = seasonPrizePoolNetCosts * (firstPlaceWeeklySeasonPercent)
+			if(secondPlacers.length === 1){
+				secondPlacePrize = seasonPrizePoolNetCosts * (secondPlaceWeeklySeasonPercent)
+				thirdPlacePrize = seasonPrizePoolNetCosts * (thirdPlaceWeeklySeasonPercent) / thirdPlacers.length
+			}else if(secondPlacers.length >= 2){
+				secondPlacePrize = seasonPrizePoolNetCosts * (secondPlaceWeeklySeasonPercent) / secondPlacers.length
+				thirdPlacePrize = 0
+			}
+		}else if(firstPlacers.length === 2){
+			firstPlacePrize = seasonPrizePoolNetCosts * (firstPlaceWeeklySeasonPercent +secondPlaceWeeklySeasonPercent) / 2
+			secondPlacePrize= seasonPrizePoolNetCosts * thirdPlaceWeeklySeasonPercent / secondPlacers.length
+			thirdPlacePrize = 0
+		}else if(firstPlacers.length>=3){
+			firstPlacePrize = seasonPrizePoolNetCosts * (firstPlaceWeeklySeasonPercent +secondPlaceWeeklySeasonPercent + thirdPlaceWeeklySeasonPercent) / firstPlacers.length
+			secondPlacePrize = 0
+			thirdPlacePrize = 0
+		}
 
 		toast.pop(startingToastId);
 		defaultToast({
 			title: `Scored Week ${selectedWeek} Picks!`,
-			msg: `Successfully scored each user's picks for the selected week.`
+			msg: `Successfully scored each user's picks for Week ${selectedWeek}, ${selectedYear}.`
 		});
 	} catch (error) {
 		myError('scorePicks', error);
 	}
 };
-export const updateUserRecordTotals = (userRef: DocumentReference, userData: WebUser) => {
+
+export const findWeeklyUserSeasonLeaders = async (users: QuerySnapshot<WebUser>, comparisonWinCount: number) => {
+	let leaders : DocumentReference[]
+	users.docs.filter(doc=> {
+		const totalWeeklyWins = doc.data().totalWeeklyWins
+		if(totalWeeklyWins === comparisonWinCount){
+			leaders.push(doc.ref)
+		}
+	})
+	return leaders
+}
+
+/**
+ * 
+ * @param mostWins - The highest win total found when scoring the week
+ * @param smallesNetTiebreakerAbsolute - The smallest net tiebreaker (closest to actual score in either direction) found when scoring the week
+ * @param greatestNetTiebreaker - The greatest net tiebreaker ()
+ */
+export const findWeeklyUserWinners = (mostWins: number, smallestNetTiebreakerAbsolute: number, greatestNetTiebreaker:number) => {
+
+}
+
+export const updateWeeklyUserSeasonRecord = async (userRef: DocumentReference, userData: WebUser) => {
 	let totalWins = 0;
 	let totalLosses = 0;
+	let netTiebreaker = 0
+	let netTiebreakerAbsolute = 0
 	const weekRecords: UserRecord[] = Object.values(userData.weeklyPickRecord);
-	for (const week of weekRecords) {
+	// Add each week's wins/losses to the the user's total season wins/losses
+	for await (const week of weekRecords) {
 		totalWins = +week.wins;
 		totalLosses = +week.losses;
+		netTiebreaker= week.netTiebreaker
+		netTiebreakerAbsolute = week.netTiebreakerAbsolute
 	}
-	updateDoc(userRef, {
+	await updateDoc(userRef, {
 		totalWeeklyWins: totalWins,
 		totalWeeklyLosses: totalLosses
 	});
+	return totalWins // Return wins to compare who has the best record
 };
 export const updateUserRecordForWeek = async (
 	selectedWeek: number,
@@ -427,52 +504,6 @@ export const removeWinnersFromGames = async (
 };
 // TODO: turn this into a cloud function listener!
 // ** Update the team records on both team and game documents **
-// export const updateTeamRecordsEverywhere = async (
-// 	selectedYear = new Date().getFullYear(),
-// 	seasonType = 'Regular Season',
-// 	games?: QuerySnapshot<Game>,
-// 	teams?: QuerySnapshot<Team>
-// ): Promise<void> => {
-// 	try {
-// 		const wheres = [where('year', '==', selectedYear), where('type', '==', seasonType)];
-// 		const gamesQuery = query(scheduleCollection, ...wheres);
-// 		const teamQuery = query(teamsCollection);
-// 		// If the games or teams have already been queried, they should be passed as arguments to the function
-// 		if (!games) {
-// 			games = await getDocs(gamesQuery.withConverter(gameConverter));
-// 		}
-// 		if (!teams) {
-// 			teams = await getDocs(teamQuery.withConverter(teamConverter));
-// 		}
-// 		// Reset team records to stay in sync since we're iterating over EVERY game
-// 		// await resetTeamRecords(true);
-
-// 		games.forEach(async (game) => {
-// 			const gameData = game.data();
-// 			const gameRef = game.ref;
-// 			const winner = gameData.winner;
-// 			const loser = gameData.loser;
-// 			const winnerAndLoser = { winner, loser };
-// 			// Update the record on the team doc; the central source of team info
-// 			await updateTeamRecordOnTeamDoc(winnerAndLoser, teams, gameData);
-
-// 			// Re-query the newly updated team info (could use a snapshot listerner instead?);
-// 			// Otherwise, the update on the schedule docs will be using stale data!
-// 			const updatedTeams = await getDocsFromServer(teamQuery.withConverter(teamConverter));
-// 			console.log(updatedTeams);
-
-// 			// Then update the team's record on the game docs displayed for each week
-// 			await updateTeamRecordOnGameDocs(updatedTeams, gameData, gameRef);
-// 		});
-// 		defaultToast({
-// 			title: 'Updated Teams!',
-// 			msg: 'Successfully updated teams on scheduled game documents!'
-// 		});
-// 	} catch (error) {
-// 		errorToast('Error updating teams on scheduled game documents!');
-// 		myError('updateTeamRecords', error);
-// 	}
-// };
 export const updateTeamRecordsFromESPN = async (
 	selectedYear: number = new Date().getFullYear()
 ) => {
@@ -522,7 +553,7 @@ export const updateTeamRecordsFromESPN = async (
 			});
 			writeCount++;
 
-			// Iterate through all games to keep team records up to date on those documents
+			// Iterate through all games from the selected year to keep team records up to date on those documents
 			writeCount = await updateTeamRecordOnGameDocs(
 				games,
 				teamAbbreviation,
@@ -627,20 +658,21 @@ export const updateTeamRecord = async (
 	}
 	return writeCount;
 };
-export const doesExistingRecordMatchNewRecord = async (
-	newTeamData: Team,
-	existingTeamData: Team
-) => {
-	if (
-		newTeamData.wins === existingTeamData.wins &&
-		newTeamData.losses === existingTeamData.losses &&
-		newTeamData.ties === existingTeamData.ties
-	) {
-		return true;
-	} else {
-		return false;
-	}
-};
+
+// export const doesExistingRecordMatchNewRecord = async (
+// 	newTeamData: Team,
+// 	existingTeamData: Team
+// ) => {
+// 	if (
+// 		newTeamData.wins === existingTeamData.wins &&
+// 		newTeamData.losses === existingTeamData.losses &&
+// 		newTeamData.ties === existingTeamData.ties
+// 	) {
+// 		return true;
+// 	} else {
+// 		return false;
+// 	}
+// };
 
 export const resetWeeklyUserRecords = async (): Promise<void> => {
 	try {

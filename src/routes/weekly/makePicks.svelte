@@ -55,23 +55,18 @@
 	import LoadingSpinner from '$lib/components/misc/LoadingSpinner.svelte';
 	import type { Game } from '$scripts/classes/game';
 	import { findCurrentWeekOfSchedule } from '$scripts/schedule';
-	import { getLocalStorageItem, setLocalStorageItem } from '$scripts/localStorage';
+	import { getLocalStorageItem } from '$scripts/localStorage';
 	import UserSelect from '$lib/components/selects/UserSelect.svelte';
 	import type { WebUser } from '$scripts/classes/webUser';
 	import { getWeeklyUsers } from '$scripts/weekly/weeklyUsers';
 	import Fa from 'svelte-fa';
-	import {
-		faChevronLeft,
-		faChevronRight,
-		faLock,
-		faUnlock
-	} from '@fortawesome/free-solid-svg-icons';
+	import { faLock, faUnlock } from '@fortawesome/free-solid-svg-icons';
 	import ErrorModal from '$lib/components/modals/ErrorModal.svelte';
 	import Grid from '$lib/components/containers/Grid.svelte';
 	import AdminControlsModal from '$lib/components/modals/AdminControlsModal.svelte';
 	import { focusTiebreaker } from '$scripts/scrollAndFocus';
+	import type { SeasonType } from '$scripts/classes/seasonType';
 
-	let uid: string = $currentUser.uid;
 	let picksPromise: Promise<WeeklyPickDoc[]>;
 	let tiebreakerPromise: Promise<WeeklyTiebreaker>;
 	let gamesPromise: Promise<Game[]>;
@@ -119,14 +114,13 @@
 		}
 	});
 	const getData = async () => {
-		uid ? null : (uid = await getUserId());
 		selectedWeek = await findCurrentWeekOfSchedule();
 		if ($userData.admin) {
 			userPromise = getWeeklyUsers(false);
 			selectedUser = await userPromise.then((users) => users[0]);
 		}
 
-		await changedQuery(selectedWeek);
+		await changedQuery(selectedYear, selectedSeasonType, selectedWeek, $currentUser.uid);
 	};
 
 	const getPicks = async (selectedWeek: number, uid: string) => {
@@ -158,7 +152,11 @@
 		}
 	};
 
-	const getGames = async (selectedWeek: number) => {
+	const getGames = async (
+		selectedYear: number,
+		selectedSeasonType: SeasonType,
+		selectedWeek: number
+	) => {
 		try {
 			const games: Game[] = [];
 			const q = query(
@@ -449,12 +447,14 @@
 		}
 	};
 
-	const changedQuery = async (selectedWeek: number, changedUser = false) => {
+	const changedQuery = async (
+		selectedYear: number,
+		selectedSeasonType: SeasonType,
+		selectedWeek: number,
+		uid: string
+	) => {
 		try {
-			if (changedUser || !uid) {
-				uid = selectedUser.uid;
-			}
-			gamesPromise = getGames(selectedWeek);
+			gamesPromise = getGames(selectedYear, selectedSeasonType, selectedWeek);
 			picksPromise = getPicks(selectedWeek, uid);
 			tiebreakerPromise = getTiebreaker(selectedWeek, uid);
 		} catch (error) {
@@ -532,10 +532,15 @@
 			<p>Select Season Type</p>
 			<SeasonTypeSelect
 				bind:selectedSeasonType
-				on:seasonTypeChanged={() => changedQuery(selectedWeek)}
+				on:seasonTypeChanged={() =>
+					changedQuery(selectedYear, selectedSeasonType, selectedWeek, selectedUser.uid)}
 			/>
 			<p>Select Year</p>
-			<YearSelect bind:selectedYear on:yearChanged={() => changedQuery(selectedWeek)} />
+			<YearSelect
+				bind:selectedYear
+				on:yearChanged={() =>
+					changedQuery(selectedYear, selectedSeasonType, selectedWeek, selectedUser.uid)}
+			/>
 			{#await userPromise}
 				Loading Users...
 			{:then}
@@ -543,7 +548,8 @@
 				<UserSelect
 					bind:selectedUser
 					bind:userPromise
-					on:userChanged={() => changedQuery(selectedWeek, true)}
+					on:userChanged={() =>
+						changedQuery(selectedYear, selectedSeasonType, selectedWeek, selectedUser.uid)}
 				/>
 			{/await}
 		</Grid>
@@ -593,7 +599,8 @@
 			customStyles="grid-area: week;"
 			bind:selectedWeek
 			bind:selectedSeasonType
-			on:weekChanged={() => changedQuery(selectedWeek)}
+			on:weekChanged={() =>
+				changedQuery(selectedYear, selectedSeasonType, selectedWeek, selectedUser.uid)}
 		/>
 		<button
 			style="grid-area:reset;"

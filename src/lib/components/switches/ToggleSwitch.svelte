@@ -32,25 +32,27 @@
 	}
 </script>
 
-{#if labelText !== ''}
-	<label class="label-text" for={id} style={labelStyles}>
-		{labelText}
-	</label>
-{/if}
-<button
-	{disabled}
-	on:click|stopPropagation={() => {
-		checked = !checked;
-		toggleClicked();
-	}}
-	class:adminOnly
-	class="switch"
-	style="grid-area: {area};--toggleBgColorActive:{toggleBgColorActive}; --toggleBgColorActiveHovered:{toggleBgColorActiveHovered}; {customButtonStyles}"
->
-	<!-- NOTE: Subtle fix made by changing this to on:change event instead of on:click -->
-	<input type="checkbox" bind:checked on:change|stopPropagation={toggleClicked} {id} />
-	<span class="slider round" style={sliderStyles} />
-</button>
+<div style="display:grid;">
+	{#if labelText !== ''}
+		<label class="label-text" for={id} style={labelStyles}>
+			{labelText}
+		</label>
+	{/if}
+	<button
+		{disabled}
+		on:click|stopPropagation={() => {
+			checked = !checked;
+			toggleClicked();
+		}}
+		class:adminOnly
+		class="switch"
+		style="grid-area: {area};--toggleBgColorActive:{toggleBgColorActive}; --toggleBgColorActiveHovered:{toggleBgColorActiveHovered}; {customButtonStyles}"
+	>
+		<!-- NOTE: Subtle fix made by changing this to on:change event instead of on:click -->
+		<input type="checkbox" bind:checked on:change|stopPropagation={toggleClicked} {id} />
+		<span class="slider round" style={sliderStyles} />
+	</button>
+</div>
 
 <style lang="scss">
 	$toggle-height: min(1.7em, 10vmin);

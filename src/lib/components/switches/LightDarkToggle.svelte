@@ -3,7 +3,7 @@
 	import { useDarkTheme } from '$scripts/store';
 
 	const storeDarkThemePreference = async () => {
-		await setLocalStorageItem('useDarkTheme', JSON.stringify($useDarkTheme));
+		await setLocalStorageItem('useDarkTheme', $useDarkTheme);
 	};
 </script>
 

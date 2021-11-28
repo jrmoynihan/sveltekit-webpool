@@ -22,8 +22,8 @@
 		"@sveltejs/kit": "^1.0.0-next.195",
 		"@types/cookie": "^0.4.1",
 		"@types/uuid": "^8.3.1",
-		"@typescript-eslint/eslint-plugin": "^5.3.0",
-		"@typescript-eslint/parser": "^5.3.0",
+		"@typescript-eslint/eslint-plugin": "^5.3.1",
+		"@typescript-eslint/parser": "^5.3.1",
 		"@zerodevx/svelte-toast": "^0.6.2",
 		"autoprefixer": "github:postcss/autoprefixer",
 		"eslint": "^8.2.0",
@@ -50,8 +50,7 @@
 		"svelte-check": "^2.2.8",
 		"svelte-preprocess": "^4.9.8",
 		"tslib": "^2.3.1",
-		"typescript": "^4.4.4",
-		"vite-imagetools": "^3.9.0"
+		"typescript": "^4.4.4"
 	},
 	"type": "module",
 	"dependencies": {
@@ -59,7 +58,7 @@
 		"@fortawesome/free-solid-svg-icons": "^5.15.4",
 		"cookie": "^0.4.1",
 		"dialog-polyfill": "^0.5.6",
-		"firebase": "^9.3.0",
+		"firebase": "^9.4.0",
 		"firebase-admin": "^10.0.0",
 		"firebase-tools": "^9.22.0",
 		"nanoid": "^3.1.30",
@@ -67,7 +66,7 @@
 		"svelte-adapter-firebase": "0.13.1",
 		"svelte-fa": "^2.3.3",
 		"svelte-intersection-observer": "^0.9.1",
-		"svelte-simple-modal": "^1.0.3",
+		"svelte-simple-modal": "^1.1.1",
 		"typescript-eslint": "^0.0.1-alpha.0",
 		"uuid": "^8.3.2",
 		"vite-plugin-mkcert": "^1.5.2"
