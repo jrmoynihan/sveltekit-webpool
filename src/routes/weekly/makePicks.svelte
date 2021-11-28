@@ -19,6 +19,7 @@
 	import {
 		largerThanMobile,
 		overrideDisabled,
+		preferredScoreView,
 		showATSwinner,
 		showIDs,
 		showSpreads,
@@ -99,6 +100,7 @@
 	onMount(async () => {
 		getData();
 		const toastSeen = await getLocalStorageItem(toastSeenKey);
+		$preferredScoreView = await getLocalStorageItem('scoreViewPreference');
 		if (toastSeen !== 'true') {
 			const promisedToast = await getToast('Make Picks');
 			defaultToast({
@@ -444,7 +446,7 @@
 		}
 	};
 
-	const changedQuery = async (
+	export const changedQuery = async (
 		selectedYear: number,
 		selectedSeasonType: SeasonType,
 		selectedWeek: number,
@@ -452,7 +454,7 @@
 	) => {
 		try {
 			gamesPromise = getGames(selectedYear, selectedSeasonType, selectedWeek);
-			picksPromise = getPicks(selectedWeek, uid);
+			picksPromise = getPicksForUser(selectedWeek, uid);
 			tiebreakerPromise = getTiebreaker(selectedWeek, uid);
 		} catch (error) {
 			errorToast(`Error in changing query... ${error}`);
@@ -648,6 +650,7 @@
 									bind:selectedTeam={pickDoc.pick}
 									bind:currentPicks
 									{gridColumns}
+									{selectedWeek}
 									id={game.id}
 									index={i}
 									spread={game.spread}
