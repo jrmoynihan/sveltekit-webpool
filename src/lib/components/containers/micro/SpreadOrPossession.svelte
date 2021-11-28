@@ -1,7 +1,9 @@
 <script lang="ts">
+	import StyledButton from '$lib/components/buttons/StyledButton.svelte';
 	import type { ESPNSituation } from '$scripts/classes/game';
 	import type { Team } from '$scripts/classes/team';
 	import { getTeamWithPossession } from '$scripts/dataFetching';
+	import { updateGameSpreads } from '$scripts/weekly/weeklyAdmin';
 	import {
 		faArrowCircleLeft,
 		faArrowCircleRight,
@@ -16,6 +18,8 @@
 	export let promiseSituation: Promise<ESPNSituation>;
 	export let awayTeam: Team;
 	export let homeTeam: Team;
+	export let selectedWeek: number;
+	export let selectedYear: number = new Date().getFullYear();
 </script>
 
 {#if spread}
@@ -73,7 +77,14 @@
 		{/if}
 	</div>
 {:else}
-	No spread field set.
+	<div class="spreadOrPossession">
+		<StyledButton
+			on:click={() => {
+				updateGameSpreads(selectedWeek, selectedYear);
+			}}
+			text="No spread set. Click to set spreads."
+		/>
+	</div>
 {/if}
 
 <style lang="scss">

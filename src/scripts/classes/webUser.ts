@@ -20,6 +20,12 @@ export class WebUser {
 	weeklyWinnings: UserWinnings;
 	amountOwedToPools: number;
 	amountPaidToPools: number;
+	paidWeekly: boolean;
+	paidPlayoffs: boolean;
+	paidSurvivor: boolean;
+	paidCollege: boolean;
+	paidPick6: boolean;
+	// TODO: add a method to migrate seasonal data to an array of objects at the end of the year
 	constructor({ ...args }) {
 		(this.uid = args.uid),
 			(this.ref = args.ref),
@@ -39,5 +45,10 @@ export class WebUser {
 		this.weeklyWinnings = args.weeklyWinnings || 0;
 		this.amountOwedToPools = args.amountOwedToPools || 0;
 		this.amountPaidToPools = args.amountPaidToPools || 0;
+		this.paidWeekly = args.paidWeekly;
+		this.paidPlayoffs = args.paidPlayoffs;
+		this.paidSurvivor = args.paidSurvivor;
+		this.paidCollege = args.paidSurvivor;
+		this.paidPick6 = args.paidPick6;
 	}
 }

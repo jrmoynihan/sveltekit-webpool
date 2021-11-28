@@ -15,7 +15,7 @@ export const getLocalStorageItem = async <T>(key: string): Promise<T | null> => 
 		myLog('unable to check for local storage without the browser available');
 	}
 };
-export const setLocalStorageItem = async (key: string, value: string): Promise<void> => {
+export const setLocalStorageItem = async (key: string, value: unknown): Promise<void> => {
 	if (browser) {
 		localStorage.setItem(key, JSON.stringify(value));
 	} else {

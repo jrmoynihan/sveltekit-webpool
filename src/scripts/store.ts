@@ -1,6 +1,6 @@
 import type { Writable } from 'svelte/store';
-import { writable } from 'svelte/store';
-import { doc, updateDoc, onSnapshot, query } from 'firebase/firestore';
+import { writable, get } from 'svelte/store';
+import { doc, updateDoc, onSnapshot, query, getDoc } from 'firebase/firestore';
 import type { Query, FirestoreDataConverter } from 'firebase/firestore';
 import { userConverter } from './converters';
 import { WebUser } from '$scripts/classes/webUser';
@@ -8,6 +8,7 @@ import { usersCollection } from './collections';
 import { browser } from '$app/env';
 import { findCurrentWeekOfSchedule } from './schedule';
 import type { ScoreViewPreference } from './types/types';
+import { currentUser, userData } from './auth/auth';
 
 export const useDarkTheme = writable(false);
 export const chosenMixBlendMode = writable('normal');
@@ -79,11 +80,15 @@ export const userQueryAsStore = (query: Query): Writable<WebUser> =>
 // 	converter: FirestoreDataConverter<unknown>
 // ): Readable<unknown[]> => queryAsStore(query(collection(firestoreDB, path)), converter);
 
-export const updateUser = async (userData: WebUser): Promise<void> => {
-	const docRef = doc(usersCollection, userData.uid);
+export const updateUser = async (user: WebUser): Promise<void> => {
+	const docRef = doc(usersCollection, user.uid);
 	try {
-		console.log(`attempting to update ${userData.name}`);
-		await updateDoc(docRef.withConverter(userConverter), { ...userData });
+		console.log(`attempting to update ${user.name}`);
+		await updateDoc(docRef.withConverter(userConverter), { ...user });
+		if (user.uid === get(currentUser).uid) {
+			const doc = await getDoc(docRef.withConverter(userConverter));
+			userData.set(doc.data());
+		}
 	} catch (error) {
 		console.error('Error updating User document', error);
 	}

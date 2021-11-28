@@ -140,7 +140,12 @@ export const createNewUserDocument = async (
 			weeklyPickRecord: { ...new WeeklyPickRecord({}) },
 			weeklyWinnings: { ...new UserWinnings({}) },
 			amountOwedToPools,
-			amountPaidToPools
+			amountPaidToPools,
+			paidWeekly: false,
+			paidCollege: false,
+			paidPlayoffs: false,
+			paidSurvivor: false,
+			paidPick6: false
 		});
 		console.log('newUserData', newUserData);
 		// Write some initial data to the user document

@@ -20,7 +20,15 @@ export enum HomeOrAway {
 
 export const conferences: Conference[] = [Conference.AFC, Conference.NFC];
 export const divisions: Division[] = [Division.East, Division.West, Division.North, Division.South];
-export const startingYear = 2020;
+export const startingYear = 2021;
+export const weeklyPoolFee = 50;
+export const weeklyPayout = 90;
+export const commishCost = 50;
+export const webDevCost = 50;
+export const hostingCost = 50;
+export const firstPlaceWeeklySeasonPercent = 0.5;
+export const secondPlaceWeeklySeasonPercent = 0.3;
+export const thirdPlaceWeeklySeasonPercent = 0.2;
 export const seasonTypes: SeasonType[] = [
 	{ id: 1, text: 'Pre-Season' },
 	{ id: 2, text: 'Regular Season' }

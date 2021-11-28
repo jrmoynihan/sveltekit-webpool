@@ -1,19 +1,16 @@
 <script lang="ts">
-	import Grid from '$lib/components/containers/Grid.svelte';
-	import TeamImage from '$lib/components/containers/TeamImage.svelte';
-	import PageTitle from '$lib/components/misc/PageTitle.svelte';
-	import ErrorModal from '$lib/components/modals/ErrorModal.svelte';
-	import WeekSelect from '$lib/components/selects/WeekSelect.svelte';
+	import Grid from '$containers/Grid.svelte';
+	import TeamImage from '$containers/TeamImage.svelte';
+	import PageTitle from '$components/misc/PageTitle.svelte';
+	import ErrorModal from '$components/modals/ErrorModal.svelte';
+	import WeekSelect from '$components/selects/WeekSelect.svelte';
 	import { myError, myLog } from '$scripts/classes/constants';
 	import type { Game } from '$scripts/classes/game';
-
 	import type { WeeklyPickDoc } from '$scripts/classes/picks';
 	import type { Team } from '$scripts/classes/team';
-	import type { WebUser } from '$scripts/classes/webUser';
 	import { scheduleCollection, weeklyPicksCollection } from '$scripts/collections';
 	import { gameConverter, teamConverter, weeklyPickConverter } from '$scripts/converters';
 	import { isBeforeGameTime } from '$scripts/functions';
-	import { findCurrentWeekOfSchedule } from '$scripts/schedule';
 	import { useDarkTheme } from '$scripts/store';
 	import { teamsCollection } from '$scripts/teams';
 	import { errorToast } from '$scripts/toasts';
@@ -22,11 +19,12 @@
 	import { getDocs } from 'firebase/firestore';
 	import { where } from 'firebase/firestore';
 	import { query } from 'firebase/firestore';
+	import { findCurrentWeekOfSchedule } from '$scripts/schedule';
+	import type { WebUser } from '$scripts/classes/webUser';
+	import { onMount } from 'svelte';
 
 	let selectedWeek: number;
-	let displayedYear: number = new Date().getFullYear();
-	let weeklyPickPromise: WeeklyPickDoc[];
-	let gamesPromise: Game[];
+	let selectedYear: number = new Date().getFullYear();
 	let hoverUser: string;
 	let hoverGame: string;
 
@@ -84,23 +82,40 @@
 			myError('getAllTeams', error);
 		}
 	};
-	const getCurrentWeek = async () => {
-		const week = await findCurrentWeekOfSchedule();
-		return week;
+	const getData = async (selectedWeek: number, selectedYear: number) => {
+		picksPromise = getAllPicksForWeek(selectedWeek, selectedYear);
+		gamesPromise = getAllGamesForWeek(selectedWeek, selectedYear);
 	};
+
+	let weekPromise: Promise<number> = findCurrentWeekOfSchedule();
+	let userPromise: Promise<WebUser[]> = getWeeklyUsers(false);
+	let teamsPromise: Promise<Team[]> = getAllTeams();
+	let picksPromise: Promise<WeeklyPickDoc[]>;
+	let gamesPromise: Promise<Game[]>;
+
+	onMount(async () => {
+		selectedWeek = await weekPromise;
+		getData(selectedWeek, selectedYear);
+	});
 </script>
 
 <PageTitle>View League Picks</PageTitle>
 <!-- <h3><em>(just showcasing the images until I build this page)</em></h3> -->
 <!-- <TeamGallery /> -->
-<WeekSelect bind:selectedWeek customStyles={'width:fit-content;margin:auto;'} />
+<WeekSelect
+	bind:selectedWeek
+	customStyles={'width:fit-content;margin:auto;'}
+	on:weekChanged={() => getData(selectedWeek, selectedYear)}
+	on:decrementWeek={() => getData(selectedWeek, selectedYear)}
+	on:incrementWeek={() => getData(selectedWeek, selectedYear)}
+/>
 
-{#await getWeeklyUsers(false) then users}
-	{#await getAllTeams() then teams}
-		{#await getAllPicksForWeek(selectedWeek, displayedYear)}
+{#await userPromise then users}
+	{#await teamsPromise then teams}
+		{#await picksPromise}
 			Loading...
 		{:then picks}
-			{#await getAllGamesForWeek(selectedWeek, displayedYear)}
+			{#await gamesPromise}
 				Loading...
 			{:then games}
 				{#if users && picks && games}

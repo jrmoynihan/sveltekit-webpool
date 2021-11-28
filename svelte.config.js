@@ -2,8 +2,8 @@ import preprocess from 'svelte-preprocess';
 import firebase from 'svelte-adapter-firebase';
 import path from 'path';
 import mkcert from 'vite-plugin-mkcert';
-import { imagetools } from 'vite-imagetools';
-import autoprefixer from 'autoprefixer';
+// import { imagetools } from 'vite-imagetools';
+// import autoprefixer from 'autoprefixer';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -22,6 +22,7 @@ const config = {
 	compilerOptions: {
 		css: false
 	},
+
 	kit: {
 		// hydrate the <div id="svelte"> element in src/app.html
 		target: '#svelte',
@@ -32,6 +33,7 @@ const config = {
 				alias: {
 					$scripts: path.resolve('./src/scripts'),
 					$buttons: path.resolve('./src/lib/components/buttons'),
+					$components: path.resolve('./src/lib/components'),
 					$containers: path.resolve('./src/lib/components/containers'),
 					$navigation: path.resolve('./src/lib/components/navigation'),
 					$selects: path.resolve('./src/lib/components/selects'),
@@ -52,7 +54,7 @@ const config = {
 			server: {
 				https: true
 			},
-			plugins: [mkcert, imagetools({ force: true })]
+			plugins: [mkcert]
 		}
 	}
 };

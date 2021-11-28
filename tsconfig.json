@@ -27,7 +27,11 @@
 			"$lib": ["src/lib"],
 			"$lib/*": ["src/lib/*"],
 			"$scripts": ["src/scripts"],
-			"$scripts/*": ["src/scripts/*"]
+			"$scripts/*": ["src/scripts/*"],
+			"$components": ["src/lib/components"],
+			"$components/*": ["src/lib/components/*"],
+			"$containers": ["src/lib/components/containers"],
+			"$containers/*": ["src/lib/components/containers/*"]
 		}
 	},
 	"include": ["src/**/*.d.ts", "src/**/*.js", "src/**/*.ts", "src/**/*.svelte"]

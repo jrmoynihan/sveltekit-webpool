@@ -4,7 +4,9 @@
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
 	import ErrorModal from '$lib/components/modals/ErrorModal.svelte';
 	import UserSelect from '$lib/components/selects/UserSelect.svelte';
+	import ToggleSwitch from '$lib/components/switches/ToggleSwitch.svelte';
 	import type { WebUser } from '$scripts/classes/webUser';
+	import { updateUser } from '$scripts/store';
 	import { getWeeklyUsers } from '$scripts/weekly/weeklyUsers';
 	import RoleToggle from '$switches/RoleToggle.svelte';
 	import { onMount } from 'svelte';
@@ -76,6 +78,33 @@
 			<RoleToggle role="playoffs" bind:user={selectedUser} />
 			<RoleToggle role="survivor" bind:user={selectedUser} />
 			<RoleToggle role="weekly" bind:user={selectedUser} />
+		</Grid>
+		<Grid>
+			<ToggleSwitch
+				on:toggle={async () => await updateUser(selectedUser)}
+				bind:checked={selectedUser.paidCollege}
+				labelText="Paid College"
+			/>
+			<ToggleSwitch
+				on:toggle={async () => await updateUser(selectedUser)}
+				bind:checked={selectedUser.paidPick6}
+				labelText="Paid Pick6"
+			/>
+			<ToggleSwitch
+				on:toggle={async () => await updateUser(selectedUser)}
+				bind:checked={selectedUser.paidPlayoffs}
+				labelText="Paid Playoffs"
+			/>
+			<ToggleSwitch
+				on:toggle={async () => await updateUser(selectedUser)}
+				bind:checked={selectedUser.paidSurvivor}
+				labelText="Paid Survivor"
+			/>
+			<ToggleSwitch
+				on:toggle={async () => await updateUser(selectedUser)}
+				bind:checked={selectedUser.paidWeekly}
+				labelText="Paid Weekly"
+			/>
 		</Grid>
 		<Grid
 			customStyles="{gridStyles} justify-self: center;
