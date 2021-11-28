@@ -15,6 +15,7 @@
 	import { gameConverter } from '$scripts/converters';
 	import { convertToHttps, fetchHttpsToJson, getSituation } from '$scripts/dataFetching';
 	import { preferredScoreView } from '$scripts/store';
+	import { allTeams, teamsCollection } from '$scripts/teams';
 	import type { ScoreViewPreference } from '$scripts/types/types';
 	import {
 		faCalculator,
@@ -22,7 +23,7 @@
 		faFootballBall,
 		IconDefinition
 	} from '@fortawesome/free-solid-svg-icons';
-	import { getDocs, query, where } from 'firebase/firestore';
+	import { deleteField, doc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 	import { onMount } from 'svelte';
 
 	let myItems = [
@@ -41,7 +42,7 @@
 		{ label: 'ATS Only', value: 'ATS', icon: faCalculator },
 		{ label: 'Both', value: 'Both', icon: faCheckDouble }
 	];
-	let q = query(scheduleCollection.withConverter(gameConverter), where('id', '==', '401326463'));
+	let q = query(scheduleCollection.withConverter(gameConverter), where('id', '==', '401326493'));
 	const getGame = async (): Promise<Game> => {
 		const doc = await getDocs(q);
 		return doc.docs[0].data();

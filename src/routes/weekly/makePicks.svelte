@@ -71,7 +71,6 @@
 	let tiebreakerPromise: Promise<WeeklyTiebreaker>;
 	let gamesPromise: Promise<Game[]>;
 	let userPromise: Promise<WebUser[]>;
-	// let editingToast = false;
 	let showSubmitPicks = false;
 	let selectedUser: WebUser;
 	let selectedWeek = 3;
@@ -86,8 +85,6 @@
 	let totalGameCount = 16;
 	let tiebreakerDocRef: DocumentReference;
 	let tiebreaker = 0;
-	// let toastMsg = ``;
-	// let toastTitle = '';
 	let gridColumns = 1;
 	let widthMeasure = 85;
 	let offsetRightPercentage = 15;
@@ -123,7 +120,7 @@
 		await changedQuery(selectedYear, selectedSeasonType, selectedWeek, $currentUser.uid);
 	};
 
-	const getPicks = async (selectedWeek: number, uid: string) => {
+	const getPicksForUser = async (selectedWeek: number, uid: string) => {
 		try {
 			const picks: WeeklyPickDoc[] = [];
 			myLog(
@@ -264,7 +261,7 @@
 				}
 			});
 			myLog('updated/submitted picks!', '', okHand, currentPicks);
-			picksPromise = getPicks(selectedWeek, uid);
+			picksPromise = getPicksForUser(selectedWeek, uid);
 
 			await updateTiebreakerDoc(tiebreakerDocRef, uid, tiebreaker, selectedWeek, selectedYear);
 
@@ -601,6 +598,12 @@
 			bind:selectedSeasonType
 			on:weekChanged={() =>
 				changedQuery(selectedYear, selectedSeasonType, selectedWeek, selectedUser.uid)}
+			on:weekChanged={() =>
+				changedQuery(selectedWeek, selectedSeasonType, selectedWeek, selectedUser.uid)}
+			on:incrementWeek={() =>
+				changedQuery(selectedWeek, selectedSeasonType, selectedWeek, selectedUser.uid)}
+			on:decrementWeek={() =>
+				changedQuery(selectedWeek, selectedSeasonType, selectedWeek, selectedUser.uid)}
 		/>
 		<button
 			style="grid-area:reset;"

@@ -474,6 +474,7 @@
 		font-weight: revert;
 		margin-top: 1rem;
 		width: 100%;
+		height: 3rem;
 	}
 	button {
 		@include styledButton;

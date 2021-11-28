@@ -11,6 +11,7 @@ export class Team {
 	wins: number;
 	losses: number;
 	ties: number;
+	records: Record<string, unknown>[];
 	docRef?: DocumentReference;
 	docID?: string;
 	constructor({ ...args }) {
@@ -24,8 +25,8 @@ export class Team {
 		this.wins = args.wins;
 		this.losses = args.losses;
 		this.ties = args.ties;
+		this.records = args.records;
 		this.docRef = args.docRef;
 		this.docID = args.docID;
 	}
 }
-

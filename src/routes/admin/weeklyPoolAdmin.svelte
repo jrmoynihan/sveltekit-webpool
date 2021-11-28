@@ -40,7 +40,7 @@
 	<!-- <hr /> -->
 	<AdminGamesFunctions bind:selectedWeek bind:selectedYear />
 	<!-- <hr /> -->
-	<AdminTeamRecords />
+	<AdminTeamRecords bind:selectedYear />
 	<!-- <hr /> -->
 	<AdminUserRecords />
 	<!-- <hr /> -->
