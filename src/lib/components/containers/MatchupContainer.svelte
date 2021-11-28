@@ -22,6 +22,7 @@
 	export let gridColumns = 1;
 	export let isATSwinner: null | boolean = null;
 	export let ATSwinner: string;
+	export let selectedWeek: number;
 	let layoutBreakpoint = 620;
 	let showTeamNameImages = false;
 	let disabled = false;
@@ -131,6 +132,7 @@
 		bind:isATSwinner
 		bind:ATSwinner
 		bind:gameIsOver
+		bind:selectedWeek
 	/>
 	<TeamSelectRadioInput
 		bind:homeOrAwayTeam={homeTeam}

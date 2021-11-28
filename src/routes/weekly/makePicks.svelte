@@ -446,7 +446,7 @@
 		}
 	};
 
-	export const changedQuery = async (
+	const changedQuery = async (
 		selectedYear: number,
 		selectedSeasonType: SeasonType,
 		selectedWeek: number,

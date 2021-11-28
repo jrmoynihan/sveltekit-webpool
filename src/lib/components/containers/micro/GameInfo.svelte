@@ -2,6 +2,7 @@
 	import { userData } from '$scripts/auth/auth';
 	import type { ESPNScore, ESPNSituation, ESPNStatus, Game } from '$scripts/classes/game';
 	import type { Team } from '$scripts/classes/team';
+	import { scorePicksForWeek, updateGamesAndATSWinners } from '$scripts/scorePicks';
 	import { mobileBreakpoint } from '$scripts/site';
 	import { showATSwinner, showIDs, showSpreads, windowWidth } from '$scripts/store';
 	import type { Timestamp } from 'firebase/firestore';
@@ -23,6 +24,7 @@
 	export let isATSwinner: boolean;
 	export let ATSwinner: string;
 	export let gameIsOver: boolean = false;
+	export let selectedWeek: number;
 </script>
 
 <label class="game-info rounded" for="{id}-none">
@@ -37,7 +39,7 @@
 		{homeTeam}
 		{awayTeam}
 	/>
-	<SpreadOrPossession {spread} {disabled} {awayTeam} {homeTeam} {promiseSituation} />
+	<SpreadOrPossession {spread} {disabled} {awayTeam} {homeTeam} {promiseSituation} {selectedWeek} />
 	<DateTimeOrDownDistance {timestamp} {promiseStatus} {promiseSituation} />
 	<input id="{id}-none" type="radio" bind:group={selectedTeam} value="" {disabled} />
 	{#if $showIDs}
@@ -48,9 +50,15 @@
 	{/if}
 	<!-- @NOTE: Shows the ATS winner to admins if it hasn't been set AND the game is already over. i.e. the admin is able to score it now -->
 	{#if $showATSwinner || ($userData.admin && gameIsOver && !ATSwinner)}
-		<div class="admin">
+		<button
+			class="admin"
+			on:click={async () => {
+				await updateGamesAndATSWinners(selectedWeek);
+				await scorePicksForWeek(selectedWeek);
+			}}
+		>
 			{ATSwinner ? ATSwinner : 'Score Games!'}
-		</div>
+		</button>
 	{/if}
 </label>
 
@@ -73,6 +81,7 @@
 		@include hiddenInput;
 	}
 	.admin {
+		@include defaultButtonStyles;
 		@include admin;
 		@include rounded;
 		padding: var(--padding-normal);

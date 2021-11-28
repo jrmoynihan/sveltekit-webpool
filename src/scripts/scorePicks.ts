@@ -73,8 +73,6 @@ export const scorePicksForWeek = async (
 			updateGameandATSWinner(gameData, gameRef);
 			scoreNetTiebreakers(gameData, tiebreakers, selectedWeek);
 			markIfPickIsCorrect(picks, gameData);
-
-			//TODO: add a function to compare & rank user records/break ties
 		});
 		users.forEach(async (user) => {
 			const userRef = user.ref;
