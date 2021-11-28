@@ -24,8 +24,15 @@
 			weeks = await getPreSeasonWeeks();
 		}
 	};
-	const increment = () => dispatch('incrementWeek', selectedWeek);
-	const decrement = () => dispatch('decrementWeek', selectedWeek);
+	const increment = () => {
+		selectedWeek++;
+		dispatch('incrementWeek', selectedWeek);
+	};
+	const decrement = () => {
+		selectedWeek--;
+		dispatch('decrementWeek', selectedWeek);
+	};
+	const weekChanged = () => dispatch('weekChanged', selectedWeek);
 
 	onMount(async () => {
 		selectedWeek = await findCurrentWeekOfSchedule();
@@ -35,19 +42,16 @@
 
 <div class="weekSelectors" style={customStyles}>
 	{#if showButtons}
-		<button
-			class="arrow"
-			style={customButtonStyles}
-			on:click={() => {
-				selectedWeek--;
-				decrement();
-			}}><Fa icon={faChevronLeft} /></button
+		<button class="arrow" style={customButtonStyles} on:click={decrement}
+			><Fa icon={faChevronLeft} /></button
 		>
 	{/if}
 	<select
 		id="week-select"
 		bind:value={selectedWeek}
-		on:change={() => dispatch('weekChanged', selectedWeek)}
+		on:change={() => {
+			weekChanged();
+		}}
 		style={customSelectStyles}
 	>
 		{#each weeks as week}
@@ -55,13 +59,7 @@
 		{/each}
 	</select>
 	{#if showButtons}
-		<button
-			class="arrow"
-			on:click={() => {
-				selectedWeek++;
-				increment();
-			}}><Fa icon={faChevronRight} /></button
-		>
+		<button class="arrow" on:click={increment}><Fa icon={faChevronRight} /></button>
 	{/if}
 </div>
 
