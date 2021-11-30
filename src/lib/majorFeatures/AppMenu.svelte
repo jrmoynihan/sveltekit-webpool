@@ -99,9 +99,8 @@
 						<span>Show UIDs</span>
 						<ToggleSwitch adminOnly={true} bind:checked={$showIDs} />
 					</Grid>
-				{:else}
-					<ThemeSelector />
 				{/if}
+				<ThemeSelector invisible={true} />
 			</svelte:fragment>
 		</ModalButtonAndSlot>
 	</div>

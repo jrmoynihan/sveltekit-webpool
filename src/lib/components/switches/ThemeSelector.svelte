@@ -2,6 +2,8 @@
 	import { browser } from '$app/env';
 	import { chosenMixBlendMode, useDarkTheme } from '$scripts/store';
 
+	export let invisible = false;
+
 	let root: HTMLElement;
 	if (browser) {
 		root = document.documentElement;
@@ -98,12 +100,10 @@
 
 	// Update/set the CSS custom properties anytime the colors object changes
 	$: colors = $useDarkTheme ? { ...darkThemeColors } : { ...lightThemeColors };
-	$: {
-		setCSSvariable(colors);
-	}
+	$: setCSSvariable(colors);
 </script>
 
-<section>
+<section class:invisible>
 	<!-- <DatalistSelect
 		inputID="mix-blend-mode-selector"
 		items={mixBlendModes}
@@ -160,5 +160,11 @@
 		color: initial;
 		background-color: revert;
 		text-shadow: none;
+	}
+	.invisible {
+		visibility: hidden;
+		display: none;
+		height: 0;
+		width: 0;
 	}
 </style>
