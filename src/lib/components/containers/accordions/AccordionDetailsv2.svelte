@@ -38,15 +38,14 @@
 		toggle();
 	};
 
-	export function toggle() {
+	function toggle() {
 		if (!open && (isCollapsing || !isExpanding)) {
-			// alert('expanding');
 			expand();
 		} else if (isExpanding || open) {
 			collapse();
 		}
 	}
-	export function expand() {
+	function expand() {
 		isExpanding = true;
 		isCollapsing = false;
 		// Add an overflow on the <details> to avoid content overflowing
@@ -89,7 +88,7 @@
 		animation.oncancel = () => (isExpanding = false);
 	}
 
-	export function collapse() {
+	function collapse() {
 		isCollapsing = true;
 		isExpanding = false;
 
@@ -155,14 +154,12 @@
 	class:frostedGlass
 	class:adminOnly
 	bind:open
-	on:click|self|preventDefault|stopPropagation={clicked}
+	on:click|preventDefault|stopPropagation={() => clicked()}
 	on:keydown|preventDefault={(e) => checkforSpace(e)}
 	tabindex="0"
 	style={customDetailsStyles}
 >
 	<summary
-		on:click|self|preventDefault|stopPropagation={clicked}
-		on:keydown|preventDefault={(e) => checkforSpace(e)}
 		class:adminOnly
 		class={showArrow ? '' : 'hideArrow'}
 		style="display:{showArrow ? 'list-item' : 'flex'}; border-radius:{open
@@ -178,7 +175,7 @@
 		<slot name="summary" />
 	</summary>
 
-	<div class="content" style={customContentStyles}>
+	<div class="content" style={customContentStyles} on:click={() => clicked()}>
 		<slot name="content" />
 	</div>
 </details>
@@ -241,7 +238,6 @@
 		&::marker,
 		&::-webkit-details-marker {
 			&::before {
-				box-sizing: border-box;
 				width: 0;
 				height: 0;
 				border-top: 60px solid transparent;
@@ -258,7 +254,6 @@
 		}
 	}
 	.content {
-		box-sizing: border-box;
 		padding: 1rem;
 		width: 100%;
 	}
