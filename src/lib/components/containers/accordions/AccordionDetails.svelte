@@ -24,12 +24,12 @@
 	export let isCollapsing: boolean = false;
 	export let isExpanding: boolean = false;
 
-	$: if (detailsElement) {
-		summaryElement = detailsElement.querySelector('summary');
-	}
-	$: if (detailsElement) {
-		contentElement = detailsElement.querySelector('.content');
-	}
+	// $: if (detailsElement) {
+	// 	summaryElement = detailsElement.querySelector('summary');
+	// }
+	// $: if (detailsElement) {
+	// 	contentElement = detailsElement.querySelector('.content');
+	// }
 
 	const dispatch = createEventDispatcher();
 
@@ -161,6 +161,7 @@
 	style={customDetailsStyles}
 >
 	<summary
+		bind:this={summaryElement}
 		on:click|self|preventDefault|stopPropagation={clicked}
 		on:keydown|preventDefault={(e) => checkforSpace(e)}
 		class:adminOnly
@@ -178,7 +179,7 @@
 		<slot name="summary" />
 	</summary>
 
-	<div class="content" style={customContentStyles}>
+	<div bind:this={contentElement} class="content" style={customContentStyles}>
 		<slot name="content" />
 	</div>
 </details>
