@@ -93,7 +93,9 @@
 		}
 	});
 	const getData = async () => {
-		$selectedWeek = await findCurrentWeekOfSchedule();
+		// $selectedWeek = await findCurrentWeekOfSchedule(); 	// TOOD: this is fine during the regular season, but not outside of it
+
+		// NOTE: presumably I was preloading the list of users, but I may not need to do that
 		// if ($userData?.admin) {
 		// 	const userPromise = getWeeklyUsers(false);
 		// 	// selectedUser = await userPromise.then((users) => users[0]);
@@ -113,7 +115,7 @@
 		$tiebreakerPromise = promises.tiebreakerPromise;
 		$currentPicks = await $picksPromise;
 		const tiebreakerDoc = await $tiebreakerPromise;
-		$changeableTiebreakerScoreGuess = tiebreakerDoc.scoreGuess;
+		$changeableTiebreakerScoreGuess = tiebreakerDoc?.scoreGuess;
 		const games = await $gamesPromise;
 		countedGameTimes = await countPlayedOrUpcomingGames(games);
 	};
@@ -473,7 +475,6 @@
 	>
 		<WeekSelect
 			customStyles="grid-area: week;"
-			bind:selectedWeek={$selectedWeek}
 			bind:selectedSeasonType={$selectedSeasonType}
 			on:weekChanged={selectorsUpdated}
 			on:incrementWeek={selectorsUpdated}
@@ -679,11 +680,11 @@
 		text-shadow: none;
 	}
 	.fixed {
-		background-color: hsla(var(--alternate-value, hsl(120, 16%, 17%)), 80%);
+		background-color: hsla(var(--background-value, hsl(120, 16%, 17%)), 95%);
 		position: fixed;
 		z-index: 20;
 		font-weight: bold;
-		backdrop-filter: blur(2px);
+		backdrop-filter: blur(10px);
 	}
 	.bottom-left {
 		box-sizing: border-box;

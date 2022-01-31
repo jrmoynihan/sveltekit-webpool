@@ -3,11 +3,12 @@
 	import type { Game } from '$scripts/classes/game';
 	import type { WeeklyTiebreaker } from '$scripts/classes/tiebreaker';
 	import type { WebUser } from '$scripts/classes/webUser';
+	import { selectedWeek } from '$scripts/store';
 	import Tooltip from '../containers/Tooltip.svelte';
 
 	export let player: WebUser;
 	export let i: number;
-	export let selectedWeek: number;
+	// export let selectedWeek: number;
 	export let tiebreaker: WeeklyTiebreaker;
 	export let lastGame: Game;
 	export let showNetTiebreakers = false;
@@ -38,7 +39,7 @@
 	{/if}
 </RowData>
 <RowData {evenRow} {inTheMoney}>
-	{player.weeklyPickRecord[`week_${selectedWeek}`].wins}
+	{player.weeklyPickRecord[`week_${$selectedWeek}`].wins}
 </RowData>
 <RowData {evenRow} {inTheMoney}>
 	{player.weeklyPickRecord[`week_${selectedWeek}`].losses}

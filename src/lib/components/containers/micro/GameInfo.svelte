@@ -3,7 +3,7 @@
 	import type { ESPNScore, ESPNSituation, ESPNStatus } from '$scripts/classes/game';
 	import type { Team } from '$scripts/classes/team';
 	import { scorePicksForWeek, updateGamesAndATSWinners } from '$scripts/scorePicks';
-	import { showATSwinner, showIDs, showSpreads } from '$scripts/store';
+	import { selectedWeek, selectedYear, showATSwinner, showIDs, showSpreads } from '$scripts/store';
 	import type { Timestamp } from 'firebase/firestore';
 	import DateTimeOrDownDistance from './DateTimeOrDownDistance.svelte';
 	import SpreadOrPossession from './SpreadOrPossession.svelte';
@@ -23,14 +23,21 @@
 	export let isATSwinner: boolean;
 	export let ATSwinner: string;
 	export let gameIsOver: boolean = false;
-	export let selectedWeek: number;
+	// export let selectedWeek: number;
 </script>
 
 <label class="game-info rounded" for="{id}-none">
 	<!-- <WinLossAt {promiseScores} {promiseStatus} {homeTeam} {awayTeam} {selectedTeam} {spread} {isATSwinner} /> -->
 	<WinLossAt {isATSwinner} {gameIsOver} />
 	<StatusInfo {promiseStatus} {promiseScores} {spread} {ATSwinner} {homeTeam} {awayTeam} />
-	<SpreadOrPossession {spread} {disabled} {awayTeam} {homeTeam} {promiseSituation} {selectedWeek} />
+	<SpreadOrPossession
+		{spread}
+		{disabled}
+		{awayTeam}
+		{homeTeam}
+		{promiseSituation}
+		selectedWeek={$selectedWeek}
+	/>
 	<DateTimeOrDownDistance {timestamp} {promiseStatus} {promiseSituation} />
 	<input id="{id}-none" type="radio" bind:group={selectedTeam} value="" {disabled} />
 	{#if $showIDs}
@@ -44,8 +51,8 @@
 		<button
 			class="admin"
 			on:click={async () => {
-				await updateGamesAndATSWinners(selectedWeek);
-				await scorePicksForWeek(selectedWeek);
+				await updateGamesAndATSWinners($selectedWeek, $selectedYear);
+				await scorePicksForWeek($selectedWeek, $selectedYear);
 			}}
 		>
 			{ATSwinner ? ATSwinner : 'Score Games!'}

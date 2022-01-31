@@ -193,7 +193,7 @@
 		box-shadow: none;
 		border-radius: 1rem;
 		padding: 0.5rem;
-		background: hsla(var(--alternate-value, transparent));
+		background: hsla(var(--background-value, transparent));
 		&:not(.selected) {
 			box-shadow: 0 0 1px 2px hsla(var(--text-value), 40%);
 		}

@@ -14,7 +14,7 @@
 
 	export let userPromise: Promise<WebUser[]>;
 	export let gamePromise: Promise<Game[]>;
-	export let selectedWeek: number;
+	// export let selectedWeek: number;
 	export let selectedYear: number;
 	export let selectedUser: WebUser;
 	let min: string | number;
@@ -42,7 +42,7 @@
 	</label>
 	<label for="week-select">
 		<p>Week</p>
-		<WeekSelect bind:selectedWeek />
+		<WeekSelect />
 	</label>
 	<label for="year-select">
 		<p>Year</p>

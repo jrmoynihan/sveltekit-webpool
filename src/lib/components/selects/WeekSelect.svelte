@@ -2,12 +2,13 @@
 	import type { SeasonType } from '$scripts/classes/seasonType';
 	import { getPreSeasonWeeks, getRegularSeasonWeeks } from '$scripts/functions';
 	import { findCurrentWeekOfSchedule } from '$scripts/schedule';
+	import { selectedWeek } from '$scripts/store';
 	import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 	import { createEventDispatcher, onMount } from 'svelte';
 	import Fa from 'svelte-fa';
 
 	export let weeks: number[] = [];
-	export let selectedWeek: number = 5;
+	// export let selectedWeek: number = 5;
 	export let selectedSeasonType: SeasonType = { id: 2, text: 'Regular Season' };
 	export let showButtons = true;
 	export let customStyles = '';
@@ -25,17 +26,19 @@
 		}
 	};
 	const increment = () => {
-		selectedWeek++;
-		dispatch('incrementWeek', selectedWeek);
+		$selectedWeek++;
+		// dispatch('incrementWeek', selectedWeek);
+		dispatch('incrementWeek');
 	};
 	const decrement = () => {
-		selectedWeek--;
-		dispatch('decrementWeek', selectedWeek);
+		$selectedWeek--;
+		// dispatch('decrementWeek', selectedWeek);
+		dispatch('decrementWeek');
 	};
-	const weekChanged = () => dispatch('weekChanged', selectedWeek);
+	const weekChanged = () => dispatch('weekChanged');
 
 	onMount(async () => {
-		selectedWeek = await findCurrentWeekOfSchedule();
+		// selectedWeek = await findCurrentWeekOfSchedule() ;
 	});
 	$: changeWeeksAvailable(selectedSeasonType);
 </script>
@@ -48,7 +51,7 @@
 	{/if}
 	<select
 		id="week-select"
-		bind:value={selectedWeek}
+		bind:value={$selectedWeek}
 		on:change={() => {
 			weekChanged();
 		}}

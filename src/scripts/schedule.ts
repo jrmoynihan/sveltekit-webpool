@@ -104,7 +104,7 @@ export const setBounds = async (weekBound: WeekBound, year?: number): Promise<vo
 export const findCurrentWeekOfSchedule = async (showToast?: boolean): Promise<number> => {
 	try {
 		const now = new Date();
-		const currentYear = now.getFullYear();
+		const currentYear = now.getMonth() < 3 ? now.getFullYear() - 1 : now.getFullYear();
 		const boundsDoc = doc(weekBoundsCollection, currentYear.toString());
 		const allBounds = await getDocFromServer(boundsDoc.withConverter(weekBoundConverter));
 
@@ -117,8 +117,7 @@ export const findCurrentWeekOfSchedule = async (showToast?: boolean): Promise<nu
 		if (allBounds.exists) {
 			myLog('got gameBounds doc!');
 			const data = allBounds.data();
-			myLog('data', null, null, data);
-			const regSeasonWeeks = await getRegularSeasonWeeks();
+			const regSeasonWeeks = await getRegularSeasonWeeks(); // TODO: need a solution to find non-Regular Season weeks
 			for (const week of regSeasonWeeks) {
 				const weekBounds: WeekBound = data[`week_${week}`];
 				const firstGameTime = weekBounds.firstGameTime.toDate();

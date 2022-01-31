@@ -11,7 +11,7 @@
 	import { scheduleCollection, weeklyPicksCollection } from '$scripts/collections';
 	import { gameConverter, teamConverter, weeklyPickConverter } from '$scripts/converters';
 	import { isBeforeGameTime } from '$scripts/functions';
-	import { useDarkTheme } from '$scripts/store';
+	import { selectedWeek, useDarkTheme } from '$scripts/store';
 	import { teamsCollection } from '$scripts/teams';
 	import { errorToast } from '$scripts/toasts';
 	import { getWeeklyUsers } from '$scripts/weekly/weeklyUsers';
@@ -25,8 +25,9 @@
 	import { fade, fly } from 'svelte/transition';
 	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
 
-	let selectedWeek: number;
-	let selectedYear: number = new Date().getFullYear();
+	let now = new Date();
+	// let selectedWeek: number = 1;
+	let selectedYear: number = now.getMonth() < 3 ? now.getFullYear() - 1 : now.getFullYear();
 	let hoverUser: string;
 	let hoverGame: string;
 
@@ -96,8 +97,8 @@
 	let gamesPromise: Promise<Game[]>;
 
 	onMount(async () => {
-		selectedWeek = await weekPromise;
-		getData(selectedWeek, selectedYear);
+		// selectedWeek = await weekPromise;  TODO:  this is fine during regular season, but not during playoffs
+		getData($selectedWeek, selectedYear);
 	});
 </script>
 
@@ -105,11 +106,10 @@
 <!-- <h3><em>(just showcasing the images until I build this page)</em></h3> -->
 <!-- <TeamGallery /> -->
 <WeekSelect
-	bind:selectedWeek
 	customStyles={'width:fit-content;margin:auto;'}
-	on:weekChanged={() => getData(selectedWeek, selectedYear)}
-	on:decrementWeek={() => getData(selectedWeek, selectedYear)}
-	on:incrementWeek={() => getData(selectedWeek, selectedYear)}
+	on:weekChanged={() => getData($selectedWeek, selectedYear)}
+	on:decrementWeek={() => getData($selectedWeek, selectedYear)}
+	on:incrementWeek={() => getData($selectedWeek, selectedYear)}
 />
 
 {#await userPromise then users}
@@ -211,7 +211,7 @@
 										<ErrorModal {error} />
 									{/await}
 								{/each}
-								{user.weeklyPickRecord[`week_${selectedWeek}`].wins}
+								{user?.weeklyPickRecord[`week_${selectedWeek}`]?.wins}
 							{/each}
 						</Grid>
 					</TransitionWrapper>
@@ -251,13 +251,13 @@
 	}
 	.nickname {
 		z-index: var(--above);
-		background: hsla(var(--alternate-value), 80%);
+		background: hsla(var(--background-value), 80%);
 		justify-self: end;
 		display: flex;
 		position: sticky;
 		left: -1rem;
 		&.hovered {
-			background: hsla(var(--alternate-value), 100%);
+			background: hsla(var(--background-value), 100%);
 		}
 	}
 	.winner {

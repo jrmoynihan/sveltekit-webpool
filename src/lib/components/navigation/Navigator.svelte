@@ -38,7 +38,7 @@
 		width: 100%;
 		z-index: var(--above);
 		background: linear-gradient(
-			hsla(var(--alternate-value, hsl(120, 16%, 17%)), 90%) 50%,
+			hsla(var(--background, hsl(120, 16%, 17%)), 90%) 50%,
 			transparent 120%
 		);
 		@supports (backdrop-filter: none) {

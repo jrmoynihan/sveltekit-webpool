@@ -21,13 +21,14 @@
 	import ErrorModal from '../modals/ErrorModal.svelte';
 	import EspnGameData from './ESPNGameData.svelte';
 	import { convertToHttps, getConsensusSpread } from '$scripts/dataFetching';
+	import { selectedWeek } from '$scripts/store';
 
 	let currentlySetting = false;
 	let promise: Promise<{ originalGames: ESPNGame[]; prunedGames: ESPNGamePruned[] }>;
 	let weeks: number[] = [];
 	let selectedYear = 2021;
 	let selectedSeasonType: SeasonType = seasonTypes[1];
-	let selectedWeek: number;
+	// let selectedWeek: number;
 	let selectedGames = 'pruned';
 	let maxGameHeight = 100;
 	let minGameHeight = 10;
@@ -178,7 +179,7 @@
 	};
 
 	const queryChanged = async () => {
-		promise = getData(selectedYear, selectedSeasonType, selectedWeek);
+		promise = getData(selectedYear, selectedSeasonType, $selectedWeek);
 	};
 	const changeWeeksAvailable = async () => {
 		if (selectedSeasonType.text === 'Regular Season') {
@@ -316,7 +317,7 @@
 	<PageTitle>Fetch ESPN Game Data</PageTitle>
 	<Grid>
 		<DeletionButton on:click={deleteAllGames}>Delete All Games</DeletionButton>
-		<DeletionButton on:click={() => deleteGameWeek(selectedWeek, selectedYear, selectedSeasonType)}
+		<DeletionButton on:click={() => deleteGameWeek($selectedWeek, selectedYear, selectedSeasonType)}
 			>Delete Selected Week</DeletionButton
 		>
 		<!-- svelte-check ignore -->
@@ -339,7 +340,6 @@
 		/>
 		<YearSelect bind:selectedYear on:yearChanged={queryChanged} />
 		<WeekSelect
-			bind:selectedWeek
 			bind:weeks
 			on:weekChanged={queryChanged}
 			on:decrementWeek={queryChanged}
@@ -352,7 +352,7 @@
 		</select>
 		{#await promise then games}
 			<StyledButton
-				on:click={() => setGames(selectedWeek, selectedYear, selectedSeasonType)}
+				on:click={() => setGames($selectedWeek, selectedYear, selectedSeasonType)}
 				disabled={currentlySetting}>Set Games</StyledButton
 			>
 		{:catch error}

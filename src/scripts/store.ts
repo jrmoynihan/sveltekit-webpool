@@ -27,7 +27,9 @@ export const showSpreads = writable(false);
 export const preferredScoreView = writable<ScoreViewPreference>('Both');
 export const showTimestamps = writable(false);
 export const selectedWeek = writable(1);
-export const selectedYear = writable(new Date().getFullYear());
+export const selectedYear = writable(
+	new Date().getMonth() < 3 ? new Date().getFullYear() - 1 : new Date().getFullYear()
+);
 export const selectedSeasonType = writable(seasonTypes[1]);
 export const selectedUser = writable<WebUser>();
 export const gamesPromise = writable<Promise<Game[]>>();

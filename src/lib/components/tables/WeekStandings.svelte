@@ -4,7 +4,7 @@
 	import WeekSelect from '$lib/components/selects/WeekSelect.svelte';
 	import WeeklyStandingsRow from '$lib/components/tables/WeeklyStandingsRow.svelte';
 	import { mobileBreakpoint } from '$scripts/site';
-	import { showIDs, showNetTiebreakers, windowWidth } from '$scripts/store';
+	import { selectedWeek, showIDs, showNetTiebreakers, windowWidth } from '$scripts/store';
 	import { onMount } from 'svelte';
 	import { query, where, orderBy, DocumentData, Query, getDocs } from 'firebase/firestore';
 	import {
@@ -24,7 +24,7 @@
 	let initialWeekHeaders: string[] = ['Rank', 'Player', 'Wins', 'Losses', 'Tiebreaker', 'Prize'];
 	let abbreviatedWeekHeaders: string[] = ['#', 'Name', 'W', 'L', 'T', '$'];
 	let weekHeaders: string[] = initialWeekHeaders;
-	let selectedWeek: number;
+	// let selectedWeek: number;
 	let tiebreakerPromise: Promise<WeeklyTiebreaker[]>;
 	let weeklyUserPromise: Promise<WebUser[]>;
 	let lastGamePromise: Promise<Game>;
@@ -85,8 +85,8 @@
 	};
 
 	onMount(async () => {
-		selectedWeek = await findCurrentWeekOfSchedule();
-		getData(selectedWeek);
+		// $selectedWeek = await findCurrentWeekOfSchedule();
+		getData($selectedWeek);
 		const tiebreakers = await tiebreakerPromise;
 		const users = await weeklyUserPromise;
 		console.log(tiebreakers);
@@ -102,10 +102,9 @@
 <div class="week grid" style="--columns:{headerCount}">
 	<WeekSelect
 		customStyles="grid-area:selector;"
-		bind:selectedWeek
-		on:weekChanged={() => getData(selectedWeek)}
-		on:incrementWeek={() => getData(selectedWeek)}
-		on:decrementWeek={() => getData(selectedWeek)}
+		on:weekChanged={() => getData($selectedWeek)}
+		on:incrementWeek={() => getData($selectedWeek)}
+		on:decrementWeek={() => getData($selectedWeek)}
 	/>
 	<div class="table grid">
 		{#each weekHeaders as header}
@@ -126,7 +125,6 @@
 								{#if tiebreaker.uid === player.uid}
 									<WeeklyStandingsRow
 										{player}
-										{selectedWeek}
 										{i}
 										{tiebreaker}
 										showNetTiebreakers={$showNetTiebreakers}

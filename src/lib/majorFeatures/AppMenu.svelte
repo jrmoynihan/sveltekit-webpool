@@ -192,8 +192,8 @@
 		max-height: 100vh;
 		grid-template-columns: repeat(2, min-content) 1fr;
 		background: linear-gradient(
-			hsla(var(--alternate-value, hsl(120, 16%, 17%)), 90%) 90%,
-			hsla(var(--alternate-value, hsl(120, 16%, 17%)), 50%) 95%,
+			hsla(var(--background-value, hsl(120, 16%, 17%)), 90%) 90%,
+			hsla(var(--background-value, hsl(120, 16%, 17%)), 50%) 95%,
 			transparent 99%
 		);
 		@include responsive_mobile_only {
