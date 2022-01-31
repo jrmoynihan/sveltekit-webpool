@@ -18,7 +18,7 @@
 	export let awayColors: { color: string; altColor: string };
 	export let drivesRef: string;
 	export let gameData: ESPNGame;
-	export let teamTextColor = 'var(--main-color)';
+	export let teamTextColor = 'var(--text)';
 
 	let awayTeamColor: string = awayColors.color;
 	let homeTeamColor: string = homeColors.color;

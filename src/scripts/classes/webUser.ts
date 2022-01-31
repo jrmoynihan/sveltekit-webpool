@@ -15,6 +15,7 @@ export class WebUser {
 	survivor: boolean;
 	totalWeeklyLosses: number;
 	totalWeeklyWins: number;
+	totalWeeklyWinnings: number;
 	weekly: boolean;
 	weeklyPickRecord: WeeklyPickRecord;
 	weeklyWinnings: UserWinnings;
@@ -40,6 +41,7 @@ export class WebUser {
 		this.survivor = args.survivor || false;
 		this.totalWeeklyLosses = args.totalWeeklyLosses || 0;
 		this.totalWeeklyWins = args.totalWeeklyWins || 0;
+		this.totalWeeklyWinnings = args.totalWeeklyWinnings || 0;
 		this.weekly = args.weekly || false;
 		this.weeklyPickRecord = args.weeklyPickRecord;
 		this.weeklyWinnings = args.weeklyWinnings || 0;

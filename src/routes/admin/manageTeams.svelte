@@ -163,8 +163,8 @@
 		justify-content: center;
 	}
 	.team-select {
-		background-color: rgba(var(--accentValue-color, rgb(233, 181, 99)), 80%);
-		color: var(--alternate-color, rgb(36, 50, 36));
+		background-color: hsla(var(--accent-value, hsl(37, 75%, 65%)), 80%);
+		color: var(--background, hsl(120, 16%, 17%));
 		margin: 2rem auto;
 	}
 </style>

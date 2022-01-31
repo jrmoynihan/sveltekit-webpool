@@ -37,12 +37,12 @@
 		// align-self: center;
 
 		&::marker {
-			color: var(--accent-color, rgb(233, 181, 99));
+			color: var(--accent, hsl(37, 75%, 65%));
 			font-size: 1.2em;
 		}
 	}
 	.icon {
 		display: inline-block;
-		color: var(--accent-color, rgb(233, 181, 99));
+		color: var(--accent, hsl(37, 75%, 65%));
 	}
 </style>

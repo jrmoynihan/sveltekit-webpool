@@ -319,7 +319,7 @@
 		<DeletionButton on:click={() => deleteGameWeek(selectedWeek, selectedYear, selectedSeasonType)}
 			>Delete Selected Week</DeletionButton
 		>
-		<!-- svelte-check ifnore -->
+		<!-- svelte-check ignore -->
 		<input
 			type="range"
 			orient="vertical"
@@ -376,8 +376,8 @@
 			inTransitionConfig={{ delay: 200 }}
 			outTransitionType="fade"
 			outTransitionConfig={{ x: 200 }}
-			max={'100%'}
-			repeat={selectedGames === 'both' ? 2 : 'auto-fit'}
+			maxColumns={'100%'}
+			repeatColumns={selectedGames === 'both' ? 2 : 'auto-fit'}
 		>
 			{#if gameData}
 				{#key setGameHeight}

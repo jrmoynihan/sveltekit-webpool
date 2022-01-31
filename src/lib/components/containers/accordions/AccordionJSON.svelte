@@ -82,8 +82,8 @@
 	}
 	a {
 		font-weight: 600;
-		color: var(--alternate-color);
-		background-color: rgba(var(--accentValue-color) / 50%);
+		color: var(--background);
+		background-color: hsla(var(--accent-value), 50%);
 		border-radius: 1rem;
 		padding: 0 0.5rem;
 		text-decoration: underline;

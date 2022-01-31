@@ -59,7 +59,7 @@
 <style lang="scss">
 	a {
 		@include flexCenter;
-		color: var(--main-color, rgb(255, 255, 255));
+		color: var(--text, white);
 		font-weight: 700;
 		font-size: 0.8rem;
 		gap: 0.7em;
@@ -71,7 +71,7 @@
 		transition: color 0.2s linear;
 		width: 100%;
 		&:visited:not(.active) {
-			color: var(--main-color, rgb(255, 255, 255));
+			color: var(--text, white);
 		}
 		&.active,
 		&:active {
@@ -88,8 +88,8 @@
 		@include defaultTransition;
 		@include flexCenter;
 		position: relative;
-		color: var(--main-color, rgb(255, 255, 255));
-		box-shadow: 0 0 2px 2px rgba(var(--accentValue-color, rgb(233, 181, 99)) / 30%);
+		color: var(--text, white);
+		box-shadow: 0 0 2px 2px hsla(var(--accent-value, hsl(37, 75%, 65%)), 30%);
 		width: 100%;
 		height: 2em;
 
@@ -111,12 +111,12 @@
 				margin: 0 min(3%, 2.7rem);
 			}
 			&.dark-mode {
-				// background: radial-gradient(transparent 60%, rgba(var(--accentValue-color) / 50%) 100%);
-				background-color: rgba(var(--accentValue-color, rgb(233, 181, 99)) / 25%);
+				// background: radial-gradient(transparent 60%, hsla(var(--accent-value), 50%) 100%);
+				background-color: hsla(var(--accent-value, hsl(37, 75%, 65%)), 25%);
 			}
 			&.light-mode {
-				background-color: rgba(var(--accentValue-color, forestgreen) / 60%);
-				color: var(--alternate-color);
+				background-color: hsla(var(--accent-value, forestgreen), 60%);
+				color: var(--background);
 			}
 		}
 		// Current page indicator

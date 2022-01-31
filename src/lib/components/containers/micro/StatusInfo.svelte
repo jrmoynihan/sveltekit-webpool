@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { ESPNScore, ESPNSituation, ESPNStatus } from '$scripts/classes/game';
+	import type { ESPNScore, ESPNStatus } from '$scripts/classes/game';
 	import type { Team } from '$scripts/classes/team';
 	import FinalGameScore from './FinalGameScore.svelte';
 	import ScoresAts from './ScoresATS.svelte';
@@ -8,24 +8,23 @@
 
 	export let promiseStatus: Promise<ESPNStatus>;
 	export let promiseScores: Promise<{ homeScoreData: ESPNScore; awayScoreData: ESPNScore }>;
-	export let promiseSituation: Promise<ESPNSituation>;
 	export let spread: number;
 	export let ATSwinner: string;
 	export let homeTeam: Team;
 	export let awayTeam: Team;
 
-	let min = 30;
-	let max = 60;
+	// let min = 30;
+	// let max = 60;
 	// let boxShadowMin = 0;
 	// let boxShadowMax = 4;
-	let topLeft = Math.floor(Math.random() * (max - min) + min);
-	let topLeftTwo = Math.floor(Math.random() * (max - min) + min);
-	let topRight = Math.floor(Math.random() * (max - min) + min);
-	let topRightTwo = Math.floor(Math.random() * (max - min) + min);
-	let bottomLeft = Math.floor(Math.random() * (max - min) + min);
-	let bottomLeftTwo = Math.floor(Math.random() * (max - min) + min);
-	let bottomRight = Math.floor(Math.random() * (max - min) + min);
-	let bottomRightTwo = Math.floor(Math.random() * (max - min) + min);
+	// let topLeft = Math.floor(Math.random() * (max - min) + min);
+	// let topLeftTwo = Math.floor(Math.random() * (max - min) + min);
+	// let topRight = Math.floor(Math.random() * (max - min) + min);
+	// let topRightTwo = Math.floor(Math.random() * (max - min) + min);
+	// let bottomLeft = Math.floor(Math.random() * (max - min) + min);
+	// let bottomLeftTwo = Math.floor(Math.random() * (max - min) + min);
+	// let bottomRight = Math.floor(Math.random() * (max - min) + min);
+	// let bottomRightTwo = Math.floor(Math.random() * (max - min) + min);
 	// let boxShadowOneX = Math.floor(Math.random() * (boxShadowMax - boxShadowMin) + boxShadowMin);
 	// let boxShadowOneY = Math.floor(Math.random() * (boxShadowMax - boxShadowMin) + boxShadowMin);
 	// let boxShadowTwoX = Math.floor(Math.random() * (boxShadowMax - boxShadowMin) + boxShadowMin);

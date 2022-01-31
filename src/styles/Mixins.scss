@@ -11,7 +11,7 @@
 	}
 }
 //** Text Effects **
-@mixin textWithShadow($color: var(--alternate-color), $shadowWidth: 2px) {
+@mixin textWithShadow($color: var(--background), $shadowWidth: 2px) {
 	text-shadow: 0 0 $shadowWidth $color;
 }
 //********************************************************************************
@@ -19,31 +19,31 @@
 // *** Box-Shadows ***
 @mixin dayShadow {
 	// box-shadow: -2px -2px 20px 0px gold, 2px 2px 15px 2px purple;
-	box-shadow: -2px -2px 20px 0 rgb(71 112 173 / 63%),
-		2px 2px 15px 2px rgba(var(--accentValue-color) / 50%);
+	box-shadow: -2px -2px 20px 0 hsla(216, 42%, 48%, 0.63),
+		2px 2px 15px 2px hsla(var(--accent-value), 50%);
 	transition: box-shadow 200ms ease-in-out;
 }
 
 @mixin nightShadow {
-	box-shadow: -2px -2px 20px 0 rgb(83 168 53 / 54%),
-		2px 2px 15px 2px rgba(var(--accentValue-color) / 50%);
+	box-shadow: -2px -2px 20px 0 hsla(104, 52%, 43%, 0.54),
+		2px 2px 15px 2px hsla(var(--accent-value), 50%);
 	transition: box-shadow 200ms ease-in-out;
 }
 
 @mixin normalShadow {
-	box-shadow: 0 0 4px 2px rgba(var(--mainValue-color) / 50%);
+	box-shadow: 0 0 4px 2px hsla(var(--text-value), 50%);
 }
 
 @mixin hoverBoxShadow {
 	&:hover {
-		box-shadow: 0 0 10px 5px rgba(0 0 0 / 20%);
+		box-shadow: 0 0 10px 5px hsla(0, 0%, 0%, 0.2);
 		transform: scale(0.98);
 		@content;
 	}
 }
 
 @mixin glassShadow {
-	box-shadow: 0 0 15px 0 rgba(0 0 0 / 50%);
+	box-shadow: 0 0 15px 0 hsla(0, 0%, 0%, 0.5);
 }
 // ******************************************
 
@@ -147,7 +147,7 @@
 }
 
 @mixin thinnestBorder {
-	border: 0.1px solid rgb(0 0 0 / 20%);
+	border: 0.1px solid hsla(0, 0%, 0%, 0.2);
 }
 
 @mixin cursorPointerAlways {
@@ -174,7 +174,7 @@
 
 @mixin cloudyBackground {
 	color: black; // override the default color to maintain high contrast with whitish background
-	background: radial-gradient(rgb(255 255 255 / 70%), rgb(255 255 255 / 30%));
+	background: radial-gradient(hsla(0, 0%, 100%, 0.7), hsla(0, 0%, 100%, 0.3));
 }
 
 @mixin defaultButtonStyles {
@@ -190,7 +190,7 @@
 	display: flex;
 	width: auto;
 	font-size: 1rem;
-	color: var(--main-color);
+	color: var(--text);
 	padding: var(--padding-normal);
 
 	&:focus {
@@ -230,18 +230,18 @@
 }
 
 @mixin active(
-	$color: var(--accentValue-color, currentColor),
-	$textDecorationColor: var(--accentValue-color, currentColor),
-	$backgroundColor: var(--accentValue-color, currentColor),
+	$color: var(--accent-value, currentColor),
+	$textDecorationColor: var(--accent-value, currentColor),
+	$backgroundColor: var(--accent-value, currentColor),
 	$backgroundAlpha: 0.8
 ) {
 	color: $color;
 	text-decoration: underline 2px $textDecorationColor;
-	background-color: rgba($backgroundColor / $backgroundAlpha);
+	background-color: hsla($backgroundColor, $backgroundAlpha);
 }
 
 @mixin pulse(
-	$color: var(--accentValue-color),
+	$color: var(--accent-value),
 	$pulseDistance: 10px,
 	$duration: 2.5s,
 	$opacity: 40%,
@@ -251,32 +251,32 @@
 
 	@keyframes pulse {
 		0% {
-			box-shadow: 0 0 0 0 rgba($color / $opacity);
+			box-shadow: 0 0 0 0 hsla($color, $opacity);
 		}
 
 		50% {
-			box-shadow: 0 0 0 $pulseDistance rgba($color / 0%);
+			box-shadow: 0 0 0 $pulseDistance hsla($color, 0%);
 		}
 
 		100% {
-			box-shadow: 0 0 0 0 rgba($color / 0%);
+			box-shadow: 0 0 0 0 hsla($color / 0%);
 		}
 	}
 
 	@keyframes pulse {
 		0% {
-			box-shadow: 0 0 0 0 rgba($color / $opacity);
-			box-shadow: 0 0 0 0 rgba($color / $opacity);
+			box-shadow: 0 0 0 0 hsla($color, $opacity);
+			box-shadow: 0 0 0 0 hsla($color, $opacity);
 		}
 
 		50% {
-			box-shadow: 0 0 0 $pulseDistance rgba($color / 0%);
-			box-shadow: 0 0 0 $pulseDistance rgba($color / 0%);
+			box-shadow: 0 0 0 $pulseDistance hsla($color, 0%);
+			box-shadow: 0 0 0 $pulseDistance hsla($color, 0%);
 		}
 
 		100% {
-			box-shadow: 0 0 0 0 rgba($color / 0%);
-			box-shadow: 0 0 0 0 rgba($color / 0%);
+			box-shadow: 0 0 0 0 hsla($color, 0%);
+			box-shadow: 0 0 0 0 hsla($color, 0%);
 		}
 	}
 
@@ -295,7 +295,7 @@
 	@include noOutline;
 	width: auto;
 	font-size: 1rem;
-	color: var(--main-color);
+	color: var(--text);
 	padding: var(--padding-normal);
 
 	&:focus {
@@ -307,11 +307,11 @@
 }
 
 @mixin accentedContainer($alpha: 100%) {
-	background-color: rgba(var(--accentValue-color) / $alpha);
+	background-color: hsla(var(--accent-value), $alpha);
 }
 @mixin accentedContainerDarkMode($alpha: 40%) {
-	background-color: rgba(var(--accentValue-color) / $alpha);
-	box-shadow: 0 0 6px 3px rgba(var(--accentValue-color) / 30%);
+	background-color: hsla(var(--accent-value), $alpha);
+	box-shadow: 0 0 6px 3px hsla(var(--accent-value), 30%);
 }
 
 @mixin spin {
@@ -362,19 +362,19 @@
 	color: white;
 	text-shadow: 1px 1px 10px black;
 	width: 100%;
-	box-shadow: 4px 4px 15px 5px rgba(0 0 0 / 50%);
-	border: 4px solid rgba(var(--accentValue-color) / 80%);
+	box-shadow: 4px 4px 15px 5px hsla(0, 0%, 0%, 0.5);
+	border: 4px solid hsla(var(--accent-value), 80%);
 	background: radial-gradient(
-		rgba(var(--accentValue-color) / 70%) 50%,
-		rgba(var(--accentValue-color) / 40%) 100%
+		hsla(var(--accent-value), 70%) 50%,
+		hsla(var(--accent-value), 40%) 100%
 	);
 }
 @mixin styledButtonDark {
 	@include styledButton;
 	text-shadow: none;
 	background: radial-gradient(
-		rgba(var(--accentValue-color) / 20%) 40%,
-		rgba(var(--accentValue-color) / 40%) 80%
+		hsla(var(--accent-value), 20%) 40%,
+		hsla(var(--accent-value), 40%) 80%
 	);
 }
 
@@ -410,9 +410,9 @@
 }
 
 @mixin admin {
-	color: var(--admin-color, darkred);
-	border: var(--adminBorder-color, darkred) solid 1px;
-	background: var(--adminBackground-color, hsl(0deg 35% 75%));
+	color: var(--admin, darkred);
+	border: var(--adminBorder, darkred) solid 1px;
+	background: var(--adminBackground, hsl(0deg 35% 75%));
 }
 @mixin defaultPseudoElement {
 	@include absolute($inset: 0);

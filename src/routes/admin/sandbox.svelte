@@ -1,21 +1,12 @@
 <script script lang="ts">
+	import AccordionDetailsv2 from '$lib/components/containers/accordions/AccordionDetails.svelte';
 	import MultiToggleSwitch from '$lib/components/switches/MultiToggleSwitch.svelte';
 	import DriveChart from '$lib/images/DriveChart.svelte';
-	import type {
-		CompetitorESPN,
-		ESPNDrive,
-		ESPNDriveRef,
-		ESPNGame,
-		ESPNSituation,
-		ESPNTeamData,
-		Game
-	} from '$scripts/classes/game';
-	import type { Team } from '$scripts/classes/team';
+	import type { CompetitorESPN, ESPNGame, ESPNTeamData, Game } from '$scripts/classes/game';
 	import { scheduleCollection } from '$scripts/collections';
 	import { gameConverter } from '$scripts/converters';
-	import { convertToHttps, fetchHttpsToJson, getSituation } from '$scripts/dataFetching';
+	import { fetchHttpsToJson } from '$scripts/dataFetching';
 	import { preferredScoreView } from '$scripts/store';
-	import { allTeams, teamsCollection } from '$scripts/teams';
 	import type { ScoreViewPreference } from '$scripts/types/types';
 	import {
 		faCalculator,
@@ -23,8 +14,11 @@
 		faFootballBall,
 		IconDefinition
 	} from '@fortawesome/free-solid-svg-icons';
-	import { deleteField, doc, getDocs, query, updateDoc, where } from 'firebase/firestore';
-	import { onMount } from 'svelte';
+	import { getDocs, query, where } from 'firebase/firestore';
+
+	let open = false;
+	let isExpanding = false;
+	let isCollapsing = false;
 
 	let myItems = [
 		{ label: 'Alpha', value: 1 },
@@ -72,6 +66,16 @@
 		const awayColors: { color: string; altColor: string } = await getTeamColors(awayCompetitor);
 		return { game, awayTeam, homeTeam, homeColors, awayColors, drivesRef, gameData: gameData.data };
 	};
+	let portal: HTMLElement;
+	function activatePortal() {
+		portal.activate();
+	}
+	if(browser && portal){
+		window.addEventListener('portalactivate',(evt) => {
+			const predecessor = evt.adoptPredecessor();
+		}
+		)
+	}
 </script>
 
 <MultiToggleSwitch items={otherItems} selectedItem={otherItems[1]} titleText="This is the Title" />
@@ -89,3 +93,49 @@
 {:then { game, awayTeam, homeTeam, homeColors, awayColors, drivesRef, gameData }}
 	<DriveChart {awayTeam} {homeTeam} {homeColors} {awayColors} {game} {drivesRef} {gameData} />
 {/await}
+
+<AccordionDetailsv2 bind:open bind:isExpanding bind:isCollapsing>
+	<div slot="summary">
+		<h2>Open: {open} isExpanding: {isExpanding} isCollapsing: {isCollapsing}</h2>
+	</div>
+	<div slot="content">
+		<p>Content</p>
+	</div>
+</AccordionDetailsv2>
+
+<portal
+	bind:this={portal}
+	id="example"
+	title="test"
+	src="https://www.youtube.com/embed/95WCap877oM"
+	style="width: 100%; height: 100%;"
+	on:click={activatePortal}
+/>
+
+<style lang="scss">
+	portal {
+		position: fixed;
+		width: 80%;
+		height: 80%;
+		opacity: 0;
+		box-shadow: 0 0 20px 10px #999;
+		transform: scale(0.4);
+		transform-origin: bottom left;
+		bottom: 20px;
+		left: 20px;
+		animation-name: fade-in;
+		animation-duration: 1s;
+		animation-delay: 2s;
+		animation-fill-mode: forwards;
+		transition: transform 0.4s;
+		// transform: scale(1.0) translateX(-20px) translateY(20px);
+	}
+	@keyframes fade-in {
+		0% {
+			opacity: 0;
+		}
+		100% {
+			opacity: 1;
+		}
+	}
+</style>

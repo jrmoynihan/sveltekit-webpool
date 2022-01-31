@@ -3,9 +3,9 @@
 	import { variableTransition } from '$scripts/transitions';
 
 	export let customStyles = '';
-	export let min: string | number = 0;
-	export let max: string | number = 'max-content';
-	export let repeat: string | number = 'auto-fit';
+	export let minColumns: string | number = 0;
+	export let maxColumns: string | number = 'max-content';
+	export let repeatColumns: string | number = 'auto-fit';
 	export let padding: string | number = '1rem';
 	export let gap: string | number = '1rem';
 	export let useTransition = true;
@@ -20,7 +20,7 @@
 
 {#if useInAndOutTransitions}
 	<div
-		class="grid {customClasses}"
+		class="grid"
 		in:variableTransition={{
 			useTransition: true,
 			transitionType: inTransitionType,
@@ -31,7 +31,7 @@
 			transitionType: outTransitionType,
 			transitionConfig: outTransitionConfig
 		}}
-		style="--min:{min}; --max:{max}; --repeat:{repeat};--padding:{padding}; --gap:{gap}; {customStyles};"
+		style="--minColumns:{minColumns}; --maxColumns:{maxColumns}; --repeatColumns:{repeatColumns};--padding:{padding}; --gap:{gap}; {customStyles};"
 	>
 		<slot />
 	</div>
@@ -39,7 +39,7 @@
 	<div
 		class="grid"
 		transition:variableTransition={{ useTransition, transitionType, transitionConfig }}
-		style="--min:{min}; --max:{max}; --repeat:{repeat};--padding:{padding}; ; --gap:{gap}; {customStyles};"
+		style="--minColumns:{minColumns}; --maxColumns:{maxColumns}; --repeatColumns:{repeatColumns};--padding:{padding}; ; --gap:{gap}; {customStyles};"
 	>
 		<slot />
 	</div>
@@ -48,7 +48,10 @@
 <style lang="scss">
 	.grid {
 		@include gridCenter($gap: var(--gap));
-		grid-template-columns: repeat(var(--repeat), minmax(var(--min), var(--max)));
+		grid-template-columns: repeat(
+			var(--repeatColumns),
+			minmax(var(--minColumns), var(--maxColumns))
+		);
 		padding: var(--padding);
 	}
 </style>

@@ -110,9 +110,9 @@
 		font-family: Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 		box-sizing: border-box;
 		font-display: swap;
-		color: var(--main-color, rgba(255 255 255 / 100%));
+		color: var(--text, white);
 		scrollbar-width: thin;
-		scrollbar-color: var(--accent-color, rgb(233 181 99)) var(--alternate-color, rgb(36 50 36));
+		scrollbar-color: var(--accent, hsl(37, 75%, 65%)) var(--background, hsl(120, 16%, 17%));
 	}
 	* {
 		box-sizing: border-box;
@@ -120,7 +120,7 @@
 	.app-wrapper {
 		padding: 0 5px 5px;
 		display: grid;
-		background: var(--alternate-color, rgb(36, 50, 36));
+		background: var(--background, hsl(120, 16%, 17%));
 		position: relative;
 		opacity: 99%;
 		min-height: 100vh;
@@ -158,7 +158,7 @@
 
 		/* my styles */
 		@include gridAndGap(15px);
-		color: var(--main-color, rgb(255, 255, 255));
+		color: var(--text, white);
 		grid-template-rows: repeat(auto-fit, minmax(min(0px, 100%), 1fr));
 		grid-template-columns: 100%;
 		text-align: center;

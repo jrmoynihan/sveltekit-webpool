@@ -71,6 +71,6 @@
 	.header {
 		font-weight: bold;
 		padding-bottom: 0.5rem;
-		border-bottom: 2px solid rgba(var(--accentValue-color, rgb(233, 181, 99)), 50%);
+		border-bottom: 2px solid hslaa(var(--accent-value, hsl(37, 75%, 65%)), 50%);
 	}
 </style>

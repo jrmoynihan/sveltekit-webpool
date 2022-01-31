@@ -9,6 +9,7 @@
 	import TeamSelectRadioInput from './micro/TeamSelectRadioInput.svelte';
 	import type { ESPNScore, ESPNSituation, ESPNStatus, Game } from '$scripts/classes/game';
 	import { getScores, getSituation, getStatus } from '$scripts/dataFetching';
+	import { myLog, pick } from '$scripts/classes/constants';
 
 	export let id = 'id';
 	export let index: number;
@@ -23,11 +24,11 @@
 	export let isATSwinner: null | boolean = null;
 	export let ATSwinner: string;
 	export let selectedWeek: number;
+	export let beforeGameTime = false;
 	let layoutBreakpoint = 620;
 	let showTeamNameImages = false;
-	let disabled = false;
+	let disabled = !beforeGameTime;
 	let gameIsOver = false;
-	let beforeGameTime = false;
 	let element: HTMLElement;
 	let showGameContainer = false;
 
@@ -40,12 +41,13 @@
 	}
 
 	const checkGameTime = async () => {
-		beforeGameTime = await isBeforeGameTime(timestamp);
-		if (beforeGameTime) {
+		if (await isBeforeGameTime(timestamp)) {
 			disabled = false;
+			beforeGameTime = true;
 			// myLog(`game ${id} hasn't started`);
 		} else {
 			disabled = true;
+			beforeGameTime = false;
 			// myLog(`game ${id} has started`);
 			clearInterval(recheckGameTimeInterval);
 		}
@@ -68,9 +70,13 @@
 	}
 	// ******************
 	// Periodically re-check if the game is over
-	$: promiseStatus.then((status) => {
+	$: promiseStatus.then(async (status) => {
 		if (status?.type?.description === 'Final') {
 			gameIsOver = true;
+			beforeGameTime = false;
+		} else if (status?.type?.description === 'Scheduled') {
+			gameIsOver = false;
+			beforeGameTime = true;
 		}
 	});
 	// If the game isn't active, stop calling for status data, preventing unncessary API calls
@@ -97,7 +103,7 @@
 				promiseStatus = getStatus(competitions);
 				promiseSituation = getSituation(competitions);
 			}
-		}, 30000);
+		}, 60_000);
 	});
 
 	// Prevent memory leak

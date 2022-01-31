@@ -4,14 +4,14 @@
 	import { fade, slide } from 'svelte/transition';
 	import Tooltip from '../containers/Tooltip.svelte';
 
-	export let tiebreaker: number;
+	export let scoreGuess: number;
 	const dispatch = createEventDispatcher();
 	function changed(event: Event & { currentTarget: EventTarget & HTMLInputElement }): void {
-		dispatch('change', event.currentTarget);
+		dispatch('change', event.currentTarget.value);
 	}
 </script>
 
-<span class="tiebreaker-container" class:pulse={tiebreaker < 10 || tiebreaker === undefined}>
+<span class="tiebreaker-container" class:pulse={scoreGuess < 10 || scoreGuess === undefined}>
 	<Tooltip
 		arrowhorizontalPosition={$largerThanMobile ? '23%' : '50%'}
 		tooltipHorizontalPosition={$largerThanMobile ? '-25%' : '-55%'}
@@ -22,7 +22,7 @@
 			<input
 				id="tiebreaker-input"
 				type="number"
-				bind:value={tiebreaker}
+				bind:value={scoreGuess}
 				on:input={(e) => changed(e)}
 				placeholder="tiebreaker"
 				min="0"
@@ -43,7 +43,7 @@
 	.tiebreaker-container {
 		position: relative;
 		grid-area: tiebreaker;
-		box-shadow: 0 0 4px 2px var(--accent-color, rgb(233, 181, 99));
+		box-shadow: 0 0 4px 2px var(--accent, hsl(37, 75%, 65%));
 	}
 	input {
 		@include editableInput;

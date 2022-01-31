@@ -144,7 +144,7 @@
 		@include rounded;
 		display: grid;
 		padding: 1rem;
-		border: 2px var(--accent-color, rgb(233, 181, 99)) solid;
+		border: 2px var(--accent, hsl(37, 75%, 65%)) solid;
 		margin: 1rem auto;
 		max-width: max-content;
 	}

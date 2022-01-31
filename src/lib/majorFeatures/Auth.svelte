@@ -85,7 +85,7 @@
 <style lang="scss">
 	button {
 		@include defaultButtonStyles;
-		text-shadow: 1px 1px 5px var(--alternate-color, rgb(36, 50, 36));
+		text-shadow: 1px 1px 5px var(--background, hsl(120, 16%, 17%));
 		font-size: inherit;
 	}
 	img {

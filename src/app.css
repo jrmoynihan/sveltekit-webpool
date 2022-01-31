@@ -1,29 +1,41 @@
 * {
 	margin: 0;
 	padding: 0;
-	box-sizing: border-box;
+	/* box-sizing: border-box; */
 	font-display: swap;
 	font-family: Open Sans;
 }
+html {
+	box-sizing: border-box;
+  }
+  *, *:before, *:after {
+	box-sizing: inherit;
+  }
 
 :root {
-	--heading-color: rgba(0 0 0 70%);
-	--text-color: #444;
-	--background-without-opacity: rgba(255 255 255 70%);
+	/* --heading-color: rgba(0 0 0 70%); */
+	/* --text-color: #444;
+	/* --background-without-opacity: rgba(255 255 255 70%); */ */
+	/* --pre-size: 1rem; */
 	--h1-size: 2.5rem;
 	--h2-size: 1rem;
-	--pre-size: 1rem;
 	--padding-normal: 1rem;
 	--padding-double: calc(var(--padding-normal) * 2);
 	--padding-two-and-a-half: calc(var(--padding-normal) * 2.5);
 	--padding-half-normal: calc(var(--padding-normal) / 2);
 	--font-mono: 'Fira Mono', monospace;
+	
+	/* Z-indexes */
 	--below: -1;
-	--base: 0;
 	--above: 1;
+	--base: 0;
 	--zFixed: calc(var(--above) + var(--base));
 	--zSticky: var(--zFixed);
 	--zModal: calc(var(--above) + var(--zFixed))
+
+	/* Static Colors (won't change between light/dark mode)  */
+	--pick6-selection: hsla(120, 20%, 25%, 0.8);
+	--pick6-selection-value: 120, 20%, 25%;
 }
 
 body {

@@ -3,33 +3,28 @@
 	import Clock from '$lib/components/misc/Clock.svelte';
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
 	import WeekSelect from '$lib/components/selects/WeekSelect.svelte';
-	import ToggleSwitch from '$lib/components/switches/ToggleSwitch.svelte';
-	import { currentUser, userData } from '$scripts/auth/auth';
+	import { currentUser } from '$scripts/auth/auth';
 	import type { WeeklyPickDoc } from '$scripts/classes/picks';
+	import { weeklyPickConverter, weeklyTiebreakerConverter } from '$scripts/converters';
 	import {
-		scheduleCollection,
-		weeklyPicksCollection,
-		weeklyTiebreakersCollection
-	} from '$scripts/collections';
-	import {
-		gameConverter,
-		weeklyPickConverter,
-		weeklyTiebreakerConverter
-	} from '$scripts/converters';
-	import {
+		changeableTiebreakerScoreGuess,
+		currentPicks,
+		gamesPromise,
 		largerThanMobile,
 		overrideDisabled,
+		picksPromise,
 		preferredScoreView,
-		showATSwinner,
-		showIDs,
-		showSpreads,
-		showTimestamps,
+		selectedSeasonType,
+		selectedUser,
+		selectedWeek,
+		selectedYear,
+		tiebreakerPromise,
 		useDarkTheme
 	} from '$scripts/store';
-	import { DocumentReference, getDocs, orderBy, query, updateDoc, where } from 'firebase/firestore';
+	import { DocumentReference, updateDoc } from 'firebase/firestore';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
-	import { getUserId, isBeforeGameTime } from '$scripts/functions';
+	import { isBeforeGameTime } from '$scripts/functions';
 	import {
 		airplaneDeparture,
 		bomb,
@@ -40,52 +35,37 @@
 		myError,
 		myLog,
 		okHand,
-		pick,
-		policeCarLight,
-		seasonTypes
+		policeCarLight
 	} from '$scripts/classes/constants';
 	import { onMount } from 'svelte';
 	import { defaultToast, errorToast, getToast } from '$scripts/toasts';
-	import SeasonTypeSelect from '$lib/components/selects/SeasonTypeSelect.svelte';
-	import YearSelect from '$lib/components/selects/YearSelect.svelte';
 	import TiebreakerInput from '$lib/components/inputs/TiebreakerInput.svelte';
 	import PickCounter from '$lib/components/containers/micro/PickCounter.svelte';
 	import SubmitPicks from '$lib/components/buttons/SubmitPicks.svelte';
-	import type { WeeklyTiebreaker } from '$scripts/classes/tiebreaker';
 	import { fly } from 'svelte/transition';
 	import LoadingSpinner from '$lib/components/misc/LoadingSpinner.svelte';
 	import type { Game } from '$scripts/classes/game';
 	import { findCurrentWeekOfSchedule } from '$scripts/schedule';
 	import { getLocalStorageItem } from '$scripts/localStorage';
-	import UserSelect from '$lib/components/selects/UserSelect.svelte';
-	import type { WebUser } from '$scripts/classes/webUser';
-	import { getWeeklyUsers } from '$scripts/weekly/weeklyUsers';
-	import Fa from 'svelte-fa';
-	import { faLock, faUnlock } from '@fortawesome/free-solid-svg-icons';
+	import { changedQuery, getPicksForUser } from '$scripts/weekly/weeklyUsers';
 	import ErrorModal from '$lib/components/modals/ErrorModal.svelte';
-	import Grid from '$lib/components/containers/Grid.svelte';
-	import AdminControlsModal from '$lib/components/modals/AdminControlsModal.svelte';
 	import { focusTiebreaker } from '$scripts/scrollAndFocus';
-	import type { SeasonType } from '$scripts/classes/seasonType';
 
-	let picksPromise: Promise<WeeklyPickDoc[]>;
-	let tiebreakerPromise: Promise<WeeklyTiebreaker>;
-	let gamesPromise: Promise<Game[]>;
-	let userPromise: Promise<WebUser[]>;
-	let showSubmitPicks = false;
-	let selectedUser: WebUser;
-	let selectedWeek = 3;
-	let selectedYear = new Date().getFullYear();
-	let selectedSeasonType = seasonTypes[1];
-	let currentPicks: WeeklyPickDoc[] = [];
-	let selectedGames: Game[] = [];
+	// let picksPromise: Promise<WeeklyPickDoc[]>;
+	// let tiebreakerPromise: Promise<WeeklyTiebreaker>;
+	// let gamesPromise: Promise<Game[]>;
+	// let userPromise: Promise<WebUser[]>;
+	// let selectedUser: WebUser;
+	// let selectedWeek = 3;
+	// let selectedYear = new Date().getFullYear();
+	// let selectedSeasonType = seasonTypes[1];
+	let showTiebreakerInput = false;
+	let countedGameTimes: { upcomingGamesCount: any; playedGamesCount: any };
 	let currentPickCount = 0;
 	let upcomingGamesCount = 0;
 	let playedGamesCount = 0;
 	let isCorrectCount = 0;
 	let totalGameCount = 16;
-	let tiebreakerDocRef: DocumentReference;
-	let tiebreaker = 0;
 	let gridColumns = 1;
 	let widthMeasure = 85;
 	let offsetRightPercentage = 15;
@@ -113,76 +93,31 @@
 		}
 	});
 	const getData = async () => {
-		selectedWeek = await findCurrentWeekOfSchedule();
-		if ($userData.admin) {
-			userPromise = getWeeklyUsers(false);
-			selectedUser = await userPromise.then((users) => users[0]);
-		}
+		$selectedWeek = await findCurrentWeekOfSchedule();
+		// if ($userData?.admin) {
+		// 	const userPromise = getWeeklyUsers(false);
+		// 	// selectedUser = await userPromise.then((users) => users[0]);
+		// } else {
+		// 	await saveUserData();
+		// 	await getData();
+		// }
 
-		await changedQuery(selectedYear, selectedSeasonType, selectedWeek, $currentUser.uid);
+		const promises = await changedQuery(
+			$selectedYear,
+			$selectedSeasonType,
+			$selectedWeek,
+			$currentUser.uid
+		);
+		$gamesPromise = promises.gamesPromise;
+		$picksPromise = promises.picksPromise;
+		$tiebreakerPromise = promises.tiebreakerPromise;
+		$currentPicks = await $picksPromise;
+		const tiebreakerDoc = await $tiebreakerPromise;
+		$changeableTiebreakerScoreGuess = tiebreakerDoc.scoreGuess;
+		const games = await $gamesPromise;
+		countedGameTimes = await countPlayedOrUpcomingGames(games);
 	};
 
-	const getPicksForUser = async (selectedWeek: number, uid: string) => {
-		try {
-			const picks: WeeklyPickDoc[] = [];
-			myLog(
-				`querying picks for week ${selectedWeek}, ${selectedYear}, ${selectedSeasonType.text}, ${uid}`
-			);
-			const q = query(
-				weeklyPicksCollection,
-				where('year', '==', selectedYear),
-				where('type', '==', selectedSeasonType.text),
-				where('week', '==', selectedWeek),
-				where('uid', '==', uid),
-				orderBy('timestamp'),
-				orderBy('gameId')
-			);
-			const querySnapshot = await getDocs(q.withConverter(weeklyPickConverter));
-			querySnapshot.forEach((doc) => {
-				picks.push(doc.data());
-			});
-			myLog('got picks!', '', pick, picks);
-			return picks;
-		} catch (error) {
-			errorToast(
-				'Unable to get picks. Contact the admin.  You can find more information about the error by pressing Ctrl+Shift+I and then inspecting the error in the Console tab.'
-			);
-			myError('getPicks', error);
-		}
-	};
-
-	const getGames = async (
-		selectedYear: number,
-		selectedSeasonType: SeasonType,
-		selectedWeek: number
-	) => {
-		try {
-			const games: Game[] = [];
-			const q = query(
-				scheduleCollection,
-				where('year', '==', selectedYear),
-				where('type', '==', selectedSeasonType.text),
-				where('week', '==', selectedWeek),
-				orderBy('timestamp')
-			);
-			const querySnapshot = await getDocs(q.withConverter(gameConverter));
-			querySnapshot.forEach((doc) => {
-				games.push(doc.data());
-			});
-
-			myLog('got games!', '', checkmark);
-			selectedGames = games;
-			const countedGameTimes = await countPlayedOrUpcomingGames(games);
-			upcomingGamesCount = countedGameTimes.upcomingGamesCount;
-			playedGamesCount = countedGameTimes.playedGamesCount;
-			return games;
-		} catch (error) {
-			errorToast(
-				'Unable to get games. Contact the admin.  You can find more information about the error by pressing Ctrl+Shift+I and then inspecting the error in the Console tab.'
-			);
-			myError('getGames', error);
-		}
-	};
 	const countPlayedOrUpcomingGames = async (games: Game[]) => {
 		try {
 			// Reset the internal counters
@@ -195,9 +130,11 @@
 				if (ableToPick) {
 					// Increment upcoming games if the game is before its gametime
 					upcomingGamesCount++;
+					game.isBeforeGameTime = true;
 				} else {
 					// Increment [already] played games if the game is after its gametime
 					playedGamesCount++;
+					game.isBeforeGameTime = false;
 				}
 			}
 			upcomingGamesCount > 0 ? myLog(`${upcomingGamesCount} upcoming games`) : null;
@@ -209,40 +146,12 @@
 		}
 	};
 
-	export const getTiebreaker = async (selectedWeek: number, uid: string) => {
-		try {
-			let tiebreakerData: WeeklyTiebreaker;
-			if (!uid) {
-				uid = await getUserId();
-			}
-			const q = query(
-				weeklyTiebreakersCollection,
-				where('year', '==', selectedYear),
-				where('week', '==', selectedWeek),
-				where('uid', '==', uid)
-			);
-			const querySnapshot = await getDocs(q.withConverter(weeklyTiebreakerConverter));
-			querySnapshot.forEach((doc) => {
-				if (doc.exists()) {
-					const data = doc.data();
-					tiebreakerData = data;
-				}
-			});
-			if (tiebreakerData) {
-				tiebreaker = tiebreakerData.tiebreaker;
-				tiebreakerDocRef = tiebreakerData.docRef;
-				return tiebreakerData;
-			} else {
-				tiebreaker = null;
-				tiebreakerDocRef = null;
-			}
-		} catch (error) {
-			errorToast('Error encountered while getting tiebreaker. See console log.');
-			myError('getTiebreaker', error);
-		}
-	};
-
-	const submitPicks = async (uid: string) => {
+	const submitPicksAndTiebreaker = async (
+		uid: string,
+		docRef: DocumentReference,
+		scoreGuess: number,
+		currentPicks: WeeklyPickDoc[]
+	): Promise<void> => {
 		try {
 			currentPicks.forEach(async (currentPick) => {
 				const docRef = currentPick.docRef;
@@ -263,9 +172,8 @@
 				}
 			});
 			myLog('updated/submitted picks!', '', okHand, currentPicks);
-			picksPromise = getPicksForUser(selectedWeek, uid);
-
-			await updateTiebreakerDoc(tiebreakerDocRef, uid, tiebreaker, selectedWeek, selectedYear);
+			$picksPromise = getPicksForUser($selectedWeek, uid, $selectedYear, $selectedSeasonType);
+			await updateTiebreakerDoc(docRef, uid, scoreGuess, $selectedWeek, $selectedYear);
 
 			defaultToast({
 				title: `${checkmark} Picks submitted!`,
@@ -280,20 +188,20 @@
 	const updateTiebreakerDoc = async (
 		tiebreakerDocRef: DocumentReference,
 		uid: string,
-		tiebreaker: number,
+		scoreGuess: number,
 		selectedWeek: number,
 		selectedYear: number
 	): Promise<void> => {
 		try {
 			await updateDoc(tiebreakerDocRef.withConverter(weeklyTiebreakerConverter), {
 				docRef: tiebreakerDocRef,
-				tiebreaker: tiebreaker,
+				scoreGuess: scoreGuess,
 				uid: uid,
 				type: 'Regular Season',
 				week: selectedWeek,
 				year: selectedYear
 			});
-			myLog('updated/submitted tiebreaker!', '', okHand, tiebreaker);
+			myLog('updated/submitted tiebreaker!', '', okHand, scoreGuess);
 		} catch (error) {
 			myError(
 				'setTiebreakerDoc',
@@ -307,13 +215,18 @@
 	};
 	const updatePicks = async (
 		games: Game[],
-		currentPicks: WeeklyPickDoc[],
+		picks: WeeklyPickDoc[],
+		showToast: boolean = false,
+		logIcon: string = '',
+		logAndToastMsg: string = '',
+		focusTiebreakerAfterwards: boolean = false,
+		callingFunctionName: string = 'updatePicks',
 		homeOrAway?: HomeOrAway
 	): Promise<WeeklyPickDoc[]> => {
 		try {
-			currentPicks.forEach(async (pickDoc) => {
+			picks.forEach(async (pickDoc) => {
 				const matchingGame = games.find((game) => game.id === pickDoc.gameId);
-				const ableToPick = await isBeforeGameTime(matchingGame.timestamp);
+				const ableToPick = matchingGame.isBeforeGameTime;
 				if (ableToPick || $overrideDisabled) {
 					if (homeOrAway === 'Home') {
 						const homeTeam = matchingGame.homeTeam;
@@ -326,49 +239,53 @@
 					}
 				}
 			});
-			return currentPicks;
+			logAndToastMsg ? myLog(logAndToastMsg, callingFunctionName, logIcon, picks) : null;
+			showToast ? defaultToast({ msg: logAndToastMsg }) : null;
+			focusTiebreakerAfterwards ? focusTiebreaker() : null;
+			return picks;
 		} catch (error) {
-			myError('updatePicks', error);
+			errorToast(
+				'We encountered an error while trying to update your picks.  See the console log.'
+			);
+			myError(`Error in ${callingFunctionName}`, error);
 		}
 	};
-	const resetPicks = async () => {
-		try {
-			await updatePicks(selectedGames, currentPicks);
-			currentPicks = currentPicks;
-			myLog('reset all picks!', null, bomb);
-			focusTiebreaker();
-		} catch (error) {
-			errorToast('Error in resetting picks... see console log.');
-			myError('resetPicks', error);
-		}
+	const resetPicks = async (games: Game[], picks: WeeklyPickDoc[]) => {
+		picks = await updatePicks(games, picks, false, bomb, 'Reset all picks!', false, 'resetPicks');
+		return picks;
 	};
 
-	const pickAllHome = async () => {
-		try {
-			currentPicks = await updatePicks(selectedGames, currentPicks, HomeOrAway.Home);
-			// currentPicks = currentPicks;
-			myLog('picked all home teams!', '', home);
-			focusTiebreaker();
-		} catch (error) {
-			errorToast('Error in picking home teams... see console log.');
-			myError('pickAllHome', error);
-		}
+	const pickAllHome = async (games: Game[], picks: WeeklyPickDoc[]) => {
+		picks = await updatePicks(
+			games,
+			picks,
+			false,
+			home,
+			'Picked all home teams!',
+			true,
+			'pickAllHome',
+			HomeOrAway.Home
+		);
+		return picks;
 	};
-	const pickAllAway = async () => {
-		try {
-			currentPicks = await updatePicks(selectedGames, currentPicks, HomeOrAway.Away);
-			// currentPicks = currentPicks;
-			myLog('picks all away teams!', '', airplaneDeparture);
-			focusTiebreaker();
-		} catch (error) {
-			errorToast('Error in picking away teams... see console log.');
-			myError('pickAllAway', error);
-		}
+	const pickAllAway = async (games: Game[], picks: WeeklyPickDoc[]) => {
+		picks = await updatePicks(
+			games,
+			picks,
+			false,
+			airplaneDeparture,
+			'Picked all away teams!',
+			true,
+			'pickAllAway',
+			HomeOrAway.Away
+		);
+		return picks;
 	};
-	const pickAllFavored = async () => {
+
+	const pickAllFavored = async (games: Game[], picks: WeeklyPickDoc[]) => {
 		try {
 			let spreadsMissing = false;
-			const favored = selectedGames.map((game) => {
+			const favored = games.map((game) => {
 				if (game.spread < 0) {
 					return game.homeTeam;
 				} else if (game.spread > 0) {
@@ -387,8 +304,9 @@
 				});
 				return;
 			}
-			currentPicks.forEach(async (pickDoc, i) => {
+			picks.forEach(async (pickDoc, i) => {
 				const ableToPick = await isBeforeGameTime(pickDoc.timestamp);
+				pickDoc.isBeforeGameTime = ableToPick;
 				if (ableToPick || $overrideDisabled) {
 					if (favored[i] !== null && favored[i] !== undefined) {
 						pickDoc.pick = favored[i].abbreviation;
@@ -398,17 +316,17 @@
 				}
 			});
 			myLog('picked favored teams!', '', okHand);
-			currentPicks = currentPicks;
 			focusTiebreaker();
+			return picks;
 		} catch (error) {
 			errorToast('Error in picking favored teams... see console log.');
 			myError('pickAllFavored', error);
 		}
 	};
-	const pickAllDogs = async () => {
+	const pickAllDogs = async (games: Game[], picks: WeeklyPickDoc[]) => {
 		try {
 			let spreadsMissing = false;
-			const underdogs = selectedGames.map((game) => {
+			const underdogs = games.map((game) => {
 				if (game.spread < 0) {
 					return game.awayTeam;
 				} else if (game.spread > 0) {
@@ -427,8 +345,9 @@
 				});
 				return;
 			}
-			currentPicks.forEach(async (pickDoc, i) => {
+			picks.forEach(async (pickDoc, i) => {
 				const ableToPick = await isBeforeGameTime(pickDoc.timestamp);
+				pickDoc.isBeforeGameTime = ableToPick;
 				if (ableToPick || $overrideDisabled) {
 					if (underdogs[i] !== null && underdogs[i] !== undefined) {
 						pickDoc.pick = underdogs[i].abbreviation;
@@ -438,29 +357,14 @@
 				}
 			});
 			myLog('picked all underdogs!', '', dogFace);
-			currentPicks = currentPicks;
 			focusTiebreaker();
+			return picks;
 		} catch (error) {
 			errorToast('Error in picking underdog teams... see console log.');
 			myError('pickAllDogs', error);
 		}
 	};
 
-	const changedQuery = async (
-		selectedYear: number,
-		selectedSeasonType: SeasonType,
-		selectedWeek: number,
-		uid: string
-	) => {
-		try {
-			gamesPromise = getGames(selectedYear, selectedSeasonType, selectedWeek);
-			picksPromise = getPicksForUser(selectedWeek, uid);
-			tiebreakerPromise = getTiebreaker(selectedWeek, uid);
-		} catch (error) {
-			errorToast(`Error in changing query... ${error}`);
-			myError('changedQuery', error);
-		}
-	};
 	const isATSwinner = (pickDoc: WeeklyPickDoc, game: Game): boolean => {
 		// console.log(`game: ${game.name} (${game.id})`);
 		if (pickDoc.pick === '') {
@@ -478,9 +382,25 @@
 		}
 	};
 
+	const selectorsUpdated = async () => {
+		const promises = changedQuery(
+			$selectedYear,
+			$selectedSeasonType,
+			$selectedWeek,
+			$selectedUser.uid
+		);
+		$gamesPromise = (await promises).gamesPromise;
+		$picksPromise = (await promises).picksPromise;
+		$tiebreakerPromise = (await promises).tiebreakerPromise;
+		$currentPicks = await $picksPromise;
+	};
+
+	const getYardLine = (index: number) => {
+		return Math.floor((index + 2) / 2) * 10;
+	};
+
 	$: {
 		if (currentPickCount >= 0 && totalGameCount > 0) {
-			currentPickCount = currentPicks.filter((pick) => pick.pick !== '').length;
 			if (upcomingGamesCount + playedGamesCount === totalGameCount) {
 				$progress = currentPickCount / totalGameCount;
 			} else if (upcomingGamesCount > 0) {
@@ -488,72 +408,18 @@
 			}
 		}
 	}
-	const updateCurrentPicks = async (picksPromise: Promise<WeeklyPickDoc[]>) => {
-		if (picksPromise) {
-			currentPicks = await picksPromise;
-		}
-	};
-	$: updateCurrentPicks(picksPromise);
-	$: totalGameCount = currentPicks ? currentPicks.length : 0;
-	$: isCorrectCount = currentPicks
-		? currentPicks.filter((pick) => pick.isCorrect === true).length
-		: 0;
-	$: showSubmitPicks = currentPickCount >= upcomingGamesCount;
+
+	$: totalGameCount = $currentPicks?.length;
+	$: currentPickCount = $currentPicks?.filter((pick) => pick.pick !== '').length;
+	$: isCorrectCount = $currentPicks?.filter((pick) => pick.isCorrect === true).length;
+	$: upcomingGamesCount = countedGameTimes?.upcomingGamesCount;
+	$: playedGamesCount = countedGameTimes?.playedGamesCount;
+	$: showTiebreakerInput =
+		currentPickCount >= playedGamesCount + upcomingGamesCount && upcomingGamesCount !== 0;
 </script>
 
 <PageTitle>Make Weekly Picks</PageTitle>
-<!-- <DevNotes>
-	current: {currentPickCount}
-	played: {playedGamesCount}
-	upcoming: {upcomingGamesCount}
-	showSubmitPicks: {showSubmitPicks}
-</DevNotes> -->
-<span class="flyout">
-	<AdminControlsModal
-		modalButtonStyles={`border-radius: 0 1rem 1rem 0; padding-left:3rem;`}
-		modalButtonHoverStyles={[
-			{ property: 'padding-left', value: '1.5rem' },
-			{ property: 'padding-right', value: '1.5rem' }
-		]}
-	>
-		<Grid slot="modal-content" repeat={2}>
-			<p>Show Game IDs</p>
-			<ToggleSwitch bind:checked={$showIDs} />
-			<p>Show Timestamps</p>
-			<ToggleSwitch bind:checked={$showTimestamps} />
-			<p>Show Spreads</p>
-			<ToggleSwitch bind:checked={$showSpreads} />
-			<p>Show ATS Winner</p>
-			<ToggleSwitch bind:checked={$showATSwinner} />
-
-			<p>Override Locked Games <Fa icon={$overrideDisabled ? faUnlock : faLock} /></p>
-			<ToggleSwitch bind:checked={$overrideDisabled} />
-			<p>Select Season Type</p>
-			<SeasonTypeSelect
-				bind:selectedSeasonType
-				on:seasonTypeChanged={() =>
-					changedQuery(selectedYear, selectedSeasonType, selectedWeek, selectedUser.uid)}
-			/>
-			<p>Select Year</p>
-			<YearSelect
-				bind:selectedYear
-				on:yearChanged={() =>
-					changedQuery(selectedYear, selectedSeasonType, selectedWeek, selectedUser.uid)}
-			/>
-			{#await userPromise}
-				Loading Users...
-			{:then}
-				<p>Select User</p>
-				<UserSelect
-					bind:selectedUser
-					bind:userPromise
-					on:userChanged={() =>
-						changedQuery(selectedYear, selectedSeasonType, selectedWeek, selectedUser.uid)}
-				/>
-			{/await}
-		</Grid>
-	</AdminControlsModal>
-</span>
+<!-- played:{playedGamesCount} upcoming:{upcomingGamesCount} total:{totalGameCount} current:{currentPickCount} -->
 <section class="grid positioning">
 	<div class="pick-status fixed grid {$largerThanMobile ? 'bottom-left' : 'bottom-right'}">
 		{#if $largerThanMobile}
@@ -562,31 +428,42 @@
 		{#if currentPickCount >= 0 && totalGameCount > 0}
 			{#key currentPickCount}
 				<PickCounter
-					invisible={tiebreaker >= 10 && showSubmitPicks}
-					bind:currentPicks
+					invisible={$changeableTiebreakerScoreGuess >= 10 && showTiebreakerInput}
+					bind:currentPicks={$currentPicks}
 					bind:currentPickCount
 					bind:totalGameCount
 					bind:upcomingGamesCount
 				/>
 			{/key}
-			{#if (showSubmitPicks && upcomingGamesCount !== 0) || $overrideDisabled}
+			{#await $tiebreakerPromise then { docRef, scoreGuess }}
 				<SubmitPicks
-					on:click={() => submitPicks(selectedUser.uid)}
-					ableToTab={tiebreaker >= 10 ? 0 : -1}
-					pulse={tiebreaker >= 10}
-					invisible={tiebreaker < 10 || tiebreaker === undefined}
+					on:click={() =>
+						submitPicksAndTiebreaker(
+							$selectedUser.uid,
+							docRef,
+							$changeableTiebreakerScoreGuess,
+							$currentPicks
+						)}
+					on:click={() => console.log(scoreGuess)}
+					ableToTab={$changeableTiebreakerScoreGuess >= 10 ? 0 : -1}
+					pulse={$changeableTiebreakerScoreGuess >= 10}
+					invisible={$changeableTiebreakerScoreGuess < 10 ||
+						$changeableTiebreakerScoreGuess === undefined ||
+						upcomingGamesCount === 0}
 				/>
-				{#await tiebreakerPromise}
-					<span>Loading tiebreaker...</span>
-				{:then}
-					{#if upcomingGamesCount > 0 || $overrideDisabled}
-						<TiebreakerInput bind:tiebreaker />
-					{/if}
-				{/await}
+			{/await}
+			{#if showTiebreakerInput}
+				<TiebreakerInput
+					scoreGuess={$changeableTiebreakerScoreGuess}
+					on:change={(e) => {
+						$changeableTiebreakerScoreGuess = parseInt(e.detail);
+					}}
+				/>
 			{:else if upcomingGamesCount !== 0}
 				<progress value={$progress || 0} />
-			{:else}
-				<div>{isCorrectCount} of {totalGameCount} correct</div>
+			{/if}
+			{#if playedGamesCount > 0}
+				<div class="correct-count">{isCorrectCount} of {totalGameCount} correct</div>
 			{/if}
 		{/if}
 	</div>
@@ -596,32 +473,35 @@
 	>
 		<WeekSelect
 			customStyles="grid-area: week;"
-			bind:selectedWeek
-			bind:selectedSeasonType
-			on:weekChanged={() =>
-				changedQuery(selectedYear, selectedSeasonType, selectedWeek, selectedUser.uid)}
-			on:weekChanged={() =>
-				changedQuery(selectedWeek, selectedSeasonType, selectedWeek, selectedUser.uid)}
-			on:incrementWeek={() =>
-				changedQuery(selectedWeek, selectedSeasonType, selectedWeek, selectedUser.uid)}
-			on:decrementWeek={() =>
-				changedQuery(selectedWeek, selectedSeasonType, selectedWeek, selectedUser.uid)}
+			bind:selectedWeek={$selectedWeek}
+			bind:selectedSeasonType={$selectedSeasonType}
+			on:weekChanged={selectorsUpdated}
+			on:incrementWeek={selectorsUpdated}
+			on:decrementWeek={selectorsUpdated}
 		/>
-		<button
-			style="grid-area:reset;"
-			on:click={resetPicks}
-			class:dark-mode={$useDarkTheme}
-			class="hotkeys">Reset Picks</button
-		>
+		{#await $gamesPromise then games}
+			{#await $picksPromise then picks}
+				<button
+					style="grid-area:reset;"
+					on:click={async () => ($currentPicks = await resetPicks(games, $currentPicks))}
+					class:dark-mode={$useDarkTheme}
+					class="hotkeys">Reset Picks</button
+				>
+			{/await}
+		{/await}
 	</div>
 
 	<!-- prettier-ignore -->
+	{#await $gamesPromise then games}
+	{#await $picksPromise then picks}
 	<div class="second-row grid" style="{$largerThanMobile ? `margin-right:${offsetRightPercentage}%;`:''}">
-		<button on:click={pickAllAway} class:dark-mode={$useDarkTheme} class="hotkeys">All Away</button>
-		<button on:click={pickAllFavored} class:dark-mode={$useDarkTheme} class="hotkeys">All Favored</button>
-		<button on:click={pickAllDogs} class:dark-mode={$useDarkTheme} class="hotkeys">All Underdogs</button>
-		<button on:click={pickAllHome} class:dark-mode={$useDarkTheme} class="hotkeys">All Home</button>
+		<button on:click={async ()=> $currentPicks = await pickAllAway(games,picks)} class:dark-mode={$useDarkTheme} class="hotkeys">All Away</button>
+		<button on:click={async ()=> $currentPicks = await pickAllFavored(games,picks)} class:dark-mode={$useDarkTheme} class="hotkeys">All Favored</button>
+		<button on:click={async ()=> $currentPicks = await pickAllDogs(games,picks)} class:dark-mode={$useDarkTheme} class="hotkeys">All Underdogs</button>
+		<button on:click={async ()=> $currentPicks = await pickAllHome(games,picks)} class:dark-mode={$useDarkTheme} class="hotkeys">All Home</button>
 	</div>
+	{/await}
+	{/await}
 
 	<div
 		class="grid weekGames"
@@ -629,17 +509,23 @@
 			? `width:${widthMeasure}%; margin-right:${offsetRightPercentage}%;`
 			: ''} grid-template-columns:repeat({gridColumns},1fr)"
 	>
-		{#await picksPromise}
+		{#await $picksPromise}
 			<LoadingSpinner msg="Loading picks..." width="100%" />
-		{:then}
-			{#each currentPicks as pickDoc, i (pickDoc.gameId)}
-				{#await gamesPromise}
+		{:then picks}
+			{#each $currentPicks as pickDoc, i (pickDoc.gameId)}
+				{#await $gamesPromise}
 					<LoadingSpinner msg="Loading games..." width="100%" />
 				{:then games}
-					{#each games as game (game.id)}
+					{#each games as game, i (game.id)}
 						{#if pickDoc.gameId === game.id}
 							<div
 								class="game-container"
+								class:showYard={$largerThanMobile}
+								class:rightYard={i % 2 !== 0 && $largerThanMobile}
+								class:leftYard={i % 2 === 0 && $largerThanMobile}
+								style="--yard:'{getYardLine(i) > 50
+									? ((getYardLine(i) - 100) * -1).toString()
+									: getYardLine(i).toString()}';"
 								in:fly={{ x: -100, duration: 300, delay: 0 }}
 								out:fly={{ x: 100, duration: 300 }}
 								class:winner={game.ATSwinner === pickDoc.pick && game.ATSwinner !== ''}
@@ -648,9 +534,10 @@
 							>
 								<MatchupContainer
 									bind:selectedTeam={pickDoc.pick}
-									bind:currentPicks
+									bind:currentPicks={$currentPicks}
+									bind:beforeGameTime={game.isBeforeGameTime}
 									{gridColumns}
-									{selectedWeek}
+									selectedWeek={$selectedWeek}
 									id={game.id}
 									index={i}
 									spread={game.spread}
@@ -665,20 +552,23 @@
 						{/if}
 					{/each}
 				{:catch}
-					<ErrorModal>
-						<svelte:fragment slot="modal-content">
-							Error in loading games documents.
-						</svelte:fragment>
-					</ErrorModal>
+					<ErrorModal error={'Error in loading games documents.'} />
 				{/await}
 			{/each}
 		{:catch}
-			<ErrorModal>
-				<svelte:fragment slot="modal-content">Error in loading picks documents.</svelte:fragment>
-			</ErrorModal>
+			<ErrorModal error={'Error in loading picks documents.'} />
 		{/await}
 	</div>
 </section>
+
+<svelte:head>
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="true" />
+	<link
+		href="https://fonts.googleapis.com/css2?family=Imbue:wght@900&family=Rozha+One&display=swap"
+		rel="stylesheet"
+	/>
+</svelte:head>
 
 <style lang="scss">
 	.grid {
@@ -703,14 +593,58 @@
 	}
 	.game-container {
 		@include defaultContainerStyles;
-		/* background-color: black(30%); // for use with background images */
-		box-shadow: 0px 0px 15px 0px rgba(var(--mainValue-color, rgb(255, 255, 255)), 0.5);
+		position: relative; // for the pseudo-element absolute positioning below
 		cursor: initial;
 		width: 100%;
 		height: 100%;
-		outline: 1px solid;
+		background-color: hsla(120 20% 100% / 100%);
 		&.dark {
-			background-color: hsla(120, 20%, 25%, 80%);
+			background-color: hsla(120 20% 25% / 100%);
+		}
+		&.showYard {
+			&::before,
+			&::after {
+				display: inline-grid;
+				position: absolute;
+				z-index: var(--below);
+			}
+			&::before {
+				content: var(--yard);
+				top: -24.5%; // -19.7%;
+				// width: 140%; // 127%;
+				height: 0;
+				// transform: translate3d(-50%, 0, 0);
+				font-size: 7em; // 4.5em;
+				font-weight: bold;
+				font-family: 'Rozha One', 'Imbue', 'Open Sans', sans-serif;
+				color: hsla(var(--text-value, white), 10%);
+				align-content: start;
+			}
+			&::after {
+				content: '';
+				top: -2.6%;
+				height: 2px;
+				background: hsla(var(--text-value, white), 10%);
+			}
+			&.rightYard::after {
+				transform: translate3d(-48.7%, 0, 0);
+				width: 105%;
+			}
+			&.leftYard::after {
+				transform: translate3d(-51.7%, 0, 0);
+				width: 105%;
+			}
+			&.rightYard::before {
+				text-align: left;
+				writing-mode: vertical-lr;
+				transform: translate3d(200%, 0, 0);
+			}
+			&.leftYard::before {
+				text-align: right;
+				writing-mode: vertical-rl;
+				rotate: 180deg;
+				transform: translate3d(300%, -7.5rem, 0);
+			}
 		}
 	}
 	.weekGames {
@@ -730,9 +664,6 @@
 		grid-template-rows: auto;
 		grid-template-columns: repeat(auto-fit, minmax(1fr, max-content));
 		grid-template-areas: 'scoreView scoreView' 'week reset';
-		// @include responsive_desktop_only {
-		// 	grid-template-areas: 'week reset' 'admin scoreView';
-		// }
 	}
 	.second-row {
 		gap: 0.5em;
@@ -748,35 +679,39 @@
 		text-shadow: none;
 	}
 	.fixed {
-		background-color: var(--alternate-color, rgb(36, 50, 36));
+		background-color: hsla(var(--alternate-value, hsl(120, 16%, 17%)), 80%);
 		position: fixed;
 		z-index: 20;
 		font-weight: bold;
+		backdrop-filter: blur(2px);
 	}
 	.bottom-left {
+		box-sizing: border-box;
 		bottom: 0;
 		left: 0;
 		border-radius: 0 1rem 1rem 0;
 		grid-template-rows: repeat(3, auto);
 		max-width: 15%;
-		grid-template-areas: 'clock ' 'pickCount' 'tiebreaker';
+		grid-template-areas: 'clock ' 'pickCount' 'tiebreaker' 'correct';
+		width: 15%;
 		justify-items: center;
 		padding: 1rem 0.5rem;
 	}
 	.bottom-right {
+		box-sizing: border-box;
 		bottom: 0;
 		right: 0;
 		gap: 1rem;
-		border-top: var(--accent-color) 2px inset;
+		border-top: var(--accent) 2px inset;
 		width: 100%;
-		grid-template-areas: 'pickCount tiebreaker';
-		grid-template-columns: 1fr 1fr;
+		grid-template-areas: 'pickCount correct tiebreaker';
+		grid-template-columns: repeat(auto-fit, minmax(1fr, max-content));
 		padding: 0.5rem;
 	}
 	progress {
 		grid-area: tiebreaker;
 		min-height: 2.6rem;
-		accent-color: var(--accent-color, rgb(233, 181, 99));
+		accent-color: var(--accent, hsl(37, 75%, 65%));
 	}
 
 	.hotkeys {
@@ -786,25 +721,15 @@
 		}
 	}
 	.winner {
-		background-color: rgba(darkgreen, 20%);
+		background-color: hsl(120, 24%, 84%);
 		&.dark {
-			background-color: rgba(darkgreen, 10%);
+			background-color: hsl(120, 26%, 17%);
 		}
 	}
 	.loser {
-		background-color: rgba(darkred, 10%);
+		background-color: hsl(0, 37%, 85%);
 		&.dark {
-			background-color: rgba(darkred, 20%);
-		}
-	}
-	.flyout {
-		@include defaultTransition;
-		border-radius: 0 1rem 1rem 0;
-		position: fixed;
-		left: 0%;
-		transform: translateX(-55%);
-		&:hover {
-			transform: translateX(-1%);
+			background-color: hsl(24, 33%, 17%);
 		}
 	}
 </style>

@@ -14,6 +14,6 @@
 		padding: 1rem;
 	}
 	.highlight {
-		text-shadow: 0 0 10px var(--accent-color, rgb(233, 181, 99));
+		text-shadow: 0 0 10px var(--accent, hsl(37, 75%, 65%));
 	}
 </style>

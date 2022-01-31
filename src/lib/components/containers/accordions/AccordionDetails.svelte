@@ -197,7 +197,7 @@
 		@include accelerate;
 		@include thinnestBorder;
 		@include noOutline;
-		color: var(--main-color);
+		color: var(--text);
 		&:hover,
 		&:focus-within {
 			@include dayShadow;
@@ -211,7 +211,6 @@
 		@include normalShadow;
 
 		&[open] {
-			// box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.137);
 			& summary ~ * {
 				@include accelerate;
 				animation: sweep 0.5s ease-in-out;
@@ -237,7 +236,7 @@
 		justify-content: center;
 		position: sticky;
 		top: 0;
-		background: rgb(255 255 255);
+		background: white;
 		z-index: 1;
 		&::marker,
 		&::-webkit-details-marker {

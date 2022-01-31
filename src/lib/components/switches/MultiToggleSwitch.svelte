@@ -176,7 +176,7 @@
 	}
 	.connector {
 		@include defaultPseudoElement;
-		background: rgba(0, 0, 0, 20%);
+		background: hsla(0, 0%, 0%, 0.2);
 		z-index: var(--below);
 		height: 10%;
 		width: 80%;
@@ -193,9 +193,9 @@
 		box-shadow: none;
 		border-radius: 1rem;
 		padding: 0.5rem;
-		background: rgba(var(--alternateValue-color, transparent));
+		background: hsla(var(--alternate-value, transparent));
 		&:not(.selected) {
-			box-shadow: 0 0 1px 2px rgba(var(--mainValue-color) / 40%);
+			box-shadow: 0 0 1px 2px hsla(var(--text-value), 40%);
 		}
 	}
 
@@ -212,7 +212,7 @@
 		border-radius: var(--spanBorderRadius);
 		z-index: var(--spanZ);
 		color: white;
-		background: var(--accent-color);
+		background: var(--accent);
 		pointer-events: none;
 	}
 	p {
@@ -221,7 +221,7 @@
 	}
 	.selected {
 		@include accentedContainer(100%);
-		color: var(--alternate-color);
+		color: var(--background);
 	}
 	.adminOnly {
 		@include admin;

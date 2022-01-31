@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { HomeOrAway } from '$scripts/classes/constants';
-
 	import type { ESPNScore } from '$scripts/classes/game';
 	import type { Team } from '$scripts/classes/team';
 
@@ -52,10 +51,9 @@
 		font-weight: bold;
 	}
 	.higherATSscore {
-		// border-radius: 100%;
-		// outline: 2px solid;
-		border-radius: var(--topLeft) var(--topRight) / var(--bottomRight) var(--bottomLeft);
-		border: dashed;
-		overflow: hidden;
+		border-radius: 100%;
+		border: 2px solid hsla(var(--accent-value, black), 50%);
+		// border-radius: var(--topLeft) var(--topRight) / var(--bottomRight) var(--bottomLeft);
+		// border: dashed;
 	}
 </style>

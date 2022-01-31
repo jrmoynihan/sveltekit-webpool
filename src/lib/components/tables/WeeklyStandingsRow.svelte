@@ -52,10 +52,10 @@
 		{/if}
 	</svelte:fragment>
 	<RowData slot="content" {evenRow} {inTheMoney}>
-		{#if tiebreaker.tiebreaker === null}
+		{#if tiebreaker.scoreGuess === null}
 			-
 		{:else}
-			{tiebreaker.tiebreaker}
+			{tiebreaker.scoreGuess}
 		{/if}
 		{#if showNetTiebreakers}
 			({player.weeklyPickRecord[`week_${selectedWeek}`].netTiebreaker})

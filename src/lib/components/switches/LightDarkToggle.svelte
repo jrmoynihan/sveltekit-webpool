@@ -16,11 +16,11 @@
 
 <style lang="scss">
 	.switch {
-		--line: var(--main-color, rgb(255, 255, 255));
-		--dot: #000;
-		--circle: #f7f8ff; //#9EA0BE
+		--line: var(--text, white);
+		--dot: hsl(0, 0%, 0%);
+		--circle: hsl(233, 100%, 98%); //#9EA0BE
 		--duration: 0.3s;
-		--text: #9ea0be;
+		--text: hsl(236, 20%, 68%);
 		cursor: pointer;
 		outline: none;
 		padding: 0.5rem;

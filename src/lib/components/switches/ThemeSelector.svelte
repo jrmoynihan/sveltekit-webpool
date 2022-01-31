@@ -29,23 +29,20 @@
 	];
 
 	export let lightThemeColors = {
-		main: 'rgb(0 0 0)',
-		alternate: 'rgb(255 255 255)',
-		// accent: 'rgb(99,144,233)'
-		accent: 'rgb(36 50 36)',
+		text: 'hsla(0, 0%, 0%, 1)', // main/text color
+		background: 'hsla(0, 0%, 100%, 1)', // background/alternate color
+		accent: 'hsla(120, 16.3%, 16.9%, 1)',
 		admin: 'hsl(220 100% 35%)',
 		adminBorder: 'hsl(220 100% 35%)',
 		adminBackground: 'hsl(220 40% 85%)'
 	};
 	export let darkThemeColors = {
-		main: 'rgb(255 255 255)',
-		// alternate: 'rgb(22, 29, 45)',
-		alternate: 'rgb(36 50 36)',
-		// accent: 'rgb(99, 144, 233)'
-		accent: 'rgb(233 181 99)',
-		admin: 'hsl(220 100% 35%)',
-		adminBorder: 'hsl(220 100% 35%)',
-		adminBackground: 'hsl(220 40% 80%)'
+		text: 'hsla(0, 0%, 100%, 1)', // main/text color
+		background: 'hsla(120, 16.3%, 16.9%, 1)', // background/alternate color
+		accent: 'hsla(36.7, 75.3%, 65.1%, 1)',
+		admin: 'hsla(220, 100%, 35%, 1)',
+		adminBorder: 'hsla(220, 100%, 35%, 1)',
+		adminBackground: 'hsla(220, 40%, 80%, 1)'
 	};
 	export let colors = { ...darkThemeColors };
 
@@ -59,37 +56,42 @@
 		for (const key of Object.keys(colors)) {
 			const color = colors[key];
 			if (browser) {
-				// Set a CSS custom property name and value for each theme array member; e.g. `--main-color: rgb(0,0,0)`
-				root.style.setProperty(`--${key}-color`, color);
+				// Set a CSS custom property name and value for each theme array member; e.g. `--text: hsl(0,0,0)`
+				root.style.setProperty(`--${key}`, color);
 
-				// A regular expression to find elements within parentheses
+				const inverted = key.includes('Inverted');
+				const value = key.includes('Value');
+				const gutter = key.includes('Gutter');
+				const fade = key.includes('Fade');
+
+				// Set derived colors
+				if (inverted && value) {
+					root.style.setProperty(`--${key.split('Inverted')[0]}-inverted-value`, color);
+					// } else if (value) {
+					// root.style.setProperty(`--${key.split('Value')[0]}-value`, color);
+				} else if (inverted) {
+					root.style.setProperty(`--${key.split('Inverted')[0]}-inverted`, color);
+				} else if (gutter) {
+					root.style.setProperty(`--${key.split('Gutter')[0]}-gutter`, color);
+				} else if (fade) {
+					root.style.setProperty(`--${key.split('Fade')[0]}-fade`, color);
+				}
+				// // A regular expression to find elements within parentheses
 				const regExp = /\(([^)]+)\)/;
-
 				// RegExp search returns an arrau of 3 elements:
 				// 0) everything to the left parentheses (including the parentheses), 1) everything in between parentheses, 2) everything to the right of the parentheses (including the parentheses)
 				const matches = regExp.exec(color);
-				if (matches) {
-					root.style.setProperty(`--${key}Value-color`, matches[1]);
-				} else {
-					const rgbColor = hexToRgb(color);
-					const rgbString = `${rgbColor.r},${rgbColor.g},${rgbColor.b}`;
-					root.style.setProperty(`--${key}Value-color`, rgbString);
+				if (matches?.length > 0) {
+					const [h, s, l, a] = matches[1].split(',');
+					const hsl = `${h}, ${s}, ${l}`;
+					root.style.setProperty(`--${key}-value`, hsl);
+					root.style.setProperty(`--${key}-hue`, `${h}`);
+					root.style.setProperty(`--${key}-saturation`, `${s}`);
+					root.style.setProperty(`--${key}-lightness`, `${l}`);
 				}
 			}
 		}
 	};
-
-	// Converts hex color values from the default color picker to RGB for easier use
-	function hexToRgb(hex: string): { r: number; g: number; b: number } {
-		var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-		return result
-			? {
-					r: parseInt(result[1], 16),
-					g: parseInt(result[2], 16),
-					b: parseInt(result[3], 16)
-			  }
-			: null;
-	}
 
 	// Resets both the CSS custom properties and the internal state of these theme objects to their defaults
 	const resetCSSvariable = (colorName: string) => {
@@ -138,7 +140,7 @@
 		display: grid;
 		position: relative;
 		width: max-content;
-		color: var(--main-color, rgb(255, 255, 255));
+		color: var(--text, white);
 	}
 	.container {
 		display: grid;

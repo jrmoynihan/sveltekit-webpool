@@ -16,7 +16,7 @@ import { capitalizeWord } from '$scripts/functions';
 
 export const userNotFound = writable(false);
 
-if (browser) {
+const obtainUserDocOnRedirect = async (): Promise<void> => {
 	try {
 		const credential = await getRedirectResult(firestoreAuth, browserPopupRedirectResolver);
 		if (credential) {
@@ -49,7 +49,9 @@ if (browser) {
 			}
 		}
 	}
-}
+};
+
+browser ? obtainUserDocOnRedirect() : null;
 
 /**
  * Looks up the current Auth user, then tries to query for their user document from Firebase.

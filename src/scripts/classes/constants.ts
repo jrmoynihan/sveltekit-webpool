@@ -29,6 +29,9 @@ export const hostingCost = 50;
 export const firstPlaceWeeklySeasonPercent = 0.5;
 export const secondPlaceWeeklySeasonPercent = 0.3;
 export const thirdPlaceWeeklySeasonPercent = 0.2;
+export const firstPlaceWeeklyAmount = 50;
+export const secondPlaceWeeklyAmount = 25;
+export const thirdPlaceWeeklyAmount = 15;
 export const seasonTypes: SeasonType[] = [
 	{ id: 1, text: 'Pre-Season' },
 	{ id: 2, text: 'Regular Season' }
@@ -53,6 +56,7 @@ export const stopSign = String.fromCodePoint(0x1f6d1);
 export const bread = String.fromCodePoint(0x1f35e);
 export const bomb = String.fromCodePoint(0x1f4a3);
 export const detective = String.fromCodePoint(0x1f575);
+export const necktie = String.fromCodePoint(0x1f454);
 // console.log(bread)
 
 export const defaultConsoleLogStyle = [

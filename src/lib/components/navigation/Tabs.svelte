@@ -51,13 +51,12 @@
 	}
 	label {
 		align-items: center;
-		box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.3);
+		box-shadow: 0 0 2px 2px hsla(0, 0%, 0%, 0.3);
 		cursor: pointer;
 		display: grid;
 		font-weight: bold;
 		padding: 1rem;
 		height: 100%;
-		// background: radial-gradient(var(--alternate-color) 30%, transparent);
 	}
 	.tab-header {
 		@include rounded;
@@ -81,7 +80,7 @@
 		display: none;
 		&:checked + label {
 			&.light {
-				@include active($color: var(--alternate-color));
+				@include active($color: var(--background));
 			}
 			&.dark {
 				@include active($backgroundAlpha: 0.4);
@@ -92,7 +91,7 @@
 		border-radius: 1rem;
 		display: grid;
 		align-items: center;
-		box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.3);
+		box-shadow: 0 0 2px 2px hsla(0, 0%, 0%, 0.3);
 		padding: 1rem;
 	}
 </style>

@@ -8,11 +8,11 @@
 	let dateLocaleString = date.toLocaleDateString();
 	let dateLocaleTimeString = date.toLocaleTimeString([], { timeStyle: 'short' });
 	let useShortDate = false;
-	$: useShortDate = $windowWidth < 500;
+	let container: HTMLDivElement;
+	$: useShortDate = $windowWidth < 500 || container?.getBoundingClientRect().width < 75;
 </script>
 
-<!-- {Intl.DateTimeFormat('en-US',{weekday:'long'}).format(timestamp.toDate().getDay())} -->
-<div>
+<div bind:this={container}>
 	{#if useShortDate}
 		<p>{dateLocaleString}</p>
 	{:else}

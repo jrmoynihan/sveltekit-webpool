@@ -43,7 +43,7 @@
 		}
 	}
 	.selected {
-		background: rgba(51 77 51 / 80%);
-		border-color: rgba(51 77 51 / 100%);
+		background: var(--pick6-selection);
+		border-color: hsla(var(--pick6-selection-value), 1);
 	}
 </style>

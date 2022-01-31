@@ -50,7 +50,7 @@
 		// border: 2px white(0.2) solid;
 		& > p {
 			display: inline-grid;
-			color: var(--main-color, rgb(255, 255, 255));
+			color: var(--text, white);
 			position: absolute;
 			width: 100%;
 			align-self: center;
@@ -62,7 +62,7 @@
 		@include accelerate;
 		display: grid;
 		position: relative;
-		background: radial-gradient(#9e704f, saddlebrown);
+		background: radial-gradient(hsl(25, 33%, 46%), hsl(25, 76%, 31%));
 		width: 50px;
 		height: 50px;
 		border: 1px solid black;
@@ -76,31 +76,31 @@
 			left: $middleX;
 			top: $top;
 			transform: rotate(45deg);
-			box-shadow: -10px 10px 5px 0px rgba(0, 0, 0, 0.25);
+			box-shadow: -10px 10px 5px 0px hsla(0, 0%, 0%, 0.25);
 		}
 		25% {
 			left: $right;
 			top: $middleY;
 			transform: rotate(135deg);
-			box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0.25);
+			box-shadow: 10px 10px 5px 0px hsla(0, 0%, 0%, 0.25);
 		}
 		50% {
 			left: $middleX;
 			top: $bottom;
 			transform: rotate(210deg);
-			box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0.25);
+			box-shadow: 10px 10px 5px 0px hsla(0, 0%, 0%, 0.25);
 		}
 		75% {
 			left: $left;
 			top: $middleY;
 			transform: rotate(310deg);
-			box-shadow: -10px -10px 5px 0px rgba(0, 0, 0, 0.25);
+			box-shadow: -10px -10px 5px 0px hsla(0, 0%, 0%, 0.25);
 		}
 		100% {
 			left: $middleX;
 			top: $top;
 			transform: rotate(404deg);
-			box-shadow: -10px 10px 5px 0px rgba(0, 0, 0, 0.25);
+			box-shadow: -10px 10px 5px 0px hsla(0, 0%, 0%, 0.25);
 		}
 	}
 
@@ -119,7 +119,7 @@
 		&::before {
 			content: '';
 			position: absolute;
-			background: rgba(0, 0, 0, 0.5);
+			background: hsla(0, 0%, 0%, 0.5);
 			height: 1px;
 			width: 300%;
 			z-index: -2;

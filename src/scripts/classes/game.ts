@@ -7,18 +7,13 @@ export class Game {
 	competitions: PrunedCompetition[];
 	date: string;
 	id: string;
-	// league: { $ref: string };
-	// links: Record<string, unknown>[];
 	loser: string;
 	name: string;
 	season: { $ref: string };
 	seasonType: { $ref: string };
 	shortName: string;
 	spread: number;
-	// timeValid: boolean;
 	timestamp: Timestamp;
-	// uid: string;
-	// venues: Record<string, unknown>[];
 	year: number;
 	week: number;
 	type: string;
@@ -28,6 +23,7 @@ export class Game {
 	ATSwinner: string;
 	totalScore: number;
 	isLastGameOfWeek: boolean;
+	isBeforeGameTime?: boolean;
 
 	constructor({ ...args }) {
 		// this.docRef = args.docRef;
@@ -51,11 +47,7 @@ export class Game {
 		this.ATSwinner = args.ATSwinner || '';
 		this.totalScore = args.totalScore || null;
 		this.isLastGameOfWeek = args.isLastGameOfWeek || false;
-		// this.uid = args.uid;
-		// this.venues = args.venues;
-		// this.timeValid = args.timeValid;
-		// this.league = args.league;
-		// this.links = args.links;
+		this.isBeforeGameTime = args.isBeforeGameTime || false;
 	}
 }
 export interface ESPNCompetition {

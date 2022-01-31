@@ -72,7 +72,7 @@
 		@include discreetButtonStyles;
 		@include defaultTransition;
 		text-shadow: none;
-		color: var(--main-color);
+		color: var(--text);
 	}
 	.weekSelectors {
 		@include gridAndGap;

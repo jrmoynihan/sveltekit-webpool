@@ -41,7 +41,6 @@
 		max-height: 5rem;
 		&::before {
 			@include defaultPseudoElement;
-			// background: var(--accent-color);
 			z-index: var(--below);
 		}
 		&.dark-mode {

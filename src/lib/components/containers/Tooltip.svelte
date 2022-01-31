@@ -31,25 +31,25 @@
 		& > span.tooltip {
 			@include defaultTransition;
 			@include accelerate;
+			box-sizing: border-box;
 			visibility: hidden;
 			opacity: 0;
 			position: absolute;
 			top: $topTip;
 			width: $widthTip;
 			height: auto;
-			z-index: var(--zModal);
 			left: 50%;
 			font-weight: normal;
 			font-size: 0.8rem;
-			background: var(--alternate-color, rgb(36, 50, 36));
-			box-shadow: 0 0 10px 0px var(--accent-color, rgb(233, 181, 99));
+			background: var(--background, hsl(120, 16%, 17%));
+			box-shadow: 0 0 10px 0px var(--accent, hsl(37, 75%, 65%));
 			border-radius: 0.75rem;
 			padding: 1rem;
 			scale: 0;
 			text-align: center;
 			transform: translateX($leftTip);
 			transform-origin: left;
-			z-index: 10;
+			z-index: var(--zModal, 10);
 		}
 
 		.tooltip-arrow {
@@ -68,17 +68,11 @@
 				position: absolute;
 				width: 25px;
 				height: 25px;
-				background: var(--alternate-color, rgb(36, 50, 36));
+				background: var(--background, hsl(120, 16%, 17%));
 				transform: translateX(-50%) translateY(-50%) rotate(45deg);
 				top: 0;
 				left: 50%;
-				box-shadow: 1px 1px 10px 0px var(--accent-color, rgb(233, 181, 99));
-
-				// border-style: solid;
-				// border-width: 1rem 0.75rem 0 0.75rem;
-				// border-color: transparent;
-				// border-top-color: transparent;
-				// border-top-color: white;
+				box-shadow: 1px 1px 10px 0px var(--accent, hsl(37, 75%, 65%));
 			}
 		}
 		&:hover > span.tooltip,

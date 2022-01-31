@@ -357,7 +357,7 @@
 					<div class="accordionWrapper" transition:slide={slideParameters}>
 						<AccordionDetails
 							showArrow={false}
-							customContentStyles="max-width:50ch;color:var(--main-color);"
+							customContentStyles="max-width:50ch;color:var(--text);"
 							customDetailsStyles="max-width:50ch;transition:background 300ms ease-out;{pool.toggled
 								? `background:olivegreen;color:white;overflow:auto;`
 								: `overflow:auto;`}"
@@ -440,7 +440,6 @@
 	}
 	.icon {
 		display: inline-block;
-		// color: var(--accent-color, rgb(233, 181, 99));
 	}
 	.summary {
 		font-weight: bold;
@@ -456,7 +455,7 @@
 		text-align: start;
 
 		&::marker {
-			color: var(--accent-color, rgb(233, 181, 99));
+			color: var(--accent, hsl(37, 75%, 65%));
 			font-size: 1.2em;
 		}
 	}
@@ -496,7 +495,7 @@
 		@include absolute($right: -2px, $bottom: 0px);
 		width: min-content;
 		height: min-content;
-		color: var(--alternate-color);
+		color: var(--background);
 		padding: 0.5rem;
 	}
 	.price {
@@ -509,7 +508,7 @@
 	}
 	.nicknameEntered {
 		background: inherit;
-		color: var(--main-color);
+		color: var(--text);
 		border: 1px inset;
 		&:hover {
 			cursor: inherit;

@@ -1,12 +1,24 @@
 <script lang="ts">
 	import {
+		currentPicks,
+		gamesPromise,
 		largerThanMobile,
 		navChecked,
+		overrideDisabled,
+		picksPromise,
 		preferredScoreView,
+		selectedSeasonType,
+		selectedUser,
+		selectedWeek,
+		selectedYear,
+		showATSwinner,
 		showIDs,
-		showNetTiebreakers
+		showNetTiebreakers,
+		showSpreads,
+		showTimestamps,
+		tiebreakerPromise
 	} from '$scripts/store';
-	import { faBars, faCog } from '@fortawesome/free-solid-svg-icons';
+	import { faBars, faCog, faLock, faToolbox, faUnlock } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import Auth from '$lib/majorFeatures/Auth.svelte';
 	import ModalButtonAndSlot from '$lib/components/modals/ModalWithButton.svelte';
@@ -21,19 +33,40 @@
 	import { onMount } from 'svelte';
 	import Grid from '$lib/components/containers/Grid.svelte';
 	import ToggleSwitch from '$lib/components/switches/ToggleSwitch.svelte';
+	import AdminControlsModal from '$lib/components/modals/AdminControlsModal.svelte';
+	import SeasonTypeSelect from '$lib/components/selects/SeasonTypeSelect.svelte';
+	import type { WebUser } from '$scripts/classes/webUser';
+	import YearSelect from '$lib/components/selects/YearSelect.svelte';
+	import UserSelect from '$lib/components/selects/UserSelect.svelte';
+	import { changedQuery } from '$scripts/weekly/weeklyUsers';
 
-	function toggleNav(): void {
-		$navChecked = !$navChecked;
-	}
+	let userPromise: Promise<WebUser[]>;
 	let storedScoreViewPreference: ScoreViewPreference;
 	let viewPreferences: { label: string; value: ScoreViewPreference }[] = [
 		{ label: 'Actual', value: 'Actual' },
 		{ label: 'ATS', value: 'ATS' },
 		{ label: 'Both', value: 'Both' }
 	];
+	let adminControlsPages: string[] = ['/weekly/makePicks'];
+
 	onMount(async () => {
 		storedScoreViewPreference = await getLocalStorageItem('scoreViewPreference');
 	});
+	function toggleNav(): void {
+		$navChecked = !$navChecked;
+	}
+	export async function adminSelectorsUpdated() {
+		const promises = changedQuery(
+			$selectedYear,
+			$selectedSeasonType,
+			$selectedWeek,
+			$selectedUser.uid
+		);
+		$gamesPromise = (await promises).gamesPromise;
+		$picksPromise = (await promises).picksPromise;
+		$tiebreakerPromise = (await promises).tiebreakerPromise;
+		$currentPicks = await $picksPromise;
+	}
 </script>
 
 <menu />
@@ -50,11 +83,7 @@
 	{:else}
 		<ModalButtonAndSlot modalButtonStyles={'background:transparent'} discreetButton={true}>
 			<Fa slot="button-icon" icon={faBars} class="fa-bars" size="lg" />
-			<Navigator
-				slot="modal-content"
-				useModal={true}
-				customStyles="background:var(--alternate-color)"
-			>
+			<Navigator slot="modal-content" useModal={true} customStyles="background:var(--background)">
 				<SiteNavOptions />
 			</Navigator>
 		</ModalButtonAndSlot>
@@ -63,6 +92,39 @@
 	<Auth />
 
 	<div class="settings-wrapper">
+		{#if adminControlsPages.includes($page.path)}
+			<AdminControlsModal modalButtonStyles={`border-radius: 1rem; padding: 0.75rem;`}>
+				<Grid slot="modal-content" repeatColumns={2}>
+					{#if $page.path === '/weekly/makePicks'}
+						<p>Show Game IDs</p>
+						<ToggleSwitch bind:checked={$showIDs} />
+						<p>Show Timestamps</p>
+						<ToggleSwitch bind:checked={$showTimestamps} />
+						<p>Show Spreads</p>
+						<ToggleSwitch bind:checked={$showSpreads} />
+						<p>Show ATS Winner</p>
+						<ToggleSwitch bind:checked={$showATSwinner} />
+
+						<p>Override Locked Games <Fa icon={$overrideDisabled ? faUnlock : faLock} /></p>
+						<ToggleSwitch bind:checked={$overrideDisabled} />
+						<p>Select Season Type</p>
+						<SeasonTypeSelect
+							bind:selectedSeasonType={$selectedSeasonType}
+							on:seasonTypeChanged={adminSelectorsUpdated}
+						/>
+						<p>Select Year</p>
+						<YearSelect bind:selectedYear={$selectedYear} on:yearChanged={adminSelectorsUpdated} />
+						<p>Select User</p>
+						<UserSelect
+							bind:selectedUser={$selectedUser}
+							bind:userPromise
+							on:userChanged={adminSelectorsUpdated}
+						/>
+					{/if}
+				</Grid>
+			</AdminControlsModal>
+		{/if}
+
 		<LightDarkToggle />
 
 		<ModalButtonAndSlot discreetButton={true} modalButtonStyles={'background:transparent;'}>
@@ -93,7 +155,7 @@
 						</select>
 					</label>
 				{:else if $page.path === '/weekly/standings'}
-					<Grid slot="modal-content" repeat={2}>
+					<Grid slot="modal-content" repeatColumns={2}>
 						<span>Show Net Tiebreakers</span>
 						<ToggleSwitch adminOnly={true} bind:checked={$showNetTiebreakers} />
 						<span>Show UIDs</span>
@@ -119,7 +181,7 @@
 		right: 0;
 		z-index: var(--zSticky);
 		transition: all 200ms ease-in-out;
-		color: var(--alternate-color, rgb(36, 50, 36));
+		color: var(--background, hsl(120, 16%, 17%));
 		text-align: center;
 		justify-items: center;
 		justify-content: center;
@@ -130,8 +192,8 @@
 		max-height: 100vh;
 		grid-template-columns: repeat(2, min-content) 1fr;
 		background: linear-gradient(
-			rgba(var(--alternateValue-color, rgb(36, 50, 36)), 90%) 90%,
-			rgba(var(--alternateValue-color, rgb(36, 50, 36)), 50%) 95%,
+			hsla(var(--alternate-value, hsl(120, 16%, 17%)), 90%) 90%,
+			hsla(var(--alternate-value, hsl(120, 16%, 17%)), 50%) 95%,
 			transparent 99%
 		);
 		@include responsive_mobile_only {
@@ -147,23 +209,18 @@
 			font-size: 0.75rem;
 		}
 	}
-	// #nav-toggle {
-	// 	display: none;
-	// 	opacity: 0;
-	// }
-
 	button {
 		@include defaultButtonStyles;
 		@include discreetButtonStyles;
 		width: 100%;
-		color: var(--main-color);
+		color: var(--text);
 		&:hover,
 		&:focus {
-			background-color: rgba(var(--mainValue-color, rgb(255, 255, 255)), 10%);
+			background-color: hsla(var(--text-value, white), 10%);
 		}
 	}
 	.mobile-nav-open {
-		box-shadow: 0 0 0 rgba(var(--accentValue-color, rgb(233, 181, 99)), 50%);
+		box-shadow: 0 0 0 hsla(var(--accent-value, hsl(37, 75%, 65%)), 50%);
 		@include pulse;
 	}
 	.settings-wrapper {
@@ -171,7 +228,7 @@
 		gap: 0.5em;
 		place-items: center;
 		@include responsive_mobile_only {
-			grid-template-columns: 1fr 1fr;
+			grid-template-columns: 1fr 1fr 1fr;
 			justify-self: end;
 		}
 		@include responsive_desktop_only {

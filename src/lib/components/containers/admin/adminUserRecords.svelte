@@ -11,7 +11,7 @@
 </script>
 
 <AdminExpandSection summaryText="User Records" bind:min>
-	<Tooltip tooltipTop="-150%" customStyleTooltipParent="color:var(--main-color);">
+	<Tooltip tooltipTop="-150%" customStyleTooltipParent="color:var(--text);">
 		<p slot="text">User pick records are created when games are <i>scored</i>.</p>
 		<DeletionButton slot="content" on:click={() => resetWeeklyUserRecords()}
 			>Reset User Records</DeletionButton

@@ -255,12 +255,12 @@ export const setNewTiebreakerDoc = async (
 	selectedWeek: number,
 	selectedYear: number,
 	type = 'Regular Season',
-	tiebreaker = null
+	scoreGuess = null
 ) => {
 	const docRef = doc(weeklyTiebreakersCollection);
 	try {
 		await setDoc(docRef.withConverter(weeklyTiebreakerConverter), {
-			tiebreaker,
+			scoreGuess,
 			docRef,
 			uid,
 			type,
@@ -363,5 +363,17 @@ export const updateGameSpreads = async (week: number, year: number) => {
 	} catch (error) {
 		errorToast('Failed to update spreads.  See console logs.');
 		myError('updateSpreads', error);
+	}
+};
+
+export const fixAllTiebreakers = async () => {
+	const q = query(weeklyTiebreakersCollection);
+	const tiebreakerDocs = await getDocs(q.withConverter(weeklyTiebreakerConverter));
+	for await (const doc of tiebreakerDocs.docs) {
+		const ref = doc.ref;
+		const data = doc.data();
+
+		// Do stuff
+		alert('thankfully, nothing happened');
 	}
 };

@@ -1,20 +1,19 @@
 <script lang="ts">
 	import Grid from '../Grid.svelte';
-	import TeamImage from '../TeamImage.svelte';
-	import { faTrash } from '@fortawesome/free-solid-svg-icons';
-	import Fa from 'svelte-fa';
 	import AccordionDetails from './AccordionDetails.svelte';
 	import { quintOut } from 'svelte/easing';
 	import { crossfade } from 'svelte/transition';
 	import type { pickSixItem } from '$scripts/types/types';
 	import { flip } from 'svelte/animate';
-	import { defaultToast } from '$scripts/toasts';
 	import { largerThanMobile } from '$scripts/store';
 	import PickSixButton from '$lib/components/buttons/PickSixButton.svelte';
 
 	export let group: pickSixItem[];
 	export let groupSelectedCount: number;
 	export let groupLetter: string;
+	let accordion: AccordionDetails;
+	let isCollapsing: boolean;
+	let open: boolean;
 
 	const [send, receive] = crossfade({
 		duration: (d) => Math.sqrt(d * 200),
@@ -33,14 +32,21 @@
 			};
 		}
 	});
+	$: groupSelectedCount === 2
+		? setTimeout(() => {
+				accordion?.collapse();
+		  }, 750)
+		: accordion?.expand();
 </script>
 
 <AccordionDetails
-	open={groupSelectedCount !== 2}
+	bind:this={accordion}
+	bind:isCollapsing
+	bind:open
 	showArrow={true}
 	expandTitle="Group {groupLetter} ({groupSelectedCount}/2 picks made)"
 	customSummaryStyles="font-weight:bold; {groupSelectedCount === 2
-		? 'background: rgba(var(--accentValue-color) / 40%); color:var(--main-color);'
+		? 'background: hsla(var(--accent-value), 40%); color:var(--text);'
 		: ''} transition: all 300ms ease-in-out; "
 >
 	<div
@@ -49,8 +55,8 @@
 		style="grid-template-columns: {$largerThanMobile ? '1fr 1fr' : '1fr'}"
 	>
 		<Grid
-			min={'25%'}
-			max={'1fr'}
+			minColumns={'25%'}
+			maxColumns={'1fr'}
 			customStyles={'align-items:start; grid-template-rows: repeat(3,minmax(5rem,35%));'}
 		>
 			{#each group.filter((item) => !item.selected) as teamOption (teamOption.team.abbreviation)}
@@ -66,9 +72,9 @@
 		</Grid>
 		{#if $largerThanMobile}
 			<Grid
-				min={'25%'}
-				max={'49%'}
-				customStyles={`align-items:start; grid-template-rows: repeat(3,max-content); grid-template-columns: ${
+				minColumns={'25%'}
+				maxColumns={'49%'}
+				customStyles={`align-items:start; grid-template-rows: repeat(3,minmax(0,1fr)); grid-template-columns: ${
 					$largerThanMobile ? '1fr 1fr' : '1fr'
 				};`}
 			>
@@ -97,6 +103,9 @@
 	.grid {
 		@include gridAndGap;
 		padding: 1rem;
+		@include responsive_mobile_only {
+			grid-template-rows: repeat(auto-fit, minmax(0, 1fr));
+		}
 	}
 	.animation-container {
 		height: 100%;
@@ -105,7 +114,7 @@
 		@include rounded;
 		display: grid;
 		place-content: center;
-		outline: 2px var(--accent-color) solid;
+		outline: 2px var(--accent) solid;
 		height: 10rem;
 	}
 	button {
@@ -117,7 +126,7 @@
 		}
 	}
 	.selected {
-		background: rgba(51 77 51 / 80%);
-		border-color: rgba(51 77 51 / 100%);
+		background: var(--pick6-selection);
+		border-color: hsla(var(--pick6-selection-value), 1);
 	}
 </style>

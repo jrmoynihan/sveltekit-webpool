@@ -49,9 +49,10 @@
 		padding: min(0.5rem, 1.4vw);
 	}
 	.isHigherScore {
-		// border-radius: 100%;
+		border-radius: 100%;
 		// box-shadow: var(--boxOneX) var(--boxOneY) var(--boxOneSpread) 2px currentColor, // var(--boxTwoX) var(--boxTwoY) var(--boxTwoSpread) 2px currentColor;
-		border-radius: var(--topLeft) var(--topRight) / var(--bottomRight) var(--bottomLeft);
-		outline: dashed;
+		// border-radius: var(--topLeft) var(--topRight) / var(--bottomRight) var(--bottomLeft);
+		border: 2px solid hsla(var(--accent-value, black), 50%);
+		// outline: dashed;
 	}
 </style>

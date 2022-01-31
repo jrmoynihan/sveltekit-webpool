@@ -1,10 +1,9 @@
 <script lang="ts">
 	import { userData } from '$scripts/auth/auth';
-	import type { ESPNScore, ESPNSituation, ESPNStatus, Game } from '$scripts/classes/game';
+	import type { ESPNScore, ESPNSituation, ESPNStatus } from '$scripts/classes/game';
 	import type { Team } from '$scripts/classes/team';
 	import { scorePicksForWeek, updateGamesAndATSWinners } from '$scripts/scorePicks';
-	import { mobileBreakpoint } from '$scripts/site';
-	import { showATSwinner, showIDs, showSpreads, windowWidth } from '$scripts/store';
+	import { showATSwinner, showIDs, showSpreads } from '$scripts/store';
 	import type { Timestamp } from 'firebase/firestore';
 	import DateTimeOrDownDistance from './DateTimeOrDownDistance.svelte';
 	import SpreadOrPossession from './SpreadOrPossession.svelte';
@@ -30,15 +29,7 @@
 <label class="game-info rounded" for="{id}-none">
 	<!-- <WinLossAt {promiseScores} {promiseStatus} {homeTeam} {awayTeam} {selectedTeam} {spread} {isATSwinner} /> -->
 	<WinLossAt {isATSwinner} {gameIsOver} />
-	<StatusInfo
-		{promiseStatus}
-		{promiseScores}
-		{promiseSituation}
-		{spread}
-		{ATSwinner}
-		{homeTeam}
-		{awayTeam}
-	/>
+	<StatusInfo {promiseStatus} {promiseScores} {spread} {ATSwinner} {homeTeam} {awayTeam} />
 	<SpreadOrPossession {spread} {disabled} {awayTeam} {homeTeam} {promiseSituation} {selectedWeek} />
 	<DateTimeOrDownDistance {timestamp} {promiseStatus} {promiseSituation} />
 	<input id="{id}-none" type="radio" bind:group={selectedTeam} value="" {disabled} />

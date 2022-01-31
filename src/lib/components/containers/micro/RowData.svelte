@@ -29,6 +29,7 @@
 <style lang="scss">
 	div {
 		@include defaultTransition;
+		box-sizing: border-box;
 		padding: 0.2em;
 		min-height: 2rem;
 		height: 100%;
@@ -37,17 +38,17 @@
 	}
 	.evenRow {
 		// opacity: 0.1;
-		background-color: rgba(var(--accentValue-color, rgb(233, 181, 99)), 50%);
-		color: var(--alternate-color, rgb(36, 50, 36));
+		background-color: hsla(var(--accent-value, hsl(37, 75%, 65%)), 50%);
+		color: var(--background, hsl(120, 16%, 17%));
 		&.dark {
-			color: var(--main-color, rgb(255, 255, 255));
+			color: var(--text, hsl(0, 0%, 100%));
 		}
 	}
 	.redZone {
-		background-color: rgba(139, 0, 0, 80%);
+		background-color: hsla(0, 100%, 27%, 0.8);
 		color: white;
 		&.evenRow {
-			background-color: rgba(178, 34, 34, 80%);
+			background-color: hsla(0, 68%, 42%, 0.8);
 			color: white;
 		}
 	}

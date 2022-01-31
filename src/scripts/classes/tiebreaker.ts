@@ -2,14 +2,14 @@ import type { DocumentReference } from 'firebase/firestore';
 
 export class WeeklyTiebreaker {
 	docRef: DocumentReference;
-	tiebreaker: number;
+	scoreGuess: number;
 	uid: string;
 	type: string;
 	week: number;
 	year: number;
 	constructor({ ...args }) {
 		(this.docRef = args.docRef),
-			(this.tiebreaker = args.tiebreaker),
+			(this.scoreGuess = args.scoreGuess),
 			(this.uid = args.uid),
 			(this.type = args.type),
 			(this.week = args.week),

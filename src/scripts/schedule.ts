@@ -101,7 +101,7 @@ export const setBounds = async (weekBound: WeekBound, year?: number): Promise<vo
 		myError('setBounds', error);
 	}
 };
-export const findCurrentWeekOfSchedule = async (): Promise<number> => {
+export const findCurrentWeekOfSchedule = async (showToast?: boolean): Promise<number> => {
 	try {
 		const now = new Date();
 		const currentYear = now.getFullYear();
@@ -117,6 +117,7 @@ export const findCurrentWeekOfSchedule = async (): Promise<number> => {
 		if (allBounds.exists) {
 			myLog('got gameBounds doc!');
 			const data = allBounds.data();
+			myLog('data', null, null, data);
 			const regSeasonWeeks = await getRegularSeasonWeeks();
 			for (const week of regSeasonWeeks) {
 				const weekBounds: WeekBound = data[`week_${week}`];
@@ -135,6 +136,8 @@ export const findCurrentWeekOfSchedule = async (): Promise<number> => {
 		}
 	} catch (error) {
 		myError('findCurrentWeekOfSchedule', error);
-		errorToast(`findCurrentWeekOfSchedule had an error: ${error}`);
+		if (showToast) {
+			errorToast(`findCurrentWeekOfSchedule had an error: ${error}`);
+		}
 	}
 };

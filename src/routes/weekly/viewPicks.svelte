@@ -22,6 +22,8 @@
 	import { findCurrentWeekOfSchedule } from '$scripts/schedule';
 	import type { WebUser } from '$scripts/classes/webUser';
 	import { onMount } from 'svelte';
+	import { fade, fly } from 'svelte/transition';
+	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
 
 	let selectedWeek: number;
 	let selectedYear: number = new Date().getFullYear();
@@ -112,96 +114,107 @@
 
 {#await userPromise then users}
 	{#await teamsPromise then teams}
-		{#await picksPromise}
-			Loading...
-		{:then picks}
+		{#await picksPromise then picks}
 			{#await gamesPromise}
-				Loading...
+				<span transition:fade style="margin: auto;">Loading...</span>
 			{:then games}
 				{#if users && picks && games}
-					<Grid
-						repeat={games.length + 2}
-						min={'min-content'}
-						max={'max-content'}
-						gap={'0.4rem;'}
-						customStyles={'overflow-x: auto;max-width: 90%;margin: auto;position:relative;justify-content:unset;justify-items:center;'}
-					>
-						<div />
-						{#each games as game}
-							<div
-								class="game label"
-								class:hovered={hoverGame === game.id}
-								on:mouseover={() => (hoverGame = game.id)}
-								on:mouseleave={() => (hoverGame = '')}
-								on:focus={() => (hoverGame = game.id)}
-								on:blur={() => (hoverGame = '')}
-							>
-								{game.shortName}
-							</div>
-						{/each}
-						<div>Wins</div>
-						{#each users as user}
-							<div
-								class="nickname label"
-								class:hovered={hoverUser === user.uid}
-								on:mouseover={() => (hoverUser = user.uid)}
-								on:mouseleave={() => (hoverUser = '')}
-								on:focus={() => (hoverUser = user.uid)}
-								on:blur={() => (hoverUser = '')}
-							>
-								{user.nickname}
-							</div>
+					<TransitionWrapper refresh={picks}>
+						<Grid
+							repeatColumns={games.length + 2}
+							minColumns={'min-content'}
+							maxColumns={'max-content'}
+							gap={'0.4rem;'}
+							customStyles={'overflow-x: auto;max-width: 90%;margin: auto;position:relative;justify-content:unset;justify-items:center;'}
+						>
+							<div />
 							{#each games as game}
-								{#await isBeforeGameTime(game.timestamp)}
-									...
-								{:then notAbleToSee}
-									{#each picks as pick}
-										{#if pick.uid === user.uid && pick.gameId === game.id}
-											{#if pick.pick === null || pick.pick === ''}
-												<div class="rounded placeholder">-</div>
-											{:else}
-												{#each teams as team}
-													{#if team.abbreviation === pick.pick}
-														{#if notAbleToSee}
-															<div class="rounded placeholder">-</div>
-														{:else}
-															<div
-																class="rounded image-holder"
-																class:winner={pick.isCorrect}
-																class:dark={$useDarkTheme}
-																class:hovered={hoverUser === user.uid || hoverGame === game.id}
-																on:mouseover={() => {
-																	hoverUser = user.uid;
-																	hoverGame = game.id;
-																}}
-																on:mouseleave={() => {
-																	hoverUser = '';
-																	hoverGame = '';
-																}}
-																on:focus={() => {
-																	hoverUser = user.uid;
-																	hoverGame = game.id;
-																}}
-																on:blur={() => {
-																	hoverUser = '';
-																	hoverGame = '';
-																}}
-															>
-																<TeamImage {team} width={'60'} />
-															</div>
-														{/if}
-													{/if}
-												{/each}
-											{/if}
-										{/if}
-									{/each}
-								{:catch error}
-									<ErrorModal {error} />
-								{/await}
+								<div
+									transition:fade={{ duration: 750 }}
+									class="game label"
+									class:hovered={hoverGame === game.id}
+									on:mouseover={() => (hoverGame = game.id)}
+									on:mouseleave={() => (hoverGame = '')}
+									on:focus={() => (hoverGame = game.id)}
+									on:blur={() => (hoverGame = '')}
+								>
+									{game.shortName}
+								</div>
 							{/each}
-							{user.weeklyPickRecord[`week_${selectedWeek}`].wins}
-						{/each}
-					</Grid>
+							<div>Wins</div>
+							{#each users as user}
+								<div
+									transition:fly={{ x: -100, duration: 750 }}
+									class="nickname label"
+									class:hovered={hoverUser === user.uid}
+									on:mouseover={() => (hoverUser = user.uid)}
+									on:mouseleave={() => (hoverUser = '')}
+									on:focus={() => (hoverUser = user.uid)}
+									on:blur={() => (hoverUser = '')}
+								>
+									{user.nickname}
+								</div>
+								{#each games as game}
+									{#await isBeforeGameTime(game.timestamp) then notAbleToSee}
+										{#each picks as pick}
+											{#if pick.uid === user.uid && pick.gameId === game.id}
+												{#if pick.pick === null || pick.pick === ''}
+													<div
+														transition:fly={{ x: -100, duration: 750 }}
+														class="rounded placeholder"
+													>
+														-
+													</div>
+												{:else}
+													{#each teams as team}
+														{#if team.abbreviation === pick.pick}
+															{#if notAbleToSee}
+																<div
+																	transition:fly={{ x: -100, duration: 750 }}
+																	class="rounded placeholder"
+																>
+																	-
+																</div>
+															{:else}
+																<div
+																	transition:fly={{ x: -100, duration: 750 }}
+																	class="rounded image-holder"
+																	class:winner={pick.isCorrect}
+																	class:dark={$useDarkTheme}
+																	class:hovered={hoverUser === user.uid || hoverGame === game.id}
+																	on:mouseover={() => {
+																		hoverUser = user.uid;
+																		hoverGame = game.id;
+																	}}
+																	on:mouseleave={() => {
+																		hoverUser = '';
+																		hoverGame = '';
+																	}}
+																	on:focus={() => {
+																		hoverUser = user.uid;
+																		hoverGame = game.id;
+																	}}
+																	on:blur={() => {
+																		hoverUser = '';
+																		hoverGame = '';
+																	}}
+																>
+																	<TeamImage {team} width={'60'} />
+																</div>
+															{/if}
+														{/if}
+													{/each}
+												{/if}
+											{/if}
+										{/each}
+									{:catch error}
+										<ErrorModal {error} />
+									{/await}
+								{/each}
+								{user.weeklyPickRecord[`week_${selectedWeek}`].wins}
+							{/each}
+						</Grid>
+					</TransitionWrapper>
 				{/if}
 			{:catch error}
 				<ErrorModal {error} />
@@ -238,22 +251,27 @@
 	}
 	.nickname {
 		z-index: var(--above);
-		background: rgba(var(--alternate-color) / 80%);
+		background: hsla(var(--alternate-value), 80%);
 		justify-self: end;
 		display: flex;
+		position: sticky;
+		left: -1rem;
+		&.hovered {
+			background: hsla(var(--alternate-value), 100%);
+		}
 	}
 	.winner {
-		background-color: rgba(darkgreen, 20%);
+		background-color: hsla(120, 100%, 20%, 20%);
 		&.dark {
-			background-color: rgba(92 133 92 / 34%);
+			background-color: hsla(120, 18%, 44%, 0.34);
 		}
 	}
 	.hovered {
-		outline: 2px solid rgba(var(--accentValue-color) / 40%);
+		outline: 2px solid hsla(var(--accent-value), 40%);
 		&.winner {
-			background-color: rgba(darkgreen, 50%);
+			background-color: hsla(120, 100%, 20%, 50%);
 			&.dark {
-				background-color: rgba(92 133 92 / 70%);
+				background-color: hsla(120, 18%, 44%, 0.7);
 			}
 		}
 	}

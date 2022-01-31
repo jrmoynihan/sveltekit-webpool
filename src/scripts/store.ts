@@ -6,9 +6,12 @@ import { userConverter } from './converters';
 import { WebUser } from '$scripts/classes/webUser';
 import { usersCollection } from './collections';
 import { browser } from '$app/env';
-import { findCurrentWeekOfSchedule } from './schedule';
 import type { ScoreViewPreference } from './types/types';
 import { currentUser, userData } from './auth/auth';
+import { seasonTypes } from './classes/constants';
+import type { WeeklyTiebreaker } from './classes/tiebreaker';
+import type { WeeklyPickDoc } from './classes/picks';
+import type { Game } from './classes/game';
 
 export const useDarkTheme = writable(false);
 export const chosenMixBlendMode = writable('normal');
@@ -23,8 +26,15 @@ export const showNetTiebreakers = writable(false);
 export const showSpreads = writable(false);
 export const preferredScoreView = writable<ScoreViewPreference>('Both');
 export const showTimestamps = writable(false);
-export const selectedWeek = writable(await findCurrentWeekOfSchedule());
-export const selectedUser = writable();
+export const selectedWeek = writable(1);
+export const selectedYear = writable(new Date().getFullYear());
+export const selectedSeasonType = writable(seasonTypes[1]);
+export const selectedUser = writable<WebUser>();
+export const gamesPromise = writable<Promise<Game[]>>();
+export const picksPromise = writable<Promise<WeeklyPickDoc[]>>();
+export const currentPicks = writable<WeeklyPickDoc[]>([]);
+export const tiebreakerPromise = writable<Promise<WeeklyTiebreaker>>();
+export const changeableTiebreakerScoreGuess = writable<number>(0);
 export const showATSwinner = writable(false);
 export const overrideDisabled = writable(false);
 export const godMode = writable(false);
@@ -40,6 +50,7 @@ export const godSequence = writable<string[]>([]);
 // 		});
 // 	});
 // };
+
 export const writableQueryAsStore = (
 	query: Query,
 	converter: FirestoreDataConverter<unknown>

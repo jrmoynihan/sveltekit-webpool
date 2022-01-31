@@ -80,18 +80,18 @@
 		transition: all 300ms ease-in-out;
 		border: none;
 		border-radius: 25px;
-		box-shadow: 0 0 10px var(--main-color, rgb(255, 255, 255));
-		background-color: var(--alternate-color, rgb(36, 50, 36));
-		color: var(--main-color, rgb(255, 255, 255));
+		box-shadow: 0 0 10px var(--text, white);
+		background-color: var(--background, hsl(120, 16%, 17%));
+		color: var(--text, white);
 		font-size: initial;
 		margin: auto; // centers the dialog for bad browser user-agent stylesheets that default to top-left
 		width: max-content;
 
 		&::backdrop {
-			background-color: rgba(0, 0, 0, 0.4);
+			background-color: hsla(0, 0%, 0%, 0.4);
 			padding: 10rem;
 			&.isError {
-				background-color: rgba(192, 106, 106, 0.4);
+				background-color: hsla(0, 41%, 58%, 0.4);
 			}
 		}
 	}
