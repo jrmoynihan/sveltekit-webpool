@@ -10,7 +10,7 @@
 		selectedSeasonType,
 		selectedUser,
 		selectedWeek,
-		selectedYear,
+		selectedSeasonYear,
 		showATSwinner,
 		showIDs,
 		showNetTiebreakers,
@@ -57,7 +57,7 @@
 	}
 	export async function adminSelectorsUpdated() {
 		const promises = changedQuery(
-			$selectedYear,
+			$selectedSeasonYear,
 			$selectedSeasonType,
 			$selectedWeek,
 			$selectedUser.uid
@@ -92,10 +92,10 @@
 	<Auth />
 
 	<div class="settings-wrapper">
-		{#if adminControlsPages.includes($page.path)}
+		{#if adminControlsPages.includes($page.url.pathname)}
 			<AdminControlsModal modalButtonStyles={`border-radius: 1rem; padding: 0.75rem;`}>
 				<Grid slot="modal-content" repeatColumns={2}>
-					{#if $page.path === '/weekly/makePicks'}
+					{#if $page.url.pathname === '/weekly/makePicks'}
 						<p>Show Game IDs</p>
 						<ToggleSwitch bind:checked={$showIDs} />
 						<p>Show Timestamps</p>
@@ -113,7 +113,10 @@
 							on:seasonTypeChanged={adminSelectorsUpdated}
 						/>
 						<p>Select Year</p>
-						<YearSelect bind:selectedYear={$selectedYear} on:yearChanged={adminSelectorsUpdated} />
+						<YearSelect
+							bind:selectedYear={$selectedSeasonYear}
+							on:yearChanged={adminSelectorsUpdated}
+						/>
 						<p>Select User</p>
 						<UserSelect
 							bind:selectedUser={$selectedUser}
@@ -133,7 +136,7 @@
 			</svelte:fragment>
 
 			<svelte:fragment slot="modal-content">
-				{#if $page.path === '/weekly/makePicks'}
+				{#if $page.url.pathname === '/weekly/makePicks'}
 					<MultiToggleSwitch
 						titleText="View Scores"
 						showSelectedValue={false}
@@ -154,7 +157,7 @@
 							{/each}
 						</select>
 					</label>
-				{:else if $page.path === '/weekly/standings'}
+				{:else if $page.url.pathname === '/weekly/standings'}
 					<Grid slot="modal-content" repeatColumns={2}>
 						<span>Show Net Tiebreakers</span>
 						<ToggleSwitch adminOnly={true} bind:checked={$showNetTiebreakers} />
