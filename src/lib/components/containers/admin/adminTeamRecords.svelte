@@ -10,11 +10,11 @@
 
 	export let selectedYear: number = new Date().getFullYear();
 
-	let min: string | number;
-	$: min = $largerThanMobile ? 0 : '40%';
+	let minColumns: string | number;
+	$: minColumns = $largerThanMobile ? 0 : '40%';
 </script>
 
-<AdminExpandSection summaryText="NFL Teams" bind:min>
+<AdminExpandSection summaryText="NFL Teams" bind:minColumns>
 	<StyledButton
 		on:click={() => {
 			// const proceed = confirm('Have you already updated the game winners?  If so, click OK.');

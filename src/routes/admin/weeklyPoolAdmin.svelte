@@ -15,7 +15,6 @@
 	import AdminScheduleFunctions from '$lib/components/containers/admin/adminScheduleFunctions.svelte';
 	import { largerThanMobile } from '$scripts/store';
 
-	let selectedWeek = 1;
 	let selectedYear: number = new Date().getFullYear();
 	let selectedUser: WebUser;
 	let userPromise: Promise<WebUser[]>;
@@ -23,22 +22,16 @@
 </script>
 
 <PageTitle>Weekly Pool Admin</PageTitle>
-<Grid min={$largerThanMobile ? '40%' : '100%'}>
-	<AdminSelectors
-		bind:selectedUser
-		bind:selectedWeek
-		bind:selectedYear
-		bind:userPromise
-		bind:gamePromise
-	/>
+<Grid minColumns={$largerThanMobile ? '40%' : '100%'} customStyles={'align-items:start;'}>
+	<AdminSelectors bind:selectedUser bind:selectedYear bind:userPromise bind:gamePromise />
 	<!-- <hr /> -->
-	<AdminSpreadFunctions bind:selectedWeek bind:selectedYear />
+	<AdminSpreadFunctions bind:selectedYear />
 	<!-- <hr /> -->
-	<AdminPicksFunctions bind:selectedUser bind:selectedWeek bind:selectedYear />
+	<AdminPicksFunctions bind:selectedUser bind:selectedYear />
 	<!-- <hr /> -->
-	<AdminTiebreakerFunctions bind:selectedUser bind:selectedWeek bind:selectedYear />
+	<AdminTiebreakerFunctions bind:selectedUser bind:selectedYear />
 	<!-- <hr /> -->
-	<AdminGamesFunctions bind:selectedWeek bind:selectedYear />
+	<AdminGamesFunctions bind:selectedYear />
 	<!-- <hr /> -->
 	<AdminTeamRecords bind:selectedYear />
 	<!-- <hr /> -->

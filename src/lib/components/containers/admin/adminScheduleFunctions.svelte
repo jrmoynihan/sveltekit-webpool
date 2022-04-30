@@ -5,10 +5,10 @@
 	import { largerThanMobile } from '$scripts/store';
 	import AdminExpandSection from './adminExpandSection.svelte';
 
-	let min: string | number;
-	$: min = $largerThanMobile ? 0 : '40%';
+	let minColumns: string | number;
+	$: minColumns = $largerThanMobile ? 0 : '40%';
 </script>
 
-<AdminExpandSection summaryText="Schedule" bind:min>
+<AdminExpandSection summaryText="Schedule" bind:minColumns>
 	<AdminButton text="Find Bounds for Each Week" on:click={findWeekDateTimeBounds} />
 </AdminExpandSection>

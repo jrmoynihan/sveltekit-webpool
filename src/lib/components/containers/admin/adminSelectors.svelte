@@ -14,18 +14,16 @@
 
 	export let userPromise: Promise<WebUser[]>;
 	export let gamePromise: Promise<Game[]>;
-	// export let selectedWeek: number;
 	export let selectedYear: number;
 	export let selectedUser: WebUser;
-	let min: string | number;
+	let minColumns: string | number = '40%';
 	let startOpen = true;
-	let customDetailsStyles: string;
+	let customContentStyles: string;
 
-	$: customDetailsStyles = $largerThanMobile ? 'grid-column:span 2;' : undefined;
-	$: min = $largerThanMobile ? 0 : '40%';
+	$: customContentStyles = $largerThanMobile ? 'grid-column:span 2;' : undefined;
 </script>
 
-<AdminExpandSection summaryText="Selectors" bind:min {startOpen} {customDetailsStyles}>
+<AdminExpandSection summaryText="Selectors" bind:minColumns {startOpen} {customContentStyles}>
 	<label for="refresh" class="span-2">
 		<p>Refresh Users and Games</p>
 		<button
@@ -59,42 +57,6 @@
 	{/await}
 </AdminExpandSection>
 
-<!-- <AccordionDetails>
-	<span slot="summary">Selectors</span>
-	<Grid slot="content" bind:min>
-		<label for="refresh">
-			<p>Refresh Users and Games</p>
-			<button
-				id="refresh"
-				class="refresh"
-				on:click={async () => {
-					userPromise = getWeeklyUsers();
-					gamePromise = getAllGames();
-					// maxWeekPromise = getMaxGameWeek();
-				}}
-			>
-				<Fa icon={faSync} />
-			</button>
-		</label>
-		<label for="week-select">
-			<p>Week</p>
-			<WeekSelect bind:selectedWeek />
-		</label>
-		<label for="year-select">
-			<p>Year</p>
-			<YearSelect bind:selectedYear />
-		</label>
-
-		{#await userPromise}
-			Loading users...
-		{:then users}
-			<label for="user-select">
-				<p>User</p>
-				<UserSelect bind:selectedUser />
-			</label>
-		{/await}
-	</Grid>
-</AccordionDetails> -->
 <style lang="scss">
 	button {
 		@include styledButton;
