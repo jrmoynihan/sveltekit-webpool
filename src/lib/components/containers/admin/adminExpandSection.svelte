@@ -1,20 +1,20 @@
 <script lang="ts">
-	import AccordionDetails from '../accordions/AccordionDetails.svelte';
+	import AccordionDetails3 from '../accordions/AccordionDetails3.svelte';
 	import Grid from '../Grid.svelte';
 
 	export let summaryText = '';
-	export let min: string | number = 0;
-	export let max: string | number = 'max-content';
+	export let minColumns: string | number = 0;
+	export let maxColumns: string | number = 'max-content';
 	export let startOpen = false;
-	export let customDetailsStyles: string = undefined;
+	export let customContentStyles: string = undefined;
 </script>
 
-<AccordionDetails bind:open={startOpen} {customDetailsStyles}>
+<AccordionDetails3 isOpen={startOpen} {customContentStyles}>
 	<h3 slot="summary">{summaryText}</h3>
-	<Grid slot="content" bind:min bind:max>
+	<Grid slot="content" bind:minColumns bind:maxColumns>
 		<slot />
 	</Grid>
-</AccordionDetails>
+</AccordionDetails3>
 
 <style lang="scss">
 	h3 {
