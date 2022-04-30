@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Team } from '$scripts/classes/team';
-	import { scrollToNextGame } from '$scripts/functions';
+	import { scrollToNextGame } from '$scripts/scrollAndFocus';
 	import { useDarkTheme } from '$scripts/store';
 	import IntersectionObserver from 'svelte-intersection-observer';
 	import TeamImage from '../TeamImage.svelte';
