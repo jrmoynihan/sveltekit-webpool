@@ -117,16 +117,4 @@
 		outline: 2px var(--accent) solid;
 		height: 10rem;
 	}
-	button {
-		@include styledButton;
-		display: grid;
-		gap: 0.5rem;
-		@include responsive_mobile-only {
-			grid-column: span 2;
-		}
-	}
-	.selected {
-		background: var(--pick6-selection);
-		border-color: hsla(var(--pick6-selection-value), 1);
-	}
 </style>
