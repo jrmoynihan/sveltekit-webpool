@@ -80,6 +80,5 @@
 	.weekSelectors {
 		@include gridAndGap;
 		grid-template-columns: max-content 1fr max-content;
-		grid-area: week;
 	}
 </style>
