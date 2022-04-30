@@ -31,7 +31,11 @@
 			"$components": ["src/lib/components"],
 			"$components/*": ["src/lib/components/*"],
 			"$containers": ["src/lib/components/containers"],
-			"$containers/*": ["src/lib/components/containers/*"]
+			"$containers/*": ["src/lib/components/containers/*"],
+			"$navigation": ["src/lib/components/navigation"],
+			"$navigation/*": ["src/lib/components/navigation/*"],
+			"$switches": ["src/lib/components/switches"],
+			"$switches/*": ["src/lib/components/switches/*"]
 		}
 	},
 	"include": ["src/**/*.d.ts", "src/**/*.js", "src/**/*.ts", "src/**/*.svelte"]
