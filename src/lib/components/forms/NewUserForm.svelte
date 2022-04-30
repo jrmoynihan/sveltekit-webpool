@@ -443,10 +443,6 @@
 	.icon {
 		display: inline-block;
 	}
-	.summary {
-		font-weight: bold;
-		font-size: 1rem;
-	}
 	ul {
 		// justify-items: left;
 		display: grid;
@@ -495,6 +491,7 @@
 	}
 	.continue-button {
 		@include absolute($right: -2px, $bottom: 0px);
+		box-sizing: border-box;
 		width: min-content;
 		height: min-content;
 		color: var(--background);
