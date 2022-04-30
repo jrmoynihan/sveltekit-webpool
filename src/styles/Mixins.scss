@@ -244,10 +244,11 @@
 	$color: var(--accent-value),
 	$pulseDistance: 10px,
 	$duration: 2.5s,
+	$delay: 0s,
 	$opacity: 40%,
 	$iterationCount: infinite
 ) {
-	animation: pulse $duration $iterationCount;
+	animation: pulse $duration $delay $iterationCount;
 
 	@keyframes pulse {
 		0% {
