@@ -323,7 +323,6 @@
 		<!-- svelte-check ignore -->
 		<input
 			type="range"
-			orient="vertical"
 			min={minGameHeight}
 			max={maxGameHeight}
 			bind:value={setGameHeight}
