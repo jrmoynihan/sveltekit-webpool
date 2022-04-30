@@ -18,13 +18,13 @@
 	} from '@fortawesome/free-solid-svg-icons';
 	import { onMount } from 'svelte';
 	import Fa from 'svelte-fa';
-	import { fade, fly, slide } from 'svelte/transition';
-	import AccordionDetails from '../containers/accordions/AccordionDetails.svelte';
+	import { fly, slide } from 'svelte/transition';
 	import Grid from '../containers/Grid.svelte';
 	import LoadingSpinner from '../misc/LoadingSpinner.svelte';
 	import ModalOnly from '../modals/Modal.svelte';
 	import ToggleSwitch from '../switches/ToggleSwitch.svelte';
 	import { cubicInOut } from 'svelte/easing';
+	import AccordionDetails3 from '../containers/accordions/AccordionDetails3.svelte';
 
 	export let modalOnlyComponent: ModalOnly;
 	let nickname = '';
@@ -47,6 +47,8 @@
 		fieldName: string;
 		description: string[];
 	}[];
+
+	// TODO: this data should be queried from the database
 	let poolsToJoin = [
 		{
 			name: 'Weekly ATS',
@@ -355,17 +357,17 @@
 				</h5>
 				{#each poolsToJoin as pool}
 					<div class="accordionWrapper" transition:slide={slideParameters}>
-						<AccordionDetails
-							showArrow={false}
-							customContentStyles="max-width:50ch;color:var(--text);"
-							customDetailsStyles="max-width:50ch;transition:background 300ms ease-out;{pool.toggled
-								? `background:olivegreen;color:white;overflow:auto;`
-								: `overflow:auto;`}"
-							customSummaryStyles={pool.toggled
-								? `background:darkolivegreen;color:white;border:#ccc 1px inset;`
-								: ``}
+						<AccordionDetails3
+							showArrow={true}
+							customContentStyles="color:var(--text); {pool.toggled
+								? 'background-color:hsl(82,39%,30%);color:white;'
+								: ''}"
+							customSummaryStyles="width:100%;font-weight:bold;{pool.toggled
+								? `background-color:hsl(82,39%,30%);color:white;`
+								: ``}"
+							expandTitle={pool.name}
+							{slideParameters}
 						>
-							<p slot="summary" class="summary">{pool.name}</p>
 							<svelte:fragment slot="content">
 								<ul>
 									{#each pool.description as item}
@@ -380,7 +382,7 @@
 								</ul>
 								<p class="price">(${pool.price} {pool.textAfterPrice})</p>
 							</svelte:fragment>
-						</AccordionDetails>
+						</AccordionDetails3>
 					</div>
 					<div class="toggle-slide" transition:slide={slideParameters}>
 						<ToggleSwitch
@@ -499,7 +501,7 @@
 		padding: 0.5rem;
 	}
 	.price {
-		@include pulse($iterationCount: 2, $opacity: 100%, $duration: 2s);
+		@include pulse($iterationCount: 2, $opacity: 100%, $duration: 2s, $delay: 500ms);
 		@include rounded;
 		@include centerAIJC;
 		max-width: max-content;
