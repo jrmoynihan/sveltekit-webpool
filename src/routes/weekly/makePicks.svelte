@@ -424,9 +424,9 @@
 <!-- played:{playedGamesCount} upcoming:{upcomingGamesCount} total:{totalGameCount} current:{currentPickCount} -->
 <section class="grid positioning">
 	<div class="pick-status fixed grid {$largerThanMobile ? 'bottom-left' : 'bottom-right'}">
-		{#if $largerThanMobile}
+		<!-- {#if $largerThanMobile}
 			<Clock />
-		{/if}
+		{/if} -->
 		{#if currentPickCount >= 0 && totalGameCount > 0}
 			{#key currentPickCount}
 				<PickCounter
