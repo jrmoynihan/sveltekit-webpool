@@ -12,7 +12,7 @@
 		faCalculator,
 		faCheckDouble,
 		faFootballBall,
-		IconDefinition
+		type IconDefinition
 	} from '@fortawesome/free-solid-svg-icons';
 	import { getDocs, query, where } from 'firebase/firestore';
 
