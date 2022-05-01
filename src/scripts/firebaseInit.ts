@@ -8,15 +8,12 @@ import { getFirestore } from 'firebase/firestore';
 import { getApp, getApps, initializeApp } from 'firebase/app';
 import type { FirebaseApp } from 'firebase/app';
 import { dev } from '$app/env';
-// import { browser, dev } from '$app/env';
 
-// TODO: API key should be stored in a environment variable (see: privateStuff.env) so it is not exposed publicly
-export const API_KEY = import.meta.env.VITE_API_KEY;
-// console.log('api?', API_KEY);
+// TODO: Figure out how to store secrets on Firebase or deploy to Vercel
+export const API_KEY = process.env.FIREBASE_API_KEY;
 
 const firebaseConfig = {
-	// apiKey: API_KEY,
-	apiKey: 'AIzaSyDEAAXuJcftdIqBRxi_OmDYmFEMs2qnpIw',
+	apiKey: API_KEY,
 	authDomain: 'tonyswebpool.firebaseapp.com',
 	databaseURL: 'https://tonyswebpool.firebaseio.com',
 	projectId: 'tonyswebpool',
