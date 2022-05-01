@@ -9,7 +9,7 @@
 	// };
 	export async function load() {
 		// Cache assets for 1 year
-		const output = { maxage: 31536000 };
+		const output = { cache: { maxage: 31536000 } };
 		return output;
 	}
 </script>
