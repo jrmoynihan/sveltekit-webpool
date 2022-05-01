@@ -8,3 +8,5 @@ output/*
 public
 public/*
 public/**
+.env
+.env.*
