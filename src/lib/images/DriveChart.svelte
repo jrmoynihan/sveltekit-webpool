@@ -66,7 +66,7 @@
 	});
 </script>
 
-<Grid customStyles={'justify-items:center'} customGridColumns={'grid-template-columns: 1fr'}>
+<Grid customStyles={'justify-items:center; grid-template-columns: 1fr'}>
 	<input type="range" bind:value={svgWidth} min={100} max={1000} />
 	{#await convertToHttps(game.$ref)}
 		Getting game link...
