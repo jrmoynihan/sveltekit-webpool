@@ -79,11 +79,6 @@
 		divLeft = divBounds.left + parseInt(divStyles.paddingLeft.replace('px', ''));
 		spanWidth = labelBounds.width;
 		spanLeft = labelBounds.left - divLeft;
-		// console.log(divStyles);
-		// console.log(divStyles.paddingLeft);
-		// console.log(divBounds.left);
-		// console.log(divLeft);
-		// console.log(labelBounds.left);
 	}
 	$: checkSelectedItemIcon(selectedItem);
 	$: updateSelectedValue(selectedItem);
