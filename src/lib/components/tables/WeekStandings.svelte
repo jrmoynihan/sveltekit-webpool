@@ -6,7 +6,7 @@
 	import { mobileBreakpoint } from '$scripts/site';
 	import { selectedWeek, showIDs, showNetTiebreakers, windowWidth } from '$scripts/store';
 	import { onMount } from 'svelte';
-	import { query, where, orderBy, DocumentData, Query, getDocs } from 'firebase/firestore';
+	import { query, where, orderBy, type DocumentData, Query, getDocs } from 'firebase/firestore';
 	import {
 		scheduleCollection,
 		usersCollection,
