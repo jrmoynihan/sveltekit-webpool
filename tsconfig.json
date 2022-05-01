@@ -36,7 +36,9 @@
 			"$navigation": ["src/lib/components/navigation"],
 			"$navigation/*": ["src/lib/components/navigation/*"],
 			"$switches": ["src/lib/components/switches"],
-			"$switches/*": ["src/lib/components/switches/*"]
+			"$switches/*": ["src/lib/components/switches/*"],
+			"$images": ["src/lib/images"],
+			"$images/*": ["src/lib/images/*"]
 		}
 	},
 	"include": ["src/**/*.d.ts", "src/**/*.js", "src/**/*.ts", "src/**/*.svelte"]
