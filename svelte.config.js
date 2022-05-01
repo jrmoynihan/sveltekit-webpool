@@ -1,4 +1,5 @@
 import preprocess from 'svelte-preprocess';
+import adapter from '@sveltejs/adapter-auto';
 import firebase from 'svelte-adapter-firebase';
 import path from 'path';
 import mkcert from 'vite-plugin-mkcert';
@@ -24,7 +25,8 @@ const config = {
 	},
 
 	kit: {
-		adapter: firebase(),
+		// adapter: firebase(),
+		adapter: adapter(),
 		vite: {
 			resolve: {
 				alias: {
@@ -41,12 +43,12 @@ const config = {
 					$static: path.resolve('./static/')
 				}
 			},
-			build: {
-				target: 'esnext'
-			},
+			// build: {
+			// 	target: 'esnext'
+			// },
 			ssr: {
 				// external: ['@firebase/firestore']
-				external: ['whatwg-url', 'firebase']
+				external: ['whatwg-url']
 			},
 			server: {
 				https: true
