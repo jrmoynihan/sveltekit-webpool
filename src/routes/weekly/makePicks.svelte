@@ -17,7 +17,7 @@
 		selectedSeasonType,
 		selectedUser,
 		selectedWeek,
-		selectedYear,
+		selectedSeasonYear,
 		tiebreakerPromise,
 		useDarkTheme
 	} from '$scripts/store';
@@ -105,7 +105,7 @@
 		// }
 
 		const promises = await changedQuery(
-			$selectedYear,
+			$selectedSeasonYear,
 			$selectedSeasonType,
 			$selectedWeek,
 			$currentUser.uid
@@ -174,8 +174,8 @@
 				}
 			});
 			myLog('updated/submitted picks!', '', okHand, currentPicks);
-			$picksPromise = getPicksForUser($selectedWeek, uid, $selectedYear, $selectedSeasonType);
-			await updateTiebreakerDoc(docRef, uid, scoreGuess, $selectedWeek, $selectedYear);
+			$picksPromise = getPicksForUser($selectedWeek, uid, $selectedSeasonYear, $selectedSeasonType);
+			await updateTiebreakerDoc(docRef, uid, scoreGuess, $selectedWeek, $selectedSeasonYear);
 
 			defaultToast({
 				title: `${checkmark} Picks submitted!`,
@@ -386,7 +386,7 @@
 
 	const selectorsUpdated = async () => {
 		const promises = changedQuery(
-			$selectedYear,
+			$selectedSeasonYear,
 			$selectedSeasonType,
 			$selectedWeek,
 			$selectedUser.uid

@@ -3,7 +3,7 @@
 	import type { ESPNScore, ESPNSituation, ESPNStatus } from '$scripts/classes/game';
 	import type { Team } from '$scripts/classes/team';
 	import { scorePicksForWeek, updateGamesAndATSWinners } from '$scripts/scorePicks';
-	import { selectedWeek, selectedYear, showATSwinner, showIDs, showSpreads } from '$scripts/store';
+	import { selectedWeek, selectedSeasonYear, showATSwinner, showIDs, showSpreads } from '$scripts/store';
 	import type { Timestamp } from 'firebase/firestore';
 	import DateTimeOrDownDistance from './DateTimeOrDownDistance.svelte';
 	import SpreadOrPossession from './SpreadOrPossession.svelte';
@@ -51,8 +51,8 @@
 		<button
 			class="admin"
 			on:click={async () => {
-				await updateGamesAndATSWinners($selectedWeek, $selectedYear);
-				await scorePicksForWeek($selectedWeek, $selectedYear);
+				await updateGamesAndATSWinners($selectedWeek, $selectedSeasonYear);
+				await scorePicksForWeek($selectedWeek, $selectedSeasonYear);
 			}}
 		>
 			{ATSwinner ? ATSwinner : 'Score Games!'}
