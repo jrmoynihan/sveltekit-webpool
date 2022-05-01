@@ -1,7 +1,7 @@
-<script context="module">
-	export const load = async ({ page }) => ({
+<script context="module" lang="ts">
+	export const load = async ({ url }: LoadInput): Promise<LoadOutput> => ({
 		props: {
-			refresh: page.path.split('/')[1]
+			refresh: url.pathname.split('/')[1]
 		}
 	});
 </script>
@@ -26,6 +26,7 @@
 	import { getLocalStorageItem } from '$scripts/localStorage';
 	import NewUserForm from '$lib/components/forms/NewUserForm.svelte';
 	import type ModalOnly from '$lib/components/modals/Modal.svelte';
+	import type { LoadInput, LoadOutput } from '@sveltejs/kit';
 
 	export let refresh: any;
 	let modalOnlyComponent: ModalOnly;

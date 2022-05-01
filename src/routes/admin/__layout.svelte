@@ -1,7 +1,7 @@
-<script context="module">
-	export const load = async ({ page }) => ({
+<script context="module" lang="ts">
+	export const load = async ({ url }: LoadInput): Promise<LoadOutput> => ({
 		props: {
-			refresh: page.path.split('/')[2]
+			refresh: url.pathname.split('/')[2]
 		}
 	});
 </script>
@@ -11,6 +11,7 @@
 	import Navigator from '$navigation/Navigator.svelte';
 	import { PageOption } from '$scripts/classes/pageOption';
 	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
+	import type { LoadInput, LoadOutput } from '@sveltejs/kit';
 
 	export let refresh: unknown;
 
