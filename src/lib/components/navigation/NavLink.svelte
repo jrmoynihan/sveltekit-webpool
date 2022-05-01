@@ -13,13 +13,12 @@
 	export let fullyRounded = false;
 	let active = false;
 
-	$: {
-		active = matchPath(pageOption.path, $page.path);
-		// console.log('pageOption.path: ', pageOption.path);
-		// console.log('currentPage.path: ', $page.path);
-		// TODO fix the regeex so the index path ('/') doesn't match when it's
-		active = pageOption.path === '/' && $page.path !== '/' ? false : active;
-	}
+	$: active =
+		pageOption.path === '/' && $page.url.pathname !== '/'
+			? false
+			: matchPath(pageOption.path, $page.url.pathname);
+
+	//TODO: remove this if no longer needed; 04/30/2022
 	const cleanupToNavigate = () => {
 		const modals = Array.from(document.getElementsByTagName('dialog'));
 		if (modals) {
