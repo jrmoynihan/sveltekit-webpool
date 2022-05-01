@@ -36,28 +36,28 @@
 		value={homeOrAwayTeam.abbreviation}
 		{disabled}
 	/>
-	<IntersectionObserver
+	<!-- <IntersectionObserver
 		once={true}
 		{element}
 		on:intersect={() => {
 			showGameContainer = true;
 		}}
 	>
-		{#if showGameContainer}
-			<TeamImage
-				team={homeOrAwayTeam}
-				grayscale={selectedTeam === homeOrAwayTeam.abbreviation && selectedTeam !== ''}
-			/>
-			{#if showTeamNameImages}
-				<TeamNameImage
-					team={homeOrAwayTeam}
-					rounded={true}
-					whiteBg={true}
-					grayscale={selectedTeam === homeOrAwayTeam.abbreviation && selectedTeam !== ''}
-					width="300rem"
-				/>
-			{/if}
-		{/if}
-	</IntersectionObserver>
+		{#if showGameContainer} -->
+	<TeamImage
+		team={homeOrAwayTeam}
+		grayscale={selectedTeam === homeOrAwayTeam.abbreviation && selectedTeam !== ''}
+	/>
+	{#if showTeamNameImages}
+		<TeamNameImage
+			team={homeOrAwayTeam}
+			rounded={true}
+			whiteBg={true}
+			grayscale={selectedTeam === homeOrAwayTeam.abbreviation && selectedTeam !== ''}
+			width="300rem"
+		/>
+	{/if}
+	<!-- {/if}
+	</IntersectionObserver> -->
 	<TeamRecord showTeamAbbreviation={!showTeamNameImages} team={homeOrAwayTeam} />
 </label>
