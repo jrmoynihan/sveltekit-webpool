@@ -1,6 +1,5 @@
 <script lang="ts">
 	import MatchupContainer from '$lib/components/containers/MatchupContainer.svelte';
-	import Clock from '$lib/components/misc/Clock.svelte';
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
 	import WeekSelect from '$lib/components/selects/WeekSelect.svelte';
 	import { currentUser } from '$scripts/auth/auth';
