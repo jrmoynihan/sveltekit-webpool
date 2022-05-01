@@ -10,7 +10,7 @@ import type { FirebaseApp } from 'firebase/app';
 import { dev } from '$app/env';
 
 // TODO: Figure out how to store secrets on Firebase or deploy to Vercel
-export const API_KEY = process.env.FIREBASE_API_KEY;
+export const API_KEY = dev ? import.meta.env.VITE_API_KEY : process?.env?.FIREBASE_API_KEY;
 
 const firebaseConfig = {
 	apiKey: API_KEY,
