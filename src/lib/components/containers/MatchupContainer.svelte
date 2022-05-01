@@ -7,9 +7,8 @@
 	import { onDestroy, onMount } from 'svelte';
 	import GameInfo from './micro/GameInfo.svelte';
 	import TeamSelectRadioInput from './micro/TeamSelectRadioInput.svelte';
-	import type { ESPNScore, ESPNSituation, ESPNStatus, Game } from '$scripts/classes/game';
+	import type { ESPNScore, ESPNSituation, ESPNStatus } from '$scripts/classes/game';
 	import { getScores, getSituation, getStatus } from '$scripts/dataFetching';
-	import { myLog, pick } from '$scripts/classes/constants';
 
 	export let id = 'id';
 	export let index: number;
@@ -23,7 +22,6 @@
 	export let gridColumns = 1;
 	export let isATSwinner: null | boolean = null;
 	export let ATSwinner: string;
-	export let selectedWeek: number;
 	export let beforeGameTime = false;
 	let layoutBreakpoint = 620;
 	let showTeamNameImages = false;
@@ -138,7 +136,6 @@
 		bind:isATSwinner
 		bind:ATSwinner
 		bind:gameIsOver
-		bind:selectedWeek
 	/>
 	<TeamSelectRadioInput
 		bind:homeOrAwayTeam={homeTeam}
