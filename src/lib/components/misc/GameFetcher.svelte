@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ESPNGame, ESPNGamePruned, Game } from '$scripts/classes/game';
+	import { type ESPNGame, type ESPNGamePruned, Game } from '$scripts/classes/game';
 	import { gameConverter } from '$scripts/converters';
 	import { firestoreDB } from '$scripts/firebaseInit';
 	import { scheduleCollection } from '$scripts/collections';
@@ -28,7 +28,6 @@
 	let weeks: number[] = [];
 	let selectedYear = 2021;
 	let selectedSeasonType: SeasonType = seasonTypes[1];
-	// let selectedWeek: number;
 	let selectedGames = 'pruned';
 	let maxGameHeight = 100;
 	let minGameHeight = 10;
