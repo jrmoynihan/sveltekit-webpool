@@ -2,7 +2,6 @@ import type { Game } from '$scripts/classes/game';
 import type { WeeklyPickDoc } from '$scripts/classes/picks';
 import type { SeasonType } from '$scripts/classes/seasonType';
 import type { WeeklyTiebreaker } from '$scripts/classes/tiebreaker';
-import { getUserId } from '$scripts/dataFetching';
 import { query, where, getDocs, orderBy } from 'firebase/firestore';
 import { myLog, myError, checkmark, pick, detective, necktie } from '../classes/constants';
 import { WebUser } from '../classes/webUser';
@@ -20,6 +19,8 @@ import {
 } from '../converters';
 import { defaultToast, errorToast } from '../toasts';
 
+
+// TODO: Refactor these functions into endpoints that change the url as the params change?
 export const getWeeklyUsers = async (
 	showToast = true,
 	customizedQuery = query(usersCollection, where('weekly', '==', true))
