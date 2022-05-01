@@ -16,7 +16,7 @@ const config = {
 		// },
 		// sourceMap: true,
 		scss: {
-			prependData: `@import 'src/styles/mixins.scss', 'src/styles/functions.scss';`
+			prependData: `@import 'src/styles/mixins.scss'; @import 'src/styles/functions.scss';`
 		}
 	}),
 	compilerOptions: {
