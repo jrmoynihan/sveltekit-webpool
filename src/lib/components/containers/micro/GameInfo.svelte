@@ -3,7 +3,13 @@
 	import type { ESPNScore, ESPNSituation, ESPNStatus } from '$scripts/classes/game';
 	import type { Team } from '$scripts/classes/team';
 	import { scorePicksForWeek, updateGamesAndATSWinners } from '$scripts/scorePicks';
-	import { selectedWeek, selectedSeasonYear, showATSwinner, showIDs, showSpreads } from '$scripts/store';
+	import {
+		selectedWeek,
+		selectedSeasonYear,
+		showATSwinner,
+		showIDs,
+		showSpreads
+	} from '$scripts/store';
 	import type { Timestamp } from 'firebase/firestore';
 	import DateTimeOrDownDistance from './DateTimeOrDownDistance.svelte';
 	import SpreadOrPossession from './SpreadOrPossession.svelte';
@@ -23,7 +29,6 @@
 	export let isATSwinner: boolean;
 	export let ATSwinner: string;
 	export let gameIsOver: boolean = false;
-	// export let selectedWeek: number;
 </script>
 
 <label class="game-info rounded" for="{id}-none">
