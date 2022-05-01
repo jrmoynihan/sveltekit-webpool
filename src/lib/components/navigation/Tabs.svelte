@@ -50,6 +50,7 @@
 		}
 	}
 	label {
+		box-sizing: border-box;
 		align-items: center;
 		box-shadow: 0 0 2px 2px hsla(0, 0%, 0%, 0.3);
 		cursor: pointer;

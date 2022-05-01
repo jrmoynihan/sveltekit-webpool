@@ -119,6 +119,7 @@
 		box-sizing: border-box;
 	}
 	.app-wrapper {
+		box-sizing: border-box;
 		padding: 0 5px 5px;
 		display: grid;
 		background: var(--background, hsl(120, 16%, 17%));

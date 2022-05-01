@@ -58,6 +58,7 @@
 <style lang="scss">
 	a {
 		@include flexCenter;
+		box-sizing: border-box;
 		color: var(--text, white);
 		font-weight: 700;
 		font-size: 0.8rem;
