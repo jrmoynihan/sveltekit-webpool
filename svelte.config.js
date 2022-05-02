@@ -16,10 +16,12 @@ const config = {
 		// prependData: `@import('src/styles/mixins.scss', 'src/styles/functions.scss');`
 		// },
 		// sourceMap: true,
+
 		scss: {
-			prependData: `@import 'src/styles/mixins.scss', 'src/styles/functions.scss';`
+			prependData: `@import './src/styles/mixins.scss', './src/styles/functions.scss';`
 		}
 	}),
+	experimental: { useVitePreProcess: true },
 	compilerOptions: {
 		css: false
 	},
