@@ -1,6 +1,5 @@
 import preprocess from 'svelte-preprocess';
 import adapter from '@sveltejs/adapter-auto';
-// import firebase from 'svelte-adapter-firebase';
 import path, { dirname } from 'path';
 import mkcert from 'vite-plugin-mkcert';
 import { fileURLToPath } from 'url';
@@ -21,10 +20,10 @@ const config = {
 	compilerOptions: {
 		css: false
 	},
-
 	kit: {
 		// adapter: firebase(),
 		adapter: adapter(),
+		trailingSlash: 'always',
 		vite: {
 			resolve: {
 				alias: {
