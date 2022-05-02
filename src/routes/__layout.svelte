@@ -1,9 +1,11 @@
 <script context="module" lang="ts">
-	export const load = async ({ url }: LoadInput): Promise<LoadOutput> => ({
-		props: {
-			refresh: url.pathname.split('/')[1]
-		}
-	});
+	export async function load({ url }: LoadInput): Promise<LoadOutput> {
+		return {
+			props: {
+				refresh: url.pathname.split('/')[1]
+			}
+		};
+	}
 </script>
 
 <script lang="ts">
