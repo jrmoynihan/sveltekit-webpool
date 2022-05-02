@@ -17,10 +17,6 @@ const config = {
 	// for more information about preprocessors
 	preprocess: [
 		preprocess({
-			// postcss: {
-			// plugins: [autoprefixer()],
-			// sourceMap: true,
-
 			scss: {
 				prependData: `@import '${sassPath}/mixins.scss';`
 			}
