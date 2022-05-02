@@ -23,7 +23,6 @@ const config = {
 	kit: {
 		// adapter: firebase(),
 		adapter: adapter(),
-		trailingSlash: 'always',
 		vite: {
 			resolve: {
 				alias: {
