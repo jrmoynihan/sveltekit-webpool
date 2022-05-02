@@ -1,6 +1,6 @@
 import type { QueryDocumentSnapshot, SnapshotOptions } from 'firebase/firestore';
-import { Team } from '$scripts/classes/team';
-import { Rule, RuleCategory } from '$scripts/classes/rules';
+import { Team } from '$lib/scripts/classes/team';
+import { Rule, RuleCategory } from '$lib/scripts/classes/rules';
 import { Game } from './classes/game';
 import { WeeklyPickDoc } from './classes/picks';
 import { WeeklyTiebreaker } from './classes/tiebreaker';

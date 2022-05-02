@@ -1,19 +1,23 @@
-import { myLog, myError } from '$scripts/classes/constants';
-import { Game } from '$scripts/classes/game';
-import { WeeklyPickDoc } from '$scripts/classes/picks';
-import type { WebUser } from '$scripts/classes/webUser';
+import { myLog, myError } from '$lib/scripts/classes/constants';
+import { Game } from '$lib/scripts/classes/game';
+import { WeeklyPickDoc } from '$lib/scripts/classes/picks';
+import type { WebUser } from '$lib/scripts/classes/webUser';
 import {
 	scheduleCollection,
 	weeklyPicksCollection,
 	weeklyTiebreakersCollection
-} from '$scripts/collections';
-import { gameConverter, weeklyPickConverter, weeklyTiebreakerConverter } from '$scripts/converters';
-import { defaultToast, errorToast } from '$scripts/toasts';
+} from '$lib/scripts/collections';
+import {
+	gameConverter,
+	weeklyPickConverter,
+	weeklyTiebreakerConverter
+} from '$lib/scripts/converters';
+import { defaultToast, errorToast } from '$lib/scripts/toasts';
 import { getWeeklyUsers } from './weeklyUsers';
 import { updateDoc, deleteDoc, doc, getDocs, query, setDoc, where } from 'firebase/firestore';
 import type { QueryConstraint } from 'firebase/firestore';
-import { findCurrentWeekOfSchedule } from '$scripts/schedule';
-import { getConsensusSpread } from '$scripts/dataFetching';
+import { findCurrentWeekOfSchedule } from '$lib/scripts/schedule';
+import { getConsensusSpread } from '$lib/scripts/dataFetching';
 import { toast } from '@zerodevx/svelte-toast';
 
 export const getAllGames = async (showToast = true) => {

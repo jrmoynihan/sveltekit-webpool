@@ -1,8 +1,8 @@
 import { browser } from '$app/env';
-import { myLog } from '$scripts/classes/constants';
-import { usersCollection } from '$scripts/collections';
-import { firestoreAuth } from '$scripts/firebaseInit';
-import { defaultToast } from '$scripts/toasts';
+import { myLog } from '$lib/scripts/classes/constants';
+import { usersCollection } from '$lib/scripts/collections';
+import { firestoreAuth } from '$lib/scripts/firebaseInit';
+import { defaultToast } from '$lib/scripts/toasts';
 import {
 	browserPopupRedirectResolver,
 	fetchSignInMethodsForEmail,
@@ -12,7 +12,7 @@ import type { AuthError } from 'firebase/auth';
 import { getDoc, doc } from 'firebase/firestore';
 import { get, writable } from 'svelte/store';
 import { currentUser } from './auth';
-import { capitalizeWord } from '$scripts/functions';
+import { capitalizeWord } from '$lib/scripts/functions';
 
 export const userNotFound = writable(false);
 

@@ -1,5 +1,5 @@
 import { collection, query, getDocs, onSnapshot, updateDoc } from 'firebase/firestore';
-import { firestoreDB } from '$scripts/firebaseInit';
+import { firestoreDB } from '$lib/scripts/firebaseInit';
 import { teamConverter } from './converters';
 import { defaultToast } from './toasts';
 import type { Team } from './classes/team';

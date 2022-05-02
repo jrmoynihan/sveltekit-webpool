@@ -11,16 +11,16 @@ import {
 	browserPopupRedirectResolver
 } from 'firebase/auth';
 import type { User, UserCredential, AuthProvider } from 'firebase/auth';
-import { firestoreAuth } from '$scripts/firebaseInit';
+import { firestoreAuth } from '$lib/scripts/firebaseInit';
 import { get, writable } from 'svelte/store';
-import { WebUser } from '$scripts/classes/webUser';
+import { WebUser } from '$lib/scripts/classes/webUser';
 import { doc, setDoc } from 'firebase/firestore';
-import { usersCollection } from '$scripts/collections';
+import { usersCollection } from '$lib/scripts/collections';
 import { goto } from '$app/navigation';
 import { userConverter } from '../converters';
 import { myError, myLog } from '../classes/constants';
-import { WeeklyPickRecord, UserWinnings } from '$scripts/classes/userRecord';
-import { saveUserData } from '$scripts/localStorage';
+import { WeeklyPickRecord, UserWinnings } from '$lib/scripts/classes/userRecord';
+import { saveUserData } from '$lib/scripts/localStorage';
 
 export const currentUser = writable<User>(firestoreAuth.currentUser);
 export const userData = writable<WebUser>();

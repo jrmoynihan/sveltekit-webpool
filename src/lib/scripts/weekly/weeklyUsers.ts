@@ -1,7 +1,7 @@
-import type { Game } from '$scripts/classes/game';
-import type { WeeklyPickDoc } from '$scripts/classes/picks';
-import type { SeasonType } from '$scripts/classes/seasonType';
-import type { WeeklyTiebreaker } from '$scripts/classes/tiebreaker';
+import type { Game } from '$lib/scripts/classes/game';
+import type { WeeklyPickDoc } from '$lib/scripts/classes/picks';
+import type { SeasonType } from '$lib/scripts/classes/seasonType';
+import type { WeeklyTiebreaker } from '$lib/scripts/classes/tiebreaker';
 import { query, where, getDocs, orderBy } from 'firebase/firestore';
 import { myLog, myError, checkmark, pick, detective, necktie } from '../classes/constants';
 import { WebUser } from '../classes/webUser';
@@ -18,7 +18,6 @@ import {
 	weeklyTiebreakerConverter
 } from '../converters';
 import { defaultToast, errorToast } from '../toasts';
-
 
 // TODO: Refactor these functions into endpoints that change the url as the params change?
 export const getWeeklyUsers = async (

@@ -3,7 +3,7 @@ import { writable, get } from 'svelte/store';
 import { doc, updateDoc, onSnapshot, query, getDoc } from 'firebase/firestore';
 import type { Query, FirestoreDataConverter } from 'firebase/firestore';
 import { userConverter } from './converters';
-import { WebUser } from '$scripts/classes/webUser';
+import { WebUser } from '$lib/scripts/classes/webUser';
 import { usersCollection } from './collections';
 import { browser } from '$app/env';
 import type { ScoreViewPreference } from './types/types';

@@ -1,7 +1,7 @@
 import { browser } from '$app/env';
 import type { WeeklyPickDoc } from './classes/picks';
 import { isBeforeGameTime } from './functions';
-import { showPickWarning, overrideDisabled } from '$scripts/store';
+import { showPickWarning, overrideDisabled } from '$lib/scripts/store';
 import { get } from 'svelte/store';
 
 export const scrollToNextGame = (

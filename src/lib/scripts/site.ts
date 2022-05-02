@@ -1,4 +1,4 @@
-import { PageOption } from '$scripts/classes/pageOption';
+import { PageOption } from '$lib/scripts/classes/pageOption';
 
 export const mobileBreakpoint = 1024;
 
