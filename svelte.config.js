@@ -4,7 +4,7 @@ import path, { dirname } from 'path';
 import mkcert from 'vite-plugin-mkcert';
 import { fileURLToPath } from 'url';
 const filepath = dirname(fileURLToPath(import.meta.url)).replace(/\\/g, '/');
-const sassPath = `${filepath}/src/styles`;
+const sassPath = `${filepath}/src/lib/styles`;
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
