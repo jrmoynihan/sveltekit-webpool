@@ -537,7 +537,6 @@
 									bind:currentPicks={$currentPicks}
 									bind:beforeGameTime={game.isBeforeGameTime}
 									{gridColumns}
-									selectedWeek={$selectedWeek}
 									id={game.id}
 									index={i}
 									spread={game.spread}
