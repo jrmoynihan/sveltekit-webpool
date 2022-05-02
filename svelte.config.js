@@ -22,7 +22,7 @@ const config = {
 			// sourceMap: true,
 
 			scss: {
-				prependData: `@import '${sassPath}/mixins.scss';`
+				prependData: `@import 'src/styles/mixins.scss';`
 			}
 		})
 	],
