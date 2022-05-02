@@ -2,12 +2,12 @@
 	import { createNewPlayerDocument } from '$scripts/auth/auth';
 	import { football, myError, myLog } from '$scripts/classes/constants';
 	import { weekBoundsCollection } from '$scripts/collections';
-	import { saveUserData } from '$scripts/localStorage';
+	import { savePlayerData } from '$scripts/localStorage';
 	import { godSequence, godMode, firebase_user, playerData } from '$scripts/store';
 	import { defaultToast, errorToast } from '$scripts/toasts';
 	import {
-		createTiebreakersForUser,
-		createWeeklyPicksForUser,
+		createTiebreakersForPlayer,
+		createWeeklyPicksForPlayer,
 		getAllGames
 	} from '$scripts/weekly/weeklyAdmin';
 	import { doc } from 'firebase/firestore';
@@ -125,12 +125,12 @@
 			// 	}
 			// }
 			await createNewPlayerDocument($firebase_user, nickname, toggledPools, totalPriceToEnter, 0);
-			await saveUserData($firebase_user);
+			await savePlayerData($firebase_user);
 			// TODO: create the necessary docs for each pool they've joined...
 			// may not need to await here, but should instead use Workers!
 			const games = await getAllGames(false);
-			createWeeklyPicksForUser($playerData, true, false, games);
-			createTiebreakersForUser($playerData);
+			createWeeklyPicksForPlayer($playerData, true, false, games);
+			createTiebreakersForPlayer($playerData);
 			//prettier-ignore
 			defaultToast({
 				title: `Account Created!`,

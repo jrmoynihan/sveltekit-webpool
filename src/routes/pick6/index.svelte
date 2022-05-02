@@ -5,8 +5,7 @@
 	import PickSixGroup from '$lib/components/containers/accordions/PickSixGroup.svelte';
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
 	import type { Team } from '$scripts/classes/team';
-	import { largerThanMobile } from '$scripts/store';
-	import { allTeams } from '$scripts/teams';
+	import { largerThanMobile, allTeams } from '$scripts/store';
 	import type { pickSixItem } from '$scripts/types/types';
 	import { quintOut } from 'svelte/easing';
 	import { crossfade, fly, slide } from 'svelte/transition';

@@ -8,16 +8,6 @@ import type {
 	ESPNDrive,
 	ESPNDriveRef
 } from './classes/game';
-import { getLocalStorageItem } from './localStorage';
-
-export const getUserId = async (): Promise<any> => {
-	try {
-		const id = await getLocalStorageItem('id');
-		return id;
-	} catch (error) {
-		myError('getUserId', error);
-	}
-};
 
 export const convertToHttps = async (httpAddress: string): Promise<string> => {
 	return httpAddress.replace('http', 'https');

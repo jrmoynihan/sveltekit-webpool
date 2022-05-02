@@ -16,10 +16,10 @@
 	export let refresh: unknown;
 
 	const adminTabs: PageOption[] = [
-		new PageOption({ navigationText: 'Manage Users', path: '/admin/manageUsers' }),
-		new PageOption({ navigationText: 'Manage Teams', path: '/admin/manageTeams' }),
-		new PageOption({ navigationText: 'Game Data', path: '/admin/setGames' }),
-		new PageOption({ navigationText: 'Weekly Pool Admin', path: '/admin/weeklyPoolAdmin' }),
+		new PageOption({ navigationText: 'Manage Players', path: '/admin/manage-players' }),
+		new PageOption({ navigationText: 'Manage Teams', path: '/admin/manage-teams' }),
+		new PageOption({ navigationText: 'Game Data', path: '/admin/set-games' }),
+		new PageOption({ navigationText: 'Weekly Pool Admin', path: '/admin/weekly-pool-admin' }),
 		new PageOption({ navigationText: 'The Sandbox', path: '/admin/sandbox' })
 	];
 

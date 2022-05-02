@@ -48,6 +48,7 @@ export const godSequence = writable<string[]>([]);
 export const firebase_user = writable<User>(firestoreAuth.currentUser);
 export const playerData = writable<Player>();
 export const allTeams = writable<Team[]>([]);
+export const player_not_found = writable(false);
 
 // export const queryAsStore = (
 // 	query: Query,
@@ -78,7 +79,7 @@ export const writableQueryAsStore = (
  * const q : Query = query(usersCollection, where('id', '==', $currentUser.uid));
 	let $userDataSnapshot : Writable<WebUser> = get(userQueryAsStore(q));
  */
-export const userQueryAsStore = (query: Query): Writable<Player> =>
+export const playerQueryAsStore = (query: Query): Writable<Player> =>
 	writable<Player>(new Player({}), (set) => {
 		onSnapshot(query.withConverter(playerConverter), async (snap) => {
 			set(snap.docs[0].data());
@@ -110,7 +111,7 @@ export const updatePlayer = async (player: Player): Promise<void> => {
 			playerData.set(doc.data());
 		}
 	} catch (error) {
-		console.error('Error updating User document', error);
+		console.error('Error updating Player document', error);
 	}
 };
-export const allUsers = writableQueryAsStore(query(playersCollection), playerConverter);
+export const allPlayers = writableQueryAsStore(query(playersCollection), playerConverter);

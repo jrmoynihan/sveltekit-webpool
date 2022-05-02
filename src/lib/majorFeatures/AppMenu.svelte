@@ -36,7 +36,7 @@
 	import AdminControlsModal from '$lib/components/modals/AdminControlsModal.svelte';
 	import SeasonTypeSelect from '$lib/components/selects/SeasonTypeSelect.svelte';
 	import YearSelect from '$lib/components/selects/YearSelect.svelte';
-	import UserSelect from '$lib/components/selects/PlayerSelect.svelte';
+	import PlayerSelect from '$lib/components/selects/PlayerSelect.svelte';
 	import { changedQuery } from '$lib/scripts/weekly/weeklyPlayers';
 	import type { Player } from '$lib/scripts/classes/player';
 
@@ -117,11 +117,11 @@
 							bind:selectedYear={$selectedSeasonYear}
 							on:yearChanged={adminSelectorsUpdated}
 						/>
-						<p>Select User</p>
-						<UserSelect
+						<p>Select Player</p>
+						<PlayerSelect
 							bind:selectedPlayer={$selectedPlayer}
 							bind:playersPromise
-							on:userChanged={adminSelectorsUpdated}
+							on:change={adminSelectorsUpdated}
 						/>
 					{/if}
 				</Grid>
@@ -206,7 +206,7 @@
 
 		@include responsive_desktop_only {
 			grid-template-columns: min-content;
-			grid-template-rows: repeat(2, min-content) 1fr; //** getting set above depending on user being logged in
+			grid-template-rows: repeat(2, min-content) 1fr; //** getting set above depending on player being logged in
 			padding: 0.5rem;
 			border-radius: 1em 0 0 1em;
 			font-size: 0.75rem;

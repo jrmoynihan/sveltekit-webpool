@@ -29,12 +29,12 @@
 		}
 	}
 	const getData = async () => {
-		const weeklyUserQuery = query(
+		const weeklyPlayerQuery = query(
 			playersCollection,
 			where('weekly', '==', true),
 			orderBy('totalWeeklyWins', 'desc')
 		);
-		weeklyPlayerPromise = getWeeklyPlayers(false, weeklyUserQuery);
+		weeklyPlayerPromise = getWeeklyPlayers(false, weeklyPlayerQuery);
 	};
 
 	// TODO: Move to endpoint

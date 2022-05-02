@@ -58,7 +58,7 @@ import type { WeeklyTiebreaker } from './classes/tiebreaker';
 import type { WeeklyPickDoc } from './classes/picks';
 import { toast } from '@zerodevx/svelte-toast';
 import type { Player } from './classes/player';
-import type { UserRecord } from './classes/userRecord';
+import type { PlayerRecord } from './classes/playerRecord';
 import { getStatus, getScores, convertToHttps } from './dataFetching';
 import { isBeforeGameTime } from './functions';
 
@@ -72,7 +72,7 @@ export const scorePicksForWeek = async (
 	try {
 		const startingToastId = defaultToast({
 			title: `Starting to Score Picks`,
-			msg: `Updating game winners, scoring (net) tiebreakers, and updating user records...`,
+			msg: `Updating game winners, scoring (net) tiebreakers, and updating player records...`,
 			duration: 60000
 		});
 		const wheres: QueryConstraint[] = [
@@ -83,11 +83,11 @@ export const scorePicksForWeek = async (
 		const gameQuery = query(scheduleCollection, ...wheres);
 		const pickQuery = query(weeklyPicksCollection, ...wheres);
 		const tiebreakerQuery = query(weeklyTiebreakersCollection, ...wheres);
-		const userQuery = query(playersCollection, where('weekly', '==', true));
+		const playerQuery = query(playersCollection, where('weekly', '==', true));
 		const games = await getDocs(gameQuery.withConverter(gameConverter));
 		const picks = await getDocs(pickQuery.withConverter(weeklyPickConverter));
 		const tiebreakers = await getDocs(tiebreakerQuery.withConverter(weeklyTiebreakerConverter));
-		const users = await getDocs(userQuery.withConverter(playerConverter));
+		const players = await getDocs(playerQuery.withConverter(playerConverter));
 
 		games.forEach((game) => {
 			const gameData = game.data();
@@ -105,23 +105,23 @@ export const scorePicksForWeek = async (
 		let secondMostWins: number = 0;
 		let thirdMostWins: number = 0;
 
-		users.forEach(async (user) => {
-			const userRef = user.ref;
-			// Get a fresh copy of the updated pick docs NOTE: (reads = 16 * # of users)
+		players.forEach(async (player) => {
+			const playerRef = player.ref;
+			// Get a fresh copy of the updated pick docs NOTE: (reads = 16 * # of players)
 			const wheres: QueryConstraint[] = [
 				where('week', '==', selectedWeek),
 				where('year', '==', selectedYear),
 				where('type', '==', seasonType),
-				where('uid', '==', user.id)
+				where('uid', '==', player.id)
 			];
 			const pickQuery = query(weeklyPicksCollection, ...wheres);
-			const userPicks = await getDocs(pickQuery.withConverter(weeklyPickConverter));
+			const playerPicks = await getDocs(pickQuery.withConverter(weeklyPickConverter));
 			toast.set(startingToastId, {
-				msg: `Updating week ${selectedWeek} record for ${user.data().name}`
+				msg: `Updating week ${selectedWeek} record for ${player.data().name}`
 			});
-			const totalWins = await updateUserRecordForWeek(selectedWeek, userRef, userPicks);
+			const totalWins = await updatePlayerRecordForWeek(selectedWeek, playerRef, playerPicks);
 
-			// While we iterate through updating user records, also store what the 1st, 2nd, and 3rd most win totals are
+			// While we iterate through updating player records, also store what the 1st, 2nd, and 3rd most win totals are
 			if (totalWins > mostWins) {
 				mostWins = totalWins;
 			} else if (totalWins > secondMostWins) {
@@ -133,17 +133,21 @@ export const scorePicksForWeek = async (
 		console.log(mostWins);
 		console.log(secondMostWins);
 
-		// Get a fresh copy of the updated user docs
-		const updatedUsers = await getDocs(userQuery.withConverter(playerConverter));
+		// Get a fresh copy of the updated player docs
+		const updatedPlayers = await getDocs(playerQuery.withConverter(playerConverter));
 
 		toast.set(startingToastId, { msg: `Finding week ${selectedWeek} leaders...` });
-		const firstPlacersForWeek = await findWeeklyLeaders(updatedUsers, mostWins, selectedWeek);
+		const firstPlacersForWeek = await findWeeklyLeaders(updatedPlayers, mostWins, selectedWeek);
 		const secondPlacersForWeek = await findWeeklyLeaders(
-			updatedUsers,
+			updatedPlayers,
 			secondMostWins,
 			selectedWeek
 		);
-		const thirdPlacersForWeek = await findWeeklyLeaders(updatedUsers, thirdMostWins, selectedWeek);
+		const thirdPlacersForWeek = await findWeeklyLeaders(
+			updatedPlayers,
+			thirdMostWins,
+			selectedWeek
+		);
 
 		toast.set(startingToastId, { msg: `Calculating weekly prize splits...` });
 		// Find out how the week's prize pool should be split
@@ -155,22 +159,22 @@ export const scorePicksForWeek = async (
 			);
 
 		toast.set(startingToastId, { msg: `Awarding weekly prizes...` });
-		updatedUsers.forEach(async (user) => {
-			const ref = user.ref;
+		updatedPlayers.forEach(async (player) => {
+			const ref = player.ref;
 			console.log('1st Placers: ', firstPlacersForWeek);
 			console.log('2nd Placers: ', secondPlacersForWeek);
 			console.log('3rd Placers: ', thirdPlacersForWeek);
 			if (firstPlacersForWeek.includes(ref)) {
-				myLog(`first place winner for week ${selectedWeek}`, user.data().name);
+				myLog(`first place winner for week ${selectedWeek}`, player.data().name);
 				await assignWeeklyPrize(ref, firstPlaceWeeklyPrize, selectedWeek);
 			} else if (secondPlacersForWeek.includes(ref)) {
-				myLog(`second place winner for week ${selectedWeek}`, user.data().name);
+				myLog(`second place winner for week ${selectedWeek}`, player.data().name);
 				await assignWeeklyPrize(ref, secondPlaceWeeklyPrize, selectedWeek);
 			} else if (thirdPlacersForWeek.includes(ref)) {
-				myLog(`third place winner for week ${selectedWeek}`, user.data().name);
+				myLog(`third place winner for week ${selectedWeek}`, player.data().name);
 				await assignWeeklyPrize(ref, thirdPlaceWeeklyPrize, selectedWeek);
 			} else {
-				myLog(`non-winner for week ${selectedWeek}`, user.data().name);
+				myLog(`non-winner for week ${selectedWeek}`, player.data().name);
 				await assignWeeklyPrize(ref, 0, selectedWeek);
 			}
 		});
@@ -180,14 +184,14 @@ export const scorePicksForWeek = async (
 		let secondMostSeasonWins: number = 0;
 		let thirdMostSeasonWins: number = 0;
 
-		// Update weekly user season records
-		updatedUsers.forEach(async (user) => {
-			const userData = user.data();
-			const userRef = user.ref;
+		// Update weekly player season records
+		updatedPlayers.forEach(async (player) => {
+			const player_data = player.data();
+			const player_ref = player.ref;
 
-			toast.set(startingToastId, { msg: `Updating season record for ${user.data().name}...` });
+			toast.set(startingToastId, { msg: `Updating season record for ${player_data.name}...` });
 			// TODO: Turn this into a cloud function trigger
-			const totalSeasonWins = await updateWeeklyUserSeasonRecord(userRef, userData);
+			const totalSeasonWins = await updateWeeklyPlayerSeasonRecord(player_ref, player_data);
 
 			if (totalSeasonWins > mostSeasonWins) {
 				mostSeasonWins = totalSeasonWins;
@@ -200,13 +204,13 @@ export const scorePicksForWeek = async (
 
 		if (assignSeasonPrizes) {
 			toast.set(startingToastId, { msg: `Finding season leaders...` });
-			const firstPlacersForSeason = await findWeeklySeasonLeaders(updatedUsers, mostSeasonWins);
+			const firstPlacersForSeason = await findWeeklySeasonLeaders(updatedPlayers, mostSeasonWins);
 			const secondPlacersForSeason = await findWeeklySeasonLeaders(
-				updatedUsers,
+				updatedPlayers,
 				secondMostSeasonWins
 			);
 			const thirdPlacersForSeason = await findWeeklySeasonLeaders(
-				updatedUsers,
+				updatedPlayers,
 				thirdMostSeasonWins
 			);
 
@@ -214,16 +218,16 @@ export const scorePicksForWeek = async (
 			toast.set(startingToastId, { msg: `Calculating season prize splits...` });
 			const { firstPlaceSeasonPrize, secondPlaceSeasonPrize, thirdPlaceSeasonPrize } =
 				await calculateSeasonPrizeSplits(
-					updatedUsers,
+					updatedPlayers,
 					firstPlacersForSeason,
 					secondPlacersForSeason,
 					thirdPlacersForSeason
 				);
 
-			// Assign either the first, second, third, or no prize value to the user for the season
-			updatedUsers.forEach((user) => {
-				const ref = user.ref;
-				toast.set(startingToastId, { msg: `Assigning season prize for ${user.data().name}...` });
+			// Assign either the first, second, third, or no prize value to the player for the season
+			updatedPlayers.forEach((player) => {
+				const ref = player.ref;
+				toast.set(startingToastId, { msg: `Assigning season prize for ${player.data().name}...` });
 				if (firstPlacersForSeason.includes(ref)) {
 					assignSeasonPrize(ref, firstPlaceSeasonPrize);
 				} else if (secondPlacersForSeason.includes(ref)) {
@@ -241,7 +245,7 @@ export const scorePicksForWeek = async (
 		toast.pop(startingToastId);
 		defaultToast({
 			title: `Scored Week ${selectedWeek} Picks!`,
-			msg: `Successfully scored each user's picks for Week ${selectedWeek}, ${selectedYear}.`
+			msg: `Successfully scored each player's picks for Week ${selectedWeek}, ${selectedYear}.`
 		});
 	} catch (error) {
 		myError('scorePicks', error);
@@ -298,12 +302,12 @@ export const calculateWeekPrizeSplits = async (
 };
 
 export const calculateSeasonPrizeSplits = async (
-	updatedUsers: QuerySnapshot<Player>,
-	firstPlacers: DocumentReference<DocumentData>[],
-	secondPlacers: DocumentReference<DocumentData>[],
-	thirdPlacers: DocumentReference<DocumentData>[]
+	updated_players: QuerySnapshot<Player>,
+	first_placers: DocumentReference<DocumentData>[],
+	second_placers: DocumentReference<DocumentData>[],
+	third_placers: DocumentReference<DocumentData>[]
 ) => {
-	const paidWeeklyPlayers = updatedUsers.docs.filter((doc) => doc.data().paidWeekly === true);
+	const paidWeeklyPlayers = updated_players.docs.filter((doc) => doc.data().paidWeekly === true);
 	const seasonTotalPrizePool = paidWeeklyPlayers.length * weeklyPoolFee;
 	const seasonPrizePoolNetCosts =
 		seasonTotalPrizePool -
@@ -315,31 +319,31 @@ export const calculateSeasonPrizeSplits = async (
 	let secondPlaceSeasonPrize: number;
 	let thirdPlaceSeasonPrize: number;
 
-	if (firstPlacers.length === 1) {
+	if (first_placers.length === 1) {
 		firstPlaceSeasonPrize = seasonPrizePoolNetCosts * firstPlaceWeeklySeasonPercent;
-		if (secondPlacers.length === 1) {
+		if (second_placers.length === 1) {
 			secondPlaceSeasonPrize = seasonPrizePoolNetCosts * secondPlaceWeeklySeasonPercent;
 			thirdPlaceSeasonPrize =
-				(seasonPrizePoolNetCosts * thirdPlaceWeeklySeasonPercent) / thirdPlacers.length;
-		} else if (secondPlacers.length >= 2) {
+				(seasonPrizePoolNetCosts * thirdPlaceWeeklySeasonPercent) / third_placers.length;
+		} else if (second_placers.length >= 2) {
 			secondPlaceSeasonPrize =
-				(seasonPrizePoolNetCosts * secondPlaceWeeklySeasonPercent) / secondPlacers.length;
+				(seasonPrizePoolNetCosts * secondPlaceWeeklySeasonPercent) / second_placers.length;
 			thirdPlaceSeasonPrize = 0;
 		}
-	} else if (firstPlacers.length === 2) {
+	} else if (first_placers.length === 2) {
 		firstPlaceSeasonPrize =
 			(seasonPrizePoolNetCosts * (firstPlaceWeeklySeasonPercent + secondPlaceWeeklySeasonPercent)) /
 			2;
 		secondPlaceSeasonPrize =
-			(seasonPrizePoolNetCosts * thirdPlaceWeeklySeasonPercent) / secondPlacers.length;
+			(seasonPrizePoolNetCosts * thirdPlaceWeeklySeasonPercent) / second_placers.length;
 		thirdPlaceSeasonPrize = 0;
-	} else if (firstPlacers.length >= 3) {
+	} else if (first_placers.length >= 3) {
 		firstPlaceSeasonPrize =
 			(seasonPrizePoolNetCosts *
 				(firstPlaceWeeklySeasonPercent +
 					secondPlaceWeeklySeasonPercent +
 					thirdPlaceWeeklySeasonPercent)) /
-			firstPlacers.length;
+			first_placers.length;
 		secondPlaceSeasonPrize = 0;
 		thirdPlaceSeasonPrize = 0;
 	}
@@ -347,18 +351,18 @@ export const calculateSeasonPrizeSplits = async (
 };
 
 /**
- * Returns an array of users who have the specified number of wins for the entire season
- * @param users - The array of weekly pool users
- * @param comparisonWinCount - The number of wins a user must have (exactly) to be added to the return array
- * @returns An array of user document references of users who meet the criteria
+ * Returns an array of players who have the specified number of wins for the entire season
+ * @param players - The array of weekly pool players
+ * @param comparisonWinCount - The number of wins a player must have (exactly) to be added to the return array
+ * @returns An array of player document references of players who meet the criteria
  */
 export const findWeeklySeasonLeaders = async (
-	users: QuerySnapshot<Player>,
+	players: QuerySnapshot<Player>,
 	comparisonWinCount: number
 ) => {
 	try {
 		let leaders: DocumentReference[] = [];
-		users.docs.filter((doc) => {
+		players.docs.filter((doc) => {
 			const totalWeeklyWins = doc.data().totalWeeklyWins;
 			if (totalWeeklyWins === comparisonWinCount) {
 				leaders.push(doc.ref);
@@ -366,26 +370,26 @@ export const findWeeklySeasonLeaders = async (
 		});
 		return leaders;
 	} catch (error) {
-		myError('findWeeklyUserLeaders', error);
+		myError('findWeeklySeasonLeaders', error);
 	}
 };
 
 /**
- * Returns an array of users who have the specified number of wins in the specified week
- * @param users - The array of weekly pool users
- * @param comparisonWinCount - The number of wins a user must have (exactly) to be added to the return array
- * @param weekToCompare - The week to examine records from
- * @returns An array of user document references of users who meet the criteria
+ * Returns an array of players who have the specified number of wins in the specified week
+ * @param players - The array of weekly pool players
+ * @param comparison_win_count - The number of wins a player must have (exactly) to be added to the return array
+ * @param week_to_compare - The week to examine records from
+ * @returns An array of player document references of players who meet the criteria
  */
 export const findWeeklyLeaders = async (
-	users: QuerySnapshot<Player>,
-	comparisonWinCount: number,
-	weekToCompare: number
+	players: QuerySnapshot<Player>,
+	comparison_win_count: number,
+	week_to_compare: number
 ) => {
 	try {
 		let leaders: DocumentReference[] = [];
-		users.forEach((doc) => {
-			if (doc.data().weeklyPickRecord[`week_${weekToCompare}`].wins === comparisonWinCount) {
+		players.forEach((doc) => {
+			if (doc.data().weeklyPickRecord[`week_${week_to_compare}`].wins === comparison_win_count) {
 				leaders.push(doc.ref);
 			}
 		});
@@ -401,25 +405,25 @@ export const findWeeklyLeaders = async (
  * @param smallesNetTiebreakerAbsolute - The smallest net tiebreaker (closest to actual score in either direction) found when scoring the week
  * @param greatestNetTiebreaker - The greatest net tiebreaker ()
  */
-export const findWeeklyUserWinners = (
+export const findWeeklyPlayerWinners = (
 	mostWins: number,
 	smallestNetTiebreakerAbsolute: number,
 	greatestNetTiebreaker: number
 ) => {};
 
-export const updateWeeklyUserSeasonRecord = async (
-	userRef: DocumentReference,
-	userData: Player
+export const updateWeeklyPlayerSeasonRecord = async (
+	player_ref: DocumentReference,
+	player_data: Player
 ) => {
 	let totalWins = 0;
 	let totalLosses = 0;
-	const weekRecords: UserRecord[] = Object.values(userData.weeklyPickRecord);
-	// Add each week's wins/losses to the the user's total season wins/losses
+	const weekRecords: PlayerRecord[] = Object.values(player_data.weeklyPickRecord);
+	// Add each week's wins/losses to the the player's total season wins/losses
 	for await (const week of weekRecords) {
 		totalWins += week.wins;
 		totalLosses += week.losses;
 	}
-	await updateDoc(userRef, {
+	await updateDoc(player_ref, {
 		totalWeeklyWins: totalWins,
 		totalWeeklyLosses: totalLosses
 	});
@@ -427,22 +431,22 @@ export const updateWeeklyUserSeasonRecord = async (
 };
 
 /**
- * Updates the user document with the number of wins and losses in a given week
- * @param selectedWeek - The week record to update
- * @param userRef - The user document to update
- * @param userPicks - The array of user picks to evaluate for correctness (win) / incorrectness (loss)
- * @returns The number of wins the user had in the week
+ * Updates the player document with the number of wins and losses in a given week
+ * @param selected_week - The week record to update
+ * @param player_ref - The player document to update
+ * @param player_picks - The array of player picks to evaluate for correctness (win) / incorrectness (loss)
+ * @returns The number of wins the player had in the week
  */
-export const updateUserRecordForWeek = async (
-	selectedWeek: number,
-	userRef: DocumentReference,
-	userPicks: QuerySnapshot<WeeklyPickDoc>
+export const updatePlayerRecordForWeek = async (
+	selected_week: number,
+	player_ref: DocumentReference,
+	player_picks: QuerySnapshot<WeeklyPickDoc>
 ): Promise<number> => {
-	const correctPicks = userPicks.docs.filter((doc) => doc.data().isCorrect === true);
-	const incorrectPicks = userPicks.docs.filter((doc) => doc.data().isCorrect === false);
-	await updateDoc(userRef, {
-		[`weeklyPickRecord.week_${selectedWeek}.wins`]: correctPicks.length,
-		[`weeklyPickRecord.week_${selectedWeek}.losses`]: incorrectPicks.length
+	const correctPicks = player_picks.docs.filter((doc) => doc.data().isCorrect === true);
+	const incorrectPicks = player_picks.docs.filter((doc) => doc.data().isCorrect === false);
+	await updateDoc(player_ref, {
+		[`weeklyPickRecord.week_${selected_week}.wins`]: correctPicks.length,
+		[`weeklyPickRecord.week_${selected_week}.losses`]: incorrectPicks.length
 	});
 	return correctPicks.length;
 };
@@ -456,7 +460,7 @@ export const markIfPickIsCorrect = async (
 			const pickData = pick.data();
 			const pickRef = pick.ref;
 			// const uid = pickData.uid;
-			// const userRef = doc(usersCollection, uid);
+			// const playerRef = doc(playersCollection, uid);
 			// if (pickData.isCorrect === null || pickData.isCorrect === undefined) {
 			if (pickData.gameId === gameData.id) {
 				if (
@@ -476,28 +480,29 @@ export const markIfPickIsCorrect = async (
 			// }
 		});
 	} catch (error) {
-		myError('updateUserRecords', error);
+		myError('updatePlayerRecords', error);
 	}
 };
 export const scoreNetTiebreakers = async (
-	gameData: Game,
+	game_data: Game,
 	tiebreakers: QuerySnapshot<WeeklyTiebreaker>,
-	selectedWeek: number
+	selected_week: number
 ) => {
 	try {
-		if (gameData.isLastGameOfWeek && gameData.winner) {
-			myLog(`last game of the week: ${gameData.shortName}, totalScore: ${gameData.totalScore}`);
+		if (game_data.isLastGameOfWeek && game_data.winner) {
+			myLog(`last game of the week: ${game_data.shortName}, totalScore: ${game_data.totalScore}`);
 			tiebreakers.forEach((tiebreaker) => {
 				const tiebreakerData = tiebreaker.data();
 				const uid = tiebreakerData.uid;
 				if (tiebreakerData.scoreGuess) {
-					const netTiebreaker = gameData.totalScore - tiebreakerData.scoreGuess;
-					const netTiebreakerAbsolute = Math.abs(netTiebreaker);
-					const userDocRef = doc(playersCollection, uid);
-					// store netTiebreakers on the USER document; easier for scoreboard
-					updateDoc(userDocRef, {
-						[`weeklyPickRecord.week_${selectedWeek}.netTiebreaker`]: netTiebreaker,
-						[`weeklyPickRecord.week_${selectedWeek}.netTiebreakerAbsolute`]: netTiebreakerAbsolute
+					const net_tiebreaker = game_data.totalScore - tiebreakerData.scoreGuess;
+					const net_tiebreaker_absolute = Math.abs(net_tiebreaker);
+					const player_doc_ref = doc(playersCollection, uid);
+					// store netTiebreakers on the Player document; easier for scoreboard
+					updateDoc(player_doc_ref, {
+						[`weeklyPickRecord.week_${selected_week}.netTiebreaker`]: net_tiebreaker,
+						[`weeklyPickRecord.week_${selected_week}.netTiebreakerAbsolute`]:
+							net_tiebreaker_absolute
 					});
 				} else {
 					myLog('no tiebreaker posted');
@@ -510,18 +515,18 @@ export const scoreNetTiebreakers = async (
 };
 
 export const resetScoredPicksForWeek = async (
-	selectedWeek: number,
-	selectedYear = new Date().getFullYear(),
-	seasonType = 'Regular Season'
+	selected_week: number,
+	selected_year = new Date().getFullYear(),
+	season_type = 'Regular Season'
 ): Promise<void> => {
 	try {
 		const wheres: QueryConstraint[] = [
-			where('week', '==', selectedWeek),
-			where('year', '==', selectedYear),
-			where('type', '==', seasonType)
+			where('week', '==', selected_week),
+			where('year', '==', selected_year),
+			where('type', '==', season_type)
 		];
 		const proceed = confirm(
-			`Are you sure you want to nullify the 'isCorrect' field from each user's picks for Week ${selectedWeek}?`
+			`Are you sure you want to nullify the 'isCorrect' field from each player's picks for Week ${selected_week}?`
 		);
 		if (proceed) {
 			const pickQuery = query(weeklyPicksCollection, ...wheres);
@@ -931,14 +936,14 @@ export const updateTeamRecord = async (
 // 	}
 // };
 
-export const resetWeeklyUserRecords = async (): Promise<void> => {
+export const resetWeeklyPlayerRecords = async (): Promise<void> => {
 	try {
-		const proceed = confirm('Are you sure you want to reset all Weekly Pool user records?');
+		const proceed = confirm('Are you sure you want to reset all Weekly Pool player records?');
 		if (proceed) {
-			const weeklyUserQuery = query(playersCollection, where('weekly', '==', true));
-			const weeklyUsers = await getDocs(weeklyUserQuery);
-			weeklyUsers.forEach((user) => {
-				updateDoc(user.ref, {
+			const weekly_player_query = query(playersCollection, where('weekly', '==', true));
+			const weekly_player = await getDocs(weekly_player_query);
+			weekly_player.forEach((player) => {
+				updateDoc(player.ref, {
 					'weeklyPickRecord.total.wins': 0,
 					'weeklyPickRecord.total.losses': 0,
 					'weeklyPickRecord.week_1.wins': 0,
@@ -978,14 +983,14 @@ export const resetWeeklyUserRecords = async (): Promise<void> => {
 					'weeklyPickRecord.week_18.wins': 0,
 					'weeklyPickRecord.week_18.losses': 0
 				});
-				myLog(`reset records for ${user.data().name} (${user.id})`);
+				myLog(`reset records for ${player.data().name} (${player.id})`);
 			});
 		}
 		defaultToast({
 			title: `Successful Reset!`,
-			msg: `${checkmark} All weekly pool user records have been reset.`
+			msg: `${checkmark} All weekly pool player records have been reset.`
 		});
 	} catch (error) {
-		myError('resetWeeklyUserRecords', error);
+		myError('resetWeeklyPlayerRecords', error);
 	}
 };

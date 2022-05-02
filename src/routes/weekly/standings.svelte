@@ -1,6 +1,6 @@
 <script lang="ts">
-	import SeasonStandings from '$tables/SeasonStandings.svelte';
-	import WeekStandings from '$tables/WeekStandings.svelte';
+	import SeasonStandings from '$components/tables/SeasonStandings.svelte';
+	import WeekStandings from '$components/tables/WeekStandings.svelte';
 	import Tabs from '$navigation/Tabs.svelte';
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
 	import { writable } from 'svelte/store';

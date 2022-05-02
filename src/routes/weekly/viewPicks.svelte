@@ -25,7 +25,7 @@
 	let now = new Date();
 	// let selectedWeek: number = 1;
 	let selectedYear: number = now.getMonth() < 3 ? now.getFullYear() - 1 : now.getFullYear();
-	let hoverUser: string;
+	let hoverPlayer: string;
 	let hoverGame: string;
 
 	const getAllPicksForWeek = async (selectedWeek: number, selectedYear: number) => {
@@ -88,7 +88,7 @@
 	};
 
 	let weekPromise: Promise<number> = findCurrentWeekOfSchedule();
-	let userPromise: Promise<Player[]> = getWeeklyPlayers(false);
+	let playerPromise: Promise<Player[]> = getWeeklyPlayers(false);
 	let teamsPromise: Promise<Team[]> = getAllTeams();
 	let picksPromise: Promise<WeeklyPickDoc[]>;
 	let gamesPromise: Promise<Game[]>;
@@ -109,13 +109,13 @@
 	on:incrementWeek={() => getData($selectedWeek, selectedYear)}
 />
 
-{#await userPromise then users}
+{#await playerPromise then players}
 	{#await teamsPromise then teams}
 		{#await picksPromise then picks}
 			{#await gamesPromise}
 				<span transition:fade style="margin: auto;">Loading...</span>
 			{:then games}
-				{#if users && picks && games}
+				{#if players && picks && games}
 					<TransitionWrapper refresh={picks}>
 						<Grid
 							repeatColumns={games.length + 2}
@@ -139,22 +139,22 @@
 								</div>
 							{/each}
 							<div>Wins</div>
-							{#each users as user}
+							{#each players as player}
 								<div
 									transition:fly={{ x: -100, duration: 750 }}
 									class="nickname label"
-									class:hovered={hoverUser === user.uid}
-									on:mouseover={() => (hoverUser = user.uid)}
-									on:mouseleave={() => (hoverUser = '')}
-									on:focus={() => (hoverUser = user.uid)}
-									on:blur={() => (hoverUser = '')}
+									class:hovered={hoverPlayer === player.uid}
+									on:mouseover={() => (hoverPlayer = player.uid)}
+									on:mouseleave={() => (hoverPlayer = '')}
+									on:focus={() => (hoverPlayer = player.uid)}
+									on:blur={() => (hoverPlayer = '')}
 								>
-									{user.nickname}
+									{player.nickname}
 								</div>
 								{#each games as game}
 									{#await isBeforeGameTime(game.timestamp) then notAbleToSee}
 										{#each picks as pick}
-											{#if pick.uid === user.uid && pick.gameId === game.id}
+											{#if pick.uid === player.uid && pick.gameId === game.id}
 												{#if pick.pick === null || pick.pick === ''}
 													<div
 														transition:fly={{ x: -100, duration: 750 }}
@@ -178,21 +178,22 @@
 																	class="rounded image-holder"
 																	class:winner={pick.isCorrect}
 																	class:dark={$useDarkTheme}
-																	class:hovered={hoverUser === user.uid || hoverGame === game.id}
+																	class:hovered={hoverPlayer === player.uid ||
+																		hoverGame === game.id}
 																	on:mouseover={() => {
-																		hoverUser = user.uid;
+																		hoverPlayer = player.uid;
 																		hoverGame = game.id;
 																	}}
 																	on:mouseleave={() => {
-																		hoverUser = '';
+																		hoverPlayer = '';
 																		hoverGame = '';
 																	}}
 																	on:focus={() => {
-																		hoverUser = user.uid;
+																		hoverPlayer = player.uid;
 																		hoverGame = game.id;
 																	}}
 																	on:blur={() => {
-																		hoverUser = '';
+																		hoverPlayer = '';
 																		hoverGame = '';
 																	}}
 																>
@@ -208,7 +209,7 @@
 										<ErrorModal {error} />
 									{/await}
 								{/each}
-								{user?.weeklyPickRecord[`week_${selectedWeek}`]?.wins}
+								{player?.weeklyPickRecord[`week_${selectedWeek}`]?.wins}
 							{/each}
 						</Grid>
 					</TransitionWrapper>

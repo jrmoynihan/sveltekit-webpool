@@ -10,19 +10,17 @@ import {
 } from 'firebase/auth';
 import type { AuthError } from 'firebase/auth';
 import { getDoc, doc } from 'firebase/firestore';
-import { get, writable } from 'svelte/store';
+import { get } from 'svelte/store';
 import { capitalizeWord } from '$scripts/functions';
-import { firebase_user } from '$scripts/store';
+import { firebase_user, player_not_found } from '$scripts/store';
 
-export const userNotFound = writable(false);
-
-const obtainUserDocOnRedirect = async (): Promise<void> => {
+const obtainPlayerDocOnRedirect = async (): Promise<void> => {
 	try {
 		const credential = await getRedirectResult(firestoreAuth, browserPopupRedirectResolver);
 		if (credential) {
 			console.log('got redirect result!', credential);
 
-			getCurrentUserDoc();
+			getCurrentPlayerDoc();
 		}
 	} catch (error) {
 		const errorTyped: AuthError = error; // recast the error type from 'any' to a useful type
@@ -51,22 +49,22 @@ const obtainUserDocOnRedirect = async (): Promise<void> => {
 	}
 };
 
-browser ? obtainUserDocOnRedirect() : null;
+browser ? obtainPlayerDocOnRedirect() : null;
 
 /**
  * Looks up the current Auth user, then tries to query for their user document from Firebase.
  * If it exists, the userNotFound store is set to {true}, indicating a New User prompt should be displayed.
  */
-async function getCurrentUserDoc(): Promise<void> {
+async function getCurrentPlayerDoc(): Promise<void> {
 	const user = get(firebase_user);
-	const userDoc = doc(playersCollection, user.uid);
-	const userDocSnapshot = await getDoc(userDoc);
+	const player_doc = doc(playersCollection, user.uid);
+	const player_doc_snapshot = await getDoc(player_doc);
 	// Log if the user doc exists
-	if (userDocSnapshot.exists()) {
-		console.info(`User doc already exists`);
+	if (player_doc_snapshot.exists()) {
+		console.info(`Player doc already exists`);
 	} else {
-		console.info('User doc not found!');
+		console.info('Player doc not found!');
 		// Set a global store that will indicate the user needs a New User prompt
-		userNotFound.set(true);
+		player_not_found.set(true);
 	}
 }

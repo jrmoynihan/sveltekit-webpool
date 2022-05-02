@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { updateUser } from '$scripts/store';
+	import { updatePlayer } from '$scripts/store';
 	import ToggleSwitch from '$lib/components/switches/ToggleSwitch.svelte';
 	import type { Player } from '$classes/player';
 
@@ -10,7 +10,7 @@
 <div class="{role} toggle">
 	{#if player}
 		<div class:crossout={!player[role]}>{role}</div>
-		<ToggleSwitch bind:checked={player[role]} on:toggle={async () => await updateUser(player)} />
+		<ToggleSwitch bind:checked={player[role]} on:toggle={async () => await updatePlayer(player)} />
 	{/if}
 </div>
 

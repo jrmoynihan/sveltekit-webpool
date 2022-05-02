@@ -90,27 +90,27 @@ const getMaxGameWeek = async (): Promise<number> => {
 	}
 };
 
-export const createWeeklyPicksForAllUsers = async () => {
+export const createWeeklyPicksForAllPlayers = async () => {
 	try {
-		const weeklyUsers = await getWeeklyPlayers();
+		const weeklyPlayers = await getWeeklyPlayers();
 		const games = await getAllGames();
-		for await (const user of weeklyUsers) {
-			await createWeeklyPicksForUser(user, true, false, games);
+		for await (const player of weeklyPlayers) {
+			await createWeeklyPicksForPlayer(player, true, false, games);
 		}
 		const title = 'Created Weekly Picks!';
-		const msg = 'Pick documents were created for every game, for every Weekly pool user.';
+		const msg = 'Pick documents were created for every game, for every Weekly pool player.';
 		defaultToast({ title, msg });
-		myLog(msg, 'createWeeklyPicksForUser');
+		myLog(msg, 'createWeeklyPicksForPlayer');
 	} catch (error) {
-		const msg = `Encountered an error while trying to create all users' picks.  Check the console for more info. ${error}`;
+		const msg = `Encountered an error while trying to create all players' picks.  Check the console for more info. ${error}`;
 		errorToast(msg);
-		myError('createWeeklyPicksForAllUsers', error, msg);
+		myError('createWeeklyPicksForAllPlayers', error, msg);
 	}
 };
 
-//TODO: Move to a triggered Cloud Function when a user joins the Weekly pool
-export const createWeeklyPicksForUser = async (
-	user: Player,
+//TODO: Move to a triggered Cloud Function when a player joins the Weekly pool
+export const createWeeklyPicksForPlayer = async (
+	player: Player,
 	logAll = true,
 	showToast = true,
 	games?: Game[],
@@ -129,37 +129,37 @@ export const createWeeklyPicksForUser = async (
 				docRef: newWeeklyPickRef,
 				gameId: game.id,
 				pick: '',
-				uid: user.uid,
+				uid: player.uid,
 				week: game.week,
 				year: game.timestamp.toDate().getFullYear(),
 				timestamp: game.timestamp,
-				name: user.name,
-				nickname: user.nickname,
+				name: player.name,
+				nickname: player.nickname,
 				type: game.type,
 				isCorrect: null
 			});
 			setDoc(newWeeklyPickRef.withConverter(weeklyPickConverter), pickDoc);
 		}
 		const title = 'Created Weekly Picks!';
-		const msg = `Pick documents were created for every game for ${user.name} (${user.nickname})`;
+		const msg = `Pick documents were created for every game for ${player.name} (${player.nickname})`;
 		if (logAll) {
-			myLog(msg, 'createWeeklyPicksForUser');
+			myLog(msg, 'createWeeklyPicksForPlayer');
 		}
 		if (showToast) {
 			defaultToast({ title, msg });
 		}
 	} catch (error) {
-		const msg = `Encountered an error while trying to create ${user.name}'s picks.  Check the console for more info. ${error}`;
+		const msg = `Encountered an error while trying to create ${player.name}'s picks.  Check the console for more info. ${error}`;
 		if (logAll) {
 			errorToast(msg);
-			myError('createWeeklyPicksForUser', error, msg);
+			myError('createWeeklyPicksForPlayer', error, msg);
 		} else {
 			throw error;
 		}
 	}
 };
 
-export const deleteWeeklyPicksForAllUsers = async () => {
+export const deleteWeeklyPicksForAllPlayers = async () => {
 	try {
 		const q = query(weeklyPicksCollection);
 		const allWeeklyDocs = await getDocs(q);
@@ -169,15 +169,15 @@ export const deleteWeeklyPicksForAllUsers = async () => {
 		const title = 'Deleted Weekly Picks!';
 		const msg = 'All pick documents were deleted.';
 		defaultToast({ title, msg });
-		myLog(msg, 'deleteWeeklyPicksForAllUsers');
+		myLog(msg, 'deleteWeeklyPicksForAllPlayers');
 	} catch (error) {
-		const msg = `Encountered an error while trying to delete all user's picks.  Check the console for more info. ${error}`;
+		const msg = `Encountered an error while trying to delete all players's picks.  Check the console for more info. ${error}`;
 		errorToast(msg);
-		myError('deleteWeeklyPicksForAllUsers', error, msg);
+		myError('deleteWeeklyPicksForAllPlayers', error, msg);
 	}
 };
-export const deleteWeeklyPicksForUser = async (
-	user: Player,
+export const deleteWeeklyPicksForPlayer = async (
+	player: Player,
 	selectedWeek?: number,
 	selectedYear?: number
 ) => {
@@ -189,49 +189,49 @@ export const deleteWeeklyPicksForUser = async (
 			selectedYear = new Date().getFullYear();
 		}
 		const wheres = [
-			where('uid', '==', user.uid),
+			where('uid', '==', player.uid),
 			where('week', '==', selectedWeek),
 			where('year', '==', selectedYear)
 		];
 		const q = query(weeklyPicksCollection, ...wheres);
-		const allWeeklyDocsForUser = await getDocs(q);
-		allWeeklyDocsForUser.forEach((doc) => {
+		const allWeeklyDocsForPlayer = await getDocs(q);
+		allWeeklyDocsForPlayer.forEach((doc) => {
 			deleteDoc(doc.ref);
 		});
 		const title = 'Deleted Weekly Picks!';
-		const msg = `All pick documents were deleted for ${user.name} (${user.nickname})`;
+		const msg = `All pick documents were deleted for ${player.name} (${player.nickname})`;
 		defaultToast({ title, msg });
-		myLog(msg, 'deleteWeeklyPicksForUser');
+		myLog(msg, 'deleteWeeklyPicksForPlayer');
 	} catch (error) {
-		const msg = `Encountered an error while trying to delete ${user.name}'s picks. Check the console for more info. ${error}`;
+		const msg = `Encountered an error while trying to delete ${player.name}'s picks. Check the console for more info. ${error}`;
 		errorToast(msg);
-		myError('deleteWeeklyPicksForUser', error, msg);
+		myError('deleteWeeklyPicksForPlayer', error, msg);
 	}
 };
-export const createTiebreakersForAllUsers = async () => {
+export const createTiebreakersForAllPlayers = async () => {
 	try {
-		const weeklyUsers = await getWeeklyPlayers();
-		weeklyUsers.forEach((user) => {
-			createTiebreakersForUser(user, undefined, undefined, false);
+		const weeklyPlayers = await getWeeklyPlayers();
+		weeklyPlayers.forEach((player) => {
+			createTiebreakersForPlayer(player, undefined, undefined, false);
 		});
 		const title = 'Created Tiebreakers!';
-		const msg = 'Tiebreaker documents were created for every game, for every Weekly pool user.';
+		const msg = 'Tiebreaker documents were created for every game, for every Weekly pool player.';
 		defaultToast({ title, msg });
-		myLog(msg, 'createTiebreakersForAllUsers');
+		myLog(msg, 'createTiebreakersForAllPlayers');
 	} catch (error) {
-		const msg = `Encountered an error while trying to create all users' tiebreaker documents.  Check the console for more info. ${error}`;
+		const msg = `Encountered an error while trying to create all players' tiebreaker documents.  Check the console for more info. ${error}`;
 		errorToast(msg);
-		myError('createTiebreakersForAllUsers', error, msg);
+		myError('createTiebreakersForAllPlayers', error, msg);
 	}
 };
-export const createTiebreakersForUser = async (
-	user: Player,
+export const createTiebreakersForPlayer = async (
+	player: Player,
 	selectedWeek?: number,
 	selectedYear?: number,
 	logAll = true
 ) => {
 	try {
-		const uid = user.uid;
+		const uid = player.uid;
 		if (!selectedYear) {
 			selectedYear = new Date().getFullYear();
 		}
@@ -246,12 +246,12 @@ export const createTiebreakersForUser = async (
 		}
 
 		if (logAll) {
-			myLog(`set tiebreaker for ${user.name} (${user.nickname})`);
+			myLog(`set tiebreaker for ${player.name} (${player.nickname})`);
 		}
 	} catch (error) {
-		const msg = `Encountered an error while trying to create tiebreaker documents for ${user.name} (${user.nickname})`;
+		const msg = `Encountered an error while trying to create tiebreaker documents for ${player.name} (${player.nickname})`;
 		errorToast(msg);
-		myError('createTiebreakersForAllUsers', error, msg);
+		myError('createTiebreakersForAllPlayers', error, msg);
 	}
 };
 export const setNewTiebreakerDoc = async (
@@ -276,17 +276,17 @@ export const setNewTiebreakerDoc = async (
 		myError(
 			'setTiebreakerDoc',
 			error,
-			`unable to update tiebreaker ${docRef.path} for user ${uid}`
+			`unable to update tiebreaker ${docRef.path} for player ${uid}`
 		);
 		errorToast(
 			`We encountered an error while trying to set tiebreaker docs.  Please contact your admin with the following information: <br> ${error}`
 		);
 	}
 };
-export const deleteTiebreakersForAllUsers = async () => {
+export const deleteTiebreakersForAllPlayers = async () => {
 	try {
 		const proceed = confirm(
-			'Are you sure you want to delete all picks for all users?  This is not reversible.'
+			'Are you sure you want to delete all picks for all players?  This is not reversible.'
 		);
 		if (proceed) {
 			const q = query(weeklyTiebreakersCollection);
@@ -297,27 +297,27 @@ export const deleteTiebreakersForAllUsers = async () => {
 			const title = 'Deleted Weekly Tiebreakers!';
 			const msg = 'All tiebreaker documents were deleted.';
 			defaultToast({ title, msg });
-			myLog(msg, 'deleteWeeklyTiebreakersForAllUsers');
+			myLog(msg, 'deleteWeeklyTiebreakersForAllPlayers');
 		}
 	} catch (error) {
-		const msg = `Encountered an error while trying to delete all user's tiebreakers.  Check the console for more info. ${error}`;
+		const msg = `Encountered an error while trying to delete all players's tiebreakers.  Check the console for more info. ${error}`;
 		errorToast(msg);
-		myError('deleteWeeklyTiebreakersForAllUsers', error, msg);
+		myError('deleteWeeklyTiebreakersForAllPlayers', error, msg);
 	}
 };
-export const deleteTiebreakersForUser = async (
-	user: Player,
+export const deleteTiebreakersForPlayer = async (
+	player: Player,
 	selectedWeek?: number,
 	selectedYear?: number
 ) => {
 	try {
 		const proceed = confirm(
-			`Are you sure you want to delete tiebreakers for ${user.name} (${user.nickname})? ${
+			`Are you sure you want to delete tiebreakers for ${player.name} (${player.nickname})? ${
 				selectedWeek ? `for ${selectedWeek},` : ''
 			} ${selectedYear ? selectedYear : ''}`
 		);
 		if (proceed) {
-			const wheres: QueryConstraint[] = [where('uid', '==', user.uid)];
+			const wheres: QueryConstraint[] = [where('uid', '==', player.uid)];
 			if (selectedWeek) {
 				wheres.push(where('week', '==', selectedWeek));
 			}
@@ -325,19 +325,19 @@ export const deleteTiebreakersForUser = async (
 				wheres.push(where('year', '==', selectedYear));
 			}
 			const q = query(weeklyTiebreakersCollection, ...wheres);
-			const userTiebreakerDocs = await getDocs(q.withConverter(weeklyPickConverter));
-			userTiebreakerDocs.forEach((doc) => deleteDoc(doc.ref));
-			const title = `Deleted Weekly Tiebreakers for ${user.name}!`;
+			const playerTiebreakerDocs = await getDocs(q.withConverter(weeklyPickConverter));
+			playerTiebreakerDocs.forEach((doc) => deleteDoc(doc.ref));
+			const title = `Deleted Weekly Tiebreakers for ${player.name}!`;
 			const msg = `All tiebreaker documents were deleted ${
 				selectedWeek && selectedYear ? `for Week ${selectedWeek}, ${selectedYear}` : null
 			}.`;
 			defaultToast({ title, msg });
-			myLog(msg, 'deleteWeeklyTiebreakersForUser');
+			myLog(msg, 'deleteWeeklyTiebreakersForPlayer');
 		}
 	} catch (error) {
-		const msg = `Encountered an error while trying to delete ${user.name}'s tiebreakers.  Check the console for more info. ${error}`;
+		const msg = `Encountered an error while trying to delete ${player.name}'s tiebreakers.  Check the console for more info. ${error}`;
 		errorToast(msg);
-		myError('deleteWeeklyTiebreakersForUser', error, msg);
+		myError('deleteWeeklyTiebreakersForPlayer', error, msg);
 	}
 };
 export const updateGameSpreads = async (week: number, year: number) => {

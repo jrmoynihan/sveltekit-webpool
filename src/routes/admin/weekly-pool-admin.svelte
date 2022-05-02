@@ -17,13 +17,13 @@
 
 	let selectedYear: number = new Date().getFullYear();
 	let selectedPlayer: Player;
-	let playerPromise: Promise<Player[]>;
+	let playersPromise: Promise<Player[]>;
 	let gamePromise: Promise<Game[]>;
 </script>
 
 <PageTitle>Weekly Pool Admin</PageTitle>
 <Grid minColumns={$largerThanMobile ? '40%' : '100%'} customStyles={'align-items:start;'}>
-	<AdminSelectors bind:selectedPlayer bind:selectedYear bind:playerPromise bind:gamePromise />
+	<AdminSelectors bind:selectedPlayer bind:selectedYear bind:playersPromise bind:gamePromise />
 	<!-- <hr /> -->
 	<AdminSpreadFunctions bind:selectedYear />
 	<!-- <hr /> -->
@@ -40,8 +40,8 @@
 	<AdminScheduleFunctions />
 </Grid>
 
-{#if playerPromise}
-	{#await playerPromise}
+{#if playersPromise}
+	{#await playersPromise}
 		<LoadingSpinner msg="Loading users..." />
 	{:then weeklyUsers}
 		<AccordionDetails expandTitle="Weekly Users">

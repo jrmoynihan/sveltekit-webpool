@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { teamConverter } from '$scripts/converters';
 	import { doc, DocumentReference, setDoc } from 'firebase/firestore';
-	import { allTeams, teamsCollection } from '$scripts/teams';
+	import { teamsCollection } from '$scripts/teams';
 	import type { Team } from '$scripts/classes/team';
 	import { conferences, divisions } from '$scripts/classes/constants';
-	import PageTitle from '$lib/components/misc/PageTitle.svelte';
+	import PageTitle from '$components/misc/PageTitle.svelte';
 	import { defaultToast } from '$scripts/toasts';
+	import { allTeams } from '$scripts/store';
 
 	let selectedTeam = $allTeams[0];
 

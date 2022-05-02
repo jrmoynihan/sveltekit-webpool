@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { userData } from '$scripts/auth/auth';
 	import type { ESPNScore, ESPNSituation, ESPNStatus } from '$scripts/classes/game';
 	import type { Team } from '$scripts/classes/team';
 	import { scorePicksForWeek, updateGamesAndATSWinners } from '$scripts/scorePicks';
@@ -8,7 +7,8 @@
 		selectedSeasonYear,
 		showATSwinner,
 		showIDs,
-		showSpreads
+		showSpreads,
+		playerData
 	} from '$scripts/store';
 	import type { Timestamp } from 'firebase/firestore';
 	import DateTimeOrDownDistance from './DateTimeOrDownDistance.svelte';
@@ -52,7 +52,7 @@
 		<div style="grid-area:spreads">{spread > 0 ? `+${spread}` : spread}</div>
 	{/if}
 	<!-- @NOTE: Shows the ATS winner to admins if it hasn't been set AND the game is already over. i.e. the admin is able to score it now -->
-	{#if $showATSwinner || ($userData.admin && gameIsOver && !ATSwinner)}
+	{#if $showATSwinner || ($playerData.admin && gameIsOver && !ATSwinner)}
 		<button
 			class="admin"
 			on:click={async () => {

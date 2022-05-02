@@ -1,8 +1,7 @@
 import { browser } from '$app/env';
-import { get } from 'svelte/store';
 import { playersCollection } from '$scripts/collections';
 import { playerConverter } from '$scripts/converters';
-import { firebase_user, playerData } from '$scripts/store';
+import { playerData } from '$scripts/store';
 import { doc, getDoc } from 'firebase/firestore';
 import { Player } from '$lib/scripts/classes/player';
 import { detective, myError, myLog } from '$classes/constants';
@@ -24,21 +23,21 @@ export const setLocalStorageItem = async (key: string, value: unknown): Promise<
 	}
 };
 
-export const saveUserData = async (firebase_user: User) => {
+export const savePlayerData = async (firebase_user: User) => {
 	try {
-		const userDocRef = doc(playersCollection, firebase_user.uid);
-		const snapshot = await getDoc(userDocRef.withConverter(playerConverter));
-		const user = new Player({ ...snapshot.data() });
+		const player_doc_ref = doc(playersCollection, firebase_user.uid);
+		const snapshot = await getDoc(player_doc_ref.withConverter(playerConverter));
+		const player = new Player({ ...snapshot.data() });
 
-		playerData.set(user);
-		myLog(`set userData:`, 'saveUserData', undefined, playerData);
+		playerData.set(player);
+		myLog(`set player data:`, 'savePlayerData', undefined, playerData);
 
-		for (const property in user) {
-			setLocalStorageItem(property, user[property]);
+		for (const property in player) {
+			setLocalStorageItem(property, player[property]);
 		}
 
-		myLog('saved user data to local storage', 'saveUserData', detective);
+		myLog('saved player data to local storage', 'savePlayerData', detective);
 	} catch (error) {
-		myError('saveUserData', error, 'unable to save user data to local storage.');
+		myError('savePlayerData', error, 'unable to save player data to local storage.');
 	}
 };

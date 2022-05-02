@@ -4,10 +4,10 @@
 	import type { Player } from '$classes/player';
 	import { selectedWeek } from '$scripts/store';
 	import {
-		createTiebreakersForAllUsers,
-		createTiebreakersForUser,
-		deleteTiebreakersForAllUsers,
-		deleteTiebreakersForUser
+		createTiebreakersForAllPlayers,
+		createTiebreakersForPlayer,
+		deleteTiebreakersForAllPlayers,
+		deleteTiebreakersForPlayer
 	} from '$scripts/weekly/weeklyAdmin';
 	import AdminExpandSection from './adminExpandSection.svelte';
 
@@ -18,30 +18,30 @@
 </script>
 
 <AdminExpandSection summaryText="Tiebreakers" bind:minColumns>
-	<StyledButton on:click={() => createTiebreakersForAllUsers()}>
-		Create Tiebreakers for All Users
+	<StyledButton on:click={() => createTiebreakersForAllPlayers()}>
+		Create Tiebreakers for All Players
 	</StyledButton>
 	{#if selectedPlayer}
 		<StyledButton
-			on:click={() => createTiebreakersForUser(selectedPlayer, undefined, undefined, true)}
+			on:click={() => createTiebreakersForPlayer(selectedPlayer, undefined, undefined, true)}
 		>
 			Create All Tiebreakers for {selectedPlayer.name}
 		</StyledButton>
 		<StyledButton
-			on:click={() => createTiebreakersForUser(selectedPlayer, $selectedWeek, selectedYear, true)}
+			on:click={() => createTiebreakersForPlayer(selectedPlayer, $selectedWeek, selectedYear, true)}
 		>
 			Create Tiebreakers for {selectedPlayer.name} for Week {$selectedWeek}, {selectedYear}
 		</StyledButton>
-		<DeletionButton on:click={() => deleteTiebreakersForUser(selectedPlayer)}>
+		<DeletionButton on:click={() => deleteTiebreakersForPlayer(selectedPlayer)}>
 			Delete All Tiebreakers for {selectedPlayer.name}
 		</DeletionButton>
 		<DeletionButton
-			on:click={() => deleteTiebreakersForUser(selectedPlayer, $selectedWeek, selectedYear)}
+			on:click={() => deleteTiebreakersForPlayer(selectedPlayer, $selectedWeek, selectedYear)}
 		>
 			Delete Tiebreakers for {selectedPlayer.name} for Week {$selectedWeek}, {selectedYear}
 		</DeletionButton>
 	{/if}
-	<DeletionButton on:click={() => deleteTiebreakersForAllUsers()}>
-		Delete Tiebreakers for All Users
+	<DeletionButton on:click={() => deleteTiebreakersForAllPlayers()}>
+		Delete Tiebreakers for All Players
 	</DeletionButton>
 </AdminExpandSection>

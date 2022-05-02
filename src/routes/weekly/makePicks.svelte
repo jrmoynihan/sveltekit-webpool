@@ -49,14 +49,6 @@
 	import { focusTiebreaker } from '$scripts/scrollAndFocus';
 	import { changedQuery, getPicksForPlayer } from '$scripts/weekly/weeklyPlayers';
 
-	// let picksPromise: Promise<WeeklyPickDoc[]>;
-	// let tiebreakerPromise: Promise<WeeklyTiebreaker>;
-	// let gamesPromise: Promise<Game[]>;
-	// let userPromise: Promise<WebUser[]>;
-	// let selectedUser: WebUser;
-	// let selectedWeek = 3;
-	// let selectedYear = new Date().getFullYear();
-	// let selectedSeasonType = seasonTypes[1];
 	let showTiebreakerInput = false;
 	let countedGameTimes: { upcomingGamesCount: any; playedGamesCount: any };
 	let currentPickCount = 0;
@@ -106,7 +98,7 @@
 			$selectedSeasonYear,
 			$selectedSeasonType,
 			$selectedWeek,
-			$authorizedUser.uid
+			$firebase_user.uid
 		);
 		$gamesPromise = promises.gamesPromise;
 		$picksPromise = promises.picksPromise;
@@ -164,7 +156,7 @@
 					myError(
 						'submitPicks->updatePicks',
 						error,
-						`unable to update game pick ${currentPick.docRef} for user ${currentPick.uid}`
+						`unable to update game pick ${currentPick.docRef} for player ${currentPick.uid}`
 					);
 					errorToast(
 						`We encountered an error while trying to submit your picks.  Please contact the site admin with the following information: <br> ${error}`
@@ -211,7 +203,7 @@
 			myError(
 				'setTiebreakerDoc',
 				error,
-				`unable to update tiebreaker ${tiebreakerDocRef.path} for user ${uid}`
+				`unable to update tiebreaker ${tiebreakerDocRef.path} for player ${uid}`
 			);
 			errorToast(
 				`We encountered an error while trying to submit your tiebreaker.  Please contact your admin with the following information: <br> ${error}`
@@ -392,7 +384,7 @@
 			$selectedSeasonYear,
 			$selectedSeasonType,
 			$selectedWeek,
-			$authorizedUser.uid
+			$firebase_user.uid
 		);
 		$gamesPromise = (await promises).gamesPromise;
 		$picksPromise = (await promises).picksPromise;

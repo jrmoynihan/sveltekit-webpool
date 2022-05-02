@@ -8,22 +8,25 @@ weeklyTiebreakersCollection
 	} from '$scripts/collections';
 	import { getWeeklyPlayers } from '$scripts/weekly/weeklyPlayers';
 	import { errorToast } from '$scripts/toasts';
-	import { myError } from '$scripts/classes/constants';
-	import type { Game } from '$scripts/classes/game';
-	import { findCurrentWeekOfSchedule } from '$scripts/schedule';
+	import { myError } from '$classes/constants';
+	import type { Game } from '$classes/game';
 	import ErrorModal from '../modals/ErrorModal.svelte';
 import type { WeeklyTiebreaker } from '$classes/tiebreaker';
 import type { Player } from '$classes/player';
 import { gameConverter, weeklyTiebreakerConverter } from '$scripts/converters';
 import { onMount } from 'svelte';
+import { mobileBreakpoint } from '$scripts/site';
+import WeekSelect from '$components/selects/WeekSelect.svelte';
+import WeeklyStandingsRow from '$components/tables/WeeklyStandingsRow.svelte';
+import ReturnToTop from '$components/buttons/ReturnToTop.svelte';
 
 	let initialWeekHeaders: string[] = ['Rank', 'Player', 'Wins', 'Losses', 'Tiebreaker', 'Prize'];
 	let abbreviatedWeekHeaders: string[] = ['#', 'Name', 'W', 'L', 'T', '$'];
 	let weekHeaders: string[] = initialWeekHeaders;
 	let tiebreakerPromise: Promise<WeeklyTiebreaker[]>;
-	let weeklyUserPromise: Promise<Player[]>;
+	let weeklyPlayerPromise: Promise<Player[]>;
 	let lastGamePromise: Promise<Game>;
-	let weeklyUserQuery: Query<DocumentData>;
+	let weeklyPlayerQuery: Query<DocumentData>;
 	let headerCount: number;
 
 	export const getAllTiebreakers = async (
@@ -68,13 +71,13 @@ import { onMount } from 'svelte';
 	};
 
 	const getData = async (selectedWeek: number) => {
-		weeklyUserQuery = query(
+		weeklyPlayerQuery = query(
 			playersCollection,
 			where('weekly', '==', true),
 			orderBy(`weeklyPickRecord.week_${selectedWeek}.wins`, 'desc'),
 			orderBy(`weeklyPickRecord.week_${selectedWeek}.netTiebreaker`)
 		);
-		weeklyUserPromise = getWeeklyPlayers(false, weeklyUserQuery);
+		weeklyPlayerPromise = getWeeklyPlayers(false, weeklyPlayerQuery);
 		tiebreakerPromise = getAllTiebreakers(selectedWeek);
 		lastGamePromise = getLastGame(selectedWeek);
 	};
@@ -83,9 +86,9 @@ import { onMount } from 'svelte';
 		// $selectedWeek = await findCurrentWeekOfSchedule();
 		getData($selectedWeek);
 		const tiebreakers = await tiebreakerPromise;
-		const users = await weeklyUserPromise;
+		const players = await weeklyPlayerPromise;
 		console.log(tiebreakers);
-		console.log(users);
+		console.log(players);
 	});
 
 	// Reactive statements allow headers to update when the screen resizes
@@ -105,8 +108,8 @@ import { onMount } from 'svelte';
 		{#each weekHeaders as header}
 			<div class="header">{header}</div>
 		{/each}
-		{#if weeklyUserPromise}
-			{#await weeklyUserPromise}
+		{#if weeklyPlayerPromise}
+			{#await weeklyPlayerPromise}
 				Loading data...
 			{:then weeklyPlayerData}
 				{#await tiebreakerPromise}
@@ -141,7 +144,7 @@ import { onMount } from 'svelte';
 				{/await}
 			{:catch error}
 				<ErrorModal>
-					Unable to load users: {error}
+					Unable to load players: {error}
 				</ErrorModal>
 			{/await}
 		{/if}

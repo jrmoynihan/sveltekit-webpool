@@ -11,7 +11,7 @@
 	import Fa from 'svelte-fa';
 	import AdminExpandSection from './adminExpandSection.svelte';
 
-	export let playerPromise: Promise<Player[]>;
+	export let playersPromise: Promise<Player[]>;
 	export let gamePromise: Promise<Game[]>;
 	export let selectedYear: number;
 	export let selectedPlayer: Player;
@@ -24,12 +24,12 @@
 
 <AdminExpandSection summaryText="Selectors" bind:minColumns {startOpen} {customContentStyles}>
 	<label for="refresh" class="span-2">
-		<p>Refresh Users and Games</p>
+		<p>Refresh Players and Games</p>
 		<button
 			id="refresh"
 			class="refresh"
 			on:click={async () => {
-				playerPromise = getWeeklyPlayers();
+				playersPromise = getWeeklyPlayers();
 				gamePromise = getAllGames();
 				// maxWeekPromise = getMaxGameWeek();
 			}}
@@ -46,12 +46,12 @@
 		<YearSelect bind:selectedYear />
 	</label>
 
-	{#await playerPromise}
-		Loading users...
+	{#await playersPromise}
+		Loading players...
 	{:then players}
-		<label for="user-select" class="span-2">
-			<p>User</p>
-			<PlayerSelect bind:selectedPlayer />
+		<label for="player-select" class="span-2">
+			<p>Player</p>
+			<PlayerSelect bind:selectedPlayer bind:playersPromise />
 		</label>
 	{/await}
 </AdminExpandSection>

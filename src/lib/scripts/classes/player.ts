@@ -1,5 +1,5 @@
 import type { DocumentReference } from 'firebase/firestore';
-import type { UserWinnings, WeeklyPickRecord } from './userRecord';
+import type { PlayerWinnings, WeeklyPickRecord } from './playerRecord';
 
 export class Player {
 	uid: string;
@@ -18,7 +18,7 @@ export class Player {
 	totalWeeklyWinnings: number;
 	weekly: boolean;
 	weeklyPickRecord: WeeklyPickRecord;
-	weeklyWinnings: UserWinnings;
+	weeklyWinnings: PlayerWinnings;
 	amountOwedToPools: number;
 	amountPaidToPools: number;
 	paidWeekly: boolean;

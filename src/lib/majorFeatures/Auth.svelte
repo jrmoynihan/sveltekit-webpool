@@ -1,21 +1,21 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
-	import { currentUser, startSignOut, startSignIn } from '$scripts/auth/auth';
+	import { startSignOut, startSignIn } from '$scripts/auth/auth';
 	import Fa from 'svelte-fa';
-	import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
+	import { faUserCircle } from '@fortawesome/free-solid-svg-icons/index.es';
 	import ToggleSwitch from '$lib/components/switches/ToggleSwitch.svelte';
 	import ModalButtonAndSlot from '$lib/components/modals/ModalWithButton.svelte';
 	import GoogleLoginButton from '$lib/components/buttons/GoogleLoginButton.svelte';
 	import FacebookLoginButton from '$lib/components/buttons/FacebookLoginButton.svelte';
 	import { dev } from '$app/env';
-	import { userNotFound } from '$scripts/auth/signInRedirectResult';
 	import OnlineStatusIndicator from '$lib/components/containers/micro/OnlineStatusIndicator.svelte';
-	import NewUserForm from '$lib/components/forms/NewUserForm.svelte';
+	import NewPlayerForm from '$lib/components/forms/NewPlayerForm.svelte';
 	import type ModalOnly from '$lib/components/modals/Modal.svelte';
 	import { myLog } from '$scripts/classes/constants';
+	import { firebase_user, player_not_found } from '$scripts/store';
 
 	export let useRedirect = true;
-	let newUserFormComponent: ModalOnly;
+	let newPlayerFormComponent: ModalOnly;
 	// let loginModalComponent: ModalButtonAndSlot
 
 	const googleLogin = async () => {
@@ -31,22 +31,22 @@
 		// }
 	};
 
-	$: {
-		myLog(`User ${$userNotFound ? 'not' : ''} found: ${$currentUser?.displayName}`);
-		if ($userNotFound) {
-			newUserFormComponent.open();
-		}
+	$: if ($player_not_found) {
+		newPlayerFormComponent.open();
+		myLog(`Player NOT found: ${$firebase_user?.displayName}`);
+	} else {
+		myLog(`Player found: ${$firebase_user?.displayName}`);
 	}
 </script>
 
 <ModalButtonAndSlot
-	displayModalButtonText={$currentUser ? '' : 'Login'}
-	modalButtonStyles={$currentUser
+	displayModalButtonText={$firebase_user ? '' : 'Login'}
+	modalButtonStyles={$firebase_user
 		? 'padding:0;border-radius:50%;'
 		: 'height: 100%; background:none; display:grid; align-content:center;'}
 >
 	<svelte:fragment slot="modal-content">
-		{#if $currentUser !== undefined && $currentUser !== null}
+		{#if $firebase_user !== undefined && $firebase_user !== null}
 			<button id="sign-out-button" on:click={startSignOut}>Sign Out</button>
 		{:else}
 			<GoogleLoginButton on:click={googleLogin} />
@@ -62,13 +62,13 @@
 	</svelte:fragment>
 
 	<svelte:fragment slot="button-icon">
-		{#if $currentUser !== undefined && $currentUser !== null}
+		{#if $firebase_user !== undefined && $firebase_user !== null}
 			<picture transition:fade>
-				{#if $currentUser.photoURL !== undefined && $currentUser.photoURL !== null}
+				{#if $firebase_user.photoURL !== undefined && $firebase_user.photoURL !== null}
 					<img
 						loading="lazy"
-						alt={`${$currentUser.displayName}`}
-						src={$currentUser.photoURL}
+						alt={`${$firebase_user?.displayName}`}
+						src={$firebase_user?.photoURL}
 						width="50px"
 						height="50px"
 					/>
@@ -80,7 +80,7 @@
 		{/if}
 	</svelte:fragment>
 </ModalButtonAndSlot>
-<NewUserForm bind:modalOnlyComponent={newUserFormComponent} />
+<NewPlayerForm bind:modalOnlyComponent={newPlayerFormComponent} />
 
 <style lang="scss">
 	button {

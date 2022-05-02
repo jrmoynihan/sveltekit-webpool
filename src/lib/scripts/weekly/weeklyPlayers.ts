@@ -33,16 +33,16 @@ export const getWeeklyPlayers = async (
 			const player = new Player({ id: id, ref: ref, ...doc.data() });
 			players.push(player);
 		});
-		const msg = 'Retrieved all users who are Weekly Pool players.';
-		myLog(msg, 'createWeeklyPicksForUser', undefined, players);
+		const msg = 'Retrieved all players who are Weekly Pool players.';
+		myLog(msg, 'getWeeklyPlayers', undefined, players);
 		if (showToast) {
-			defaultToast({ title: 'Got Weekly Users!', msg: msg });
+			defaultToast({ title: 'Got Weekly Players!', msg: msg });
 		}
 		return players;
 	} catch (error) {
-		const msg = `Encountered an error while trying to get weekly users.  Check the console for more info. ${error}`;
+		const msg = `Encountered an error while trying to get weekly players.  Check the console for more info. ${error}`;
 		errorToast(msg);
-		myError('getWeeklyUsers', error, msg);
+		myError('getWeeklyPlayers', error, msg);
 	}
 };
 export const changedQuery = async (
@@ -142,7 +142,7 @@ export const getTiebreaker = async (
 		if (querySnapshot.empty) {
 			myLog('no tiebreaker found', '', detective);
 		} else if (querySnapshot.size > 1) {
-			throw new Error(`Multiple tiebreakers found for this user in week ${selectedWeek}`);
+			throw new Error(`Multiple tiebreakers found for this player in week ${selectedWeek}`);
 		}
 		querySnapshot.forEach((doc) => {
 			if (doc.exists()) {

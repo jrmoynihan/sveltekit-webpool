@@ -26,7 +26,7 @@
 	import { mobileBreakpoint } from '$scripts/site';
 	import { onMount } from 'svelte';
 	import { getLocalStorageItem } from '$scripts/localStorage';
-	import NewUserForm from '$lib/components/forms/NewUserForm.svelte';
+	import NewPlayerForm from '$lib/components/forms/NewPlayerForm.svelte';
 	import type ModalOnly from '$lib/components/modals/Modal.svelte';
 	import type { LoadInput, LoadOutput } from '@sveltejs/kit';
 
@@ -80,8 +80,7 @@
 		>
 			<slot />
 		</TransitionWrapper>
-		<NewUserForm bind:modalOnlyComponent />
-		<!-- <button on:click={() => modalOnlyComponent.open()}>Open New User Modal</button> -->
+		<NewPlayerForm bind:modalOnlyComponent />
 	</main>
 
 	<ReturnToTop showButton={false} />

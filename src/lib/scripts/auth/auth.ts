@@ -19,8 +19,8 @@ import { playersCollection } from '$scripts/collections';
 import { goto } from '$app/navigation';
 import { playerConverter } from '../converters';
 import { myError, myLog } from '$classes/constants';
-import { WeeklyPickRecord, UserWinnings } from '$classes/userRecord';
-import { saveUserData } from '$scripts/localStorage';
+import { WeeklyPickRecord, PlayerWinnings } from '$lib/scripts/classes/playerRecord';
+import { savePlayerData } from '$scripts/localStorage';
 import { firebase_user, playerData } from '$scripts/store';
 
 // const currentUserQuery = query(usersCollection);
@@ -137,7 +137,7 @@ export const createNewPlayerDocument = async (
 			survivor: pools.survivor,
 			weekly: pools.weekly,
 			weeklyPickRecord: { ...new WeeklyPickRecord({}) },
-			weeklyWinnings: { ...new UserWinnings({}) },
+			weeklyWinnings: { ...new PlayerWinnings({}) },
 			amountOwedToPools,
 			amountPaidToPools,
 			paidWeekly: false,
@@ -146,19 +146,18 @@ export const createNewPlayerDocument = async (
 			paidSurvivor: false,
 			paidPick6: false
 		});
-		console.log('newUserData', new_Player_Data);
 		// Write some initial data to the user document
 		await setDoc(new_player_ref.withConverter(playerConverter), new_Player_Data);
 
-		console.info(`New user doc for ${firebase_user.displayName} (${firebase_user.uid}) added!`);
+		console.info(`New player doc for ${firebase_user.displayName} (${firebase_user.uid}) added!`);
 	} catch (error) {
-		console.warn('error in createNewUserDocument', error);
+		console.warn('error in createNewPlayerDocument', error);
 	}
 };
 
 export const startSignOut = async (): Promise<void> => {
 	playerData.set(undefined);
-	myLog(`userData is ${playerData}`);
+	myLog(`playerData is ${playerData}`);
 	firebase_user.set(undefined);
 	myLog(`currentUser is ${firebase_user}`);
 	signOut(firestoreAuth);
@@ -169,7 +168,7 @@ firestoreAuth.onAuthStateChanged(
 	async () => {
 		if (firestoreAuth.currentUser) {
 			firebase_user.set(firestoreAuth.currentUser);
-			saveUserData(firestoreAuth.currentUser);
+			savePlayerData(firestoreAuth.currentUser);
 			myLog(`the current user is ${get(firebase_user).displayName}`, 'auth.ts => onAuthStateChanged');
 		} else {
 			myLog(

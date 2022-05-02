@@ -33,14 +33,14 @@
 		});
 		return sorted;
 	};
-	const updateDisplayedUser = (): void => {
+	const updateDisplayedPlayer = (): void => {
 		weeklyWinnings = sortWeeklyWinnings();
 		nicknameUpdate = selectedPlayer.nickname;
 	};
 
 	onMount(async () => {
-		const users = await playersPromise;
-		selectedPlayer = users[0];
+		const players = await playersPromise;
+		selectedPlayer = players[0]; // First player is selected by default
 		nicknameUpdate = selectedPlayer.nickname;
 		weeklyWinnings = sortWeeklyWinnings();
 	});
@@ -49,7 +49,7 @@
 <PageTitle>Manage Users</PageTitle>
 
 {#await playersPromise}
-	Loading users...
+	Loading players...
 {:then}
 	{#if selectedPlayer}
 		<Grid
@@ -58,7 +58,7 @@
 			<PlayerSelect
 				bind:selectedPlayer
 				bind:playersPromise
-				on:userChanged={updateDisplayedUser}
+				on:change={updateDisplayedPlayer}
 				customStyles="grid-column:span 2"
 			/>
 			<p class="title">Name:</p>
@@ -66,7 +66,7 @@
 			<p class="title">Email:</p>
 			<p>{selectedPlayer.email}</p>
 			<p class="title">UserID:</p>
-			<p>{selectedPlayer.uid})</p>
+			<p>{selectedPlayer.uid}</p>
 			<p class="title">Nickname:</p>
 			<input type="text" bind:value={nicknameUpdate} />
 		</Grid>

@@ -10,7 +10,6 @@
 	import { editing, playerData } from '$scripts/store';
 	import { onDestroy } from 'svelte';
 	import { myLog } from '$classes/constants';
-	import type { Player } from '$classes/player';
 	import type { RuleCategory, RuleTab } from '$classes/rules';
 
 	// This container can receive different collection references for the various pools
@@ -20,12 +19,7 @@
 	let editable = false;
 
 	// But an admin will have the option to make it editable
-	const isUserAdmin = (userData: Player): boolean => {
-		if (userData !== undefined) {
-			return userData.admin;
-		}
-	};
-	$: editable = isUserAdmin($playerData);
+	$: editable = $playerData?.admin;
 
 	let ruleCategories: RuleCategory[];
 	const ruleQuery = query(rulesCollection, orderBy('order'));

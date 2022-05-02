@@ -3,7 +3,6 @@
 	import { gameConverter } from '$scripts/converters';
 	import { firestoreDB } from '$scripts/firebaseInit';
 	import { scheduleCollection } from '$scripts/collections';
-	import { allTeams } from '$scripts/teams';
 	import { deleteDoc, doc, getDocs, query, setDoc, Timestamp, where } from 'firebase/firestore';
 	import WeekSelect from '../selects/WeekSelect.svelte';
 	import PageTitle from './PageTitle.svelte';
@@ -21,7 +20,7 @@
 	import ErrorModal from '../modals/ErrorModal.svelte';
 	import EspnGameData from './ESPNGameData.svelte';
 	import { convertToHttps, getConsensusSpread } from '$scripts/dataFetching';
-	import { selectedWeek } from '$scripts/store';
+	import { selectedWeek, allTeams } from '$scripts/store';
 
 	let currentlySetting = false;
 	let promise: Promise<{ originalGames: ESPNGame[]; prunedGames: ESPNGamePruned[] }>;
