@@ -18,7 +18,7 @@ const config = {
 	preprocess: [
 		preprocess({
 			scss: {
-				prependData: `@import '${sassPath}/mixins.scss';`
+				prependData: `@import 'src/styles/mixins.scss';`
 			}
 		})
 	],
