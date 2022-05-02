@@ -1,16 +1,16 @@
 <script lang="ts">
 	import { updateUser } from '$scripts/store';
 	import ToggleSwitch from '$lib/components/switches/ToggleSwitch.svelte';
-	import type { WebUser } from '$scripts/classes/webUser';
+	import type { Player } from '$classes/player';
 
 	export let role: string;
-	export let user: WebUser;
+	export let player: Player;
 </script>
 
 <div class="{role} toggle">
-	{#if user}
-		<div class:crossout={!user[role]}>{role}</div>
-		<ToggleSwitch bind:checked={user[role]} on:toggle={async () => await updateUser(user)} />
+	{#if player}
+		<div class:crossout={!player[role]}>{role}</div>
+		<ToggleSwitch bind:checked={player[role]} on:toggle={async () => await updateUser(player)} />
 	{/if}
 </div>
 

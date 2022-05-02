@@ -1,11 +1,11 @@
-import { WebUser } from './classes/webUser';
-import { usersCollection } from './collections';
-import { userConverter } from './converters';
-import { doc, getDoc } from 'firebase/firestore';
-import { currentUser, userData } from './auth/auth';
-import { get } from 'svelte/store';
 import { browser } from '$app/env';
-import { detective, myError, myLog } from './classes/constants';
+import { get } from 'svelte/store';
+import { playersCollection } from '$scripts/collections';
+import { playerConverter } from '$scripts/converters';
+import { authorizedUser, playerData } from '$scripts/store';
+import { doc, getDoc } from 'firebase/firestore';
+import { Player } from '$lib/scripts/classes/player';
+import { detective, myError, myLog } from '$classes/constants';
 
 export const getLocalStorageItem = async <T>(key: string): Promise<T | null> => {
 	if (browser) {
@@ -25,12 +25,12 @@ export const setLocalStorageItem = async (key: string, value: unknown): Promise<
 
 export const saveUserData = async () => {
 	try {
-		const userDocRef = doc(usersCollection, get(currentUser).uid);
-		const snapshot = await getDoc(userDocRef.withConverter(userConverter));
-		const user = new WebUser({ ...snapshot.data() });
+		const userDocRef = doc(playersCollection, get(authorizedUser).uid);
+		const snapshot = await getDoc(userDocRef.withConverter(playerConverter));
+		const user = new Player({ ...snapshot.data() });
 
-		userData.set(user);
-		myLog(`set userData:`, 'saveUserData', undefined, userData);
+		playerData.set(user);
+		myLog(`set userData:`, 'saveUserData', undefined, playerData);
 
 		for (const property in user) {
 			setLocalStorageItem(property, user[property]);

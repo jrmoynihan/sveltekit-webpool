@@ -1,5 +1,5 @@
 import { dev } from '$app/env';
-import { getApps, getApp, initializeApp } from 'firebase/app';
+import { getApps, getApp, initializeApp } from '@firebase/app';
 import {
 	debugErrorMap,
 	indexedDBLocalPersistence,

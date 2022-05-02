@@ -2,11 +2,9 @@ import { collection, query, getDocs, onSnapshot, updateDoc } from 'firebase/fire
 import { firestoreDB } from '$lib/scripts/firebaseInit';
 import { teamConverter } from './converters';
 import { defaultToast } from './toasts';
-import type { Team } from './classes/team';
-import { writable } from 'svelte/store';
+import { allTeams } from './store';
 
 export const teamsCollection = collection(firestoreDB, 'Teams');
-export const allTeams = writable<Team[]>([]);
 
 export const getTeams = onSnapshot(teamsCollection.withConverter(teamConverter), (snap) => {
 	snap.forEach((doc) => {

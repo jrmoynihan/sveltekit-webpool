@@ -1,17 +1,17 @@
 <script lang="ts">
-	import type { WebUser } from '$scripts/classes/webUser';
-	import { mobileBreakpoint } from '$scripts/site';
 	import { windowWidth } from '$scripts/store';
 	import SeasonStandingsRow from './SeasonStandingsRow.svelte';
-	import { query, where, orderBy } from 'firebase/firestore';
-	import { usersCollection } from '$scripts/collections';
-	import { getWeeklyUsers } from '$scripts/weekly/weeklyUsers';
+	import { orderBy, query, where } from 'firebase/firestore';
+	import type { Player } from '$classes/player';
+	import { mobileBreakpoint } from '$scripts/site';
+	import { playersCollection } from '$scripts/collections';
+	import { getWeeklyPlayers } from '$scripts/weekly/weeklyPlayers';
 	import { onMount } from 'svelte';
 
 	let initialSeasonHeaders = ['Rank', 'Player', 'Wins', 'Losses', '% Won', 'Prizes'];
 	let abbreviatedSeasonHeaders = ['#', 'Name', 'W', 'L', '%', '$'];
 	let seasonHeaders = initialSeasonHeaders;
-	let weeklyUserPromise: Promise<WebUser[]>;
+	let weeklyPlayerPromise: Promise<Player[]>;
 	// TODO query the collection by week, and sort by wins, then net tiebreaker
 	// let playerData = [
 	// 	{ nickname: 'jrmoynihan', wins: 10, losses: 6, tiebreaker: 42 },
@@ -30,13 +30,14 @@
 	}
 	const getData = async () => {
 		const weeklyUserQuery = query(
-			usersCollection,
+			playersCollection,
 			where('weekly', '==', true),
 			orderBy('totalWeeklyWins', 'desc')
 		);
-		weeklyUserPromise = getWeeklyUsers(false, weeklyUserQuery);
+		weeklyPlayerPromise = getWeeklyPlayers(false, weeklyUserQuery);
 	};
 
+	// TODO: Move to endpoint
 	onMount(async () => {
 		getData();
 	});
@@ -46,8 +47,8 @@
 	{#each seasonHeaders as header}
 		<div class="header">{header}</div>
 	{/each}
-	{#if weeklyUserPromise}
-		{#await weeklyUserPromise}
+	{#if weeklyPlayerPromise}
+		{#await weeklyPlayerPromise}
 			Loading data...
 		{:then weeklyPlayerData}
 			{#each weeklyPlayerData as player, i}

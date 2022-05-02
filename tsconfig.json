@@ -27,8 +27,10 @@
 		"paths": {
 			"$lib": ["src/lib"],
 			"$lib/*": ["src/lib/*"],
-			"$scripts": ["src/scripts"],
-			"$scripts/*": ["src/scripts/*"],
+			"$scripts": ["src/lib/scripts"],
+			"$scripts/*": ["src/lib/scripts/*"],
+			"$classes": ["src/lib/scripts/classes"],
+			"$classes/*": ["src/lib/scripts/classes/*"],
 			"$components": ["src/lib/components"],
 			"$components/*": ["src/lib/components/*"],
 			"$containers": ["src/lib/components/containers"],

@@ -40,14 +40,14 @@ import {
 } from './classes/constants';
 import {
 	scheduleCollection,
-	usersCollection,
+	playersCollection,
 	weeklyPicksCollection,
 	weeklyTiebreakersCollection
 } from './collections';
 import {
 	gameConverter,
 	teamConverter,
-	userConverter,
+	playerConverter,
 	weeklyPickConverter,
 	weeklyTiebreakerConverter
 } from './converters';
@@ -57,7 +57,7 @@ import type { Team } from './classes/team';
 import type { WeeklyTiebreaker } from './classes/tiebreaker';
 import type { WeeklyPickDoc } from './classes/picks';
 import { toast } from '@zerodevx/svelte-toast';
-import type { WebUser } from './classes/webUser';
+import type { Player } from './classes/player';
 import type { UserRecord } from './classes/userRecord';
 import { getStatus, getScores, convertToHttps } from './dataFetching';
 import { isBeforeGameTime } from './functions';
@@ -83,11 +83,11 @@ export const scorePicksForWeek = async (
 		const gameQuery = query(scheduleCollection, ...wheres);
 		const pickQuery = query(weeklyPicksCollection, ...wheres);
 		const tiebreakerQuery = query(weeklyTiebreakersCollection, ...wheres);
-		const userQuery = query(usersCollection, where('weekly', '==', true));
+		const userQuery = query(playersCollection, where('weekly', '==', true));
 		const games = await getDocs(gameQuery.withConverter(gameConverter));
 		const picks = await getDocs(pickQuery.withConverter(weeklyPickConverter));
 		const tiebreakers = await getDocs(tiebreakerQuery.withConverter(weeklyTiebreakerConverter));
-		const users = await getDocs(userQuery.withConverter(userConverter));
+		const users = await getDocs(userQuery.withConverter(playerConverter));
 
 		games.forEach((game) => {
 			const gameData = game.data();
@@ -134,7 +134,7 @@ export const scorePicksForWeek = async (
 		console.log(secondMostWins);
 
 		// Get a fresh copy of the updated user docs
-		const updatedUsers = await getDocs(userQuery.withConverter(userConverter));
+		const updatedUsers = await getDocs(userQuery.withConverter(playerConverter));
 
 		toast.set(startingToastId, { msg: `Finding week ${selectedWeek} leaders...` });
 		const firstPlacersForWeek = await findWeeklyLeaders(updatedUsers, mostWins, selectedWeek);
@@ -253,7 +253,7 @@ export const assignWeeklyPrize = async (
 	prizeAmount: number,
 	selectedWeek: number
 ) => {
-	updateDoc(prizeWinner.withConverter(userConverter), {
+	updateDoc(prizeWinner.withConverter(playerConverter), {
 		[`weeklyWinnings.week_${selectedWeek}`]: prizeAmount
 	});
 };
@@ -261,7 +261,7 @@ export const assignSeasonPrize = async (
 	prizeWinner: DocumentReference<DocumentData>,
 	prizeAmount: number
 ) => {
-	updateDoc(prizeWinner.withConverter(userConverter), `weeklyWinnings.total`, prizeAmount);
+	updateDoc(prizeWinner.withConverter(playerConverter), `weeklyWinnings.total`, prizeAmount);
 };
 
 export const calculateWeekPrizeSplits = async (
@@ -298,7 +298,7 @@ export const calculateWeekPrizeSplits = async (
 };
 
 export const calculateSeasonPrizeSplits = async (
-	updatedUsers: QuerySnapshot<WebUser>,
+	updatedUsers: QuerySnapshot<Player>,
 	firstPlacers: DocumentReference<DocumentData>[],
 	secondPlacers: DocumentReference<DocumentData>[],
 	thirdPlacers: DocumentReference<DocumentData>[]
@@ -353,7 +353,7 @@ export const calculateSeasonPrizeSplits = async (
  * @returns An array of user document references of users who meet the criteria
  */
 export const findWeeklySeasonLeaders = async (
-	users: QuerySnapshot<WebUser>,
+	users: QuerySnapshot<Player>,
 	comparisonWinCount: number
 ) => {
 	try {
@@ -378,7 +378,7 @@ export const findWeeklySeasonLeaders = async (
  * @returns An array of user document references of users who meet the criteria
  */
 export const findWeeklyLeaders = async (
-	users: QuerySnapshot<WebUser>,
+	users: QuerySnapshot<Player>,
 	comparisonWinCount: number,
 	weekToCompare: number
 ) => {
@@ -409,7 +409,7 @@ export const findWeeklyUserWinners = (
 
 export const updateWeeklyUserSeasonRecord = async (
 	userRef: DocumentReference,
-	userData: WebUser
+	userData: Player
 ) => {
 	let totalWins = 0;
 	let totalLosses = 0;
@@ -493,7 +493,7 @@ export const scoreNetTiebreakers = async (
 				if (tiebreakerData.scoreGuess) {
 					const netTiebreaker = gameData.totalScore - tiebreakerData.scoreGuess;
 					const netTiebreakerAbsolute = Math.abs(netTiebreaker);
-					const userDocRef = doc(usersCollection, uid);
+					const userDocRef = doc(playersCollection, uid);
 					// store netTiebreakers on the USER document; easier for scoreboard
 					updateDoc(userDocRef, {
 						[`weeklyPickRecord.week_${selectedWeek}.netTiebreaker`]: netTiebreaker,
@@ -935,7 +935,7 @@ export const resetWeeklyUserRecords = async (): Promise<void> => {
 	try {
 		const proceed = confirm('Are you sure you want to reset all Weekly Pool user records?');
 		if (proceed) {
-			const weeklyUserQuery = query(usersCollection, where('weekly', '==', true));
+			const weeklyUserQuery = query(playersCollection, where('weekly', '==', true));
 			const weeklyUsers = await getDocs(weeklyUserQuery);
 			weeklyUsers.forEach((user) => {
 				updateDoc(user.ref, {

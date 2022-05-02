@@ -1,8 +1,8 @@
 import { browser } from '$app/env';
-import { myLog } from '$lib/scripts/classes/constants';
-import { usersCollection } from '$lib/scripts/collections';
-import { firestoreAuth } from '$lib/scripts/firebaseInit';
-import { defaultToast } from '$lib/scripts/toasts';
+import { myLog } from '$scripts/classes/constants';
+import { playersCollection } from '$scripts/collections';
+import { firestoreAuth } from '$scripts/firebaseInit';
+import { defaultToast } from '$scripts/toasts';
 import {
 	browserPopupRedirectResolver,
 	fetchSignInMethodsForEmail,
@@ -11,8 +11,8 @@ import {
 import type { AuthError } from 'firebase/auth';
 import { getDoc, doc } from 'firebase/firestore';
 import { get, writable } from 'svelte/store';
-import { currentUser } from './auth';
-import { capitalizeWord } from '$lib/scripts/functions';
+import { capitalizeWord } from '$scripts/functions';
+import { authorizedUser } from '$scripts/store';
 
 export const userNotFound = writable(false);
 
@@ -58,8 +58,8 @@ browser ? obtainUserDocOnRedirect() : null;
  * If it exists, the userNotFound store is set to {true}, indicating a New User prompt should be displayed.
  */
 async function getCurrentUserDoc(): Promise<void> {
-	const user = get(currentUser);
-	const userDoc = doc(usersCollection, user.uid);
+	const user = get(authorizedUser);
+	const userDoc = doc(playersCollection, user.uid);
 	const userDocSnapshot = await getDoc(userDoc);
 	// Log if the user doc exists
 	if (userDocSnapshot.exists()) {

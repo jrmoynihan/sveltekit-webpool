@@ -8,7 +8,7 @@
 		picksPromise,
 		preferredScoreView,
 		selectedSeasonType,
-		selectedUser,
+		selectedPlayer,
 		selectedWeek,
 		selectedSeasonYear,
 		showATSwinner,
@@ -18,7 +18,7 @@
 		showTimestamps,
 		tiebreakerPromise
 	} from '$scripts/store';
-	import { faBars, faCog, faLock, faToolbox, faUnlock } from '@fortawesome/free-solid-svg-icons';
+	import { faBars, faCog, faLock, faUnlock } from '@fortawesome/free-solid-svg-icons/index.es';
 	import Fa from 'svelte-fa';
 	import Auth from '$lib/majorFeatures/Auth.svelte';
 	import ModalButtonAndSlot from '$lib/components/modals/ModalWithButton.svelte';
@@ -35,12 +35,12 @@
 	import ToggleSwitch from '$lib/components/switches/ToggleSwitch.svelte';
 	import AdminControlsModal from '$lib/components/modals/AdminControlsModal.svelte';
 	import SeasonTypeSelect from '$lib/components/selects/SeasonTypeSelect.svelte';
-	import type { WebUser } from '$scripts/classes/webUser';
 	import YearSelect from '$lib/components/selects/YearSelect.svelte';
-	import UserSelect from '$lib/components/selects/UserSelect.svelte';
-	import { changedQuery } from '$scripts/weekly/weeklyUsers';
+	import UserSelect from '$lib/components/selects/PlayerSelect.svelte';
+	import { changedQuery } from '$lib/scripts/weekly/weeklyPlayers';
+	import type { Player } from '$lib/scripts/classes/player';
 
-	let userPromise: Promise<WebUser[]>;
+	let playersPromise: Promise<Player[]>;
 	let storedScoreViewPreference: ScoreViewPreference;
 	let viewPreferences: { label: string; value: ScoreViewPreference }[] = [
 		{ label: 'Actual', value: 'Actual' },
@@ -60,7 +60,7 @@
 			$selectedSeasonYear,
 			$selectedSeasonType,
 			$selectedWeek,
-			$selectedUser.uid
+			$selectedPlayer.uid
 		);
 		$gamesPromise = (await promises).gamesPromise;
 		$picksPromise = (await promises).picksPromise;
@@ -119,8 +119,8 @@
 						/>
 						<p>Select User</p>
 						<UserSelect
-							bind:selectedUser={$selectedUser}
-							bind:userPromise
+							bind:selectedPlayer={$selectedPlayer}
+							bind:playersPromise
 							on:userChanged={adminSelectorsUpdated}
 						/>
 					{/if}

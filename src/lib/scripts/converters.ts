@@ -5,17 +5,17 @@ import { Game } from './classes/game';
 import { WeeklyPickDoc } from './classes/picks';
 import { WeeklyTiebreaker } from './classes/tiebreaker';
 import { WeekBoundDoc } from './classes/weekBound';
-import { WebUser } from './classes/webUser';
+import { Player } from './classes/player';
 
-export const userConverter = {
+export const playerConverter = {
 	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-	toFirestore: (user: WebUser): WebUser => {
-		return { ...user };
+	toFirestore: (player: Player): Player => {
+		return { ...player };
 	},
-	fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): WebUser => {
+	fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): Player => {
 		const data = snapshot.data(options);
 		const { ref, id } = snapshot; // Destructure the ref and id props from snapshot object
-		return new WebUser({ uid: id, ref, ...data });
+		return new Player({ uid: id, ref, ...data });
 	}
 };
 export const teamConverter = {

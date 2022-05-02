@@ -1,21 +1,20 @@
 <script lang="ts">
-	import UserSelect from '$lib/components/selects/UserSelect.svelte';
-
+	import PlayerSelect from '$lib/components/selects/PlayerSelect.svelte';
 	import WeekSelect from '$lib/components/selects/WeekSelect.svelte';
 	import YearSelect from '$lib/components/selects/YearSelect.svelte';
 	import type { Game } from '$scripts/classes/game';
-	import type { WebUser } from '$scripts/classes/webUser';
+	import type { Player } from '$classes/player';
 	import { largerThanMobile } from '$scripts/store';
 	import { getAllGames } from '$scripts/weekly/weeklyAdmin';
-	import { getWeeklyUsers } from '$scripts/weekly/weeklyUsers';
-	import { faSync } from '@fortawesome/free-solid-svg-icons';
+	import { getWeeklyPlayers } from '$scripts/weekly/weeklyPlayers';
+	import { faSync } from '@fortawesome/free-solid-svg-icons/index.es';
 	import Fa from 'svelte-fa';
 	import AdminExpandSection from './adminExpandSection.svelte';
 
-	export let userPromise: Promise<WebUser[]>;
+	export let playerPromise: Promise<Player[]>;
 	export let gamePromise: Promise<Game[]>;
 	export let selectedYear: number;
-	export let selectedUser: WebUser;
+	export let selectedPlayer: Player;
 	let minColumns: string | number = '40%';
 	let startOpen = true;
 	let customContentStyles: string;
@@ -30,7 +29,7 @@
 			id="refresh"
 			class="refresh"
 			on:click={async () => {
-				userPromise = getWeeklyUsers();
+				playerPromise = getWeeklyPlayers();
 				gamePromise = getAllGames();
 				// maxWeekPromise = getMaxGameWeek();
 			}}
@@ -47,12 +46,12 @@
 		<YearSelect bind:selectedYear />
 	</label>
 
-	{#await userPromise}
+	{#await playerPromise}
 		Loading users...
-	{:then users}
+	{:then players}
 		<label for="user-select" class="span-2">
 			<p>User</p>
-			<UserSelect bind:selectedUser />
+			<PlayerSelect bind:selectedPlayer />
 		</label>
 	{/await}
 </AdminExpandSection>

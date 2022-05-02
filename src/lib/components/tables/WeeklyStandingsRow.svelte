@@ -1,14 +1,13 @@
 <script lang="ts">
 	import RowData from '$lib/components/containers/micro/RowData.svelte';
-	import type { Game } from '$scripts/classes/game';
-	import type { WeeklyTiebreaker } from '$scripts/classes/tiebreaker';
-	import type { WebUser } from '$scripts/classes/webUser';
+	import type { Player } from '$classes/player';
 	import { selectedWeek } from '$scripts/store';
+	import type { Game } from '$classes/game';
+	import type { WeeklyTiebreaker } from '$classes/tiebreaker';
 	import Tooltip from '../containers/Tooltip.svelte';
 
-	export let player: WebUser;
+	export let player: Player;
 	export let i: number;
-	// export let selectedWeek: number;
 	export let tiebreaker: WeeklyTiebreaker;
 	export let lastGame: Game;
 	export let showNetTiebreakers = false;

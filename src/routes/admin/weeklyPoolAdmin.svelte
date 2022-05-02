@@ -3,8 +3,7 @@
 	import LoadingSpinner from '$lib/components/misc/LoadingSpinner.svelte';
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
 	import type { Game } from '$scripts/classes/game';
-	import type { WebUser } from '$scripts/classes/webUser';
-	import Grid from '$lib/components/containers/Grid.svelte';
+	import type { Player } from '$classes/player';
 	import AdminSelectors from '$lib/components/containers/admin/adminSelectors.svelte';
 	import AdminSpreadFunctions from '$lib/components/containers/admin/adminSpreadFunctions.svelte';
 	import AdminPicksFunctions from '$lib/components/containers/admin/adminPicksFunctions.svelte';
@@ -14,22 +13,23 @@
 	import AdminUserRecords from '$lib/components/containers/admin/adminUserRecords.svelte';
 	import AdminScheduleFunctions from '$lib/components/containers/admin/adminScheduleFunctions.svelte';
 	import { largerThanMobile } from '$scripts/store';
+	import Grid from '$lib/components/containers/Grid.svelte';
 
 	let selectedYear: number = new Date().getFullYear();
-	let selectedUser: WebUser;
-	let userPromise: Promise<WebUser[]>;
+	let selectedPlayer: Player;
+	let playerPromise: Promise<Player[]>;
 	let gamePromise: Promise<Game[]>;
 </script>
 
 <PageTitle>Weekly Pool Admin</PageTitle>
 <Grid minColumns={$largerThanMobile ? '40%' : '100%'} customStyles={'align-items:start;'}>
-	<AdminSelectors bind:selectedUser bind:selectedYear bind:userPromise bind:gamePromise />
+	<AdminSelectors bind:selectedPlayer bind:selectedYear bind:playerPromise bind:gamePromise />
 	<!-- <hr /> -->
 	<AdminSpreadFunctions bind:selectedYear />
 	<!-- <hr /> -->
-	<AdminPicksFunctions bind:selectedUser bind:selectedYear />
+	<AdminPicksFunctions bind:selectedPlayer bind:selectedYear />
 	<!-- <hr /> -->
-	<AdminTiebreakerFunctions bind:selectedUser bind:selectedYear />
+	<AdminTiebreakerFunctions bind:selectedPlayer bind:selectedYear />
 	<!-- <hr /> -->
 	<AdminGamesFunctions bind:selectedYear />
 	<!-- <hr /> -->
@@ -40,8 +40,8 @@
 	<AdminScheduleFunctions />
 </Grid>
 
-{#if userPromise}
-	{#await userPromise}
+{#if playerPromise}
+	{#await playerPromise}
 		<LoadingSpinner msg="Loading users..." />
 	{:then weeklyUsers}
 		<AccordionDetails expandTitle="Weekly Users">

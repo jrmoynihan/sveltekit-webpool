@@ -1,7 +1,7 @@
 import { myLog, myError } from '$lib/scripts/classes/constants';
 import { Game } from '$lib/scripts/classes/game';
 import { WeeklyPickDoc } from '$lib/scripts/classes/picks';
-import type { WebUser } from '$lib/scripts/classes/webUser';
+import type { Player } from '$lib/scripts/classes/player';
 import {
 	scheduleCollection,
 	weeklyPicksCollection,
@@ -13,7 +13,7 @@ import {
 	weeklyTiebreakerConverter
 } from '$lib/scripts/converters';
 import { defaultToast, errorToast } from '$lib/scripts/toasts';
-import { getWeeklyUsers } from './weeklyUsers';
+import { getWeeklyPlayers } from './weeklyPlayers';
 import { updateDoc, deleteDoc, doc, getDocs, query, setDoc, where } from 'firebase/firestore';
 import type { QueryConstraint } from 'firebase/firestore';
 import { findCurrentWeekOfSchedule } from '$lib/scripts/schedule';
@@ -92,7 +92,7 @@ const getMaxGameWeek = async (): Promise<number> => {
 
 export const createWeeklyPicksForAllUsers = async () => {
 	try {
-		const weeklyUsers = await getWeeklyUsers();
+		const weeklyUsers = await getWeeklyPlayers();
 		const games = await getAllGames();
 		for await (const user of weeklyUsers) {
 			await createWeeklyPicksForUser(user, true, false, games);
@@ -110,7 +110,7 @@ export const createWeeklyPicksForAllUsers = async () => {
 
 //TODO: Move to a triggered Cloud Function when a user joins the Weekly pool
 export const createWeeklyPicksForUser = async (
-	user: WebUser,
+	user: Player,
 	logAll = true,
 	showToast = true,
 	games?: Game[],
@@ -177,7 +177,7 @@ export const deleteWeeklyPicksForAllUsers = async () => {
 	}
 };
 export const deleteWeeklyPicksForUser = async (
-	user: WebUser,
+	user: Player,
 	selectedWeek?: number,
 	selectedYear?: number
 ) => {
@@ -210,7 +210,7 @@ export const deleteWeeklyPicksForUser = async (
 };
 export const createTiebreakersForAllUsers = async () => {
 	try {
-		const weeklyUsers = await getWeeklyUsers();
+		const weeklyUsers = await getWeeklyPlayers();
 		weeklyUsers.forEach((user) => {
 			createTiebreakersForUser(user, undefined, undefined, false);
 		});
@@ -225,7 +225,7 @@ export const createTiebreakersForAllUsers = async () => {
 	}
 };
 export const createTiebreakersForUser = async (
-	user: WebUser,
+	user: Player,
 	selectedWeek?: number,
 	selectedYear?: number,
 	logAll = true
@@ -306,7 +306,7 @@ export const deleteTiebreakersForAllUsers = async () => {
 	}
 };
 export const deleteTiebreakersForUser = async (
-	user: WebUser,
+	user: Player,
 	selectedWeek?: number,
 	selectedYear?: number
 ) => {

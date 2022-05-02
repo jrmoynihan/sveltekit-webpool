@@ -4,26 +4,23 @@
 	import PageTitle from '$components/misc/PageTitle.svelte';
 	import ErrorModal from '$components/modals/ErrorModal.svelte';
 	import WeekSelect from '$components/selects/WeekSelect.svelte';
-	import { myError, myLog } from '$scripts/classes/constants';
-	import type { Game } from '$scripts/classes/game';
+	import { myError, myLog } from '$classes/constants';
+	import type { Game } from '$classes/game';
 	import type { WeeklyPickDoc } from '$scripts/classes/picks';
-	import type { Team } from '$scripts/classes/team';
+	import type { Team } from '$classes/team';
 	import { scheduleCollection, weeklyPicksCollection } from '$scripts/collections';
 	import { gameConverter, teamConverter, weeklyPickConverter } from '$scripts/converters';
 	import { isBeforeGameTime } from '$scripts/functions';
 	import { selectedWeek, useDarkTheme } from '$scripts/store';
 	import { teamsCollection } from '$scripts/teams';
 	import { errorToast } from '$scripts/toasts';
-	import { getWeeklyUsers } from '$scripts/weekly/weeklyUsers';
-	import { orderBy } from 'firebase/firestore';
-	import { getDocs } from 'firebase/firestore';
-	import { where } from 'firebase/firestore';
-	import { query } from 'firebase/firestore';
+	import { query, where, getDocs, orderBy } from 'firebase/firestore';
 	import { findCurrentWeekOfSchedule } from '$scripts/schedule';
-	import type { WebUser } from '$scripts/classes/webUser';
 	import { onMount } from 'svelte';
 	import { fade, fly } from 'svelte/transition';
 	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
+	import type { Player } from '$classes/player';
+	import { getWeeklyPlayers } from '$scripts/weekly/weeklyPlayers';
 
 	let now = new Date();
 	// let selectedWeek: number = 1;
@@ -91,7 +88,7 @@
 	};
 
 	let weekPromise: Promise<number> = findCurrentWeekOfSchedule();
-	let userPromise: Promise<WebUser[]> = getWeeklyUsers(false);
+	let userPromise: Promise<Player[]> = getWeeklyPlayers(false);
 	let teamsPromise: Promise<Team[]> = getAllTeams();
 	let picksPromise: Promise<WeeklyPickDoc[]>;
 	let gamesPromise: Promise<Game[]>;

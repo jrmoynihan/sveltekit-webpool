@@ -36,7 +36,8 @@ const config = {
 					$tables: path.resolve('./src/lib/components/tables'),
 					$images: path.resolve('./src/lib/images'),
 					$majorFeatures: path.resolve('./src/lib/majorFeatures'),
-					$static: path.resolve('./static/')
+					$static: path.resolve('./static/'),
+					$classes: path.resolve('./src/lib/scripts/classes')
 				}
 			},
 			// build: {

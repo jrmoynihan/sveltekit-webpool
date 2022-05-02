@@ -1,7 +1,7 @@
 <script lang="ts">
 	import DeletionButton from '$lib/components/buttons/DeletionButton.svelte';
 	import StyledButton from '$lib/components/buttons/StyledButton.svelte';
-	import type { WebUser } from '$scripts/classes/webUser';
+	import type { Player } from '$classes/player';
 	import { selectedWeek } from '$scripts/store';
 	import {
 		createTiebreakersForAllUsers,
@@ -11,7 +11,7 @@
 	} from '$scripts/weekly/weeklyAdmin';
 	import AdminExpandSection from './adminExpandSection.svelte';
 
-	export let selectedUser: WebUser;
+	export let selectedPlayer: Player;
 	export let selectedYear: number;
 
 	let minColumns: string | number = '40%';
@@ -21,24 +21,24 @@
 	<StyledButton on:click={() => createTiebreakersForAllUsers()}>
 		Create Tiebreakers for All Users
 	</StyledButton>
-	{#if selectedUser}
+	{#if selectedPlayer}
 		<StyledButton
-			on:click={() => createTiebreakersForUser(selectedUser, undefined, undefined, true)}
+			on:click={() => createTiebreakersForUser(selectedPlayer, undefined, undefined, true)}
 		>
-			Create All Tiebreakers for {selectedUser.name}
+			Create All Tiebreakers for {selectedPlayer.name}
 		</StyledButton>
 		<StyledButton
-			on:click={() => createTiebreakersForUser(selectedUser, $selectedWeek, selectedYear, true)}
+			on:click={() => createTiebreakersForUser(selectedPlayer, $selectedWeek, selectedYear, true)}
 		>
-			Create Tiebreakers for {selectedUser.name} for Week {$selectedWeek}, {selectedYear}
+			Create Tiebreakers for {selectedPlayer.name} for Week {$selectedWeek}, {selectedYear}
 		</StyledButton>
-		<DeletionButton on:click={() => deleteTiebreakersForUser(selectedUser)}>
-			Delete All Tiebreakers for {selectedUser.name}
+		<DeletionButton on:click={() => deleteTiebreakersForUser(selectedPlayer)}>
+			Delete All Tiebreakers for {selectedPlayer.name}
 		</DeletionButton>
 		<DeletionButton
-			on:click={() => deleteTiebreakersForUser(selectedUser, $selectedWeek, selectedYear)}
+			on:click={() => deleteTiebreakersForUser(selectedPlayer, $selectedWeek, selectedYear)}
 		>
-			Delete Tiebreakers for {selectedUser.name} for Week {$selectedWeek}, {selectedYear}
+			Delete Tiebreakers for {selectedPlayer.name} for Week {$selectedWeek}, {selectedYear}
 		</DeletionButton>
 	{/if}
 	<DeletionButton on:click={() => deleteTiebreakersForAllUsers()}>

@@ -1,7 +1,6 @@
 <script lang="ts">
-	import type { WebUser } from '$scripts/classes/webUser';
+	import type { Player } from '$classes/player';
 	import StyledButton from '$lib/components/buttons/StyledButton.svelte';
-
 	import { resetScoredPicksForWeek, scorePicksForWeek } from '$scripts/scorePicks';
 	import {
 		createWeeklyPicksForAllUsers,
@@ -14,7 +13,7 @@
 	import { selectedWeek } from '$scripts/store';
 
 	export let selectedYear: number;
-	export let selectedUser: WebUser;
+	export let selectedPlayer: Player;
 
 	// Min and Max for a minmax grid column function
 	let minColumns: string | number = '40%';
@@ -24,16 +23,16 @@
 	<StyledButton on:click={() => scorePicksForWeek($selectedWeek, selectedYear)}>
 		<span>Score Picks For <b>Week {$selectedWeek}, {selectedYear}</b></span>
 	</StyledButton>
-	{#if selectedUser}
+	{#if selectedPlayer}
 		<StyledButton
 			on:click={() => {
 				const proceed = confirm(
 					'Are you sure?  These picks are created upon joining the pool.  You may want to delete all existing pick documents first, or delete/create picks for an individual user instead.'
 				);
-				if (proceed) createWeeklyPicksForUser(selectedUser, false, true);
+				if (proceed) createWeeklyPicksForUser(selectedPlayer, false, true);
 			}}
 		>
-			<span>Create All Picks for <b>{selectedUser.name}</b></span>
+			<span>Create All Picks for <b>{selectedPlayer.name}</b></span>
 		</StyledButton>
 		<StyledButton
 			on:click={() => {
@@ -42,7 +41,7 @@
 				);
 				if (proceed)
 					createWeeklyPicksForUser(
-						selectedUser,
+						selectedPlayer,
 						false,
 						true,
 						undefined,
@@ -52,15 +51,16 @@
 			}}
 		>
 			<span
-				>Create Picks for <b>{selectedUser.name} for Week {$selectedWeek}, {selectedYear}</b></span
+				>Create Picks for <b>{selectedPlayer.name} for Week {$selectedWeek}, {selectedYear}</b
+				></span
 			>
 		</StyledButton>
 		<StyledButton on:click={createWeeklyPicksForAllUsers} text="Create Picks for All Users" />
 		<DeletionButton
-			on:click={() => deleteWeeklyPicksForUser(selectedUser, $selectedWeek, selectedYear)}
+			on:click={() => deleteWeeklyPicksForUser(selectedPlayer, $selectedWeek, selectedYear)}
 		>
 			<span
-				>Delete All Picks for <b>{selectedUser.name} for Week {$selectedWeek}, {selectedYear}</b
+				>Delete All Picks for <b>{selectedPlayer.name} for Week {$selectedWeek}, {selectedYear}</b
 				></span
 			>
 		</DeletionButton>

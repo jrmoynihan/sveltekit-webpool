@@ -8,22 +8,21 @@ import {
 	signInWithRedirect,
 	signOut,
 	getRedirectResult,
-	browserPopupRedirectResolver
+	browserPopupRedirectResolver,
+	type User, type UserCredential, type AuthProvider
 } from 'firebase/auth';
-import type { User, UserCredential, AuthProvider } from 'firebase/auth';
-import { firestoreAuth } from '$lib/scripts/firebaseInit';
-import { get, writable } from 'svelte/store';
-import { WebUser } from '$lib/scripts/classes/webUser';
+import { firestoreAuth } from '$scripts/firebaseInit';
+import { get } from 'svelte/store';
+import { Player } from '$lib/scripts/classes/player';
 import { doc, setDoc } from 'firebase/firestore';
-import { usersCollection } from '$lib/scripts/collections';
+import { playersCollection } from '$scripts/collections';
 import { goto } from '$app/navigation';
-import { userConverter } from '../converters';
-import { myError, myLog } from '../classes/constants';
-import { WeeklyPickRecord, UserWinnings } from '$lib/scripts/classes/userRecord';
-import { saveUserData } from '$lib/scripts/localStorage';
+import { playerConverter } from '../converters';
+import { myError, myLog } from '$classes/constants';
+import { WeeklyPickRecord, UserWinnings } from '$classes/userRecord';
+import { saveUserData } from '$scripts/localStorage';
+import { authorizedUser, playerData } from '$scripts/store';
 
-export const currentUser = writable<User>(firestoreAuth.currentUser);
-export const userData = writable<WebUser>();
 // const currentUserQuery = query(usersCollection);
 // export const userDataSnapshot = userQueryAsStore(currentUserQuery);
 
@@ -120,11 +119,11 @@ export const createNewUserDocument = async (
 	amountPaidToPools = 0
 ): Promise<void> => {
 	try {
-		const newUser: User = get(currentUser);
+		const newUser: User = get(authorizedUser);
 		// Make a document reference for the user with the user's UID, making it both unique and easy to lookup after they login
-		const newUserRef = doc(usersCollection, newUser.uid);
+		const newUserRef = doc(playersCollection, newUser.uid);
 
-		const newUserData = new WebUser({
+		const newUserData = new Player({
 			uid: newUser.uid,
 			ref: newUserRef,
 			name: newUser.displayName,
@@ -149,7 +148,7 @@ export const createNewUserDocument = async (
 		});
 		console.log('newUserData', newUserData);
 		// Write some initial data to the user document
-		await setDoc(newUserRef.withConverter(userConverter), newUserData);
+		await setDoc(newUserRef.withConverter(playerConverter), newUserData);
 
 		console.info(`New user doc for ${newUser.displayName} (${newUser.uid}) added!`);
 	} catch (error) {
@@ -158,10 +157,10 @@ export const createNewUserDocument = async (
 };
 
 export const startSignOut = async (): Promise<void> => {
-	userData.set(undefined);
-	myLog(`userData is ${userData}`);
-	currentUser.set(undefined);
-	myLog(`currentUser is ${currentUser}`);
+	playerData.set(undefined);
+	myLog(`userData is ${playerData}`);
+	authorizedUser.set(undefined);
+	myLog(`currentUser is ${authorizedUser}`);
 	signOut(firestoreAuth);
 	myLog(`firestoreAuth is ${firestoreAuth}`);
 	goto('/'); // go to the index page, navigating the user away from any authorized page they may be on currently
@@ -169,13 +168,13 @@ export const startSignOut = async (): Promise<void> => {
 firestoreAuth.onAuthStateChanged(
 	async () => {
 		if (firestoreAuth.currentUser) {
-			currentUser.set(firestoreAuth.currentUser);
+			authorizedUser.set(firestoreAuth.currentUser);
 			saveUserData();
-			myLog(`the current user is ${get(currentUser).displayName}`, 'auth.ts => onAuthStateChanged');
+			myLog(`the current user is ${get(authorizedUser).displayName}`, 'auth.ts => onAuthStateChanged');
 		} else {
 			myLog(
 				`auth state changed, but current user is falsy (null or undefined): currentUser is ${
-					get(currentUser)?.displayName
+					get(authorizedUser)?.displayName
 				}`
 			);
 		}

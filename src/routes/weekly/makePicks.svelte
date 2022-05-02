@@ -2,7 +2,6 @@
 	import MatchupContainer from '$lib/components/containers/MatchupContainer.svelte';
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
 	import WeekSelect from '$lib/components/selects/WeekSelect.svelte';
-	import { currentUser } from '$scripts/auth/auth';
 	import type { WeeklyPickDoc } from '$scripts/classes/picks';
 	import { weeklyPickConverter, weeklyTiebreakerConverter } from '$scripts/converters';
 	import {
@@ -14,11 +13,12 @@
 		picksPromise,
 		preferredScoreView,
 		selectedSeasonType,
-		selectedUser,
-		selectedWeek,
 		selectedSeasonYear,
 		tiebreakerPromise,
-		useDarkTheme
+		useDarkTheme,
+		authorizedUser,
+		selectedWeek,
+		selectedPlayer
 	} from '$scripts/store';
 	import { DocumentReference, updateDoc } from 'firebase/firestore';
 	import { tweened } from 'svelte/motion';
@@ -38,17 +38,16 @@
 	} from '$scripts/classes/constants';
 	import { onMount } from 'svelte';
 	import { defaultToast, errorToast, getToast } from '$scripts/toasts';
-	import TiebreakerInput from '$lib/components/inputs/TiebreakerInput.svelte';
-	import PickCounter from '$lib/components/containers/micro/PickCounter.svelte';
-	import SubmitPicks from '$lib/components/buttons/SubmitPicks.svelte';
+	import TiebreakerInput from '$components/inputs/TiebreakerInput.svelte';
+	import PickCounter from '$components/containers/micro/PickCounter.svelte';
+	import SubmitPicks from '$components/buttons/SubmitPicks.svelte';
 	import { fly } from 'svelte/transition';
-	import LoadingSpinner from '$lib/components/misc/LoadingSpinner.svelte';
+	import LoadingSpinner from '$components/misc/LoadingSpinner.svelte';
 	import type { Game } from '$scripts/classes/game';
-	import { findCurrentWeekOfSchedule } from '$scripts/schedule';
 	import { getLocalStorageItem } from '$scripts/localStorage';
-	import { changedQuery, getPicksForUser } from '$scripts/weekly/weeklyUsers';
-	import ErrorModal from '$lib/components/modals/ErrorModal.svelte';
+	import ErrorModal from '$components/modals/ErrorModal.svelte';
 	import { focusTiebreaker } from '$scripts/scrollAndFocus';
+	import { changedQuery, getPicksForPlayer } from '$scripts/weekly/weeklyPlayers';
 
 	// let picksPromise: Promise<WeeklyPickDoc[]>;
 	// let tiebreakerPromise: Promise<WeeklyTiebreaker>;
@@ -107,7 +106,7 @@
 			$selectedSeasonYear,
 			$selectedSeasonType,
 			$selectedWeek,
-			$currentUser.uid
+			$authorizedUser.uid
 		);
 		$gamesPromise = promises.gamesPromise;
 		$picksPromise = promises.picksPromise;
@@ -173,7 +172,12 @@
 				}
 			});
 			myLog('updated/submitted picks!', '', okHand, currentPicks);
-			$picksPromise = getPicksForUser($selectedWeek, uid, $selectedSeasonYear, $selectedSeasonType);
+			$picksPromise = getPicksForPlayer(
+				$selectedWeek,
+				uid,
+				$selectedSeasonYear,
+				$selectedSeasonType
+			);
 			await updateTiebreakerDoc(docRef, uid, scoreGuess, $selectedWeek, $selectedSeasonYear);
 
 			defaultToast({
@@ -388,7 +392,7 @@
 			$selectedSeasonYear,
 			$selectedSeasonType,
 			$selectedWeek,
-			$selectedUser.uid
+			$authorizedUser.uid
 		);
 		$gamesPromise = (await promises).gamesPromise;
 		$picksPromise = (await promises).picksPromise;
@@ -440,7 +444,7 @@
 				<SubmitPicks
 					on:click={() =>
 						submitPicksAndTiebreaker(
-							$selectedUser.uid,
+							$selectedPlayer.uid,
 							docRef,
 							$changeableTiebreakerScoreGuess,
 							$currentPicks

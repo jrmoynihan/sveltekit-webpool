@@ -1,9 +1,9 @@
 <script lang="ts">
 	import RowData from '$lib/components/containers/micro/RowData.svelte';
-	import type { WebUser } from '$scripts/classes/webUser';
-	import { largerThanMobile } from '$scripts/store';
+	import type { Player } from '$lib/scripts/classes/player';
+	import { largerThanMobile } from '$lib/scripts/store';
 
-	export let player: WebUser;
+	export let player: Player;
 	export let i: number;
 	const isEvenRow = (index: number) => {
 		if ((index + 1) % 2 === 0) {

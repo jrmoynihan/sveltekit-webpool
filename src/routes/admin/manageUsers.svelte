@@ -3,16 +3,16 @@
 	import Grid from '$lib/components/containers/Grid.svelte';
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
 	import ErrorModal from '$lib/components/modals/ErrorModal.svelte';
-	import UserSelect from '$lib/components/selects/UserSelect.svelte';
+	import PlayerSelect from '$lib/components/selects/PlayerSelect.svelte';
+	import RoleToggle from '$lib/components/switches/RoleToggle.svelte';
 	import ToggleSwitch from '$lib/components/switches/ToggleSwitch.svelte';
-	import type { WebUser } from '$scripts/classes/webUser';
-	import { updateUser } from '$scripts/store';
-	import { getWeeklyUsers } from '$scripts/weekly/weeklyUsers';
-	import RoleToggle from '$switches/RoleToggle.svelte';
+	import type { Player } from '$lib/scripts/classes/player';
+	import { updatePlayer } from '$lib/scripts/store';
+	import { getWeeklyPlayers } from '$lib/scripts/weekly/weeklyPlayers';
 	import { onMount } from 'svelte';
 
-	let selectedUser: WebUser;
-	let userPromise: Promise<WebUser[]> = getWeeklyUsers(false);
+	let selectedPlayer: Player;
+	let playersPromise: Promise<Player[]> = getWeeklyPlayers(false);
 	let nicknameUpdate: string;
 	let amountOwedUpdate: number;
 	let amountPaidUpdate: number;
@@ -21,7 +21,7 @@
 	let weeklyWinnings: { week: string; amount: number }[];
 
 	const sortWeeklyWinnings = () => {
-		const keys = Object.keys(selectedUser.weeklyWinnings).sort();
+		const keys = Object.keys(selectedPlayer.weeklyWinnings).sort();
 		const filteredKeys = keys.filter((key) => key.match('week_'));
 		const truncatedKeys = filteredKeys.map((key) => {
 			const splitKey = key.split('_');
@@ -29,80 +29,80 @@
 		});
 		truncatedKeys.sort((first, second) => Number(first) - Number(second));
 		const sorted = truncatedKeys.map((key) => {
-			return { week: key, amount: selectedUser.weeklyWinnings[`week_${key}`] };
+			return { week: key, amount: selectedPlayer.weeklyWinnings[`week_${key}`] };
 		});
 		return sorted;
 	};
 	const updateDisplayedUser = (): void => {
 		weeklyWinnings = sortWeeklyWinnings();
-		nicknameUpdate = selectedUser.nickname;
+		nicknameUpdate = selectedPlayer.nickname;
 	};
 
 	onMount(async () => {
-		const users = await userPromise;
-		selectedUser = users[0];
-		nicknameUpdate = selectedUser.nickname;
+		const users = await playersPromise;
+		selectedPlayer = users[0];
+		nicknameUpdate = selectedPlayer.nickname;
 		weeklyWinnings = sortWeeklyWinnings();
 	});
 </script>
 
 <PageTitle>Manage Users</PageTitle>
 
-{#await userPromise}
+{#await playersPromise}
 	Loading users...
 {:then}
-	{#if selectedUser}
+	{#if selectedPlayer}
 		<Grid
 			customStyles="{gridStyles} grid-template-columns: auto max-content;text-align:left;justify-self:center;"
 		>
-			<UserSelect
-				bind:selectedUser
-				bind:userPromise
+			<PlayerSelect
+				bind:selectedPlayer
+				bind:playersPromise
 				on:userChanged={updateDisplayedUser}
 				customStyles="grid-column:span 2"
 			/>
 			<p class="title">Name:</p>
-			<p>{selectedUser.name}</p>
+			<p>{selectedPlayer.name}</p>
 			<p class="title">Email:</p>
-			<p>{selectedUser.email}</p>
+			<p>{selectedPlayer.email}</p>
 			<p class="title">UserID:</p>
-			<p>{selectedUser.uid})</p>
+			<p>{selectedPlayer.uid})</p>
 			<p class="title">Nickname:</p>
 			<input type="text" bind:value={nicknameUpdate} />
 		</Grid>
 		<hr />
 		<Grid>
-			<RoleToggle role="admin" bind:user={selectedUser} />
-			<RoleToggle role="college" bind:user={selectedUser} />
-			<RoleToggle role="pick6" bind:user={selectedUser} />
-			<RoleToggle role="playoffs" bind:user={selectedUser} />
-			<RoleToggle role="survivor" bind:user={selectedUser} />
-			<RoleToggle role="weekly" bind:user={selectedUser} />
+			<RoleToggle role="admin" bind:player={selectedPlayer} />
+			<RoleToggle role="college" bind:player={selectedPlayer} />
+			<RoleToggle role="pick6" bind:player={selectedPlayer} />
+			<RoleToggle role="playoffs" bind:player={selectedPlayer} />
+			<RoleToggle role="survivor" bind:player={selectedPlayer} />
+			<RoleToggle role="weekly" bind:player={selectedPlayer} />
 		</Grid>
 		<Grid>
 			<ToggleSwitch
-				on:toggle={async () => await updateUser(selectedUser)}
-				bind:checked={selectedUser.paidCollege}
+				on:toggle={async () => await updatePlayer(selectedPlayer)}
+				bind:checked={selectedPlayer.paidCollege}
 				labelText="Paid College"
 			/>
 			<ToggleSwitch
-				on:toggle={async () => await updateUser(selectedUser)}
-				bind:checked={selectedUser.paidPick6}
+				on:toggle={async () => await updatePlayer(selectedPlayer)}
+				bind:checked={selectedPlayer.paidPick6}
 				labelText="Paid Pick6"
 			/>
 			<ToggleSwitch
-				on:toggle={async () => await updateUser(selectedUser)}
-				bind:checked={selectedUser.paidPlayoffs}
+				on:toggle={async () => await updatePlayer(selectedPlayer)}
+				bind:checked={selectedPlayer.paidPlayoffs}
 				labelText="Paid Playoffs"
 			/>
 			<ToggleSwitch
-				on:toggle={async () => await updateUser(selectedUser)}
-				bind:checked={selectedUser.paidSurvivor}
+				on:toggle={async () => await updatePlayer(selectedPlayer)}
+				bind:checked={selectedPlayer.paidSurvivor}
 				labelText="Paid Survivor"
 			/>
 			<ToggleSwitch
-				on:toggle={async () => await updateUser(selectedUser)}
-				bind:checked={selectedUser.paidWeekly}
+				on:toggle={async () => await updatePlayer(selectedPlayer)}
+				bind:checked={selectedPlayer.paidWeekly}
 				labelText="Paid Weekly"
 			/>
 		</Grid>
@@ -111,15 +111,15 @@
 		grid-template-columns: auto 1fr;"
 		>
 			<label for="amountOwed" class="title"> Amount Owed to Pool </label>
-			<input id="amountOwed" type="number" value={selectedUser.amountOwedToPools} />
+			<input id="amountOwed" type="number" value={selectedPlayer.amountOwedToPools} />
 
 			<label for="amountPaid" class="title"> Amount Paid by Pool </label>
-			<input id="amountPaid" type="number" value={selectedUser.amountPaidToPools} />
+			<input id="amountPaid" type="number" value={selectedPlayer.amountPaidToPools} />
 
 			<label for="winningsSummary" class="title"> Weekly Winnings </label>
 			<AccordionDetails showArrow={false}>
 				<div id="winningsSummary" slot="summary">
-					<p class="title">${selectedUser.weeklyWinnings.total} total</p>
+					<p class="title">${selectedPlayer.weeklyWinnings.total} total</p>
 					<p><small><i>(click to reveal breakdown)</i></small></p>
 				</div>
 				<div slot="content">

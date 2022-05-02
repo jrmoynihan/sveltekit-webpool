@@ -1,18 +1,17 @@
 <script lang="ts">
 	import { orderBy, query, CollectionReference, onSnapshot } from 'firebase/firestore';
 	import ToggleSwitch from '$switches/ToggleSwitch.svelte';
-	import { userData } from '$scripts/auth/auth';
 	import Fa from 'svelte-fa';
 	import { faLock, faUnlock } from '@fortawesome/free-solid-svg-icons';
 	import { ruleCategoryConverter } from '$scripts/converters';
 	import PrizeCard from '$containers/rules/PrizeCard.svelte';
 	import RulesCategoryGrid from '$containers/rules/RulesCategoryGrid.svelte';
 	import Tabs from '$navigation/Tabs.svelte';
-	import { editing } from '$scripts/store';
-	import type { WebUser } from '$scripts/classes/webUser';
-	import type { RuleCategory, RuleTab } from '$scripts/classes/rules';
+	import { editing, playerData } from '$scripts/store';
 	import { onDestroy } from 'svelte';
-	import { myLog } from '$scripts/classes/constants';
+	import { myLog } from '$classes/constants';
+	import type { Player } from '$classes/player';
+	import type { RuleCategory, RuleTab } from '$classes/rules';
 
 	// This container can receive different collection references for the various pools
 	export let rulesCollection: CollectionReference;
@@ -21,12 +20,12 @@
 	let editable = false;
 
 	// But an admin will have the option to make it editable
-	const isUserAdmin = (userData: WebUser): boolean => {
+	const isUserAdmin = (userData: Player): boolean => {
 		if (userData !== undefined) {
 			return userData.admin;
 		}
 	};
-	$: editable = isUserAdmin($userData);
+	$: editable = isUserAdmin($playerData);
 
 	let ruleCategories: RuleCategory[];
 	const ruleQuery = query(rulesCollection, orderBy('order'));

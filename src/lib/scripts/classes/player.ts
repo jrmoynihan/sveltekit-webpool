@@ -1,7 +1,7 @@
 import type { DocumentReference } from 'firebase/firestore';
 import type { UserWinnings, WeeklyPickRecord } from './userRecord';
 
-export class WebUser {
+export class Player {
 	uid: string;
 	ref: DocumentReference;
 	name: string;

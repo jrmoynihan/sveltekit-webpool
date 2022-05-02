@@ -1,32 +1,27 @@
 <script lang="ts">
-	import type { WebUser } from '$scripts/classes/webUser';
-	import ReturnToTop from '$lib/components/buttons/ReturnToTop.svelte';
-	import WeekSelect from '$lib/components/selects/WeekSelect.svelte';
-	import WeeklyStandingsRow from '$lib/components/tables/WeeklyStandingsRow.svelte';
-	import { mobileBreakpoint } from '$scripts/site';
 	import { selectedWeek, showIDs, showNetTiebreakers, windowWidth } from '$scripts/store';
-	import { onMount } from 'svelte';
 	import { query, where, orderBy, type DocumentData, Query, getDocs } from 'firebase/firestore';
 	import {
 		scheduleCollection,
-		usersCollection,
-		weeklyTiebreakersCollection
+		playersCollection,
+weeklyTiebreakersCollection
 	} from '$scripts/collections';
-	import { getWeeklyUsers } from '$scripts/weekly/weeklyUsers';
-	import type { WeeklyTiebreaker } from '$scripts/classes/tiebreaker';
-	import { gameConverter, weeklyTiebreakerConverter } from '$scripts/converters';
+	import { getWeeklyPlayers } from '$scripts/weekly/weeklyPlayers';
 	import { errorToast } from '$scripts/toasts';
 	import { myError } from '$scripts/classes/constants';
 	import type { Game } from '$scripts/classes/game';
 	import { findCurrentWeekOfSchedule } from '$scripts/schedule';
 	import ErrorModal from '../modals/ErrorModal.svelte';
+import type { WeeklyTiebreaker } from '$classes/tiebreaker';
+import type { Player } from '$classes/player';
+import { gameConverter, weeklyTiebreakerConverter } from '$scripts/converters';
+import { onMount } from 'svelte';
 
 	let initialWeekHeaders: string[] = ['Rank', 'Player', 'Wins', 'Losses', 'Tiebreaker', 'Prize'];
 	let abbreviatedWeekHeaders: string[] = ['#', 'Name', 'W', 'L', 'T', '$'];
 	let weekHeaders: string[] = initialWeekHeaders;
-	// let selectedWeek: number;
 	let tiebreakerPromise: Promise<WeeklyTiebreaker[]>;
-	let weeklyUserPromise: Promise<WebUser[]>;
+	let weeklyUserPromise: Promise<Player[]>;
 	let lastGamePromise: Promise<Game>;
 	let weeklyUserQuery: Query<DocumentData>;
 	let headerCount: number;
@@ -74,12 +69,12 @@
 
 	const getData = async (selectedWeek: number) => {
 		weeklyUserQuery = query(
-			usersCollection,
+			playersCollection,
 			where('weekly', '==', true),
 			orderBy(`weeklyPickRecord.week_${selectedWeek}.wins`, 'desc'),
 			orderBy(`weeklyPickRecord.week_${selectedWeek}.netTiebreaker`)
 		);
-		weeklyUserPromise = getWeeklyUsers(false, weeklyUserQuery);
+		weeklyUserPromise = getWeeklyPlayers(false, weeklyUserQuery);
 		tiebreakerPromise = getAllTiebreakers(selectedWeek);
 		lastGamePromise = getLastGame(selectedWeek);
 	};

@@ -1,43 +1,43 @@
 <script lang="ts">
 	import { PageOptions } from '$scripts/site';
 	import NavLink from '$navigation/NavLink.svelte';
-	import { currentUser, userData } from '$scripts/auth/auth';
+	import { authorizedUser, playerData } from '$scripts/store';
 </script>
 
 {#each PageOptions as pageOption, index}
 	{#if pageOption.requiresAdmin === true}
-		{#if $userData !== undefined && $currentUser !== undefined}
-			{#if $userData.admin === true}
+		{#if $playerData !== undefined && $authorizedUser !== undefined}
+			{#if $playerData.admin === true}
 				<NavLink {index} {pageOption} />
 			{/if}
 		{/if}
 	{:else if pageOption.requiresWeekly}
-		{#if $userData !== undefined && $currentUser !== undefined}
-			{#if $userData.weekly === true}
+		{#if $playerData !== undefined && $authorizedUser !== undefined}
+			{#if $playerData.weekly === true}
 				<NavLink {index} {pageOption} />
 			{/if}
 		{/if}
 	{:else if pageOption.requiresSurvivor}
-		{#if $userData !== undefined && $currentUser !== undefined}
-			{#if $userData.survivor === true}
+		{#if $playerData !== undefined && $authorizedUser !== undefined}
+			{#if $playerData.survivor === true}
 				<NavLink {index} {pageOption} />
 			{/if}
 		{/if}
 	{:else if pageOption.requiresPick6}
-		{#if $userData !== undefined && $currentUser !== undefined}
-			{#if $userData.pick6 === true}
+		{#if $playerData !== undefined && $authorizedUser !== undefined}
+			{#if $playerData.pick6 === true}
 				<NavLink {index} {pageOption} />
 			{/if}
 		{/if}
 	{:else if pageOption.requiresPlayoffs}
-		{#if $userData !== undefined && $currentUser !== undefined}
-			{#if $userData.playoffs === true}
+		{#if $playerData !== undefined && $authorizedUser !== undefined}
+			{#if $playerData.playoffs === true}
 				<NavLink {index} {pageOption} />
 			{/if}
 		{/if}
 	{:else if pageOption.requiresCollege}
-		{#if $userData !== undefined && $currentUser !== undefined}
-			{#if $userData.college === true}
+		{#if $playerData !== undefined && $authorizedUser !== undefined}
+			{#if $playerData.college === true}
 				<NavLink {index} {pageOption} />
 			{/if}
 		{/if}

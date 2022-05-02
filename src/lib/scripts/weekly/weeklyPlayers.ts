@@ -1,44 +1,44 @@
-import type { Game } from '$lib/scripts/classes/game';
-import type { WeeklyPickDoc } from '$lib/scripts/classes/picks';
-import type { SeasonType } from '$lib/scripts/classes/seasonType';
-import type { WeeklyTiebreaker } from '$lib/scripts/classes/tiebreaker';
+import type { Game } from '$classes/game';
+import type { WeeklyPickDoc } from '$classes/picks';
+import type { SeasonType } from '$classes/seasonType';
+import type { WeeklyTiebreaker } from '$classes/tiebreaker';
+import { Player } from '$classes/player';
 import { query, where, getDocs, orderBy } from 'firebase/firestore';
 import { myLog, myError, checkmark, pick, detective, necktie } from '../classes/constants';
-import { WebUser } from '../classes/webUser';
 import {
 	scheduleCollection,
-	usersCollection,
+	playersCollection,
 	weeklyPicksCollection,
 	weeklyTiebreakersCollection
 } from '../collections';
 import {
 	gameConverter,
-	userConverter,
+	playerConverter,
 	weeklyPickConverter,
 	weeklyTiebreakerConverter
 } from '../converters';
 import { defaultToast, errorToast } from '../toasts';
 
 // TODO: Refactor these functions into endpoints that change the url as the params change?
-export const getWeeklyUsers = async (
+export const getWeeklyPlayers = async (
 	showToast = true,
-	customizedQuery = query(usersCollection, where('weekly', '==', true))
+	customizedQuery = query(playersCollection, where('weekly', '==', true))
 ) => {
 	try {
-		const users: WebUser[] = [];
-		const querySnapshot = await getDocs(customizedQuery.withConverter(userConverter));
+		const players: Player[] = [];
+		const querySnapshot = await getDocs(customizedQuery.withConverter(playerConverter));
 		querySnapshot.forEach((doc) => {
 			const id = doc.id;
 			const ref = doc.ref;
-			const user = new WebUser({ id: id, ref: ref, ...doc.data() });
-			users.push(user);
+			const player = new Player({ id: id, ref: ref, ...doc.data() });
+			players.push(player);
 		});
 		const msg = 'Retrieved all users who are Weekly Pool players.';
-		myLog(msg, 'createWeeklyPicksForUser', undefined, users);
+		myLog(msg, 'createWeeklyPicksForUser', undefined, players);
 		if (showToast) {
 			defaultToast({ title: 'Got Weekly Users!', msg: msg });
 		}
-		return users;
+		return players;
 	} catch (error) {
 		const msg = `Encountered an error while trying to get weekly users.  Check the console for more info. ${error}`;
 		errorToast(msg);
@@ -56,7 +56,7 @@ export const changedQuery = async (
 	let tiebreakerPromise: Promise<WeeklyTiebreaker>;
 	try {
 		gamesPromise = getGames(selectedYear, selectedSeasonType, selectedWeek);
-		picksPromise = getPicksForUser(selectedWeek, uid, selectedYear, selectedSeasonType);
+		picksPromise = getPicksForPlayer(selectedWeek, uid, selectedYear, selectedSeasonType);
 		tiebreakerPromise = getTiebreaker(selectedWeek, uid, selectedYear);
 		return { gamesPromise, picksPromise, tiebreakerPromise };
 	} catch (error) {
@@ -92,7 +92,7 @@ export const getGames = async (
 		myError('getGames', error);
 	}
 };
-export const getPicksForUser = async (
+export const getPicksForPlayer = async (
 	selectedWeek: number,
 	uid: string,
 	selectedYear: number,
