@@ -1,26 +1,31 @@
 import preprocess from 'svelte-preprocess';
 import adapter from '@sveltejs/adapter-auto';
-import firebase from 'svelte-adapter-firebase';
-import path from 'path';
+// import firebase from 'svelte-adapter-firebase';
+import path, { dirname } from 'path';
 import mkcert from 'vite-plugin-mkcert';
+import { fileURLToPath } from 'url';
+const filepath = dirname(fileURLToPath(import.meta.url)).replace(/\\/g, '/');
+const sassPath = `${filepath}/src/styles`;
 // import { imagetools } from 'vite-imagetools';
 // import autoprefixer from 'autoprefixer';
+
+// SASS solution via Scott Tolinski: https://www.reddit.com/r/sveltejs/comments/pmham1/sveltekit_how_to_set_up_global_scss_accessible_to/
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
 	// Consult https://github.com/sveltejs/svelte-preprocess
 	// for more information about preprocessors
-	preprocess: preprocess({
-		// postcss: {
-		// plugins: [autoprefixer()],
-		// prependData: `@import('src/styles/mixins.scss', 'src/styles/functions.scss');`
-		// },
-		// sourceMap: true,
+	preprocess: [
+		preprocess({
+			// postcss: {
+			// plugins: [autoprefixer()],
+			// sourceMap: true,
 
-		scss: {
-			prependData: `@import './src/styles/mixins.scss', './src/styles/functions.scss';`
-		}
-	}),
+			scss: {
+				prependData: `@import '${sassPath}/mixins.scss';`
+			}
+		})
+	],
 	experimental: { useVitePreProcess: true },
 	compilerOptions: {
 		css: false
