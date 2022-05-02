@@ -2,10 +2,11 @@ import { browser } from '$app/env';
 import { get } from 'svelte/store';
 import { playersCollection } from '$scripts/collections';
 import { playerConverter } from '$scripts/converters';
-import { authorizedUser, playerData } from '$scripts/store';
+import { firebase_user, playerData } from '$scripts/store';
 import { doc, getDoc } from 'firebase/firestore';
 import { Player } from '$lib/scripts/classes/player';
 import { detective, myError, myLog } from '$classes/constants';
+import type { User } from 'firebase/auth';
 
 export const getLocalStorageItem = async <T>(key: string): Promise<T | null> => {
 	if (browser) {
@@ -23,9 +24,9 @@ export const setLocalStorageItem = async (key: string, value: unknown): Promise<
 	}
 };
 
-export const saveUserData = async () => {
+export const saveUserData = async (firebase_user: User) => {
 	try {
-		const userDocRef = doc(playersCollection, get(authorizedUser).uid);
+		const userDocRef = doc(playersCollection, firebase_user.uid);
 		const snapshot = await getDoc(userDocRef.withConverter(playerConverter));
 		const user = new Player({ ...snapshot.data() });
 

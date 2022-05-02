@@ -12,7 +12,7 @@ import type { AuthError } from 'firebase/auth';
 import { getDoc, doc } from 'firebase/firestore';
 import { get, writable } from 'svelte/store';
 import { capitalizeWord } from '$scripts/functions';
-import { authorizedUser } from '$scripts/store';
+import { firebase_user } from '$scripts/store';
 
 export const userNotFound = writable(false);
 
@@ -58,7 +58,7 @@ browser ? obtainUserDocOnRedirect() : null;
  * If it exists, the userNotFound store is set to {true}, indicating a New User prompt should be displayed.
  */
 async function getCurrentUserDoc(): Promise<void> {
-	const user = get(authorizedUser);
+	const user = get(firebase_user);
 	const userDoc = doc(playersCollection, user.uid);
 	const userDocSnapshot = await getDoc(userDoc);
 	// Log if the user doc exists

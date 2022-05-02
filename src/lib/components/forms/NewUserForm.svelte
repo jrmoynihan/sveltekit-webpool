@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { createNewUserDocument, currentUser, userData } from '$scripts/auth/auth';
+	import { createNewPlayerDocument } from '$scripts/auth/auth';
 	import { football, myError, myLog } from '$scripts/classes/constants';
 	import { weekBoundsCollection } from '$scripts/collections';
 	import { saveUserData } from '$scripts/localStorage';
-	import { godSequence, godMode } from '$scripts/store';
+	import { godSequence, godMode, firebase_user, playerData } from '$scripts/store';
 	import { defaultToast, errorToast } from '$scripts/toasts';
 	import {
 		createTiebreakersForUser,
@@ -111,7 +111,7 @@
 			const sanitizedNickname = nickname.trimStart().trimEnd().replace(alphaNumericRegex, '');
 			const toggledPools = await confirmToggledPools();
 			myLog(
-				`Creating account for ${$currentUser.displayName} (${sanitizedNickname})...`,
+				`Creating account for ${$firebase_user.displayName} (${sanitizedNickname})...`,
 				null,
 				football,
 				toggledPools
@@ -124,17 +124,17 @@
 			// 		debugCounter = i;
 			// 	}
 			// }
-			await createNewUserDocument(nickname, toggledPools, totalPriceToEnter, 0);
-			await saveUserData();
+			await createNewPlayerDocument($firebase_user, nickname, toggledPools, totalPriceToEnter, 0);
+			await saveUserData($firebase_user);
 			// TODO: create the necessary docs for each pool they've joined...
 			// may not need to await here, but should instead use Workers!
 			const games = await getAllGames(false);
-			createWeeklyPicksForUser($userData, true, false, games);
-			createTiebreakersForUser($userData);
+			createWeeklyPicksForUser($playerData, true, false, games);
+			createTiebreakersForUser($playerData);
 			//prettier-ignore
 			defaultToast({
 				title: `Account Created!`,
-				msg: `${$currentUser.displayName} (${sanitizedNickname}) has joined the following pools: ${poolsWillJoinNames.join(', ')}`
+				msg: `${$firebase_user.displayName} (${sanitizedNickname}) has joined the following pools: ${poolsWillJoinNames.join(', ')}`
 			});
 			//#prettier-ignore
 			modalOnlyComponent.close();
@@ -236,7 +236,7 @@
 	) => {
 		// console.log(e.key);
 		const secretCode = ['G', 'O', 'D'];
-		if (!$godMode && $userData?.admin) {
+		if (!$godMode && $playerData?.admin) {
 			if (
 				e.key !== 'G' &&
 				e.key !== 'g' &&

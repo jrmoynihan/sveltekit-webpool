@@ -45,7 +45,7 @@ export const showATSwinner = writable(false);
 export const overrideDisabled = writable(false);
 export const godMode = writable(false);
 export const godSequence = writable<string[]>([]);
-export const authorizedUser = writable<User>(firestoreAuth.currentUser);
+export const firebase_user = writable<User>(firestoreAuth.currentUser);
 export const playerData = writable<Player>();
 export const allTeams = writable<Team[]>([]);
 
@@ -105,7 +105,7 @@ export const updatePlayer = async (player: Player): Promise<void> => {
 	try {
 		console.log(`attempting to update ${player.name}`);
 		await updateDoc(docRef.withConverter(playerConverter), { ...player });
-		if (player.uid === get(authorizedUser).uid) {
+		if (player.uid === get(firebase_user).uid) {
 			const doc = await getDoc(docRef.withConverter(playerConverter));
 			playerData.set(doc.data());
 		}

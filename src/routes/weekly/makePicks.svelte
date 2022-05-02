@@ -16,7 +16,7 @@
 		selectedSeasonYear,
 		tiebreakerPromise,
 		useDarkTheme,
-		authorizedUser,
+		firebase_user,
 		selectedWeek,
 		selectedPlayer
 	} from '$scripts/store';

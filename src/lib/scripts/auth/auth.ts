@@ -21,7 +21,7 @@ import { playerConverter } from '../converters';
 import { myError, myLog } from '$classes/constants';
 import { WeeklyPickRecord, UserWinnings } from '$classes/userRecord';
 import { saveUserData } from '$scripts/localStorage';
-import { authorizedUser, playerData } from '$scripts/store';
+import { firebase_user, playerData } from '$scripts/store';
 
 // const currentUserQuery = query(usersCollection);
 // export const userDataSnapshot = userQueryAsStore(currentUserQuery);
@@ -106,7 +106,8 @@ export const startSignIn = async (loginPlatform: string, useRedirect: boolean = 
  * @param amountOwedToPools - The amount they owe the pool upon joining (default: $0, but this total should be provided to the function when calling it)
  * @param amountPaidToPools - The amount they have already paid the pool (default: $0)
  */
-export const createNewUserDocument = async (
+export const createNewPlayerDocument = async (
+	firebase_user: User,
 	nickname: string,
 	pools: {
 		college: boolean;
@@ -119,16 +120,15 @@ export const createNewUserDocument = async (
 	amountPaidToPools = 0
 ): Promise<void> => {
 	try {
-		const newUser: User = get(authorizedUser);
 		// Make a document reference for the user with the user's UID, making it both unique and easy to lookup after they login
-		const newUserRef = doc(playersCollection, newUser.uid);
+		const new_player_ref = doc(playersCollection, firebase_user.uid);
 
-		const newUserData = new Player({
-			uid: newUser.uid,
-			ref: newUserRef,
-			name: newUser.displayName,
-			nickname: nickname || newUser.displayName,
-			email: newUser.email,
+		const new_Player_Data = new Player({
+			uid: firebase_user.uid,
+			ref: new_player_ref,
+			name: firebase_user.displayName,
+			nickname: nickname || firebase_user.displayName,
+			email: firebase_user.email,
 			active: true,
 			admin: false,
 			college: pools.college,
@@ -146,11 +146,11 @@ export const createNewUserDocument = async (
 			paidSurvivor: false,
 			paidPick6: false
 		});
-		console.log('newUserData', newUserData);
+		console.log('newUserData', new_Player_Data);
 		// Write some initial data to the user document
-		await setDoc(newUserRef.withConverter(playerConverter), newUserData);
+		await setDoc(new_player_ref.withConverter(playerConverter), new_Player_Data);
 
-		console.info(`New user doc for ${newUser.displayName} (${newUser.uid}) added!`);
+		console.info(`New user doc for ${firebase_user.displayName} (${firebase_user.uid}) added!`);
 	} catch (error) {
 		console.warn('error in createNewUserDocument', error);
 	}
@@ -159,8 +159,8 @@ export const createNewUserDocument = async (
 export const startSignOut = async (): Promise<void> => {
 	playerData.set(undefined);
 	myLog(`userData is ${playerData}`);
-	authorizedUser.set(undefined);
-	myLog(`currentUser is ${authorizedUser}`);
+	firebase_user.set(undefined);
+	myLog(`currentUser is ${firebase_user}`);
 	signOut(firestoreAuth);
 	myLog(`firestoreAuth is ${firestoreAuth}`);
 	goto('/'); // go to the index page, navigating the user away from any authorized page they may be on currently
@@ -168,13 +168,13 @@ export const startSignOut = async (): Promise<void> => {
 firestoreAuth.onAuthStateChanged(
 	async () => {
 		if (firestoreAuth.currentUser) {
-			authorizedUser.set(firestoreAuth.currentUser);
-			saveUserData();
-			myLog(`the current user is ${get(authorizedUser).displayName}`, 'auth.ts => onAuthStateChanged');
+			firebase_user.set(firestoreAuth.currentUser);
+			saveUserData(firestoreAuth.currentUser);
+			myLog(`the current user is ${get(firebase_user).displayName}`, 'auth.ts => onAuthStateChanged');
 		} else {
 			myLog(
 				`auth state changed, but current user is falsy (null or undefined): currentUser is ${
-					get(authorizedUser)?.displayName
+					get(firebase_user)?.displayName
 				}`
 			);
 		}
