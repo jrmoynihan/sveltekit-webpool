@@ -1,3 +1,5 @@
+import { dev } from '$app/env';
+import { getApps, getApp, initializeApp } from 'firebase/app';
 import {
 	debugErrorMap,
 	indexedDBLocalPersistence,
@@ -5,15 +7,10 @@ import {
 	prodErrorMap
 } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-import { getApp, getApps, initializeApp } from 'firebase/app';
-import type { FirebaseApp } from 'firebase/app';
-import { dev } from '$app/env';
 
-// TODO: Figure out how to store secrets on Firebase or deploy to Vercel
-export const API_KEY = dev ? import.meta.env.VITE_API_KEY : process?.env?.FIREBASE_API_KEY;
-
+const API_KEY: string = dev ? (import.meta.env.VITE_API_KEY as string) : process.env.API_KEY;
 const firebaseConfig = {
-	apiKey: API_KEY,
+	apiKey: 'AIzaSyDEAAXuJcftdIqBRxi_OmDYmFEMs2qnpIw',
 	authDomain: 'tonyswebpool.firebaseapp.com',
 	databaseURL: 'https://tonyswebpool.firebaseio.com',
 	projectId: 'tonyswebpool',
@@ -23,25 +20,20 @@ const firebaseConfig = {
 	measurementId: 'G-8Y5HV7HDFZ'
 };
 
-export let myApp: FirebaseApp;
-
-// If a firebase app is already initialized, use that one
-if (getApps().length === 0) {
-	myApp = initializeApp(firebaseConfig);
-} else {
-	myApp = getApp();
+export function initializeFirebase() {
+	// If a firebase app is already initialized, use that one
+	if (getApps().length === 0) {
+		return initializeApp(firebaseConfig);
+	} else {
+		return getApp();
+	}
 }
-
+const myApp = initializeFirebase();
 export const firestoreDB = getFirestore(myApp);
-
-// NOTE https://firebase.google.com/docs/auth/web/custom-dependencies
-// export const firestoreAuth = getAuth(myApp)		// calls a persistence function by default  that depends on window being available, which fails under SSR
 export const firestoreAuth = initializeAuth(myApp, {
 	persistence: indexedDBLocalPersistence,
 	errorMap: dev ? debugErrorMap : prodErrorMap
 });
-
-// export const firestoreStorage = getStorage(myApp);
 
 // if (browser && !dev) {
 // 	setPersistence(firestoreAuth, browserLocalPersistence);

@@ -1,5 +1,5 @@
 import { collection } from 'firebase/firestore';
-import { firestoreDB } from './firebaseInit';
+import { firestoreDB } from '$scripts/firebaseInit';
 
 export const scheduleCollection = collection(firestoreDB, 'Schedule');
 export const toastsCollection = collection(firestoreDB, 'Toasts');
