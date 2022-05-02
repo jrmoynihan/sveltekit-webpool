@@ -6,10 +6,6 @@ import mkcert from 'vite-plugin-mkcert';
 import { fileURLToPath } from 'url';
 const filepath = dirname(fileURLToPath(import.meta.url)).replace(/\\/g, '/');
 const sassPath = `${filepath}/src/styles`;
-// import { imagetools } from 'vite-imagetools';
-// import autoprefixer from 'autoprefixer';
-
-// SASS solution via Scott Tolinski: https://www.reddit.com/r/sveltejs/comments/pmham1/sveltekit_how_to_set_up_global_scss_accessible_to/
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -18,11 +14,10 @@ const config = {
 	preprocess: [
 		preprocess({
 			scss: {
-				prependData: `@import 'src/styles/mixins.scss';`
+				prependData: `@import '${sassPath}/mixins.scss';`
 			}
 		})
 	],
-	experimental: { useVitePreProcess: true },
 	compilerOptions: {
 		css: false
 	},
