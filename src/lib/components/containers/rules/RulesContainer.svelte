@@ -41,7 +41,7 @@
 	});
 	onDestroy(() => {
 		unsubscribe(); // Stop listening to the collection when the component is unmounted from the DOM
-		myLog('unsubscribed from rule document changes!');
+		myLog({ msg: 'unsubscribed from rule document changes!' });
 	});
 
 	let tabs: RuleTab[] = [];

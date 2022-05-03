@@ -23,18 +23,18 @@ const obtainPlayerDocOnRedirect = async (): Promise<void> => {
 			getCurrentPlayerDoc();
 		}
 	} catch (error) {
-		const errorTyped: AuthError = error; // recast the error type from 'any' to a useful type
-		myLog(`no redirect result returned: ${errorTyped}`);
+		const typed_error: AuthError = error; // recast the error type from 'any' to a useful type
+		myLog({ msg: 'no redirect result returned: ', additional_params: typed_error });
 
 		if (
 			error.code === 'auth/account-exists-with-different-credential' ||
 			error.code === 'auth/email-already-in-use'
 		) {
-			const email: string = errorTyped.customData.email as string;
+			const email: string = typed_error.customData.email as string;
 			// console.log('customData:', errorTyped.customData);
 			if (email) {
 				const existingSignInMethods = await fetchSignInMethodsForEmail(firestoreAuth, email);
-				myLog(`existing sign ins:`, undefined, undefined, existingSignInMethods);
+				myLog({ msg: 'existing sign ins: ', additional_params: existingSignInMethods });
 				const existingProvider = capitalizeWord(
 					existingSignInMethods[0].replace('.com', '').replace('"', '')
 				);

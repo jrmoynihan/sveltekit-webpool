@@ -76,6 +76,6 @@ export const getUserId = async (): Promise<any> => {
 		const id = await getLocalStorageItem('id');
 		return id;
 	} catch (error) {
-		myError('getUserId', error);
+		myError({ location: 'functions.ts', function_name: 'getUserId', error });
 	}
 };

@@ -11,8 +11,8 @@
 	import { getWeeklyPlayers } from '$lib/scripts/weekly/weeklyPlayers';
 	import { onMount } from 'svelte';
 
-	let selectedPlayer: Player;
 	let playersPromise: Promise<Player[]> = getWeeklyPlayers(false);
+	let selectedPlayer: Player;
 	let nicknameUpdate: string;
 	let amountOwedUpdate: number;
 	let amountPaidUpdate: number;

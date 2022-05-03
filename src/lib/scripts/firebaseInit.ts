@@ -2,6 +2,7 @@ import { dev } from '$app/env';
 import { getApps, getApp, initializeApp } from '@firebase/app';
 import {
 	debugErrorMap,
+	getAuth,
 	indexedDBLocalPersistence,
 	initializeAuth,
 	prodErrorMap
@@ -30,23 +31,10 @@ export function initializeFirebase() {
 }
 const myApp = initializeFirebase();
 export const firestoreDB = getFirestore(myApp);
-export const firestoreAuth = initializeAuth(myApp, {
-	persistence: indexedDBLocalPersistence,
-	errorMap: dev ? debugErrorMap : prodErrorMap
-});
+export const firestoreAuth = getAuth(myApp);
 
-// if (browser && !dev) {
-// 	setPersistence(firestoreAuth, browserLocalPersistence);
-// 	enableIndexedDbPersistence(firestoreDB).catch((err) => {
-// 		if (err.code == 'failed-precondition') {
-// 			// Multiple tabs open, persistence can only be enabled
-// 			// in one tab at a a time.
-// 			// ...
-// 		} else if (err.code == 'unimplemented') {
-// 			console.warn(
-// 				`🔥 The current browser does not support all of the features required to enable persistence. 🔥`
-// 			);
-// 		}
-// 	});
-// 	// Subsequent queries will use persistence, if it was enabled successfully
-// }
+// FIXME: This threw an auth error on login
+// export const firestoreAuth = initializeAuth(myApp, {
+// 	persistence: indexedDBLocalPersistence,
+// 	errorMap: dev ? debugErrorMap : prodErrorMap
+// });

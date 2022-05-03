@@ -165,16 +165,28 @@ export const scorePicksForWeek = async (
 			console.log('2nd Placers: ', secondPlacersForWeek);
 			console.log('3rd Placers: ', thirdPlacersForWeek);
 			if (firstPlacersForWeek.includes(ref)) {
-				myLog(`first place winner for week ${selectedWeek}`, player.data().name);
+				myLog({
+					msg: `first place winner for week ${selectedWeek}: `,
+					additional_params: player.data().name
+				});
 				await assignWeeklyPrize(ref, firstPlaceWeeklyPrize, selectedWeek);
 			} else if (secondPlacersForWeek.includes(ref)) {
-				myLog(`second place winner for week ${selectedWeek}`, player.data().name);
+				myLog({
+					msg: `second place winner for week ${selectedWeek}: `,
+					additional_params: player.data().name
+				});
 				await assignWeeklyPrize(ref, secondPlaceWeeklyPrize, selectedWeek);
 			} else if (thirdPlacersForWeek.includes(ref)) {
-				myLog(`third place winner for week ${selectedWeek}`, player.data().name);
+				myLog({
+					msg: `third place winner for week ${selectedWeek}: `,
+					additional_params: player.data().name
+				});
 				await assignWeeklyPrize(ref, thirdPlaceWeeklyPrize, selectedWeek);
 			} else {
-				myLog(`non-winner for week ${selectedWeek}`, player.data().name);
+				myLog({
+					msg: `non-winner for week ${selectedWeek}: `,
+					additional_params: player.data().name
+				});
 				await assignWeeklyPrize(ref, 0, selectedWeek);
 			}
 		});
@@ -239,7 +251,7 @@ export const scorePicksForWeek = async (
 				}
 			});
 		} else {
-			myLog('skipping assignment of season prizes', 'scorePicksForWeek');
+			myLog({ msg: 'skipping assignment of season prizes', function_name: 'scorePicksForWeek' });
 		}
 
 		toast.pop(startingToastId);
@@ -248,7 +260,7 @@ export const scorePicksForWeek = async (
 			msg: `Successfully scored each player's picks for Week ${selectedWeek}, ${selectedYear}.`
 		});
 	} catch (error) {
-		myError('scorePicks', error);
+		myError({ location: 'scorePicks.ts', function_name: 'scorePicksForWeek', error });
 	}
 };
 
@@ -370,7 +382,7 @@ export const findWeeklySeasonLeaders = async (
 		});
 		return leaders;
 	} catch (error) {
-		myError('findWeeklySeasonLeaders', error);
+		myError({ location: 'scorePicks.ts', function_name: 'findWeeklySeasonLeaders', error });
 	}
 };
 
@@ -395,7 +407,7 @@ export const findWeeklyLeaders = async (
 		});
 		return leaders;
 	} catch (error) {
-		myError('findWeeklyLeaders', error);
+		myError({ location: 'scorePicks.ts', function_name: 'findWeeklyLeaders', error });
 	}
 };
 
@@ -473,14 +485,10 @@ export const markIfPickIsCorrect = async (
 				} else {
 					updateDoc(pickRef, { isCorrect: false });
 				}
-				myLog('scored pick');
 			}
-			// } else {
-			// 	myLog('pick has already been scored!');
-			// }
 		});
 	} catch (error) {
-		myError('updatePlayerRecords', error);
+		myError({ location: 'scorePicks.ts', function_name: 'markIfPickIsCorrect', error });
 	}
 };
 export const scoreNetTiebreakers = async (
@@ -490,7 +498,9 @@ export const scoreNetTiebreakers = async (
 ) => {
 	try {
 		if (game_data.isLastGameOfWeek && game_data.winner) {
-			myLog(`last game of the week: ${game_data.shortName}, totalScore: ${game_data.totalScore}`);
+			myLog({
+				msg: `last game of the week: ${game_data.shortName}, totalScore: ${game_data.totalScore}`
+			});
 			tiebreakers.forEach((tiebreaker) => {
 				const tiebreakerData = tiebreaker.data();
 				const uid = tiebreakerData.uid;
@@ -505,12 +515,12 @@ export const scoreNetTiebreakers = async (
 							net_tiebreaker_absolute
 					});
 				} else {
-					myLog('no tiebreaker posted');
+					myLog({ msg: 'no tiebreaker posted' });
 				}
 			});
 		}
 	} catch (error) {
-		myError('scoreNetTiebreakers', error);
+		myError({ location: 'scorePicks.ts', function_name: 'scoreNetTiebreakers', error });
 	}
 };
 
@@ -537,12 +547,12 @@ export const resetScoredPicksForWeek = async (
 				updateDoc(ref, { isCorrect: null });
 			});
 			defaultToast({
-				title: 'Removed Picks!',
-				msg: 'Successfully removed previously scored picks for the selected week.'
+				title: 'Reset Picks!',
+				msg: 'Successfully reset previously scored picks for the selected week.'
 			});
 		}
 	} catch (error) {
-		myError('removeScoredPicksForWeek', error);
+		myError({ location: 'scorePicks.ts', function_name: 'resetScoredPicksForWeek', error });
 	}
 };
 
@@ -566,7 +576,7 @@ export const updateGamesAndATSWinners = async (
 		games.forEach(async (game) => {
 			const gameData = game.data();
 			const gameRef = game.ref;
-			myLog(`updating game ${gameData.id}...`);
+			myLog({ msg: `updating game ${gameData.id}...` });
 			await updateGameandATSWinner(gameData, gameRef);
 		});
 		defaultToast({
@@ -574,7 +584,7 @@ export const updateGamesAndATSWinners = async (
 			msg: `Winners have been added/updated to each game document.`
 		});
 	} catch (error) {
-		myError('updateGamesAndATSWinners', error);
+		myError({ location: 'scorePicks.ts', function_name: 'updateGamesAndATSWinners', error });
 	}
 };
 
@@ -587,7 +597,7 @@ export const updateGameandATSWinner = async (
 		const competitions: PrunedCompetition[] = gameData.competitions;
 		const statusData = await getStatus(competitions);
 		if (statusData.type?.completed) {
-			myLog(`${gameData.id} completed: ${statusData.type.completed}`);
+			myLog({ msg: `${gameData.id} completed: ${statusData.type.completed}` });
 
 			const spread: number = gameData.spread;
 			const scores = await getScores(competitions);
@@ -596,9 +606,11 @@ export const updateGameandATSWinner = async (
 			const winnerAndLoser = await findWinnerAndLoser(scores, gameData);
 			const ATSwinner = await findATSWinner(gameData, homeScore, awayScore, spread);
 			const totalScore = homeScore + awayScore;
-			myLog(
-				`winner: ${winnerAndLoser?.winner}, ATSwinner: ${ATSwinner}, spread: ${spread}, total score: ${totalScore}`
-			);
+
+			myLog({
+				msg: `winner: ${winnerAndLoser?.winner}, ATSwinner: ${ATSwinner}, spread: ${spread}, total score: ${totalScore}`
+			});
+
 			await updateDoc(gameRef.withConverter(gameConverter), {
 				winner: winnerAndLoser?.winner,
 				loser: winnerAndLoser?.loser,
@@ -609,7 +621,9 @@ export const updateGameandATSWinner = async (
 			// // Update the team record
 			// await updateTeamRecord(winnerAndLoser, teams, gameData);
 		} else {
-			myLog(`game ${gameData.id} (${gameData.shortName}, ${gameData.date}) is NOT completed`);
+			myLog({
+				msg: `game ${gameData.id} (${gameData.shortName}, ${gameData.date}) is NOT completed`
+			});
 		}
 		// } else {
 		// 	myLog(
@@ -617,7 +631,7 @@ export const updateGameandATSWinner = async (
 		// 	);
 		// }
 	} catch (error) {
-		myError('updatedGameWinner', error);
+		myError({ location: 'scorePicks.ts', function_name: 'updatedGameAndATSWinner', error });
 	}
 };
 
@@ -634,7 +648,7 @@ export const findWinnerAndLoser = async (
 			return { winner: everyoneWinsResult, loser: everyoneWinsResult };
 		}
 	} catch (error) {
-		myError('findWinnerAndLoser', error);
+		myError({ location: 'scorePicks.ts', function_name: 'findWinnerAndLoser', error });
 	}
 };
 export const findATSWinner = async (
@@ -746,7 +760,7 @@ export const removeWinnersFromGames = async (
 			msg: `Successfully removed winners from games for week ${selectedWeek}.`
 		});
 	} catch (error) {
-		myError('removeWinnersFromGames', error);
+		myError({ location: 'scorePicks.ts', function_name: 'removeWinnersFromGames', error });
 	}
 };
 // TODO: turn this into a cloud function listener!
@@ -774,8 +788,8 @@ export const updateTeamRecordsFromESPN = async (
 		const teamsData = await teamFetchResponse.json();
 		const teamsRefs: RefOnlyESPN[] = teamsData.items;
 
-		myLog('teamsData', null, null, teamsData);
-		myLog('Retrieving Team Record Data from ESPN:');
+		myLog({ msg: 'Teams data received from ESPN:', additional_params: teamsData });
+		myLog({ msg: 'Retrieving Team Record Data from ESPN...' });
 
 		for await (const team of teamsRefs) {
 			const teamResponse = await fetch(await convertToHttps(team.$ref));
@@ -796,7 +810,7 @@ export const updateTeamRecordsFromESPN = async (
 
 			toast.set(toastId, { msg: `Updating ${teamData.displayName}`, duration: 30000 });
 
-			myLog(`${teamAbbreviation} || wins: ${wins}, losses: ${losses}, ties: ${ties}`);
+			myLog({ msg: `${teamAbbreviation} || wins: ${wins}, losses: ${losses}, ties: ${ties}` });
 
 			// Update the information on the team document (didn't need any reads to do this!)
 			// TODO: remove this in favor of the records object used below; anywhere in the app that uses wins,losses,ties should use records.wins, records.losses, records.ties instead
@@ -827,9 +841,9 @@ export const updateTeamRecordsFromESPN = async (
 		}
 		toast.set(toastId, { msg: `Finished updating teams!`, duration: 10000 });
 		toast.push({ msg: `wrote ${writeCount} times!`, duration: 30000 });
-		myLog(`made ${writeCount} writes to update the records on team and game documents`);
+		myLog({ msg: `made ${writeCount} writes to update the records on team and game documents` });
 	} catch (error) {
-		myError('updateTeamRecordsFromESPN', error);
+		myError({ location: 'scorePicks.ts', function_name: 'updateTeamRecordsFromESPN', error });
 	}
 };
 
@@ -870,7 +884,7 @@ export const updateTeamRecordOnGameDocs = async (
 		}
 		return writeCount;
 	} catch (error) {
-		myError('updateTeamRecordOnGameDocs', error);
+		myError({ location: 'scorePicks.ts', function_name: 'updateTeamRecordOnGameDocs', error });
 		errorToast(`Unable to update team record on game doc.`);
 	}
 };
@@ -983,7 +997,7 @@ export const resetWeeklyPlayerRecords = async (): Promise<void> => {
 					'weeklyPickRecord.week_18.wins': 0,
 					'weeklyPickRecord.week_18.losses': 0
 				});
-				myLog(`reset records for ${player.data().name} (${player.id})`);
+				myLog({ msg: `reset records for ${player.data().name} (${player.id})` });
 			});
 		}
 		defaultToast({
@@ -991,6 +1005,6 @@ export const resetWeeklyPlayerRecords = async (): Promise<void> => {
 			msg: `${checkmark} All weekly pool player records have been reset.`
 		});
 	} catch (error) {
-		myError('resetWeeklyPlayerRecords', error);
+		myError({ location: 'scorePicks.ts', function_name: 'resetWeeklyPlayerRecords', error });
 	}
 };

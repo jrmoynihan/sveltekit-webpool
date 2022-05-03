@@ -1,4 +1,4 @@
-import { collection } from '@firebase/firestore';
+import { collection } from 'firebase/firestore';
 import { firestoreDB } from '$lib/scripts/firebaseInit';
 
 export const scheduleCollection = collection(firestoreDB, 'Schedule');

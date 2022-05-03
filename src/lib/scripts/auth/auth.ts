@@ -9,7 +9,7 @@ import {
 	signOut,
 	getRedirectResult,
 	browserPopupRedirectResolver,
-	type User, type UserCredential, type AuthProvider
+	type User, type UserCredential, type AuthProvider, onAuthStateChanged
 } from 'firebase/auth';
 import { firestoreAuth } from '$scripts/firebaseInit';
 import { get } from 'svelte/store';
@@ -55,15 +55,14 @@ export const signInWithRedirectOrPopup = async (
 		if (useRedirect) {
 			await signInWithRedirect(firestoreAuth, provider);
 			const result = await getRedirectResult(firestoreAuth);
-			console.log(result);
+			console.log('signed in user:',result.user);
 			return result;
 		} else {
 			const result = await signInWithPopup(firestoreAuth, provider);
-			console.log(result);
 			return result;
 		}
 	} catch (error) {
-		myError('getUserCredential', error);
+		myError({location: 'auth.ts', function_name: 'getUserCredential', error});
 	}
 };
 
@@ -89,7 +88,7 @@ export const startSignIn = async (loginPlatform: string, useRedirect: boolean = 
 
 	// Store the promised user credential that the auth provider returns
 	if (useRedirect) {
-		myLog('signing in with redirect...');
+		myLog({msg:'signing in with redirect...'});
 		await signInWithRedirect(firestoreAuth, provider, browserPopupRedirectResolver);
 	}
 };
@@ -157,28 +156,23 @@ export const createNewPlayerDocument = async (
 
 export const startSignOut = async (): Promise<void> => {
 	playerData.set(undefined);
-	myLog(`playerData is ${playerData}`);
 	firebase_user.set(undefined);
-	myLog(`currentUser is ${firebase_user}`);
 	signOut(firestoreAuth);
-	myLog(`firestoreAuth is ${firestoreAuth}`);
+	myLog({function_name:'startSignOut', msg: 'user has signed out ', additional_params: {playerData, firebase_user, firestoreAuth}});
 	goto('/'); // go to the index page, navigating the user away from any authorized page they may be on currently
 };
-firestoreAuth.onAuthStateChanged(
+
+onAuthStateChanged(firestoreAuth,
 	async () => {
 		if (firestoreAuth.currentUser) {
 			firebase_user.set(firestoreAuth.currentUser);
 			savePlayerData(firestoreAuth.currentUser);
-			myLog(`the current user is ${get(firebase_user).displayName}`, 'auth.ts => onAuthStateChanged');
+			myLog({location: 'auth.ts', function_name: 'onAuthStateChanged', msg: 'the current user is: ', additional_params: get(firebase_user).displayName })
 		} else {
-			myLog(
-				`auth state changed, but current user is falsy (null or undefined): currentUser is ${
-					get(firebase_user)?.displayName
-				}`
-			);
+			myLog({msg: 'Auth state changed. Current user is falsy.', location: 'auth.ts', function_name: 'onAuthStateChanged'});
 		}
 	},
-	(error) => myError('auth.ts => onAuthStateChanged', error)
+	(error) => myError({location: 'auth.ts', function_name: 'onAuthStateChanged', error})
 );
 
 export const getOAuthCredential = async (

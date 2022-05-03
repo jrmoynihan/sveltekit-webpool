@@ -8,9 +8,9 @@
 
 	const updateRule = async (): Promise<void> => {
 		try {
-			myLog(`before rule change: ${rule}`);
+			myLog({ msg: 'before rule change: ', additional_params: rule });
 			updateDoc(rule.docRef, { ...rule });
-			myLog(`after rule change: ${rule}`);
+			myLog({ msg: 'after rule change: ', additional_params: rule });
 		} catch (err) {
 			console.error(err);
 			errorToast('Unable to make rule change.  See console log for details.');

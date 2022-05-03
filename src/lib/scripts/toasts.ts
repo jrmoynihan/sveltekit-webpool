@@ -1,8 +1,28 @@
 import { toast } from '@zerodevx/svelte-toast';
 import SeenToast from '$switches/SeenToast.svelte';
-import { bread, myError, myLog, policeCarLight } from './classes/constants';
+import { all_icons, bread, myError, myLog, policeCarLight } from './classes/constants';
 import { query, where, getDocs } from 'firebase/firestore';
 import { toastsCollection } from './collections';
+
+export type myToastOptions = {
+	title?: string;
+	msg?: string;
+	duration?: number;
+	toastContainerTop?: string;
+	toastColor?: string;
+	toastBackground?: string;
+	toastProgressBackground?: string;
+	toastBoxShadow?: string;
+	toastBorderRadius?: string;
+	toastMsgPadding?: string;
+	useSeenToastComponent?: boolean;
+	localStorageKey?: string;
+	textFontWeight?: string;
+	toastBarLeft?: string;
+	toastBarHeight?: string;
+	toastBarWidth?: string;
+	toastProgressBorderRadius?: string;
+};
 
 export const defaultToast = ({
 	title = '',
@@ -22,7 +42,7 @@ export const defaultToast = ({
 	toastBarLeft = '5%',
 	toastProgressBorderRadius = '5rem',
 	toastBarHeight = '4px'
-}) => {
+}: myToastOptions) => {
 	const msgBuilder = `<div style="display:grid;grid-template-columns:minmax(0,auto);text-align:center;font-weight:${textFontWeight}">
 						<h3>
 							${title}
@@ -98,9 +118,9 @@ export const getToast = async (page: string) => {
 			msg = doc.data().message;
 			title = doc.data().title;
 		});
-		myLog('got toast', null, bread);
+		myLog({ msg: 'got toast', icon: all_icons.bread });
 		return { msg: msg, title: title };
 	} catch (error) {
-		myError('getToast', error, null, bread);
+		myError({ location: 'toasts.ts', function_name: 'getToast', error, icon: all_icons.bread });
 	}
 };

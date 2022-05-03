@@ -39,9 +39,9 @@ export const findWeekDateTimeBounds = async (): Promise<void> => {
 		const times = await getFirstAndLastGameTime(weekOfGames);
 		const weekBound = new WeekBound({ week, firstGameTime: times.first, lastGameTime: times.last });
 		await setBounds(weekBound);
-		myLog(`finished week ${week}`);
+		myLog({ msg: `finished week ${week}` });
 	}
-	myLog(`finished all weeks!`);
+	myLog({ msg: 'Finished all weeks!' });
 	defaultToast({
 		title: 'Found Week Bounds!',
 		msg: 'Successfully found the start and ending game times for each week of the schedule. See WeeklyScheduleBounds collection in the Firebase console.'
@@ -59,7 +59,6 @@ export const getFirstAndLastGameTime = async (
 
 	for await (const game of weekOfGames.docs) {
 		const data = game.data();
-		myLog('game data:', null, null, data);
 		const gameTime = data.timestamp;
 		if (firstGameofWeekTime === undefined || gameTime < firstGameofWeekTime) {
 			firstGameofWeekTime = gameTime;
@@ -78,8 +77,9 @@ export const getFirstAndLastGameTime = async (
 
 export const setBounds = async (weekBound: WeekBound, year?: number): Promise<void> => {
 	try {
-		myLog(`week ${weekBound.week} firstGameTime: ${weekBound.firstGameTime}`);
-		myLog(`week ${weekBound.week} lastGameTime: ${weekBound.lastGameTime}`);
+		myLog({
+			msg: `week ${weekBound.week} firstGameTime: ${weekBound.firstGameTime}, lastGameTime: ${weekBound.lastGameTime}`
+		});
 		const currentYear = year || new Date().getFullYear();
 		const docRef = doc(weekBoundsCollection, currentYear.toString());
 		const data = {
@@ -96,9 +96,9 @@ export const setBounds = async (weekBound: WeekBound, year?: number): Promise<vo
 			await setDoc(docRef, data);
 		}
 
-		myLog(`set week bound document: ${data}`);
+		myLog({ msg: 'set Week Bound document: ', additional_params: data });
 	} catch (error) {
-		myError('setBounds', error);
+		myError({ location: 'schedule.ts', function_name: 'setBounds', error });
 	}
 };
 export const findCurrentWeekOfSchedule = async (showToast?: boolean): Promise<number> => {
@@ -115,7 +115,7 @@ export const findCurrentWeekOfSchedule = async (showToast?: boolean): Promise<nu
 		const millisecondsPerHour = 3_600_000;
 
 		if (allBounds.exists) {
-			myLog('got gameBounds doc!');
+			myLog({ msg: 'got gameBounds doc!' });
 			const data = allBounds.data();
 			const regSeasonWeeks = await getRegularSeasonWeeks(); // TODO: need a solution to find non-Regular Season weeks
 			for (const week of regSeasonWeeks) {
@@ -128,13 +128,13 @@ export const findCurrentWeekOfSchedule = async (showToast?: boolean): Promise<nu
 				if (now.getTime() > lastGameTime.getTime() + hoursSinceLastGame * millisecondsPerHour) {
 					continue;
 				} else {
-					myLog(`current week is ${weekBounds.week}!`);
+					myLog({ msg: `current week is ${weekBounds.week}!` });
 					return weekBounds.week;
 				}
 			}
 		}
 	} catch (error) {
-		myError('findCurrentWeekOfSchedule', error);
+		myError({ location: 'schedule.ts', function_name: 'findCurrentWeekOfSchedule', error });
 		if (showToast) {
 			errorToast(`findCurrentWeekOfSchedule had an error: ${error}`);
 		}

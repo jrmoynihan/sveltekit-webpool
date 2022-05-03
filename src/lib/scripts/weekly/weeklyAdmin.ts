@@ -1,4 +1,4 @@
-import { myLog, myError } from '$lib/scripts/classes/constants';
+import { myLog, myError, LogAndToast, ErrorAndToast } from '$lib/scripts/classes/constants';
 import { Game } from '$lib/scripts/classes/game';
 import { WeeklyPickDoc } from '$lib/scripts/classes/picks';
 import type { Player } from '$lib/scripts/classes/player';
@@ -36,12 +36,12 @@ export const getAllGames = async (showToast = true) => {
 		if (showToast) {
 			defaultToast({ title, msg });
 		}
-		myLog(msg, 'getAllGames');
+		myLog({ location: 'weeklyAdmin.ts', msg, function_name: 'getAllGames' });
 		return games;
 	} catch (error) {
 		const msg = `Encountered an error while trying to get all game documents.  Check the console for more info. ${error}`;
 		errorToast(msg);
-		myError('getAllGames', error, msg);
+		myError({ location: 'weeklyAdmin.ts', function_name: 'getAllGames', error, msg });
 	}
 };
 export const getSpecificGames = async (
@@ -65,12 +65,11 @@ export const getSpecificGames = async (
 		if (showToast) {
 			defaultToast({ title, msg });
 		}
-		myLog(msg, 'getSpecificGames');
+		myLog({ location: 'weeklyAdmin.ts', msg, function_name: 'getSpecificGames' });
 		return games;
 	} catch (error) {
 		const msg = `Encountered an error while trying to get a specific week/year of game documents.  Check the console for more info. ${error}`;
-		errorToast(msg);
-		myError('getSpecificGames', error, msg);
+		ErrorAndToast({ msg, error, location: 'weeklyAdmin.ts', function_name: 'getSpecificGames' });
 	}
 };
 const getMaxGameWeek = async (): Promise<number> => {
@@ -81,12 +80,11 @@ const getMaxGameWeek = async (): Promise<number> => {
 		});
 		const maxWeek: number = Math.max(...gameWeeks);
 		const msg = `determined the max game week was ${maxWeek}`;
-		myLog(msg, 'getMaxGameWeek');
+		myLog({ msg, function_name: 'getMaxGameWeek', location: 'weeklyAdmin.ts' });
 		return maxWeek;
 	} catch (error) {
 		const msg = `Encountered an error while finding max game week.`;
-		errorToast(msg);
-		myError('getMaxGameWeek', error, msg);
+		ErrorAndToast({ msg, error, location: 'weeklyAdmin.ts', function_name: 'getMaxGameWeek' });
 	}
 };
 
@@ -99,12 +97,20 @@ export const createWeeklyPicksForAllPlayers = async () => {
 		}
 		const title = 'Created Weekly Picks!';
 		const msg = 'Pick documents were created for every game, for every Weekly pool player.';
-		defaultToast({ title, msg });
-		myLog(msg, 'createWeeklyPicksForPlayer');
+		LogAndToast({
+			title,
+			msg,
+			function_name: 'createWeeklyPicksForPlayer',
+			location: 'weeklyAdmin.ts'
+		});
 	} catch (error) {
 		const msg = `Encountered an error while trying to create all players' picks.  Check the console for more info. ${error}`;
-		errorToast(msg);
-		myError('createWeeklyPicksForAllPlayers', error, msg);
+		ErrorAndToast({
+			msg,
+			error,
+			location: 'weeklyAdmin.ts',
+			function_name: 'createWeeklyPicksForPlayer'
+		});
 	}
 };
 
@@ -143,7 +149,7 @@ export const createWeeklyPicksForPlayer = async (
 		const title = 'Created Weekly Picks!';
 		const msg = `Pick documents were created for every game for ${player.name} (${player.nickname})`;
 		if (logAll) {
-			myLog(msg, 'createWeeklyPicksForPlayer');
+			myLog({ msg, function_name: 'createWeeklyPicksForPlayer', location: 'weeklyAdmin.ts' });
 		}
 		if (showToast) {
 			defaultToast({ title, msg });
@@ -151,8 +157,12 @@ export const createWeeklyPicksForPlayer = async (
 	} catch (error) {
 		const msg = `Encountered an error while trying to create ${player.name}'s picks.  Check the console for more info. ${error}`;
 		if (logAll) {
-			errorToast(msg);
-			myError('createWeeklyPicksForPlayer', error, msg);
+			ErrorAndToast({
+				msg,
+				error,
+				location: 'weeklyAdmin.ts',
+				function_name: 'createWeeklyPicksForPlayer'
+			});
 		} else {
 			throw error;
 		}
@@ -168,12 +178,20 @@ export const deleteWeeklyPicksForAllPlayers = async () => {
 		});
 		const title = 'Deleted Weekly Picks!';
 		const msg = 'All pick documents were deleted.';
-		defaultToast({ title, msg });
-		myLog(msg, 'deleteWeeklyPicksForAllPlayers');
+		LogAndToast({
+			title,
+			msg,
+			function_name: 'deleteWeeklyPicksForAllPlayers',
+			location: 'weeklyAdmin.ts'
+		});
 	} catch (error) {
 		const msg = `Encountered an error while trying to delete all players's picks.  Check the console for more info. ${error}`;
-		errorToast(msg);
-		myError('deleteWeeklyPicksForAllPlayers', error, msg);
+		ErrorAndToast({
+			msg,
+			error,
+			location: 'weeklyAdmin.ts',
+			function_name: 'deleteWeeklyPicksForAllPlayers'
+		});
 	}
 };
 export const deleteWeeklyPicksForPlayer = async (
@@ -200,12 +218,21 @@ export const deleteWeeklyPicksForPlayer = async (
 		});
 		const title = 'Deleted Weekly Picks!';
 		const msg = `All pick documents were deleted for ${player.name} (${player.nickname})`;
-		defaultToast({ title, msg });
-		myLog(msg, 'deleteWeeklyPicksForPlayer');
+
+		LogAndToast({
+			title,
+			msg,
+			function_name: 'deleteWeeklyPicksForPlayer',
+			location: 'weeklyAdmin.ts'
+		});
 	} catch (error) {
 		const msg = `Encountered an error while trying to delete ${player.name}'s picks. Check the console for more info. ${error}`;
-		errorToast(msg);
-		myError('deleteWeeklyPicksForPlayer', error, msg);
+		ErrorAndToast({
+			msg,
+			error,
+			location: 'weeklyAdmin.ts',
+			function_name: 'deleteWeeklyPicksForPlayer'
+		});
 	}
 };
 export const createTiebreakersForAllPlayers = async () => {
@@ -216,12 +243,20 @@ export const createTiebreakersForAllPlayers = async () => {
 		});
 		const title = 'Created Tiebreakers!';
 		const msg = 'Tiebreaker documents were created for every game, for every Weekly pool player.';
-		defaultToast({ title, msg });
-		myLog(msg, 'createTiebreakersForAllPlayers');
+		LogAndToast({
+			title,
+			msg,
+			function_name: 'createTiebreakersForAllPlayers',
+			location: 'weeklyAdmin.ts'
+		});
 	} catch (error) {
 		const msg = `Encountered an error while trying to create all players' tiebreaker documents.  Check the console for more info. ${error}`;
-		errorToast(msg);
-		myError('createTiebreakersForAllPlayers', error, msg);
+		ErrorAndToast({
+			msg,
+			error,
+			location: 'weeklyAdmin.ts',
+			function_name: 'createTiebreakersForAllPlayers'
+		});
 	}
 };
 export const createTiebreakersForPlayer = async (
@@ -246,12 +281,16 @@ export const createTiebreakersForPlayer = async (
 		}
 
 		if (logAll) {
-			myLog(`set tiebreaker for ${player.name} (${player.nickname})`);
+			myLog({ msg: `set tiebreaker for ${player.name} (${player.nickname})` });
 		}
 	} catch (error) {
 		const msg = `Encountered an error while trying to create tiebreaker documents for ${player.name} (${player.nickname})`;
-		errorToast(msg);
-		myError('createTiebreakersForAllPlayers', error, msg);
+		ErrorAndToast({
+			msg,
+			error,
+			location: 'weeklyAdmin.ts',
+			function_name: 'createTiebreakersForPlayer'
+		});
 	}
 };
 export const setNewTiebreakerDoc = async (
@@ -271,16 +310,17 @@ export const setNewTiebreakerDoc = async (
 			week: selectedWeek,
 			year: selectedYear
 		});
-		myLog(`set tiebreaker doc (${docRef}); uid: ${uid}, week ${selectedWeek}, ${selectedYear}`);
+		myLog({
+			msg: `set tiebreaker doc (${docRef}); uid: ${uid}, week ${selectedWeek}, ${selectedYear}`
+		});
 	} catch (error) {
-		myError(
-			'setTiebreakerDoc',
+		ErrorAndToast({
+			msg: `Encountered an error while trying to set tiebreaker doc (${docRef})`,
 			error,
-			`unable to update tiebreaker ${docRef.path} for player ${uid}`
-		);
-		errorToast(
-			`We encountered an error while trying to set tiebreaker docs.  Please contact your admin with the following information: <br> ${error}`
-		);
+			location: 'weeklyAdmin.ts',
+			function_name: 'setNewTiebreakerDoc',
+			additional_params: `unable to update tiebreaker ${docRef.path} for player ${uid}`
+		});
 	}
 };
 export const deleteTiebreakersForAllPlayers = async () => {
@@ -296,13 +336,21 @@ export const deleteTiebreakersForAllPlayers = async () => {
 			});
 			const title = 'Deleted Weekly Tiebreakers!';
 			const msg = 'All tiebreaker documents were deleted.';
-			defaultToast({ title, msg });
-			myLog(msg, 'deleteWeeklyTiebreakersForAllPlayers');
+			LogAndToast({
+				title,
+				msg,
+				function_name: 'deleteTiebreakersForAllPlayers',
+				location: 'weeklyAdmin.ts'
+			});
 		}
 	} catch (error) {
 		const msg = `Encountered an error while trying to delete all players's tiebreakers.  Check the console for more info. ${error}`;
-		errorToast(msg);
-		myError('deleteWeeklyTiebreakersForAllPlayers', error, msg);
+		ErrorAndToast({
+			msg,
+			error,
+			location: 'weeklyAdmin.ts',
+			function_name: 'deleteTiebreakersForAllPlayers'
+		});
 	}
 };
 export const deleteTiebreakersForPlayer = async (
@@ -326,18 +374,29 @@ export const deleteTiebreakersForPlayer = async (
 			}
 			const q = query(weeklyTiebreakersCollection, ...wheres);
 			const playerTiebreakerDocs = await getDocs(q.withConverter(weeklyPickConverter));
+
 			playerTiebreakerDocs.forEach((doc) => deleteDoc(doc.ref));
+
 			const title = `Deleted Weekly Tiebreakers for ${player.name}!`;
 			const msg = `All tiebreaker documents were deleted ${
 				selectedWeek && selectedYear ? `for Week ${selectedWeek}, ${selectedYear}` : null
 			}.`;
-			defaultToast({ title, msg });
-			myLog(msg, 'deleteWeeklyTiebreakersForPlayer');
+
+			LogAndToast({
+				title,
+				msg,
+				function_name: 'deleteTiebreakersForPlayer',
+				location: 'weeklyAdmin.ts'
+			});
 		}
 	} catch (error) {
 		const msg = `Encountered an error while trying to delete ${player.name}'s tiebreakers.  Check the console for more info. ${error}`;
-		errorToast(msg);
-		myError('deleteWeeklyTiebreakersForPlayer', error, msg);
+		ErrorAndToast({
+			msg,
+			error,
+			location: 'weeklyAdmin.ts',
+			function_name: 'deleteTiebreakersForPlayer'
+		});
 	}
 };
 export const updateGameSpreads = async (week: number, year: number) => {
@@ -352,11 +411,11 @@ export const updateGameSpreads = async (week: number, year: number) => {
 		for await (const gameDoc of games.docs) {
 			const gameData = gameDoc.data();
 			if (gameData.spread === null || gameData.spread === undefined) {
-				myLog(`no spread found for game id:${gameData.id}`);
+				myLog({ msg: `no spread found for game id:${gameData.id}` });
 				const updatedSpread = await getConsensusSpread(gameData.id);
 				updateDoc(gameDoc.ref, { spread: updatedSpread });
 			} else {
-				myLog(`existing spread found for game (${gameData.id}) was: ${gameData.spread}`);
+				myLog({ msg: `existing spread found for game (${gameData.id}) was: ${gameData.spread}` });
 			}
 		}
 		toast.pop(startToast);
@@ -365,8 +424,8 @@ export const updateGameSpreads = async (week: number, year: number) => {
 			msg: `Week ${week} spreads were successfully updated!`
 		});
 	} catch (error) {
-		errorToast('Failed to update spreads.  See console logs.');
-		myError('updateSpreads', error);
+		const msg = `Encountered an error while trying to update spreads for week ${week}.  Check the console for more info.`;
+		ErrorAndToast({ msg, error, location: 'weeklyAdmin.ts', function_name: 'updateGameSpreads' });
 	}
 };
 

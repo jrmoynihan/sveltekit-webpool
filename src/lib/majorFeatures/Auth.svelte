@@ -33,9 +33,9 @@
 
 	$: if ($player_not_found) {
 		newPlayerFormComponent.open();
-		myLog(`Player NOT found: ${$firebase_user?.displayName}`);
+		myLog({ msg: `Player NOT found: ${$firebase_user?.displayName}` });
 	} else {
-		myLog(`Player found: ${$firebase_user?.displayName}`);
+		myLog({ msg: `Player found: ${$firebase_user?.displayName}` });
 	}
 </script>
 

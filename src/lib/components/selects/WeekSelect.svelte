@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { SeasonType } from '$scripts/classes/seasonType';
 	import { getPreSeasonWeeks, getRegularSeasonWeeks } from '$scripts/functions';
-	import { findCurrentWeekOfSchedule } from '$scripts/schedule';
 	import { selectedWeek } from '$scripts/store';
 	import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 	import { createEventDispatcher, onMount } from 'svelte';

@@ -7,14 +7,12 @@
 weeklyTiebreakersCollection
 	} from '$scripts/collections';
 	import { getWeeklyPlayers } from '$scripts/weekly/weeklyPlayers';
-	import { errorToast } from '$scripts/toasts';
-	import { myError } from '$classes/constants';
+	import { ErrorAndToast} from '$classes/constants';
 	import type { Game } from '$classes/game';
 	import ErrorModal from '../modals/ErrorModal.svelte';
 import type { WeeklyTiebreaker } from '$classes/tiebreaker';
 import type { Player } from '$classes/player';
 import { gameConverter, weeklyTiebreakerConverter } from '$scripts/converters';
-import { onMount } from 'svelte';
 import { mobileBreakpoint } from '$scripts/site';
 import WeekSelect from '$components/selects/WeekSelect.svelte';
 import WeeklyStandingsRow from '$components/tables/WeeklyStandingsRow.svelte';
@@ -23,9 +21,6 @@ import ReturnToTop from '$components/buttons/ReturnToTop.svelte';
 	let initialWeekHeaders: string[] = ['Rank', 'Player', 'Wins', 'Losses', 'Tiebreaker', 'Prize'];
 	let abbreviatedWeekHeaders: string[] = ['#', 'Name', 'W', 'L', 'T', '$'];
 	let weekHeaders: string[] = initialWeekHeaders;
-	let tiebreakerPromise: Promise<WeeklyTiebreaker[]>;
-	let weeklyPlayerPromise: Promise<Player[]>;
-	let lastGamePromise: Promise<Game>;
 	let weeklyPlayerQuery: Query<DocumentData>;
 	let headerCount: number;
 
@@ -49,8 +44,7 @@ import ReturnToTop from '$components/buttons/ReturnToTop.svelte';
 			});
 			return tiebreakers;
 		} catch (error) {
-			errorToast('Error encountered while getting tiebreakers. See console log.');
-			myError('getAllTiebreakers', error);
+			ErrorAndToast({msg: 'Error encountered while getting tiebreakers.', error, function_name: 'getAllTiebreakers', location: 'weekly/WeeklyStandings.svelte'});
 		}
 	};
 	const getLastGame = async (selectedWeek: number) => {
@@ -64,32 +58,36 @@ import ReturnToTop from '$components/buttons/ReturnToTop.svelte';
 			const lastGame = lastGameDoc.docs[0].data();
 			return lastGame;
 		} catch (error) {
-			const errorLocation = 'WeekStandings => getLastGame';
-			myError(errorLocation, error);
-			errorToast(`errorLocation, ${error}`, 360_000);
+			ErrorAndToast({msg: 'Error encountered while getting last game.', error, function_name: 'getLastGame', location: 'weekly/WeeklyStandings.svelte'});
 		}
 	};
 
-	const getData = async (selectedWeek: number) => {
+	const getData = async (selectedWeek: number): Promise<{ weeklyPlayers: Player[]; tiebreakers: WeeklyTiebreaker[]; lastGame: Game; }> => {
+
 		weeklyPlayerQuery = query(
 			playersCollection,
 			where('weekly', '==', true),
 			orderBy(`weeklyPickRecord.week_${selectedWeek}.wins`, 'desc'),
 			orderBy(`weeklyPickRecord.week_${selectedWeek}.netTiebreaker`)
 		);
-		weeklyPlayerPromise = getWeeklyPlayers(false, weeklyPlayerQuery);
-		tiebreakerPromise = getAllTiebreakers(selectedWeek);
-		lastGamePromise = getLastGame(selectedWeek);
+
+		// Get the data asynchronously for each collection
+		const weeklyPlayerPromise : Promise<Player[]> = getWeeklyPlayers(false, weeklyPlayerQuery);
+		const tiebreakerPromise : Promise<WeeklyTiebreaker[]> = getAllTiebreakers(selectedWeek);
+		const lastGamePromise : Promise<Game> = getLastGame(selectedWeek);
+		
+		// Wait for all the data to come in before resolving the getData() promise with the results
+		const data : [Player[], WeeklyTiebreaker[], Game] = await Promise.all([weeklyPlayerPromise, tiebreakerPromise, lastGamePromise]);
+		const weeklyPlayers : Player[] = data[0];
+		const tiebreakers : WeeklyTiebreaker[] = data[1];
+		const lastGame : Game = data[2];
+
+		return {weeklyPlayers, tiebreakers, lastGame};
 	};
 
-	onMount(async () => {
-		// $selectedWeek = await findCurrentWeekOfSchedule();
-		getData($selectedWeek);
-		const tiebreakers = await tiebreakerPromise;
-		const players = await weeklyPlayerPromise;
-		console.log(tiebreakers);
-		console.log(players);
-	});
+	// Update the data promise if the week changes
+	let data_promise = getData($selectedWeek)
+	$: data_promise = getData($selectedWeek)
 
 	// Reactive statements allow headers to update when the screen resizes
 	$: headerCount = weekHeaders.length;
@@ -98,56 +96,34 @@ import ReturnToTop from '$components/buttons/ReturnToTop.svelte';
 </script>
 
 <div class="week grid" style="--columns:{headerCount}">
-	<WeekSelect
-		customStyles="grid-area:selector;"
-		on:weekChanged={() => getData($selectedWeek)}
+	<WeekSelect customStyles="grid-area:selector;" />
+	<!-- on:weekChanged={() => getData($selectedWeek)}
 		on:incrementWeek={() => getData($selectedWeek)}
-		on:decrementWeek={() => getData($selectedWeek)}
-	/>
+		on:decrementWeek={() => getData($selectedWeek)} -->
 	<div class="table grid">
 		{#each weekHeaders as header}
 			<div class="header">{header}</div>
 		{/each}
-		{#if weeklyPlayerPromise}
-			{#await weeklyPlayerPromise}
-				Loading data...
-			{:then weeklyPlayerData}
-				{#await tiebreakerPromise}
-					Loading data...
-				{:then tiebreakers}
-					{#await lastGamePromise}
-						Loading data...
-					{:then lastGame}
-						{#each weeklyPlayerData as player, i}
-							{#each tiebreakers as tiebreaker}
-								{#if tiebreaker.uid === player.uid}
-									<WeeklyStandingsRow
-										{player}
-										{i}
-										{tiebreaker}
-										showNetTiebreakers={$showNetTiebreakers}
-										{lastGame}
-										showUID={$showIDs}
-									/>
-								{/if}
-							{/each}
-						{/each}
-					{:catch error}
-						<ErrorModal>
-							Unable to load last game: {error}
-						</ErrorModal>
-					{/await}
-				{:catch error}
-					<ErrorModal>
-						Unable to load last tiebreakers: {error}
-					</ErrorModal>
-				{/await}
-			{:catch error}
-				<ErrorModal>
-					Unable to load players: {error}
-				</ErrorModal>
-			{/await}
-		{/if}
+		{#await data_promise then { weeklyPlayers, tiebreakers, lastGame }}
+			{#each weeklyPlayers as player, i}
+				{#each tiebreakers as tiebreaker}
+					{#if tiebreaker.uid === player.uid}
+						<WeeklyStandingsRow
+							{player}
+							{i}
+							{tiebreaker}
+							showNetTiebreakers={$showNetTiebreakers}
+							{lastGame}
+							showUID={$showIDs}
+						/>
+					{/if}
+				{/each}
+			{/each}
+		{:catch error}
+			<ErrorModal>
+				Unable to load data: {error}
+			</ErrorModal>
+		{/await}
 	</div>
 </div>
 <ReturnToTop />

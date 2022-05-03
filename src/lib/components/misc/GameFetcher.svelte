@@ -6,7 +6,7 @@
 	import { deleteDoc, doc, getDocs, query, setDoc, Timestamp, where } from 'firebase/firestore';
 	import WeekSelect from '../selects/WeekSelect.svelte';
 	import PageTitle from './PageTitle.svelte';
-	import { myError, myLog, seasonTypes, stopSign } from '$scripts/classes/constants';
+	import { all_icons, ErrorAndToast, LogAndToast, myError, myLog, seasonTypes, stopSign } from '$scripts/classes/constants';
 	import SeasonTypeSelect from '../selects/SeasonTypeSelect.svelte';
 	import type { SeasonType } from '$scripts/classes/seasonType';
 	import YearSelect from '../selects/YearSelect.svelte';
@@ -47,7 +47,8 @@
 
 			return data.items;
 		} catch (error) {
-			console.error(error);
+			const msg = `Error fetching games for week ${selectedWeek}`;
+			ErrorAndToast({ msg, error });
 		}
 	};
 	const unpackReferenceURLs = async (items: [{ $ref: string }]): Promise<string[]> => {
@@ -57,7 +58,8 @@
 			});
 			return references;
 		} catch (error) {
-			console.error(error);
+			const msg = `Error unpacking reference URLs.`;
+			ErrorAndToast({ msg, error });
 		}
 	};
 	const fetchGameData = async (referenceURLs: string[]) => {
@@ -73,7 +75,8 @@
 			}
 			return gameData;
 		} catch (error) {
-			console.error(error);
+			const msg = 'Error fetching game data';
+			ErrorAndToast({ msg, error });
 		}
 	};
 
@@ -197,22 +200,17 @@
 				const allGames = await promise;
 				const gamesToSet = allGames.prunedGames;
 				currentlySetting = true;
-				myLog('setting games...');
-				defaultToast({
-					title: 'Setting Games',
-					msg: `Creating/overriting game documents for ${selectedWeek}.`
-				});
+				
+				LogAndToast({title: 'Setting Games', msg: `Creating/overriting game documents for ${selectedWeek}.`});
 
 				for await (const game of gamesToSet) {
 					setGame(game, selectedWeek, selectedYear, selectedSeasonType);
 				}
-
-				myLog('games set!');
-				defaultToast({ title: 'Games Set', msg: `Created game documents for ${selectedWeek}!` });
+				LogAndToast({ title: 'Games Set', msg: `Created game documents for ${selectedWeek}!` })
 			}
 			currentlySetting = false;
 		} catch (error) {
-			myError('GameFetcher => setGames', error);
+			myError({location: 'GameFetcher', function_name: 'setGames', error});
 		}
 	};
 	const setGame = async (
@@ -253,13 +251,13 @@
 
 		// Set their records on the game document
 		for (const team of $allTeams) {
-			myLog('adding team...');
+			myLog({msg: 'adding team...'});
 			if (team.abbreviation === homeTeam) {
-				myLog('home team:', '', '', team.abbreviation);
+				myLog({msg: 'home team:', additional_params: team.abbreviation, icon: all_icons.home});
 				gameFormatted.homeTeam = { ...team };
 			}
 			if (team.abbreviation === awayTeam) {
-				myLog('away team:', '', '', team.abbreviation);
+				myLog({msg: 'away team:', additional_params: team.abbreviation, icon: all_icons.airplaneDeparture});
 				gameFormatted.awayTeam = { ...team };
 			}
 		}

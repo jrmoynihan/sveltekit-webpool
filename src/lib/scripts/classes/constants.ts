@@ -1,3 +1,4 @@
+import { defaultToast, type myToastOptions } from '../toasts';
 import type { SeasonType } from './seasonType';
 
 export const maxRegularSeasonWeeks = 18;
@@ -57,7 +58,26 @@ export const bread = String.fromCodePoint(0x1f35e);
 export const bomb = String.fromCodePoint(0x1f4a3);
 export const detective = String.fromCodePoint(0x1f575);
 export const necktie = String.fromCodePoint(0x1f454);
-// console.log(bread)
+export enum all_icons {
+	okHand,
+	policeCarLight,
+	pencil,
+	key,
+	lock,
+	unlock,
+	pick,
+	football,
+	checkmark,
+	dog,
+	dogFace,
+	airplaneDeparture,
+	home,
+	stopSign,
+	bread,
+	bomb,
+	detective,
+	necktie
+}
 
 export const defaultConsoleLogStyle = [
 	'align-items:center',
@@ -66,27 +86,52 @@ export const defaultConsoleLogStyle = [
 	'padding: 0.5rem'
 ].join(';');
 
-export const myError = (
-	functionName: string,
-	error: Error,
-	additionalMessage: string = null,
-	icon: string = policeCarLight
-): void => {
+export type myErrorType = {
+	error: Error;
+	msg?: string;
+	icon?: all_icons;
+	function_name?: string;
+	location?: string;
+	additional_params?: any;
+};
+export type myLogType = {
+	msg: string;
+	icon?: all_icons;
+	function_name?: string;
+	location?: string;
+	additional_params?: any;
+	title?: string;
+};
+export type LogAndToastType = myToastOptions & myLogType;
+export type ErrorAndToastType = myToastOptions & myErrorType;
+
+export const myError = ({ error, msg, icon, function_name, location, additional_params }: myErrorType): void => {
 	console.error(
-		`%c${icon} ${functionName} had an error! ${additionalMessage}`,
+		`%c${icon} Error in ${location} ${function_name} had an error! ${msg}`, additional_params,
 		defaultConsoleLogStyle,
 		error
 	);
 };
-export const myLog = (
-	message: string,
-	functionName = '',
-	icon = '',
-	additionalParameters = null
-): void => {
+export const myLog = ({
+	msg,
+	icon,
+	function_name,
+	location,
+	additional_params
+}: myLogType): void => {
 	console.log(
-		`%c${icon} ${functionName ? `${functionName}:` : ''} ${message}`,
+		`%c${icon} ${location ? `${location} ->` : ''} ${function_name} ${msg}`,
 		defaultConsoleLogStyle,
-		additionalParameters
+		additional_params
 	);
 };
+
+
+export const LogAndToast = (options: LogAndToastType ): void => {
+	myLog({...options});
+	defaultToast({...options});
+}
+export const ErrorAndToast = (options: ErrorAndToastType ): void => {
+	myError({...options});
+	defaultToast({...options});
+}

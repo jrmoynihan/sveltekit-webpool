@@ -1,10 +1,10 @@
-<script script lang="ts">
+<script lang="ts">
 	import AccordionDetails3 from '$lib/components/containers/accordions/AccordionDetails3.svelte';
 	import MultiToggleSwitch from '$lib/components/switches/MultiToggleSwitch.svelte';
 	import DriveChart from '$lib/images/DriveChart.svelte';
 	import type { CompetitorESPN, ESPNGame, ESPNTeamData, Game } from '$scripts/classes/game';
 	import { scheduleCollection } from '$scripts/collections';
-	import { gameConverter } from '$scripts/converters';
+	import { gameConverter, } from '$scripts/converters';
 	import { fetchHttpsToJson } from '$scripts/dataFetching';
 	import { preferredScoreView } from '$scripts/store';
 	import type { ScoreViewPreference } from '$scripts/types/types';
@@ -13,11 +13,10 @@
 		faCheckDouble,
 		faFootballBall,
 		type IconDefinition
-	} from '@fortawesome/free-solid-svg-icons';
+	} from '@fortawesome/free-solid-svg-icons/index.es';
 	import { getDocs, query, where } from 'firebase/firestore';
 
 	let open = false;
-
 	let otherItems = [
 		{ label: 'One', value: 1 },
 		{ label: 'Two', value: 2 },

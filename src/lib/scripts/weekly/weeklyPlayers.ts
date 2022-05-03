@@ -4,7 +4,7 @@ import type { SeasonType } from '$classes/seasonType';
 import type { WeeklyTiebreaker } from '$classes/tiebreaker';
 import { Player } from '$classes/player';
 import { query, where, getDocs, orderBy } from 'firebase/firestore';
-import { myLog, myError, checkmark, pick, detective, necktie } from '../classes/constants';
+import { myLog, ErrorAndToast, all_icons } from '../classes/constants';
 import {
 	scheduleCollection,
 	playersCollection,
@@ -17,7 +17,7 @@ import {
 	weeklyPickConverter,
 	weeklyTiebreakerConverter
 } from '../converters';
-import { defaultToast, errorToast } from '../toasts';
+import { defaultToast } from '../toasts';
 
 // TODO: Refactor these functions into endpoints that change the url as the params change?
 export const getWeeklyPlayers = async (
@@ -34,15 +34,14 @@ export const getWeeklyPlayers = async (
 			players.push(player);
 		});
 		const msg = 'Retrieved all players who are Weekly Pool players.';
-		myLog(msg, 'getWeeklyPlayers', undefined, players);
+		myLog({ msg, additional_params: players });
 		if (showToast) {
-			defaultToast({ title: 'Got Weekly Players!', msg: msg });
+			defaultToast({ title: 'Got Weekly Players!', msg });
 		}
 		return players;
 	} catch (error) {
-		const msg = `Encountered an error while trying to get weekly players.  Check the console for more info. ${error}`;
-		errorToast(msg);
-		myError('getWeeklyPlayers', error, msg);
+		const msg = `Encountered an error while trying to get weekly players.  Check the console for more info.`;
+		ErrorAndToast({ msg, error, location: 'weeklyPlayers.ts', function_name: 'getWeeklyPlayers' });
 	}
 };
 export const changedQuery = async (
@@ -60,8 +59,8 @@ export const changedQuery = async (
 		tiebreakerPromise = getTiebreaker(selectedWeek, uid, selectedYear);
 		return { gamesPromise, picksPromise, tiebreakerPromise };
 	} catch (error) {
-		errorToast(`Error in changing query... ${error}`);
-		myError('changedQuery', error);
+		const msg = 'Error in changing query.  Check the console for more info.';
+		ErrorAndToast({ msg, error, location: 'weeklyPlayers.ts', function_name: 'changedQuery' });
 	}
 };
 export const getGames = async (
@@ -83,13 +82,11 @@ export const getGames = async (
 			games.push(doc.data());
 		});
 
-		myLog('got games!', '', checkmark, games);
+		myLog({ msg: 'got games!', icon: all_icons.checkmark, additional_params: games });
 		return games;
 	} catch (error) {
-		errorToast(
-			'Unable to get games. Contact the admin.  You can find more information about the error by pressing Ctrl+Shift+I and then inspecting the error in the Console tab.'
-		);
-		myError('getGames', error);
+		const msg = 'Unable to get games. Check the console for more info.';
+		ErrorAndToast({ msg, error, location: 'weeklyPlayers.ts', function_name: 'getGames' });
 	}
 };
 export const getPicksForPlayer = async (
@@ -100,9 +97,9 @@ export const getPicksForPlayer = async (
 ) => {
 	try {
 		const picks: WeeklyPickDoc[] = [];
-		myLog(
-			`querying picks for week ${selectedWeek}, ${selectedYear}, ${selectedSeasonType.text}, ${uid}`
-		);
+		myLog({
+			msg: `querying picks for week ${selectedWeek}, ${selectedYear}, ${selectedSeasonType.text}, ${uid}`
+		});
 		const q = query(
 			weeklyPicksCollection,
 			where('year', '==', selectedYear),
@@ -116,13 +113,11 @@ export const getPicksForPlayer = async (
 		querySnapshot.forEach((doc) => {
 			picks.push(doc.data());
 		});
-		myLog('got picks!', '', pick, picks);
+		myLog({ msg: 'Got picks!', icon: all_icons.pick, additional_params: picks });
 		return picks;
 	} catch (error) {
-		errorToast(
-			'Unable to get picks. Contact the admin.  You can find more information about the error by pressing Ctrl+Shift+I and then inspecting the error in the Console tab.'
-		);
-		myError('getPicks', error);
+		const msg = 'Unable to get picks. Check the console for more info.';
+		ErrorAndToast({ msg, error, location: 'weeklyPlayers.ts', function_name: 'getPicksForPlayer' });
 	}
 };
 export const getTiebreaker = async (
@@ -140,19 +135,19 @@ export const getTiebreaker = async (
 		);
 		const querySnapshot = await getDocs(q.withConverter(weeklyTiebreakerConverter));
 		if (querySnapshot.empty) {
-			myLog('no tiebreaker found', '', detective);
+			myLog({ msg: 'no tiebreaker found', icon: all_icons.detective });
 		} else if (querySnapshot.size > 1) {
 			throw new Error(`Multiple tiebreakers found for this player in week ${selectedWeek}`);
 		}
 		querySnapshot.forEach((doc) => {
 			if (doc.exists()) {
 				tiebreaker = doc.data();
-				myLog('got tiebreaker!', '', necktie, tiebreaker);
+				myLog({ msg: 'Got tiebreaker!', icon: all_icons.necktie, additional_params: tiebreaker });
 			}
 		});
 		return tiebreaker;
 	} catch (error) {
-		errorToast(error.message);
-		myError('getTiebreaker', error);
+		const msg = 'Unable to get tiebreaker. Check the console for more info.';
+		ErrorAndToast({ msg, error, location: 'weeklyPlayers.ts', function_name: 'getTiebreaker' });
 	}
 };
