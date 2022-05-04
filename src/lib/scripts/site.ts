@@ -11,3 +11,9 @@ export const PageOptions: PageOption[] = [
 	new PageOption({ navigationText: 'College', path: '/college', requiresCollege: true }),
 	new PageOption({ navigationText: 'Admin', path: '/admin', requiresAdmin: true })
 ];
+export const weeklyTabs: PageOption[] = [
+	new PageOption({ navigationText: 'Make Picks', path: '/weekly/make-picks' }),
+	new PageOption({ navigationText: 'View League Picks', path: '/weekly/view-picks' }),
+	new PageOption({ navigationText: 'Standings', path: '/weekly/standings' }),
+	new PageOption({ navigationText: 'Rules', path: '/weekly/rules' })
+];

@@ -9,19 +9,12 @@
 <script lang="ts">
 	import NavLink from '$navigation/NavLink.svelte';
 	import Navigator from '$navigation/Navigator.svelte';
-	import { PageOption } from '$scripts/classes/pageOption';
 	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
 	import { navChecked } from '$scripts/store';
 	import type { LoadInput, LoadOutput } from '@sveltejs/kit';
+	import { weeklyTabs } from '$scripts/site';
 
 	export let refresh: unknown;
-
-	const weeklyTabs: PageOption[] = [
-		new PageOption({ navigationText: 'Make Picks', path: '/weekly/makePicks' }),
-		new PageOption({ navigationText: 'View League Picks', path: '/weekly/viewPicks' }),
-		new PageOption({ navigationText: 'Standings', path: '/weekly/standings' }),
-		new PageOption({ navigationText: 'Rules', path: '/weekly/rules' })
-	];
 </script>
 
 <Navigator minItemSize="10rem" maxItemSize="max-content">
