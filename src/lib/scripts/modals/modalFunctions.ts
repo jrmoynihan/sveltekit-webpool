@@ -15,12 +15,7 @@ export const displayModal = async (modal: HTMLDialogElement) => {
 export const hideThisModalDelayed = async (modal: HTMLDialogElement) => {
 	// console.log(`hideThisModalDelayed...`);
 	modal.classList.remove('dialogOpen');
-	// run the dialog close method after the CSS transition completes to avoid "snapping" the element during the transition (set timeout to 0 to observe this)
-	if (modal.close) {
-		setTimeout(() => {
-			modal.close();
-		}, 300);
-	}
+	modal.close();
 };
 export const checkForEscape = async (
 	e: KeyboardEvent & { currentTarget: EventTarget & Window },
