@@ -26,18 +26,17 @@
 	import { isBeforeGameTime } from '$scripts/functions';
 	import {
 		airplaneDeparture,
+		all_icons,
 		bomb,
 		checkmark,
-		dogFace,
+		ErrorAndToast,
 		home,
 		HomeOrAway,
-		myError,
 		myLog,
-		okHand,
 		policeCarLight
 	} from '$scripts/classes/constants';
 	import { onMount } from 'svelte';
-	import { defaultToast, errorToast, getToast } from '$scripts/toasts';
+	import { defaultToast,  getToast } from '$scripts/toasts';
 	import TiebreakerInput from '$components/inputs/TiebreakerInput.svelte';
 	import PickCounter from '$components/containers/micro/PickCounter.svelte';
 	import SubmitPicks from '$components/buttons/SubmitPicks.svelte';
@@ -48,6 +47,7 @@
 	import ErrorModal from '$components/modals/ErrorModal.svelte';
 	import { focusTiebreaker } from '$scripts/scrollAndFocus';
 	import { changedQuery, getPicksForPlayer } from '$scripts/weekly/weeklyPlayers';
+import { findCurrentWeekOfSchedule } from '$lib/scripts/schedule';
 
 	let showTiebreakerInput = false;
 	let countedGameTimes: { upcomingGamesCount: any; playedGamesCount: any };
@@ -83,7 +83,7 @@
 		}
 	});
 	const getData = async () => {
-		// $selectedWeek = await findCurrentWeekOfSchedule(); 	// TOOD: this is fine during the regular season, but not outside of it
+		$selectedWeek = await findCurrentWeekOfSchedule(); 	// TOOD: this is fine during the regular season, but not outside of it
 
 		// NOTE: presumably I was preloading the list of users, but I may not need to do that
 		// if ($userData?.admin) {
@@ -129,12 +129,12 @@
 					game.isBeforeGameTime = false;
 				}
 			}
-			upcomingGamesCount > 0 ? myLog(`${upcomingGamesCount} upcoming games`) : null;
-			playedGamesCount > 0 ? myLog(`${upcomingGamesCount} already played games`) : null;
+			upcomingGamesCount > 0 ? myLog({ msg: `${upcomingGamesCount} upcoming games` }) : null;
+			playedGamesCount > 0 ? myLog({ msg: `${upcomingGamesCount} already played games` }) : null;
 			return { upcomingGamesCount, playedGamesCount };
 		} catch (error) {
-			errorToast('Unable to check game times.');
-			myError('checkGameTimes', error);
+			const msg = 'Unable to check game times. Please see the console for more details.';
+			ErrorAndToast({ msg, error });
 		}
 	};
 
@@ -153,17 +153,21 @@
 				try {
 					await updateDoc(docRef.withConverter(weeklyPickConverter), { pick: pick });
 				} catch (error) {
-					myError(
-						'submitPicks->updatePicks',
+					const msg = 'Unable to update pick. Please see the console for more details.';
+					ErrorAndToast({
+						msg,
 						error,
-						`unable to update game pick ${currentPick.docRef} for player ${currentPick.uid}`
-					);
-					errorToast(
-						`We encountered an error while trying to submit your picks.  Please contact the site admin with the following information: <br> ${error}`
-					);
+						function_name: 'submitPicksAndTiebreaker',
+						location: 'weekly/make-picks.svelte',
+						additional_params: currentPick
+					});
 				}
 			});
-			myLog('updated/submitted picks!', '', okHand, currentPicks);
+			myLog({
+				msg: 'Updated/submitted picks!',
+				icon: all_icons.okHand,
+				additional_params: currentPicks
+			});
 			$picksPromise = getPicksForPlayer(
 				$selectedWeek,
 				uid,
@@ -178,8 +182,14 @@
 				duration: 10000
 			});
 		} catch (error) {
-			errorToast('We encountered an error while submitting picks.  See the console log.');
-			myError('submitPicks', error);
+			const msg = 'Unable to submit picks. Please see the console for more details.';
+			ErrorAndToast({
+				msg,
+				error,
+				function_name: 'submitPicksAndTiebreaker',
+				location: 'weekly/make-picks.svelte',
+				additional_params: currentPicks
+			});
 		}
 	};
 	const updateTiebreakerDoc = async (
@@ -198,16 +208,20 @@
 				week: selectedWeek,
 				year: selectedYear
 			});
-			myLog('updated/submitted tiebreaker!', '', okHand, scoreGuess);
+			myLog({
+				msg: 'Updated/submitted tiebreaker!',
+				icon: all_icons.okHand,
+				additional_params: scoreGuess
+			});
 		} catch (error) {
-			myError(
-				'setTiebreakerDoc',
+			const msg = 'Unable to update tiebreaker. Please see the console for more details.';
+			ErrorAndToast({
+				msg,
 				error,
-				`unable to update tiebreaker ${tiebreakerDocRef.path} for player ${uid}`
-			);
-			errorToast(
-				`We encountered an error while trying to submit your tiebreaker.  Please contact your admin with the following information: <br> ${error}`
-			);
+				function_name: 'updateTiebreakerDoc',
+				location: 'weekly/make-picks.svelte',
+				additional_params: { scoreGuess, uid, tiebreakerDocRef }
+			});
 		}
 	};
 	const updatePicks = async (
@@ -217,7 +231,6 @@
 		logIcon: string = '',
 		logAndToastMsg: string = '',
 		focusTiebreakerAfterwards: boolean = false,
-		callingFunctionName: string = 'updatePicks',
 		homeOrAway?: HomeOrAway
 	): Promise<WeeklyPickDoc[]> => {
 		try {
@@ -236,19 +249,39 @@
 					}
 				}
 			});
-			logAndToastMsg ? myLog(logAndToastMsg, callingFunctionName, logIcon, picks) : null;
+			logAndToastMsg
+				? myLog({
+						msg: logAndToastMsg,
+						icon: all_icons[logIcon],
+						additional_params: picks,
+						location: 'weekly/make-picks.svelte',
+						function_name: 'updatePicks'
+				  })
+				: null;
 			showToast ? defaultToast({ msg: logAndToastMsg }) : null;
 			focusTiebreakerAfterwards ? focusTiebreaker() : null;
 			return picks;
 		} catch (error) {
-			errorToast(
-				'We encountered an error while trying to update your picks.  See the console log.'
-			);
-			myError(`Error in ${callingFunctionName}`, error);
+			const msg = 'Unable to update picks. Please see the console for more details.';
+			ErrorAndToast({
+				msg,
+				error,
+				function_name: 'updatePicks',
+				location: 'weekly/make-picks.svelte',
+				additional_params: {
+					games,
+					picks,
+					showToast,
+					logIcon,
+					logAndToastMsg,
+					focusTiebreakerAfterwards,
+					homeOrAway
+				}
+			});
 		}
 	};
 	const resetPicks = async (games: Game[], picks: WeeklyPickDoc[]) => {
-		picks = await updatePicks(games, picks, false, bomb, 'Reset all picks!', false, 'resetPicks');
+		picks = await updatePicks(games, picks, false, bomb, 'Reset all picks!', false);
 		return picks;
 	};
 
@@ -260,7 +293,6 @@
 			home,
 			'Picked all home teams!',
 			true,
-			'pickAllHome',
 			HomeOrAway.Home
 		);
 		return picks;
@@ -273,7 +305,6 @@
 			airplaneDeparture,
 			'Picked all away teams!',
 			true,
-			'pickAllAway',
 			HomeOrAway.Away
 		);
 		return picks;
@@ -312,12 +343,18 @@
 					}
 				}
 			});
-			myLog('picked favored teams!', '', okHand);
+			myLog({ msg: 'Picked favored teams!', icon: all_icons.okHand });
 			focusTiebreaker();
 			return picks;
 		} catch (error) {
-			errorToast('Error in picking favored teams... see console log.');
-			myError('pickAllFavored', error);
+			const msg = 'Unable to pick favored teams. Please see the console for more details.';
+			ErrorAndToast({
+				msg,
+				error,
+				function_name: 'pickAllFavored',
+				location: 'weekly/make-picks.svelte',
+				additional_params: { games, picks }
+			});
 		}
 	};
 	const pickAllDogs = async (games: Game[], picks: WeeklyPickDoc[]) => {
@@ -353,12 +390,18 @@
 					}
 				}
 			});
-			myLog('picked all underdogs!', '', dogFace);
+			myLog({ msg: 'Picked all underdogs!', icon: all_icons.dogFace });
 			focusTiebreaker();
 			return picks;
 		} catch (error) {
-			errorToast('Error in picking underdog teams... see console log.');
-			myError('pickAllDogs', error);
+			const msg = 'Unable to pick all underdogs. Please see the console for more details.';
+			ErrorAndToast({
+				msg,
+				error,
+				function_name: 'pickAllDogs',
+				location: 'weekly/make-picks.svelte',
+				additional_params: { games, picks }
+			});
 		}
 	};
 
