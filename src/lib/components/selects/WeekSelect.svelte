@@ -25,20 +25,17 @@
 		}
 	};
 	const increment = () => {
-		$selectedWeek++;
+		$selectedWeek += 1;
 		// dispatch('incrementWeek', selectedWeek);
 		dispatch('incrementWeek');
 	};
 	const decrement = () => {
-		$selectedWeek--;
+		$selectedWeek -= 1;
 		// dispatch('decrementWeek', selectedWeek);
 		dispatch('decrementWeek');
 	};
 	const weekChanged = () => dispatch('weekChanged');
 
-	onMount(async () => {
-		// selectedWeek = await findCurrentWeekOfSchedule() ;
-	});
 	$: changeWeeksAvailable(selectedSeasonType);
 </script>
 
