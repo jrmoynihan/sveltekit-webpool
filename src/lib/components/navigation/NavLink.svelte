@@ -22,13 +22,9 @@
 	const cleanupToNavigate = () => {
 		const modals = Array.from(document.getElementsByTagName('dialog'));
 		if (modals) {
-			console.log(`found modals: ${modals}`);
 			for (const modal of modals) {
-				console.log(`closing modal id: ${modal.id}`);
 				hideThisModalDelayed(modal);
 			}
-		} else {
-			console.log(`didn't find modals: ${modals}`);
 		}
 		toast.pop(0);
 	};
