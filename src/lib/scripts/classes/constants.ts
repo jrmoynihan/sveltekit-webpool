@@ -89,7 +89,7 @@ export const defaultConsoleLogStyle = [
 export type myErrorType = {
 	error: Error;
 	msg?: string;
-	icon?: all_icons;
+	icon?: all_icons | null;
 	function_name?: string;
 	location?: string;
 	additional_params?: any;
@@ -100,29 +100,21 @@ export type myLogType = {
 	function_name?: string;
 	location?: string;
 	additional_params?: any;
-	title?: string;
 };
 export type LogAndToastType = myToastOptions & myLogType;
 export type ErrorAndToastType = myToastOptions & myErrorType;
 
-export const myError = ({ error, msg, icon, function_name, location, additional_params }: myErrorType): void => {
+export const myError = (input: myErrorType): void => {
+	const { error, msg, icon, function_name, location, additional_params } = input;
 	console.error(
-		`%c${icon} Error in ${location} ${function_name} had an error! ${msg}`, additional_params,
-		defaultConsoleLogStyle,
-		error
-	);
+		`${icon ? `%c${icon} ` : '%c'}Error in ${location ? `${location} ->` : ''} ${function_name ?? ''}! \n ${msg ?? ''}`, defaultConsoleLogStyle, error ?? '', additional_params ?? '');
 };
-export const myLog = ({
-	msg,
-	icon,
-	function_name,
-	location,
-	additional_params
-}: myLogType): void => {
+export const myLog = (input: myLogType): void => {
+	const { msg, icon, function_name, location, additional_params } = input;
 	console.log(
-		`%c${icon} ${location ? `${location} ->` : ''} ${function_name} ${msg}`,
+		`${icon ? `%c${icon} ` : '%c'} ${location ? `${location} ->` : ''} ${function_name ?? ''} \n ${msg ?? ''}`,
 		defaultConsoleLogStyle,
-		additional_params
+		additional_params ?? ''
 	);
 };
 
