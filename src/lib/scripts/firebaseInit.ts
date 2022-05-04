@@ -1,12 +1,6 @@
 import { dev } from '$app/env';
-import { getApps, getApp, initializeApp } from '@firebase/app';
-import {
-	debugErrorMap,
-	getAuth,
-	indexedDBLocalPersistence,
-	initializeAuth,
-	prodErrorMap
-} from 'firebase/auth';
+import { getApps, getApp, initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const API_KEY: string = dev ? (import.meta.env.VITE_API_KEY as string) : process.env.API_KEY;
@@ -33,7 +27,7 @@ const myApp = initializeFirebase();
 export const firestoreDB = getFirestore(myApp);
 export const firestoreAuth = getAuth(myApp);
 
-// FIXME: This threw an auth error on login
+// FIXME: This threw an auth error on login so I simplified it to the less customizable getAuth() function.
 // export const firestoreAuth = initializeAuth(myApp, {
 // 	persistence: indexedDBLocalPersistence,
 // 	errorMap: dev ? debugErrorMap : prodErrorMap
