@@ -1,17 +1,15 @@
-import type { Writable } from 'svelte/store';
-import { writable, get } from 'svelte/store';
-import { doc, updateDoc, onSnapshot, query, getDoc } from 'firebase/firestore';
-import type { Query, FirestoreDataConverter } from 'firebase/firestore';
-import { playerConverter } from './converters';
-import { Player } from '$lib/scripts/classes/player';
-import { playersCollection } from './collections';
 import { browser } from '$app/env';
+import { type Writable, writable, get } from 'svelte/store';
+import { doc, updateDoc, onSnapshot, query, getDoc, type Query, type FirestoreDataConverter } from 'firebase/firestore';
+import { playerConverter } from './converters';
+import { Player } from '$classes/player';
+import { playersCollection } from './collections';
 import type { ScoreViewPreference } from './types/types';
-import { seasonTypes } from './classes/constants';
+import { seasonTypes } from '$classes/constants';
 import type { WeeklyTiebreaker } from './classes/tiebreaker';
 import type { WeeklyPickDoc } from './classes/picks';
-import type { Game } from './classes/game';
-import type { Team } from './classes/team';
+import type { Game } from '$classes/game';
+import type { Team } from '$classes/team';
 import type { User } from 'firebase/auth';
 import { firestoreAuth } from './firebaseInit';
 
