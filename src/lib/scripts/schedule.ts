@@ -11,13 +11,16 @@ import {
 } from 'firebase/firestore';
 import type { QuerySnapshot, DocumentReference } from 'firebase/firestore';
 import { myError, myLog } from './classes/constants';
-import type { Game } from './classes/game';
+import type { ESPNSeason, ESPNWeek, Game, RefOnlyESPN } from './classes/game';
 import { WeekBound } from './classes/weekBound';
 import { scheduleCollection, weekBoundsCollection } from './collections';
 import { gameConverter, weekBoundConverter } from './converters';
 import { defaultToast, errorToast } from './toasts';
 import { getRegularSeasonWeeks } from './functions';
 import { toast } from '@zerodevx/svelte-toast';
+import { currentSeasonYear } from './store';
+import { get } from 'svelte/store';
+import type { SeasonType } from './classes/seasonType';
 
 export const findWeekDateTimeBounds = async (): Promise<void> => {
 	const startToastId = defaultToast({
@@ -104,9 +107,9 @@ export const setBounds = async (weekBound: WeekBound, year?: number): Promise<vo
 export const findCurrentWeekOfSchedule = async (showToast?: boolean): Promise<number> => {
 	try {
 		const now = new Date();
-		const currentYear = now.getMonth() < 3 ? now.getFullYear() - 1 : now.getFullYear();
-		const boundsDoc = doc(weekBoundsCollection, currentYear.toString());
-		const allBounds = await getDocFromServer(boundsDoc.withConverter(weekBoundConverter));
+		const current_season_year = get(currentSeasonYear);
+		const bounds_doc_ref = doc(weekBoundsCollection, current_season_year.toString());
+		const bounds_doc = await getDocFromServer(bounds_doc_ref.withConverter(weekBoundConverter));
 
 		// This is the offset from the start of the last game of the week when the function will return the next week.
 		// i.e. if it has been 8 hours after the MNF game for week 3, it should return weekBounds.week = 4
@@ -114,9 +117,9 @@ export const findCurrentWeekOfSchedule = async (showToast?: boolean): Promise<nu
 		// This is a multiplier for the hours above to get the number into milliseconds for a Date.getTime()
 		const millisecondsPerHour = 3_600_000;
 
-		if (allBounds.exists) {
-			myLog({ msg: 'got gameBounds doc!' });
-			const data = allBounds.data();
+		if (bounds_doc.exists()) {
+			const data = bounds_doc.data();
+			myLog({ msg: 'found bounds document: ', additional_params: [data, current_season_year] });
 			const regSeasonWeeks = await getRegularSeasonWeeks(); // TODO: need a solution to find non-Regular Season weeks
 			for (const week of regSeasonWeeks) {
 				const weekBounds: WeekBound = data[`week_${week}`];
@@ -132,11 +135,95 @@ export const findCurrentWeekOfSchedule = async (showToast?: boolean): Promise<nu
 					return weekBounds.week;
 				}
 			}
+		} else {
+			myLog({ msg: 'no bounds document found! Attempting to use ESPN API to find week...' });
+			const espn_week = await getWeekFromESPN();
+			if (espn_week) {
+				myLog({ msg: `ESPN API returned week ${espn_week}.` });
+				return espn_week;
+			} else throw new Error('Could not find current week of schedule via ESPN API either.');
 		}
 	} catch (error) {
 		myError({ location: 'schedule.ts', function_name: 'findCurrentWeekOfSchedule', error });
 		if (showToast) {
-			errorToast(`findCurrentWeekOfSchedule had an error: ${error}`);
+			errorToast(`We ran into an error finding the current week: ${error}`);
 		}
 	}
+};
+const getWeekFromESPN = async () => {
+	try {
+		let season_type = { id: 2, text: 'Regular Season' };
+		const espn_regular_season_data = await fetchESPNSeasonData(get(currentSeasonYear), season_type);
+		const today_date = new Date('October 28, 2022 03:00:00');
+		const today = Date.parse(today_date.toDateString());
+		let start_of_season = Date.parse(espn_regular_season_data.startDate);
+		let end_of_season = Date.parse(espn_regular_season_data.endDate);
+
+		if (today < start_of_season) {
+			// The regular season hasn't started yet; check if the preseason has started
+			season_type = { id: 1, text: 'Preseason' };
+			const espn_preseason_data = await fetchESPNSeasonData(get(currentSeasonYear), season_type);
+			start_of_season = Date.parse(espn_preseason_data.startDate);
+			end_of_season = Date.parse(espn_preseason_data.endDate);
+
+			if (today < start_of_season) {
+				// The preseason hasn't started yet; just return 1
+				return 1;
+			} else if (today > start_of_season && today < end_of_season) {
+				const week_refs = await fetchWeekRefsOfSeason(espn_preseason_data);
+				return findWhichWeekIncludesToday(today, week_refs);
+			}
+		} else if (today > start_of_season && today < end_of_season) {
+			// The regular season has started; return the current week of it
+			const week_refs = await fetchWeekRefsOfSeason(espn_regular_season_data);
+			return findWhichWeekIncludesToday(today, week_refs);
+		}
+	} catch (error) {}
+};
+const fetchESPNSeasonData = async (
+	current_season_year = get(currentSeasonYear),
+	season_type: SeasonType = { id: 2, text: 'Regular Season' }
+) => {
+	const espn_season_response = await fetch(
+		`https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/${current_season_year}/types/${season_type.id}`
+	);
+	const espn_season_data = await espn_season_response.json();
+	return espn_season_data as ESPNSeason;
+};
+
+const fetchWeekRefsOfSeason = async (season_data: ESPNSeason) => {
+	const { weeks } = season_data;
+	const weeks_response = await fetch(weeks.$ref);
+	const { items } = await weeks_response.json();
+	const week_refs: string[] = items.map((item) => item.$ref);
+	return week_refs;
+};
+const findWhichWeekIncludesToday = async (today: number, week_refs: string[]) => {
+	for await (const week of week_refs) {
+		const week_response = await fetch(week);
+		const week_data = (await week_response.json()) as ESPNWeek;
+
+		// Since we got here because the DB didn't have the data, we should write it here.
+		const { startDate, endDate, number } = week_data;
+		const start_timestamp = Timestamp.fromDate(new Date(startDate));
+		const end_timestamp = Timestamp.fromDate(new Date(endDate));
+		const new_doc = doc(weekBoundsCollection, `${get(currentSeasonYear)}`);
+		await setDoc(new_doc, {
+			[`week_${number}`]: {
+				firstGameTime: start_timestamp,
+				lastGameTime: end_timestamp,
+				week: number
+			}
+		});
+
+		const isDuringWeek = await occursInWeek(today, week_data);
+		if (isDuringWeek) {
+			myLog({ msg: `Today is during week ${number}!` });
+			return week_data.number;
+		}
+	}
+	return 1;
+};
+const occursInWeek = async (today: number, week_data: ESPNWeek) => {
+	return today > Date.parse(week_data.startDate) && today < Date.parse(week_data.endDate);
 };
