@@ -458,3 +458,29 @@ export interface ESPNDriveStartOrEnd {
 	yardLine: number;
 	text: string;
 }
+export interface ESPNSeason {
+	$ref: string;
+	id: string;
+	type: number;
+	name: string;
+	abbreviation: string;
+	year: number;
+	startDate: string;
+	endDate: string;
+	hasGroups: boolean;
+	hasStandings: boolean;
+	hasLegs: boolean;
+	groups: RefOnlyESPN;
+	weeks: RefOnlyESPN;
+	corrections: RefOnlyESPN;
+	slug: string;
+}
+export interface ESPNWeek {
+	$ref: string;
+	number: number;
+	startDate: string;
+	endDate: string;
+	text: string;
+	rankings: RefOnlyESPN;
+	events: RefOnlyESPN;
+}
