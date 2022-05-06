@@ -1,4 +1,4 @@
-import { collection, CollectionReference, DocumentReference } from 'firebase/firestore';
+import { collection, CollectionReference, DocumentReference } from '@firebase/firestore';
 import type { SvelteComponentDev } from 'node_modules/svelte/internal';
 
 export class Rule {

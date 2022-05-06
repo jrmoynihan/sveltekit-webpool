@@ -1,11 +1,11 @@
 import { dev } from '$app/env';
-import { getApps, getApp, initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { getApps, getApp, initializeApp } from '@firebase/app';
+import { getAuth, setPersistence, inMemoryPersistence } from '@firebase/auth';
+import { getFirestore } from '@firebase/firestore';
 
 const API_KEY: string = dev ? (import.meta.env.VITE_API_KEY as string) : process.env.API_KEY;
 const firebaseConfig = {
-	apiKey: 'AIzaSyDEAAXuJcftdIqBRxi_OmDYmFEMs2qnpIw',
+	apiKey: API_KEY,
 	authDomain: 'tonyswebpool.firebaseapp.com',
 	databaseURL: 'https://tonyswebpool.firebaseio.com',
 	projectId: 'tonyswebpool',
@@ -15,7 +15,7 @@ const firebaseConfig = {
 	measurementId: 'G-8Y5HV7HDFZ'
 };
 
-export function initializeFirebase() {
+export function initializeFirebaseApp() {
 	// If a firebase app is already initialized, use that one
 	if (getApps().length === 0) {
 		return initializeApp(firebaseConfig);
@@ -23,12 +23,9 @@ export function initializeFirebase() {
 		return getApp();
 	}
 }
-const myApp = initializeFirebase();
+const myApp = initializeFirebaseApp();
 export const firestoreDB = getFirestore(myApp);
-export const firestoreAuth = getAuth(myApp);
+export const firebaseAuth = getAuth(myApp);
 
-// FIXME: This threw an auth error on login so I simplified it to the less customizable getAuth() function.
-// export const firestoreAuth = initializeAuth(myApp, {
-// 	persistence: indexedDBLocalPersistence,
-// 	errorMap: dev ? debugErrorMap : prodErrorMap
-// });
+// Prevents persistence of Auth state in the CLIENT; the server will hold the cookie!
+setPersistence(firebaseAuth, inMemoryPersistence);

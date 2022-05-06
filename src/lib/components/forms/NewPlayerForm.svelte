@@ -1,22 +1,20 @@
 <script lang="ts">
-	import { createNewPlayerDocument } from '$scripts/auth/auth';
-	import { all_icons, football, myError, myLog } from '$scripts/classes/constants';
-	import { weekBoundsCollection } from '$scripts/collections';
+	import { createNewPlayerDocument } from '$lib/scripts/auth/login';
+	import { all_icons } from '$scripts/classes/constants';
+	import { myError, myLog } from '$scripts/logging';
 	import { savePlayerData } from '$scripts/localStorage';
-	import { godSequence, godMode, firebase_user, playerData } from '$scripts/store';
+	import { godSequence, godMode, firebase_user, player_data } from '$scripts/store';
 	import { defaultToast, errorToast } from '$scripts/toasts';
 	import {
 		createTiebreakersForPlayer,
 		createWeeklyPicksForPlayer,
 		getAllGames
 	} from '$scripts/weekly/weeklyAdmin';
-	import { doc } from 'firebase/firestore';
 	import {
 		faArrowAltCircleRight,
 		faFootballBall,
 		faTimesCircle
 	} from '@fortawesome/free-solid-svg-icons';
-	import { onMount } from 'svelte';
 	import Fa from 'svelte-fa';
 	import { fly, slide } from 'svelte/transition';
 	import Grid from '../containers/Grid.svelte';
@@ -121,8 +119,8 @@
 			// TODO: create the necessary docs for each pool they've joined...
 			// may not need to await here, but could instead use Workers!
 			const games = await getAllGames(false);
-			createWeeklyPicksForPlayer($playerData, true, false, games);
-			createTiebreakersForPlayer($playerData);
+			createWeeklyPicksForPlayer($player_data, true, false, games);
+			createTiebreakersForPlayer($player_data);
 			//prettier-ignore
 			defaultToast({
 				title: `Account Created!`,
@@ -213,22 +211,20 @@
 	// }, 1250);
 
 	//possible TODO
-	const getWeeklyCutoffDate = async (currentYear: number) => {
-		const boundDoc = doc(weekBoundsCollection, currentYear.toString());
-	};
-	onMount(() => {
-		$godMode = false;
-		// possible TODO
-		// const currentYear = new Date().getFullYear();
-		// weeklyCutoffDate = await getWeeklyCutoffDate(currentYear)
-	});
+	// const getWeeklyCutoffDate = async (currentYear: number) => {
+	// 	const boundDoc = doc(weekBoundsCollection, currentYear.toString());
+	// };
+
+	// possible TODO
+	// const currentYear = new Date().getFullYear();
+	// weeklyCutoffDate = await getWeeklyCutoffDate(currentYear)
 
 	export const enableGodMode = async (
 		e: KeyboardEvent & { currentTarget: EventTarget & Window }
 	) => {
 		// console.log(e.key);
 		const secretCode = ['G', 'O', 'D'];
-		if (!$godMode && $playerData?.admin) {
+		if (!$godMode && $player_data?.admin) {
 			if (
 				e.key !== 'G' &&
 				e.key !== 'g' &&

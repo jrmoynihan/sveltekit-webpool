@@ -1,5 +1,12 @@
 <script context="module" lang="ts">
 	export async function load({ url }: LoadInput): Promise<LoadOutput> {
+		// Check if the user is logged in
+		if (get(firebase_user)) {
+			console.log('User is logged in');
+		} else {
+			console.log('User is NOT logged in');
+		}
+
 		return {
 			props: {
 				refresh: url.pathname.split('/')[1]
@@ -12,6 +19,7 @@
 	import '../app.css';
 	import {
 		chosenMixBlendMode,
+		firebase_user,
 		largerThanMobile,
 		navChecked,
 		useDarkTheme,
@@ -29,6 +37,7 @@
 	import NewPlayerForm from '$lib/components/forms/NewPlayerForm.svelte';
 	import type ModalOnly from '$lib/components/modals/Modal.svelte';
 	import type { LoadInput, LoadOutput } from '@sveltejs/kit';
+	import { get } from 'svelte/store';
 
 	export let refresh: any;
 	let modalOnlyComponent: ModalOnly;

@@ -1,7 +1,6 @@
 * {
 	margin: 0;
 	padding: 0;
-	/* box-sizing: border-box; */
 	font-display: swap;
 	font-family: Open Sans;
 }
@@ -13,10 +12,6 @@ html {
   }
 
 :root {
-	/* --heading-color: rgba(0 0 0 70%); */
-	/* --text-color: #444;
-	/* --background-without-opacity: rgba(255 255 255 70%); */ */
-	/* --pre-size: 1rem; */
 	--h1-size: 2.5rem;
 	--h2-size: 1rem;
 	--padding-normal: 1rem;
@@ -30,7 +25,7 @@ html {
 	--above: 1;
 	--base: 0;
 	--zFixed: calc(var(--above) + var(--base));
-	--zSticky: var(--zFixed);
+	--zSticky: calc(var(--above) + var(--base));
 	--zModal: calc(var(--above) + var(--zFixed))
 
 	/* Static Colors (won't change between light/dark mode)  */

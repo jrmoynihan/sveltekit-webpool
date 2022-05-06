@@ -13,8 +13,8 @@
 		faCheckDouble,
 		faFootballBall,
 		type IconDefinition
-	} from '@fortawesome/free-solid-svg-icons/index.es';
-	import { getDocs, query, where } from 'firebase/firestore';
+	} from '@fortawesome/free-solid-svg-icons';
+	import { getDocs, query, where } from '@firebase/firestore';
 
 	let open = false;
 	let otherItems = [
@@ -30,7 +30,7 @@
 	];
 	let q = query(scheduleCollection.withConverter(gameConverter), where('id', '==', '401326493'));
 	const getGame = async (): Promise<Game> => {
-		const doc = await getDocs(q);
+		const doc = await getDocs(q.withConverter(gameConverter));
 		return doc.docs[0].data();
 	};
 	const getESPNGameData = async (game: Game) => {

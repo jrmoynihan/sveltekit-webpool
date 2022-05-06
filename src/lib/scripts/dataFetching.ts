@@ -1,4 +1,4 @@
-import { myError, policeCarLight } from './classes/constants';
+console.log('dataFetching.ts...');
 import type {
 	RefOnlyESPN,
 	ESPNStatus,
@@ -7,7 +7,9 @@ import type {
 	ESPNTeamData,
 	ESPNDrive,
 	ESPNDriveRef
-} from './classes/game';
+} from '$classes/game';
+import { myError } from '$scripts/logging';
+import { all_icons } from '$classes/constants';
 
 export const convertToHttps = async (httpAddress: string): Promise<string> => {
 	return httpAddress.replace('http', 'https');
@@ -62,7 +64,7 @@ export const getScores = async (
 			throw `error getting scores`;
 		}
 	} catch (error) {
-		console.error(`%c${policeCarLight} error getting scores!`);
+		myError({ msg: 'Error getting scores', error, icon: all_icons.policeCarLight });
 	}
 };
 
@@ -99,3 +101,5 @@ export const getMostRecentDrive = async (drivesRef: string): Promise<ESPNDrive> 
 	const lastDrive: ESPNDrive = data.items[lastDriveNumber];
 	return lastDrive;
 };
+
+console.log('dataFetching.ts... done');

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { allTeams } from '$scripts/teams';
+	import { allTeams } from '$scripts/store';
 	import TeamImage from './containers/TeamImage.svelte';
 	import TeamNameImage from './containers/TeamNameImage.svelte';
 </script>

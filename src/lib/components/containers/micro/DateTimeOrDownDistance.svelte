@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { ESPNSituation, ESPNStatus } from '$scripts/classes/game';
-	import type { Timestamp } from 'firebase/firestore';
+	import type { Timestamp } from '@firebase/firestore';
 	import { showTimestamps } from '$scripts/store';
 	import GameTime from './GameTime.svelte';
 

@@ -1,17 +1,18 @@
+console.log('store...');
 import { browser } from '$app/env';
 import { type Writable, writable, get } from 'svelte/store';
-import { doc, updateDoc, onSnapshot, query, getDoc, type Query, type FirestoreDataConverter } from 'firebase/firestore';
+import { doc, updateDoc, onSnapshot, query, getDoc, type Query, type FirestoreDataConverter } from '@firebase/firestore';
 import { playerConverter } from './converters';
 import { Player } from '$classes/player';
 import { playersCollection } from './collections';
 import type { ScoreViewPreference } from './types/types';
-import { seasonTypes } from '$classes/constants';
 import type { WeeklyTiebreaker } from './classes/tiebreaker';
 import type { WeeklyPickDoc } from './classes/picks';
 import type { Game } from '$classes/game';
 import type { Team } from '$classes/team';
-import type { User } from 'firebase/auth';
-import { firestoreAuth } from './firebaseInit';
+import type { User } from '@firebase/auth';
+import { firebaseAuth } from './firebase/firebase';
+import type { SeasonType } from '$classes/seasonType';
 
 export const useDarkTheme = writable(false);
 export const chosenMixBlendMode = writable('normal');
@@ -32,7 +33,7 @@ export const currentSeasonYear = writable(
 	new Date().getMonth() < 3 ? new Date().getFullYear() - 1 : new Date().getFullYear()
 );
 export const selectedSeasonYear = writable(get(currentSeasonYear));
-export const selectedSeasonType = writable(seasonTypes[1]);
+export const selectedSeasonType = writable<SeasonType>();
 export const selectedPlayer = writable<Player>(new Player({}));
 export const gamesPromise = writable<Promise<Game[]>>();
 export const picksPromise = writable<Promise<WeeklyPickDoc[]>>();
@@ -43,8 +44,8 @@ export const showATSwinner = writable(false);
 export const overrideDisabled = writable(false);
 export const godMode = writable(false);
 export const godSequence = writable<string[]>([]);
-export const firebase_user = writable<User>(firestoreAuth.currentUser);
-export const playerData = writable<Player>();
+export const firebase_user = writable<User>(firebaseAuth.currentUser);
+export const player_data = writable<Player>(new Player({}));
 export const allTeams = writable<Team[]>([]);
 export const player_not_found = writable(false);
 
@@ -106,10 +107,12 @@ export const updatePlayer = async (player: Player): Promise<void> => {
 		await updateDoc(docRef.withConverter(playerConverter), { ...player });
 		if (player.uid === get(firebase_user).uid) {
 			const doc = await getDoc(docRef.withConverter(playerConverter));
-			playerData.set(doc.data());
+			player_data.set(doc.data());
 		}
 	} catch (error) {
 		console.error('Error updating Player document', error);
 	}
 };
 export const allPlayers = writableQueryAsStore(query(playersCollection), playerConverter);
+
+console.log('store done');

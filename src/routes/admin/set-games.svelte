@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { type ESPNGame, type ESPNGamePruned, Game } from '$scripts/classes/game';
 	import { gameConverter } from '$scripts/converters';
-	import { firestoreDB } from '$scripts/firebaseInit';
+	import { firestoreDB } from '$lib/scripts/firebase/firebase';
 	import { scheduleCollection } from '$scripts/collections';
-	import { deleteDoc, doc, getDocs, query, setDoc, Timestamp, where } from 'firebase/firestore';
+	import { deleteDoc, doc, getDocs, query, setDoc, Timestamp, where } from '@firebase/firestore';
 	import WeekSelect from '$components/selects/WeekSelect.svelte';
 	import PageTitle from '$components/misc/PageTitle.svelte';
-	import { all_icons, ErrorAndToast, LogAndToast, myError, myLog, seasonTypes, stopSign } from '$scripts/classes/constants';
+	import { all_icons, seasonTypes, stopSign } from '$scripts/classes/constants';
+	import {ErrorAndToast, LogAndToast, myError, myLog} from '$scripts/logging';
 	import SeasonTypeSelect from '$components/selects/SeasonTypeSelect.svelte';
 	import type { SeasonType } from '$scripts/classes/seasonType';
 	import YearSelect from '$components/selects/YearSelect.svelte';
@@ -25,7 +26,7 @@
 	// Are games being currently set by the function?  If so, we'll disable the Set Games button.
 	let currently_setting_games = false;
 
-	let promise: Promise<{ originalGames: ESPNGame[]; prunedGames: ESPNGamePruned[] }>;
+	let gamesPromise: Promise<{ originalGames: ESPNGame[]; prunedGames: ESPNGamePruned[] }>;
 	let weeks: number[] = [];
 	let selectedYear = 2021;
 	let selectedSeasonType: SeasonType = seasonTypes[1];
@@ -184,7 +185,7 @@
 	};
 
 	const queryChanged = async () => {
-		promise = getData(selectedYear, selectedSeasonType, $selectedWeek);
+		gamesPromise = getData(selectedYear, selectedSeasonType, $selectedWeek);
 	};
 	const changeWeeksAvailable = async () => {
 		if (selectedSeasonType.text === 'Regular Season') {
@@ -200,8 +201,8 @@
 		selectedSeasonType: SeasonType
 	) => {
 		try {
-			if (promise) {
-				const allGames = await promise;
+			if (gamesPromise) {
+				const allGames = await gamesPromise;
 				const gamesToSet = allGames.prunedGames;
 				currently_setting_games = true;
 				
@@ -349,7 +350,7 @@
 			<option value="full">Full Games (ESPN API)</option>
 			<option value="both">Both</option>
 		</select>
-		{#await promise then games}
+		{#await gamesPromise then}
 			<StyledButton
 				on:click={() => setGames($selectedWeek, selectedYear, selectedSeasonType)}
 				disabled={currently_setting_games}>Set Games</StyledButton
@@ -364,7 +365,7 @@
 </section>
 
 <section>
-	{#await promise}
+	{#await gamesPromise}
 		<div class="padded">
 			<LoadingSpinner />
 		</div>

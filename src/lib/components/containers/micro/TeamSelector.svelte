@@ -2,7 +2,7 @@
 	import type { Team } from '$scripts/classes/team';
 	import { scrollToNextGame } from '$scripts/scrollAndFocus';
 	import { useDarkTheme } from '$scripts/store';
-	import IntersectionObserver from 'svelte-intersection-observer';
+	// import IntersectionObserver from 'svelte-intersection-observer';
 	import TeamImage from '../TeamImage.svelte';
 	import TeamNameImage from '../TeamNameImage.svelte';
 	import TeamRecord from './TeamRecord.svelte';
@@ -15,8 +15,8 @@
 	export let currentPickCount: number;
 	export let totalGameCount: number;
 	export let showTeamNameImages: boolean;
-	let element: HTMLElement;
-	let showGameContainer = false;
+	// let element: HTMLElement;
+	// let showGameContainer = false;
 </script>
 
 <label

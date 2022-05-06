@@ -52,13 +52,14 @@
 	}
 	.prizes {
 		grid-column: span $spanLength;
-		font-family: Open Sans;
+		font-family: 'Open Sans', sans-serif;
 	}
 	.details {
 		grid-column: span 4;
 		align-items: center;
 		padding: 2vmin;
-		& > p {
+		> p {
+			box-sizing: border-box;
 			width: 100%;
 			padding: 0.25rem;
 		}

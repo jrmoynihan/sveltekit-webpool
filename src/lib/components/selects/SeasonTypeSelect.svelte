@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { seasonTypes } from '$scripts/classes/constants';
-	import type { SeasonType } from '$scripts/classes/seasonType';
+	import { seasonTypes } from '$classes/constants';
+	import type { SeasonType } from '$classes/seasonType';
 
 	import { createEventDispatcher } from 'svelte';
 

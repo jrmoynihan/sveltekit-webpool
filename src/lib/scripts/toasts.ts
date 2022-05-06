@@ -1,8 +1,10 @@
+console.log('toasts.ts...');
 import { toast } from '@zerodevx/svelte-toast';
 import SeenToast from '$switches/SeenToast.svelte';
-import { all_icons, bread, myError, myLog, policeCarLight } from './classes/constants';
-import { query, where, getDocs } from 'firebase/firestore';
-import { toastsCollection } from './collections';
+import { all_icons, policeCarLight } from '$classes/constants';
+import { query, where, getDocs } from '@firebase/firestore';
+import { toastsCollection } from '$scripts/collections';
+import { myError, myLog } from '$scripts/logging';
 
 export type myToastOptions = {
 	title?: string;
@@ -124,3 +126,5 @@ export const getToast = async (page: string) => {
 		myError({ location: 'toasts.ts', function_name: 'getToast', error, icon: all_icons.bread });
 	}
 };
+
+console.log('toasts.ts... done');

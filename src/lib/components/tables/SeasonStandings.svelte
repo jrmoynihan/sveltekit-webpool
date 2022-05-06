@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { windowWidth } from '$scripts/store';
 	import SeasonStandingsRow from './SeasonStandingsRow.svelte';
-	import { orderBy, query, where } from 'firebase/firestore';
+	import { orderBy, query, where } from '@firebase/firestore';
 	import type { Player } from '$classes/player';
 	import { mobileBreakpoint } from '$scripts/site';
 	import { playersCollection } from '$scripts/collections';

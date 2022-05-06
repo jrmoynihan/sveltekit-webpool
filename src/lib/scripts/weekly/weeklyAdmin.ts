@@ -1,4 +1,4 @@
-import { myLog, myError, LogAndToast, ErrorAndToast } from '$lib/scripts/classes/constants';
+import { myError, myLog, ErrorAndToast, LogAndToast } from '$scripts/logging';
 import { Game } from '$lib/scripts/classes/game';
 import { WeeklyPickDoc } from '$lib/scripts/classes/picks';
 import type { Player } from '$lib/scripts/classes/player';
@@ -14,8 +14,7 @@ import {
 } from '$lib/scripts/converters';
 import { defaultToast, errorToast } from '$lib/scripts/toasts';
 import { getWeeklyPlayers } from './weeklyPlayers';
-import { updateDoc, deleteDoc, doc, getDocs, query, setDoc, where } from 'firebase/firestore';
-import type { QueryConstraint } from 'firebase/firestore';
+import { updateDoc, deleteDoc, doc, getDocs, query, setDoc, where, type QueryConstraint } from '@firebase/firestore';
 import { findCurrentWeekOfSchedule } from '$lib/scripts/schedule';
 import { getConsensusSpread } from '$lib/scripts/dataFetching';
 import { toast } from '@zerodevx/svelte-toast';
@@ -429,14 +428,14 @@ export const updateGameSpreads = async (week: number, year: number) => {
 	}
 };
 
-export const fixAllTiebreakers = async () => {
-	const q = query(weeklyTiebreakersCollection);
-	const tiebreakerDocs = await getDocs(q.withConverter(weeklyTiebreakerConverter));
-	for await (const doc of tiebreakerDocs.docs) {
-		const ref = doc.ref;
-		const data = doc.data();
+// export const fixAllTiebreakers = async () => {
+// 	const q = query(weeklyTiebreakersCollection);
+// 	const tiebreakerDocs = await getDocs(q.withConverter(weeklyTiebreakerConverter));
+// 	for await (const doc of tiebreakerDocs.docs) {
+// 		const ref = doc.ref;
+// 		const data = doc.data();
 
-		// Do stuff
-		alert('thankfully, nothing happened');
-	}
-};
+// 		// Do stuff
+// 		alert('thankfully, nothing happened');
+// 	}
+// };

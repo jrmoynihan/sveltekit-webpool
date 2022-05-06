@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { selectedWeek, showIDs, showNetTiebreakers, windowWidth } from '$scripts/store';
-	import { query, where, orderBy, type DocumentData, Query, getDocs } from 'firebase/firestore';
+	import { query, where, orderBy, type DocumentData, Query, getDocs } from '@firebase/firestore';
 	import {
 		scheduleCollection,
 		playersCollection,
 weeklyTiebreakersCollection
 	} from '$scripts/collections';
 	import { getWeeklyPlayers } from '$scripts/weekly/weeklyPlayers';
-	import { ErrorAndToast} from '$classes/constants';
+	import {ErrorAndToast } from '$scripts/logging';
 	import type { Game } from '$classes/game';
 	import ErrorModal from '../modals/ErrorModal.svelte';
 import type { WeeklyTiebreaker } from '$classes/tiebreaker';

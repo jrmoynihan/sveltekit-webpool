@@ -1,3 +1,4 @@
+console.log('Schedule.ts loaded');
 import {
 	query,
 	where,
@@ -8,19 +9,19 @@ import {
 	doc,
 	Timestamp,
 	getDocFromServer
-} from 'firebase/firestore';
-import type { QuerySnapshot, DocumentReference } from 'firebase/firestore';
-import { myError, myLog } from './classes/constants';
-import type { ESPNSeason, ESPNWeek, Game, RefOnlyESPN } from './classes/game';
-import { WeekBound } from './classes/weekBound';
+} from '@firebase/firestore';
+import type { QuerySnapshot, DocumentReference } from '@firebase/firestore';
+import { myError, myLog } from '$scripts/logging';
+import type { ESPNSeason, ESPNWeek, Game, RefOnlyESPN } from '$classes/game';
+import { WeekBound } from '$classes/weekBound';
 import { scheduleCollection, weekBoundsCollection } from './collections';
 import { gameConverter, weekBoundConverter } from './converters';
 import { defaultToast, errorToast } from './toasts';
 import { getRegularSeasonWeeks } from './functions';
 import { toast } from '@zerodevx/svelte-toast';
-import { currentSeasonYear } from './store';
+import { currentSeasonYear } from '$scripts/store';
 import { get } from 'svelte/store';
-import type { SeasonType } from './classes/seasonType';
+import type { SeasonType } from '$classes/seasonType';
 
 export const findWeekDateTimeBounds = async (): Promise<void> => {
 	const startToastId = defaultToast({
@@ -195,7 +196,7 @@ const fetchWeekRefsOfSeason = async (season_data: ESPNSeason) => {
 	const { weeks } = season_data;
 	const weeks_response = await fetch(weeks.$ref);
 	const { items } = await weeks_response.json();
-	const week_refs: string[] = items.map((item) => item.$ref);
+	const week_refs: string[] = items.map((item: RefOnlyESPN) => item.$ref);
 	return week_refs;
 };
 const findWhichWeekIncludesToday = async (today: number, week_refs: string[]) => {
@@ -227,3 +228,5 @@ const findWhichWeekIncludesToday = async (today: number, week_refs: string[]) =>
 const occursInWeek = async (today: number, week_data: ESPNWeek) => {
 	return today > Date.parse(week_data.startDate) && today < Date.parse(week_data.endDate);
 };
+
+console.log('Schedule.ts done');

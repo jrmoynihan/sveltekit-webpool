@@ -1,83 +1,77 @@
 {
-    "processors": ["@mapbox/stylelint-processor-arbitrary-tags"],
-    "extends": [
-        "stylelint-config-standard",
-        "stylelint-config-recommended",
-        "stylelint-config-sass-guidelines",
-        "stylelint-config-recommended-scss"
-    ],
+	"processors": ["@mapbox/stylelint-processor-arbitrary-tags"],
+	"extends": [
+		"stylelint-config-standard",
+		"stylelint-config-prettier",
+		"stylelint-config-recommended",
+		"stylelint-config-sass-guidelines",
+		"stylelint-config-recommended-scss"
+	],
 
-    "plugins": [
-        "stylelint-high-performance-animation",
-        "stylelint-declaration-strict-value",
-        "stylelint-order"
-    ],
+	"plugins": [
+		"stylelint-high-performance-animation",
+		"stylelint-declaration-strict-value",
+		"stylelint-order"
+	],
 
-    "rules": {
-        "color-named": "never",
-        "color-function-notation":null,
-        "comment-empty-line-before":null,
-        "custom-property-empty-line-before": null,
-        "declaration-block-no-duplicate-custom-properties": true,
-        "declaration-block-no-redundant-longhand-properties":[true,{"ignoreShorthands": ["/grid/"]}],
-        "declaration-colon-newline-after":null,
-        "declaration-empty-line-before": null,
-        "font-family-name-quotes": "always-where-recommended",
-        "font-weight-notation": "named-where-possible", 
-        "font-family-no-missing-generic-family-keyword": null,
-        "function-url-no-scheme-relative": true,
-        "function-url-quotes": "always",
-        "indentation": "tab",
-        "max-empty-lines": 2,
-        "max-nesting-depth": 3,
-        "no-descending-specificity": true,
-        "no-duplicate-selectors": true,
-        "no-empty-source": null,
-        "no-empty-first-line":null,
-        "order/order": [
-            "custom-properties",
-            "declarations"
-        ],
-        "order/properties-alphabetical-order": null,
-        "plugin/no-low-performance-animation-properties": [
-            true,
-            {
-                "ignoreProperties": [
-                    "color",
-                    "background-color",
-                    "box-shadow"
-                ]
-            }
-        ],
-        "property-no-unknown": [
-            true,{"ignoreProperties": ["/^lost-/"]}
-        ],
-        "rule-empty-line-before": null,
-        "scale-unlimited/declaration-strict-value": [
-            [
-                "/color$/",
-                "z-index",
-                "font-size"
-            ]
-        ],
-        "scss/dollar-variable-pattern": "^[a-z][a-zA-Z0-9]+$",
-        "scss/no-global-function-names": null,
-        "scss/box-model": "ignore",
-        "selector-no-qualifying-type": [
-            true,
-            {
-                "ignore": [
-                    "attribute"
-                ]
-            }
-        ],
-        "selector-pseudo-class-no-unknown": null,
-        "string-quotes": "single",
-        "unit-disallowed-list": [],
-        "value-keyword-case": "lower",
-        "value-list-comma-newline-after":"always-multi-line"
-    },
-    
-    "ignoreFiles": ["node_modules/*", "public/**", "src/assets/**", "build/**", "static/dialog-polyfill.css"],
-    "defaultSeverity": "error"
+	"rules": {
+		"color-named": "never",
+		"color-function-notation": null,
+		"comment-empty-line-before": null,
+		"custom-property-empty-line-before": null,
+		"declaration-block-no-duplicate-custom-properties": true,
+		"declaration-block-no-redundant-longhand-properties": [
+			true,
+			{ "ignoreShorthands": ["/grid/"] }
+		],
+		"declaration-colon-newline-after": null,
+		"declaration-empty-line-before": null,
+		"font-family-name-quotes": "always-where-recommended",
+		"font-weight-notation": "named-where-possible",
+		"font-family-no-missing-generic-family-keyword": null,
+		"function-url-no-scheme-relative": true,
+		"function-url-quotes": "always",
+		"indentation": "tab",
+		"max-empty-lines": 2,
+		"max-nesting-depth": 3,
+		"no-descending-specificity": true,
+		"no-duplicate-selectors": true,
+		"no-empty-source": null,
+		"no-empty-first-line": null,
+		"order/order": ["custom-properties", "declarations"],
+		"order/properties-alphabetical-order": null,
+		"plugin/no-low-performance-animation-properties": [
+			true,
+			{
+				"ignoreProperties": ["color", "background-color", "box-shadow"]
+			}
+		],
+		"property-no-unknown": [true, { "ignoreProperties": ["/^lost-/"] }],
+		"rule-empty-line-before": null,
+		"scale-unlimited/declaration-strict-value": [["/color$/", "z-index", "font-size"]],
+		"scss/box-model": "border-box",
+		"hue-degree-notation": "no-degrees",
+		"scss/dollar-variable-pattern": "^[a-z][a-zA-Z0-9]+$",
+		"scss/no-global-function-names": null,
+		"selector-no-qualifying-type": [
+			true,
+			{
+				"ignore": ["attribute"]
+			}
+		],
+		"selector-pseudo-class-no-unknown": null,
+		"string-quotes": "single",
+		"unit-disallowed-list": [],
+		"value-keyword-case": "lower",
+		"value-list-comma-newline-after": "always-multi-line"
+	},
+
+	"ignoreFiles": [
+		"node_modules/*",
+		"public/**",
+		"src/assets/**",
+		"build/**",
+		"static/dialog-polyfill.css"
+	],
+	"defaultSeverity": "error"
 }

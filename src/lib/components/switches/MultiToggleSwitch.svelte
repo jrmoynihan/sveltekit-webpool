@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount } from 'svelte';
 	import { nanoid } from 'nanoid';
-	import { faCheckCircle, type IconDefinition } from '@fortawesome/free-solid-svg-icons/index.es';
+	import { faCheckCircle, type IconDefinition } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import type { toggleItem } from '$scripts/types/types';
 	import { browser } from '$app/env';

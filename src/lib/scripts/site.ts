@@ -1,4 +1,5 @@
-import { PageOption } from '$lib/scripts/classes/pageOption';
+console.log('site.ts...');
+import { PageOption } from '$classes/pageOption';
 
 export const mobileBreakpoint = 1024;
 
@@ -17,3 +18,4 @@ export const weeklyTabs: PageOption[] = [
 	new PageOption({ navigationText: 'Standings', path: '/weekly/standings' }),
 	new PageOption({ navigationText: 'Rules', path: '/weekly/rules' })
 ];
+console.log('site.ts... done');

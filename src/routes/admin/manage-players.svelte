@@ -14,8 +14,8 @@
 	let playersPromise: Promise<Player[]> = getWeeklyPlayers(false);
 	let selectedPlayer: Player;
 	let nicknameUpdate: string;
-	let amountOwedUpdate: number;
-	let amountPaidUpdate: number;
+	// let amountOwedUpdate: number;
+	// let amountPaidUpdate: number;
 
 	const gridStyles = 'max-width: min(100%,40rem);';
 	let weeklyWinnings: { week: string; amount: number }[];

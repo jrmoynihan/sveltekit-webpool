@@ -1,3 +1,4 @@
+console.log('ScorePicks.ts loaded');
 import type {
 	ESPNRecord,
 	ESPNScore,
@@ -16,13 +17,10 @@ import {
 	query,
 	where,
 	increment,
-	doc
-} from 'firebase/firestore';
-import type { DocumentData } from 'firebase/firestore';
+	doc, type DocumentData
+} from '@firebase/firestore';
 import {
-	myLog,
 	everyoneWinsResult,
-	myError,
 	checkmark,
 	HomeOrAway,
 	weeklyPoolFee,
@@ -38,6 +36,7 @@ import {
 	secondPlaceWeeklyAmount,
 	thirdPlaceWeeklyAmount
 } from './classes/constants';
+import { myError, myLog } from '$scripts/logging';
 import {
 	scheduleCollection,
 	playersCollection,
@@ -411,17 +410,17 @@ export const findWeeklyLeaders = async (
 	}
 };
 
-/**
- *
- * @param mostWins - The highest win total found when scoring the week
- * @param smallesNetTiebreakerAbsolute - The smallest net tiebreaker (closest to actual score in either direction) found when scoring the week
- * @param greatestNetTiebreaker - The greatest net tiebreaker ()
- */
-export const findWeeklyPlayerWinners = (
-	mostWins: number,
-	smallestNetTiebreakerAbsolute: number,
-	greatestNetTiebreaker: number
-) => {};
+// /**
+//  *
+//  * @param mostWins - The highest win total found when scoring the week
+//  * @param smallesNetTiebreakerAbsolute - The smallest net tiebreaker (closest to actual score in either direction) found when scoring the week
+//  * @param greatestNetTiebreaker - The greatest net tiebreaker ()
+//  */
+// export const findWeeklyPlayerWinners = (
+// 	mostWins: number,
+// 	smallestNetTiebreakerAbsolute: number,
+// 	greatestNetTiebreaker: number
+// ) => {};
 
 export const updateWeeklyPlayerSeasonRecord = async (
 	player_ref: DocumentReference,

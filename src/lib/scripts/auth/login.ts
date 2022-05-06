@@ -9,22 +9,19 @@ import {
 	signOut,
 	getRedirectResult,
 	browserPopupRedirectResolver,
-	type User, type UserCredential, type AuthProvider, onAuthStateChanged
-} from 'firebase/auth';
-import { firestoreAuth } from '$scripts/firebaseInit';
+	type User, type UserCredential, type AuthProvider, onAuthStateChanged, getIdTokenResult, getIdToken
+} from '@firebase/auth';
+import { firebaseAuth } from '$lib/scripts/firebase/firebase';
 import { get } from 'svelte/store';
 import { Player } from '$lib/scripts/classes/player';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc } from '@firebase/firestore';
 import { playersCollection } from '$scripts/collections';
 import { goto } from '$app/navigation';
-import { playerConverter } from '../converters';
-import { myError, myLog } from '$classes/constants';
-import { WeeklyPickRecord, PlayerWinnings } from '$lib/scripts/classes/playerRecord';
+import { playerConverter } from '$scripts/converters';
+import { WeeklyPickRecord, PlayerWinnings } from '$classes/playerRecord';
 import { savePlayerData } from '$scripts/localStorage';
-import { firebase_user, playerData } from '$scripts/store';
-
-// const currentUserQuery = query(usersCollection);
-// export const userDataSnapshot = userQueryAsStore(currentUserQuery);
+import { firebase_user, player_data } from '$scripts/store';
+import { myError, myLog } from '$scripts/logging';
 
 /**
  *
@@ -53,12 +50,12 @@ export const signInWithRedirectOrPopup = async (
 ): Promise<UserCredential> => {
 	try {
 		if (useRedirect) {
-			await signInWithRedirect(firestoreAuth, provider);
-			const result = await getRedirectResult(firestoreAuth);
+			await signInWithRedirect(firebaseAuth, provider);
+			const result = await getRedirectResult(firebaseAuth);
 			console.log('signed in user:',result.user);
 			return result;
 		} else {
-			const result = await signInWithPopup(firestoreAuth, provider);
+			const result = await signInWithPopup(firebaseAuth, provider);
 			return result;
 		}
 	} catch (error) {
@@ -78,18 +75,18 @@ export const startSignIn = async (loginPlatform: string, useRedirect: boolean = 
 
 	// @TODO move this to its own function and UI
 	// If the user is already signed in, this will link the new provider credentials with the existing user account under the initial login provider
-	if (firestoreAuth.currentUser) {
+	if (firebaseAuth.currentUser) {
 		if (useRedirect) {
-			await linkWithRedirect(firestoreAuth.currentUser, provider, browserPopupRedirectResolver);
+			await linkWithRedirect(firebaseAuth.currentUser, provider, browserPopupRedirectResolver);
 		} else {
-			await linkWithPopup(firestoreAuth.currentUser, provider);
+			await linkWithPopup(firebaseAuth.currentUser, provider);
 		}
 	}
 
 	// Store the promised user credential that the auth provider returns
 	if (useRedirect) {
 		myLog({msg:'signing in with redirect...'});
-		await signInWithRedirect(firestoreAuth, provider, browserPopupRedirectResolver);
+		await signInWithRedirect(firebaseAuth, provider, browserPopupRedirectResolver);
 	}
 };
 
@@ -122,7 +119,7 @@ export const createNewPlayerDocument = async (
 		// Make a document reference for the user with the user's UID, making it both unique and easy to lookup after they login
 		const new_player_ref = doc(playersCollection, firebase_user.uid);
 
-		const new_Player_Data = new Player({
+		const new_player_data = new Player({
 			uid: firebase_user.uid,
 			ref: new_player_ref,
 			name: firebase_user.displayName,
@@ -146,7 +143,7 @@ export const createNewPlayerDocument = async (
 			paidPick6: false
 		});
 		// Write some initial data to the user document
-		await setDoc(new_player_ref.withConverter(playerConverter), new_Player_Data);
+		await setDoc(new_player_ref.withConverter(playerConverter), new_player_data);
 
 		console.info(`New player doc for ${firebase_user.displayName} (${firebase_user.uid}) added!`);
 	} catch (error) {
@@ -155,25 +152,12 @@ export const createNewPlayerDocument = async (
 };
 
 export const startSignOut = async (): Promise<void> => {
-	playerData.set(undefined);
+	player_data.set(undefined);
 	firebase_user.set(undefined);
-	signOut(firestoreAuth);
-	myLog({function_name:'startSignOut', msg: 'user has signed out ', additional_params: {playerData, firebase_user, firestoreAuth}});
+	signOut(firebaseAuth);
+	myLog({function_name:'startSignOut', msg: 'user has signed out ', additional_params: {player_data: player_data, firebase_user, firestoreAuth: firebaseAuth}});
 	goto('/'); // go to the index page, navigating the user away from any authorized page they may be on currently
 };
-
-onAuthStateChanged(firestoreAuth,
-	async () => {
-		if (firestoreAuth.currentUser) {
-			firebase_user.set(firestoreAuth.currentUser);
-			savePlayerData(firestoreAuth.currentUser);
-			myLog({location: 'auth.ts', function_name: 'onAuthStateChanged', msg: 'the current user is: ', additional_params: get(firebase_user).displayName })
-		} else {
-			myLog({msg: 'Auth state changed. Current user is falsy.', location: 'auth.ts', function_name: 'onAuthStateChanged'});
-		}
-	},
-	(error) => myError({location: 'auth.ts', function_name: 'onAuthStateChanged', error})
-);
 
 export const getOAuthCredential = async (
 	provider: AuthProvider,
@@ -186,3 +170,17 @@ export const getOAuthCredential = async (
 		return FacebookAuthProvider.credentialFromResult(userCredential);
 	}
 };
+
+onAuthStateChanged(firebaseAuth,
+	async () => {
+		if (firebaseAuth.currentUser) {
+			firebase_user.set(firebaseAuth.currentUser);
+			savePlayerData(firebaseAuth.currentUser);
+			myLog({location: 'auth.ts', function_name: 'onAuthStateChanged', msg: 'Current user is: ', additional_params: firebaseAuth.currentUser.displayName })
+		} else {
+			goto('/');
+			myLog({msg: 'No current user.', location: 'auth.ts', function_name: 'onAuthStateChanged'});
+		}
+	},
+	(error) => myError({location: 'auth.ts', function_name: 'onAuthStateChanged', error})
+);

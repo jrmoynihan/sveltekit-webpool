@@ -1,4 +1,4 @@
-import type { DocumentReference } from 'firebase/firestore';
+import type { DocumentReference } from '@firebase/firestore';
 import type { PlayerWinnings, WeeklyPickRecord } from './playerRecord';
 
 export class Player {

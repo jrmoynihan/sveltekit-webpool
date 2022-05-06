@@ -44,11 +44,11 @@ const config = {
 			// 	target: 'esnext'
 			// },
 			ssr: {
-				// external: ['@firebase/firestore']
-				external: ['whatwg-url']
+				external: ['whatwg-url', '@firebase/auth', '@firebase/firestore', '@firebase/app']
 			},
 			server: {
-				https: true
+				https: true,
+				force: true
 			},
 			plugins: [mkcert]
 		}

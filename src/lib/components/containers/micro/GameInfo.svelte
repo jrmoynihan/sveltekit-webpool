@@ -8,9 +8,9 @@
 		showATSwinner,
 		showIDs,
 		showSpreads,
-		playerData
+		player_data
 	} from '$scripts/store';
-	import type { Timestamp } from 'firebase/firestore';
+	import type { Timestamp } from '@firebase/firestore';
 	import DateTimeOrDownDistance from './DateTimeOrDownDistance.svelte';
 	import SpreadOrPossession from './SpreadOrPossession.svelte';
 	import StatusInfo from './StatusInfo.svelte';
@@ -52,7 +52,7 @@
 		<div style="grid-area:spreads">{spread > 0 ? `+${spread}` : spread}</div>
 	{/if}
 	<!-- @NOTE: Shows the ATS winner to admins if it hasn't been set AND the game is already over. i.e. the admin is able to score it now -->
-	{#if $showATSwinner || ($playerData.admin && gameIsOver && !ATSwinner)}
+	{#if $showATSwinner || ($player_data.admin && gameIsOver && !ATSwinner)}
 		<button
 			class="admin"
 			on:click={async () => {

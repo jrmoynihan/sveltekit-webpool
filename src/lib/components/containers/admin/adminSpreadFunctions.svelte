@@ -1,7 +1,7 @@
 <script lang="ts">
 	import StyledButton from '$lib/components/buttons/StyledButton.svelte';
 
-	import { largerThanMobile, selectedWeek } from '$scripts/store';
+	import { selectedWeek } from '$scripts/store';
 	import { updateGameSpreads } from '$scripts/weekly/weeklyAdmin';
 	import AdminExpandSection from './adminExpandSection.svelte';
 

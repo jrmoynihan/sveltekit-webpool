@@ -1,4 +1,5 @@
-import type { QueryDocumentSnapshot, SnapshotOptions } from 'firebase/firestore';
+console.log('converters.ts...');
+import type { QueryDocumentSnapshot, SnapshotOptions } from '@firebase/firestore';
 import { Team } from '$lib/scripts/classes/team';
 import { Rule, RuleCategory } from '$lib/scripts/classes/rules';
 import { Game } from './classes/game';
@@ -90,3 +91,4 @@ export const weekBoundConverter = {
 		return new WeekBoundDoc({ docRef: ref, docID: id, ...data });
 	}
 };
+console.log('converters.ts... done');

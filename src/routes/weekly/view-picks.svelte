@@ -4,7 +4,7 @@
 	import PageTitle from '$components/misc/PageTitle.svelte';
 	import ErrorModal from '$components/modals/ErrorModal.svelte';
 	import WeekSelect from '$components/selects/WeekSelect.svelte';
-	import { ErrorAndToast, myError, myLog } from '$classes/constants';
+	import { ErrorAndToast, myLog } from '$scripts/logging';
 	import type { Game } from '$classes/game';
 	import type { WeeklyPickDoc } from '$scripts/classes/picks';
 	import type { Team } from '$classes/team';
@@ -13,8 +13,8 @@
 	import { isBeforeGameTime } from '$scripts/functions';
 	import { currentSeasonYear, selectedWeek, useDarkTheme } from '$scripts/store';
 	import { teamsCollection } from '$scripts/teams';
-	import { query, where, getDocs, orderBy } from 'firebase/firestore';
-	import { findCurrentWeekOfSchedule } from '$scripts/schedule';
+	import { query, where, getDocs, orderBy } from '@firebase/firestore';
+	// import { findCurrentWeekOfSchedule } from '$scripts/schedule';
 	import { onMount } from 'svelte';
 	import { fade, fly } from 'svelte/transition';
 	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
@@ -119,7 +119,7 @@
 		return { picks, games, players, teams };
 	};
 
-	let weekPromise: Promise<number> = findCurrentWeekOfSchedule();
+	// let weekPromise: Promise<number> = findCurrentWeekOfSchedule();
 	let playersPromise: Promise<Player[]>;
 	let teamsPromise: Promise<Team[]>;
 	let picksPromise: Promise<WeeklyPickDoc[]>;

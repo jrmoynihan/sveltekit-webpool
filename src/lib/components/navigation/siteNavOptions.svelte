@@ -1,43 +1,43 @@
 <script lang="ts">
 	import { PageOptions } from '$scripts/site';
 	import NavLink from '$navigation/NavLink.svelte';
-	import { firebase_user, playerData } from '$scripts/store';
+	import { firebase_user, player_data } from '$scripts/store';
 </script>
 
 {#each PageOptions as pageOption, index}
 	{#if pageOption.requiresAdmin === true}
-		{#if $playerData !== undefined && $firebase_user !== undefined}
-			{#if $playerData.admin === true}
+		{#if $player_data !== undefined && $firebase_user !== undefined}
+			{#if $player_data.admin === true}
 				<NavLink {index} {pageOption} />
 			{/if}
 		{/if}
 	{:else if pageOption.requiresWeekly}
-		{#if $playerData !== undefined && $firebase_user !== undefined}
-			{#if $playerData.weekly === true}
+		{#if $player_data !== undefined && $firebase_user !== undefined}
+			{#if $player_data.weekly === true}
 				<NavLink {index} {pageOption} />
 			{/if}
 		{/if}
 	{:else if pageOption.requiresSurvivor}
-		{#if $playerData !== undefined && $firebase_user !== undefined}
-			{#if $playerData.survivor === true}
+		{#if $player_data !== undefined && $firebase_user !== undefined}
+			{#if $player_data.survivor === true}
 				<NavLink {index} {pageOption} />
 			{/if}
 		{/if}
 	{:else if pageOption.requiresPick6}
-		{#if $playerData !== undefined && $firebase_user !== undefined}
-			{#if $playerData.pick6 === true}
+		{#if $player_data !== undefined && $firebase_user !== undefined}
+			{#if $player_data.pick6 === true}
 				<NavLink {index} {pageOption} />
 			{/if}
 		{/if}
 	{:else if pageOption.requiresPlayoffs}
-		{#if $playerData !== undefined && $firebase_user !== undefined}
-			{#if $playerData.playoffs === true}
+		{#if $player_data !== undefined && $firebase_user !== undefined}
+			{#if $player_data.playoffs === true}
 				<NavLink {index} {pageOption} />
 			{/if}
 		{/if}
 	{:else if pageOption.requiresCollege}
-		{#if $playerData !== undefined && $firebase_user !== undefined}
-			{#if $playerData.college === true}
+		{#if $player_data !== undefined && $firebase_user !== undefined}
+			{#if $player_data.college === true}
 				<NavLink {index} {pageOption} />
 			{/if}
 		{/if}

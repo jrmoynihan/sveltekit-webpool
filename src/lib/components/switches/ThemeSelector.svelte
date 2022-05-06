@@ -88,6 +88,7 @@
 					root.style.setProperty(`--${key}-hue`, `${h}`);
 					root.style.setProperty(`--${key}-saturation`, `${s}`);
 					root.style.setProperty(`--${key}-lightness`, `${l}`);
+					root.style.setProperty(`--${key}-alpha`, `${a}`);
 				}
 			}
 		}

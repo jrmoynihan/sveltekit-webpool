@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { playerData } from '$scripts/store';
+	import { player_data } from '$scripts/store';
 </script>
 
-{#if $playerData?.admin}
+{#if $player_data?.admin}
 	<slot />
 {/if}

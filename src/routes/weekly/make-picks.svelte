@@ -20,7 +20,7 @@
 		selectedWeek,
 		selectedPlayer
 	} from '$scripts/store';
-	import { DocumentReference, updateDoc } from 'firebase/firestore';
+	import { DocumentReference, updateDoc } from '@firebase/firestore';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
 	import { isBeforeGameTime } from '$scripts/functions';
@@ -29,14 +29,12 @@
 		all_icons,
 		bomb,
 		checkmark,
-		ErrorAndToast,
 		home,
 		HomeOrAway,
-		myLog,
 		policeCarLight
 	} from '$scripts/classes/constants';
 	import { onMount } from 'svelte';
-	import { defaultToast,  getToast } from '$scripts/toasts';
+	import { defaultToast, getToast } from '$scripts/toasts';
 	import TiebreakerInput from '$components/inputs/TiebreakerInput.svelte';
 	import PickCounter from '$components/containers/micro/PickCounter.svelte';
 	import SubmitPicks from '$components/buttons/SubmitPicks.svelte';
@@ -47,7 +45,8 @@
 	import ErrorModal from '$components/modals/ErrorModal.svelte';
 	import { focusTiebreaker } from '$scripts/scrollAndFocus';
 	import { changedQuery, getPicksForPlayer } from '$scripts/weekly/weeklyPlayers';
-import { findCurrentWeekOfSchedule } from '$lib/scripts/schedule';
+	import { findCurrentWeekOfSchedule } from '$lib/scripts/schedule';
+	import { ErrorAndToast, myLog } from '$scripts/logging';
 
 	let showTiebreakerInput = false;
 	let countedGameTimes: { upcomingGamesCount: any; playedGamesCount: any };
@@ -83,7 +82,7 @@ import { findCurrentWeekOfSchedule } from '$lib/scripts/schedule';
 		}
 	});
 	const getData = async () => {
-		$selectedWeek = await findCurrentWeekOfSchedule(); 	// TOOD: this is fine during the regular season, but not outside of it
+		$selectedWeek = await findCurrentWeekOfSchedule(); // TOOD: this is fine during the regular season, but not outside of it
 
 		// NOTE: presumably I was preloading the list of users, but I may not need to do that
 		// if ($userData?.admin) {
@@ -519,7 +518,7 @@ import { findCurrentWeekOfSchedule } from '$lib/scripts/schedule';
 			on:decrementWeek={selectorsUpdated}
 		/>
 		{#await $gamesPromise then games}
-			{#await $picksPromise then picks}
+			{#await $picksPromise then}
 				<button
 					style="grid-area:reset;"
 					on:click={async () => ($currentPicks = await resetPicks(games, $currentPicks))}
@@ -550,8 +549,8 @@ import { findCurrentWeekOfSchedule } from '$lib/scripts/schedule';
 	>
 		{#await $picksPromise}
 			<LoadingSpinner msg="Loading picks..." width="100%" />
-		{:then picks}
-			{#each $currentPicks as pickDoc, i (pickDoc.gameId)}
+		{:then}
+			{#each $currentPicks as pickDoc (pickDoc.gameId)}
 				{#await $gamesPromise}
 					<LoadingSpinner msg="Loading games..." width="100%" />
 				{:then games}

@@ -6,7 +6,7 @@
 
 	export const isValidUrl = (testString: string) => {
 		try {
-			const url = new URL(testString);
+			new URL(testString);
 			return true;
 		} catch (error) {
 			return false;

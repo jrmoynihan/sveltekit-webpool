@@ -1,5 +1,6 @@
-import { collection, query, getDocs, onSnapshot, updateDoc } from 'firebase/firestore';
-import { firestoreDB } from '$lib/scripts/firebaseInit';
+console.log('teams.ts...');
+import { collection, query, getDocs, onSnapshot, updateDoc } from '@firebase/firestore';
+import { firestoreDB } from '$lib/scripts/firebase/firebase';
 import { teamConverter } from './converters';
 import { defaultToast } from './toasts';
 import { allTeams } from './store';
@@ -39,3 +40,5 @@ export const resetTeamRecords = async (skipConfirmation = false) => {
 		});
 	}
 };
+
+console.log('teams.ts... done');

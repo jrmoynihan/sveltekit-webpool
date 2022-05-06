@@ -3,11 +3,10 @@
 	import { getPreSeasonWeeks, getRegularSeasonWeeks } from '$scripts/functions';
 	import { selectedWeek } from '$scripts/store';
 	import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
-	import { createEventDispatcher, onMount } from 'svelte';
+	import { createEventDispatcher } from 'svelte';
 	import Fa from 'svelte-fa';
 
 	export let weeks: number[] = [];
-	// export let selectedWeek: number = 5;
 	export let selectedSeasonType: SeasonType = { id: 2, text: 'Regular Season' };
 	export let showButtons = true;
 	export let customStyles = '';

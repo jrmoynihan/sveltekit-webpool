@@ -7,7 +7,7 @@
 	import { largerThanMobile } from '$scripts/store';
 	import { getAllGames } from '$scripts/weekly/weeklyAdmin';
 	import { getWeeklyPlayers } from '$scripts/weekly/weeklyPlayers';
-	import { faSync } from '@fortawesome/free-solid-svg-icons/index.es';
+	import { faSync } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import AdminExpandSection from './adminExpandSection.svelte';
 
@@ -48,7 +48,7 @@
 
 	{#await playersPromise}
 		Loading players...
-	{:then players}
+	{:then}
 		<label for="player-select" class="span-2">
 			<p>Player</p>
 			<PlayerSelect bind:selectedPlayer bind:playersPromise />

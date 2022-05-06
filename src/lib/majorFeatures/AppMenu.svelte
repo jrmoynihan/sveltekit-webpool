@@ -18,9 +18,9 @@
 		showTimestamps,
 		tiebreakerPromise
 	} from '$scripts/store';
-	import { faBars, faCog, faLock, faUnlock } from '@fortawesome/free-solid-svg-icons/index.es';
+	import { faBars, faCog, faLock, faUnlock } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
-	import Auth from '$lib/majorFeatures/Auth.svelte';
+	import Auth from '$lib/components/auth/Auth.svelte';
 	import ModalButtonAndSlot from '$lib/components/modals/ModalWithButton.svelte';
 	import LightDarkToggle from '$lib/components/switches/LightDarkToggle.svelte';
 	import ThemeSelector from '$lib/components/switches/ThemeSelector.svelte';

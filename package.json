@@ -38,6 +38,7 @@
 		"prettier-plugin-svelte": "^2.7.0",
 		"rimraf": "^3.0.2",
 		"stylelint": "^14.8.1",
+		"stylelint-config-prettier": "^9.0.3",
 		"stylelint-config-recommended": "^6.0.0",
 		"stylelint-config-recommended-scss": "^5.0.2",
 		"stylelint-config-sass-guidelines": "^9.0.1",
@@ -55,6 +56,10 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@firebase/app": "^0.7.22",
+		"@firebase/auth": "^0.19.12",
+		"@firebase/firestore": "^3.4.8",
+		"@fortawesome/fontawesome-common-types": "^6.1.1",
 		"@fortawesome/free-brands-svg-icons": "^5.15.4",
 		"@fortawesome/free-solid-svg-icons": "^5.15.4",
 		"@sveltejs/adapter-auto": "^1.0.0-next.40",

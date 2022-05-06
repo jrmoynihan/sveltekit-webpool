@@ -1,11 +1,13 @@
 import type { Handle } from '@sveltejs/kit';
 import * as cookie from 'cookie';
 import { nanoid } from 'nanoid';
+import admin from '$lib/scripts/firebase/firebase-admin';
 
 export const handle: Handle = async ({ event, resolve }) => {
 	const cookies = cookie.parse(event.request.headers.get('cookie') || '');
 	event.locals.userid = cookies.userid || nanoid();
 
+	console.log('handle...', event.url);
 	const response = await resolve(event);
 
 	if (!cookies.userid) {
@@ -21,4 +23,24 @@ export const handle: Handle = async ({ event, resolve }) => {
 	}
 
 	return response;
+};
+
+/** @type {import('@sveltejs/kit').GetSession} */
+export const getSession = async (event) => {
+	const { session } = cookie.parse(event.request.headers.get('cookie') || '');
+	try {
+		const claims = await admin.auth().verifySessionCookie(session);
+		return {
+			user: {
+				exists: true,
+				...claims
+			}
+		};
+	} catch (error) {
+		return {
+			user: {
+				exists: false
+			}
+		};
+	}
 };
