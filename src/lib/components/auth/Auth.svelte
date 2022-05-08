@@ -14,16 +14,15 @@
 	import { myLog } from '$scripts/logging';
 	import { firebase_user, player_not_found } from '$scripts/store';
 
-	console.log('auth.svelte... start');
-
 	export let useRedirect = true;
 	let newPlayerFormComponent: ModalOnly;
+	let closeLoginModal: () => Promise<void>;
 
-	const googleLogin = async () => {
-		await startSignIn('Google', useRedirect);
-	};
-	const facebookLogin = async () => {
-		await startSignIn('Facebook', useRedirect);
+	const login = async (provider_name: string) => {
+		await startSignIn(provider_name, useRedirect);
+		if ($firebase_user) {
+			closeLoginModal();
+		}
 	};
 
 	$: if ($player_not_found) {
@@ -32,10 +31,10 @@
 	} else {
 		myLog({ msg: `Player found: ${$firebase_user?.displayName}` });
 	}
-	console.log('auth.svelte... end');
 </script>
 
 <ModalButtonAndSlot
+	bind:close={closeLoginModal}
 	displayModalButtonText={$firebase_user ? '' : 'Login'}
 	modalButtonStyles={$firebase_user
 		? 'padding:0;border-radius:50%;'
@@ -45,8 +44,8 @@
 		{#if $firebase_user !== undefined && $firebase_user !== null}
 			<button id="sign-out-button" on:click={startSignOut}>Sign Out</button>
 		{:else}
-			<GoogleLoginButton on:click={googleLogin} />
-			<FacebookLoginButton on:click={facebookLogin} />
+			<GoogleLoginButton on:click={() => login('Google')} />
+			<FacebookLoginButton on:click={() => login('Facebook')} />
 			{#if dev}
 				<ToggleSwitch
 					bind:checked={useRedirect}
