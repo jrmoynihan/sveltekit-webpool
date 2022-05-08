@@ -40,15 +40,11 @@ const config = {
 					$classes: path.resolve('./src/lib/scripts/classes')
 				}
 			},
-			// build: {
-			// 	target: 'esnext'
-			// },
 			ssr: {
-				external: ['whatwg-url', '@firebase/auth', '@firebase/firestore', '@firebase/app']
+				external: ['whatwg-url']
 			},
 			server: {
-				https: true,
-				force: true
+				https: true
 			},
 			plugins: [mkcert]
 		}
