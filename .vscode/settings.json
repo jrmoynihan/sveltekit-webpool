@@ -1,3 +1,3 @@
 {
-	"conventionalCommits.scopes": ["Auth", "Styles"]
+	"conventionalCommits.scopes": ["Auth", "Styles", "Components"]
 }
