@@ -19,6 +19,12 @@ html {
 	--padding-two-and-a-half: calc(var(--padding-normal) * 2.5);
 	--padding-half-normal: calc(var(--padding-normal) / 2);
 	--font-mono: 'Fira Mono', monospace;
+
+	/* Box-shadow */
+	--box-shadow-x-offset: 0.25rem;
+	--box-shadow-y-offset: calc(var(--box-shadow-x-offset) * 2);
+	--box-shadow-blur-radius: var(--box-shadow-y-offset);
+	--box-shadow-opacity: calc(40%);
 	
 	/* Z-indexes */
 	--below: -1;
