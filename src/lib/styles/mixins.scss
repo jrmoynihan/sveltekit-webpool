@@ -30,8 +30,9 @@
 	transition: box-shadow 200ms ease-in-out;
 }
 
-@mixin normalShadow {
-	box-shadow: 0 0 4px 2px hsla(var(--text-value), 50%);
+@mixin normalShadow($color: var(--text-value), $opacity: var(--box-shadow-opacity)) {
+	box-shadow: var(--box-shadow-x-offset) var(--box-shadow-y-offset) var(--box-shadow-blur-radius)
+		hsla($color, $opacity);
 }
 
 @mixin hoverBoxShadow {
@@ -197,8 +198,13 @@
 		@include nightShadow;
 	}
 
-	&:hover {
+	&:hover,
+	&:focus-within {
 		@include dayShadow;
+	}
+	&:active,
+	&:not(:disabled):active {
+		transform: scale3d(0.95, 0.95, 1);
 	}
 }
 
@@ -363,7 +369,7 @@
 	color: white;
 	text-shadow: 1px 1px 10px black;
 	width: 100%;
-	box-shadow: 4px 4px 15px 5px hsla(0, 0%, 0%, 0.5);
+	// box-shadow: 4px 4px 15px 5px hsla(0, 0%, 0%, 0.5);
 	border: 4px solid hsla(var(--accent-value), 80%);
 	background: radial-gradient(
 		hsla(var(--accent-value), 70%) 50%,
