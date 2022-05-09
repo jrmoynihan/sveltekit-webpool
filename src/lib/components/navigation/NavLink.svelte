@@ -119,7 +119,6 @@
 		&.active {
 			@include responsive_desktop_only {
 				margin: 0 min(2%, 2.5rem);
-				scale: 1.1;
 			}
 			&.dark-mode {
 				@include active($backgroundAlpha: 0.4);
