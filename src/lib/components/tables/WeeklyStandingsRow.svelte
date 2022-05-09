@@ -1,7 +1,7 @@
 <script lang="ts">
 	import RowData from '$lib/components/containers/micro/RowData.svelte';
 	import type { Player } from '$classes/player';
-	import { selectedWeek } from '$scripts/store';
+	import { selected_week } from '$scripts/store';
 	import type { Game } from '$classes/game';
 	import type { WeeklyTiebreaker } from '$classes/tiebreaker';
 	import Tooltip from '../containers/Tooltip.svelte';
@@ -38,15 +38,15 @@
 	{/if}
 </RowData>
 <RowData {evenRow} {inTheMoney}>
-	{player.weeklyPickRecord[`week_${$selectedWeek}`].wins}
+	{player.weeklyPickRecord[`week_${$selected_week}`].wins}
 </RowData>
 <RowData {evenRow} {inTheMoney}>
-	{player.weeklyPickRecord[`week_${selectedWeek}`].losses}
+	{player.weeklyPickRecord[`week_${selected_week}`].losses}
 </RowData>
 <Tooltip>
 	<svelte:fragment slot="text">
 		{#if lastGame.totalScore}
-			The total score of the last game of week {selectedWeek} was {lastGame.totalScore}
+			The total score of the last game of week {selected_week} was {lastGame.totalScore}
 		{:else}
 			Last game of the week hasn't been played yet.
 		{/if}
@@ -58,10 +58,10 @@
 			{tiebreaker.scoreGuess}
 		{/if}
 		{#if showNetTiebreakers}
-			({player.weeklyPickRecord[`week_${selectedWeek}`].netTiebreaker})
+			({player.weeklyPickRecord[`week_${selected_week}`].netTiebreaker})
 		{/if}
 	</RowData>
 </Tooltip>
 <RowData {evenRow} {inTheMoney}>
-	${player.weeklyWinnings[`week_${selectedWeek}`]}
+	${player.weeklyWinnings[`week_${selected_week}`]}
 </RowData>

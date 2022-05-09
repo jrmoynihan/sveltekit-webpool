@@ -12,13 +12,15 @@
 		overrideDisabled,
 		picksPromise,
 		preferredScoreView,
-		selectedSeasonType,
-		selectedSeasonYear,
 		tiebreakerPromise,
 		useDarkTheme,
-		firebase_user,
-		selectedWeek,
-		selectedPlayer
+		selected_week,
+		selected_player,
+		selected_season_year,
+		selected_season_type,
+		selected_season,
+		current_season,
+		selected_year
 	} from '$scripts/store';
 	import { DocumentReference, updateDoc } from '@firebase/firestore';
 	import { tweened } from 'svelte/motion';
@@ -45,8 +47,8 @@
 	import ErrorModal from '$components/modals/ErrorModal.svelte';
 	import { focusTiebreaker } from '$scripts/scrollAndFocus';
 	import { changedQuery, getPicksForPlayer } from '$scripts/weekly/weeklyPlayers';
-	import { findCurrentWeekOfSchedule } from '$lib/scripts/schedule';
 	import { ErrorAndToast, myLog } from '$scripts/logging';
+	import { findCurrentSeason } from '$lib/scripts/schedule';
 
 	let showTiebreakerInput = false;
 	let countedGameTimes: { upcomingGamesCount: any; playedGamesCount: any };
@@ -67,6 +69,8 @@
 	$: gridColumns = $largerThanMobile ? 2 : 1;
 
 	onMount(async () => {
+		$current_season = await findCurrentSeason();
+		$selected_season = $current_season;
 		getData();
 		const toastSeen = await getLocalStorageItem(toastSeenKey);
 		$preferredScoreView = await getLocalStorageItem('scoreViewPreference');
@@ -82,22 +86,11 @@
 		}
 	});
 	const getData = async () => {
-		$selectedWeek = await findCurrentWeekOfSchedule(); // TOOD: this is fine during the regular season, but not outside of it
-
-		// NOTE: presumably I was preloading the list of users, but I may not need to do that
-		// if ($userData?.admin) {
-		// 	const userPromise = getWeeklyUsers(false);
-		// 	// selectedUser = await userPromise.then((users) => users[0]);
-		// } else {
-		// 	await saveUserData();
-		// 	await getData();
-		// }
-
 		const promises = await changedQuery(
-			$selectedSeasonYear,
-			$selectedSeasonType,
-			$selectedWeek,
-			$firebase_user.uid
+			$selected_season_year,
+			$selected_season_type,
+			$selected_week,
+			$selected_player
 		);
 		$gamesPromise = promises.gamesPromise;
 		$picksPromise = promises.picksPromise;
@@ -168,12 +161,12 @@
 				additional_params: currentPicks
 			});
 			$picksPromise = getPicksForPlayer(
-				$selectedWeek,
-				uid,
-				$selectedSeasonYear,
-				$selectedSeasonType
+				$selected_week,
+				$selected_player,
+				$selected_season_year,
+				$selected_season_type
 			);
-			await updateTiebreakerDoc(docRef, uid, scoreGuess, $selectedWeek, $selectedSeasonYear);
+			await updateTiebreakerDoc(docRef, uid, scoreGuess, $selected_week, $selected_season_year);
 
 			defaultToast({
 				title: `${checkmark} Picks submitted!`,
@@ -253,8 +246,7 @@
 						msg: logAndToastMsg,
 						icon: all_icons[logIcon],
 						additional_params: picks,
-						location: 'weekly/make-picks.svelte',
-						function_name: 'updatePicks'
+						traceLocation: true
 				  })
 				: null;
 			showToast ? defaultToast({ msg: logAndToastMsg }) : null;
@@ -423,10 +415,10 @@
 
 	const selectorsUpdated = async () => {
 		const promises = changedQuery(
-			$selectedSeasonYear,
-			$selectedSeasonType,
-			$selectedWeek,
-			$firebase_user.uid
+			$selected_year,
+			$selected_season_type,
+			$selected_week,
+			$selected_player
 		);
 		$gamesPromise = (await promises).gamesPromise;
 		$picksPromise = (await promises).picksPromise;
@@ -458,12 +450,8 @@
 </script>
 
 <PageTitle>Make Weekly Picks</PageTitle>
-<!-- played:{playedGamesCount} upcoming:{upcomingGamesCount} total:{totalGameCount} current:{currentPickCount} -->
 <section class="grid positioning">
 	<div class="pick-status fixed grid {$largerThanMobile ? 'bottom-left' : 'bottom-right'}">
-		<!-- {#if $largerThanMobile}
-			<Clock />
-		{/if} -->
 		{#if currentPickCount >= 0 && totalGameCount > 0}
 			{#key currentPickCount}
 				<PickCounter
@@ -478,7 +466,7 @@
 				<SubmitPicks
 					on:click={() =>
 						submitPicksAndTiebreaker(
-							$selectedPlayer.uid,
+							$selected_player.uid,
 							docRef,
 							$changeableTiebreakerScoreGuess,
 							$currentPicks
@@ -512,8 +500,7 @@
 	>
 		<WeekSelect
 			customStyles="grid-area: week;"
-			bind:selectedSeasonType={$selectedSeasonType}
-			on:weekChanged={selectorsUpdated}
+			on:change={selectorsUpdated}
 			on:incrementWeek={selectorsUpdated}
 			on:decrementWeek={selectorsUpdated}
 		/>

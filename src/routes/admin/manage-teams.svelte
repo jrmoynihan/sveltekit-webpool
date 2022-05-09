@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { teamConverter } from '$scripts/converters';
 	import { doc, DocumentReference, setDoc } from '@firebase/firestore';
-	import { teamsCollection } from '$scripts/teams';
 	import type { Team } from '$scripts/classes/team';
 	import { conferences, divisions } from '$scripts/classes/constants';
 	import PageTitle from '$components/misc/PageTitle.svelte';
 	import { defaultToast } from '$scripts/toasts';
-	import { allTeams } from '$scripts/store';
+	import { all_teams } from '$scripts/store';
+	import { teamsCollection } from '$lib/scripts/collections';
 
-	let selectedTeam = $allTeams[0];
+	let selectedTeam = $all_teams[0];
 
 	function writeTeamDoc(team: Team): void {
 		try {
@@ -46,7 +46,7 @@
 <PageTitle>Manage Teams</PageTitle>
 
 <select bind:value={selectedTeam} class="team-select">
-	{#each $allTeams as team (team)}
+	{#each $all_teams as team (team)}
 		<option value={team}>{team.city} {team.name}</option>
 	{/each}
 </select>
@@ -116,6 +116,7 @@
 	input {
 		@include editableInput;
 		@include rounded;
+		box-sizing: border-box;
 		padding: 1rem;
 		width: 100%;
 		text-align: center;
@@ -136,6 +137,7 @@
 		@include rounded;
 	}
 	label {
+		box-sizing: border-box;
 		grid-template-columns: 1fr;
 		grid-template-rows: min-content auto;
 		align-items: start;

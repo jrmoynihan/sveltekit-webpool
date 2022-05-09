@@ -8,13 +8,11 @@
 	import type { Game } from '$classes/game';
 	import type { WeeklyPickDoc } from '$scripts/classes/picks';
 	import type { Team } from '$classes/team';
-	import { scheduleCollection, weeklyPicksCollection } from '$scripts/collections';
+	import { scheduleCollection, teamsCollection, weeklyPicksCollection } from '$scripts/collections';
 	import { gameConverter, teamConverter, weeklyPickConverter } from '$scripts/converters';
 	import { isBeforeGameTime } from '$scripts/functions';
-	import { currentSeasonYear, selectedWeek, useDarkTheme } from '$scripts/store';
-	import { teamsCollection } from '$scripts/teams';
+	import { selected_week, selected_year, useDarkTheme } from '$scripts/store';
 	import { query, where, getDocs, orderBy } from '@firebase/firestore';
-	// import { findCurrentWeekOfSchedule } from '$scripts/schedule';
 	import { onMount } from 'svelte';
 	import { fade, fly } from 'svelte/transition';
 	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
@@ -22,17 +20,16 @@
 	import { getWeeklyPlayers } from '$scripts/weekly/weeklyPlayers';
 	import LoadingSpinner from '$lib/components/misc/LoadingSpinner.svelte';
 
-	let selectedYear: number = $currentSeasonYear;
 	let hoverPlayer: string;
 	let hoverGame: string;
 
-	const getAllPicksForWeek = async (selectedWeek: number, selectedYear: number) => {
+	const getAllPicksForWeek = async () => {
 		try {
 			const weeklyPicks: WeeklyPickDoc[] = [];
 			const q = query(
 				weeklyPicksCollection,
-				where('week', '==', selectedWeek),
-				where('year', '==', selectedYear),
+				where('week', '==', $selected_week),
+				where('year', '==', $selected_year),
 				orderBy('gameId')
 			);
 			const weeklyPickDocs = await getDocs(q.withConverter(weeklyPickConverter));
@@ -42,8 +39,7 @@
 			myLog({
 				msg: 'picks: ',
 				additional_params: weeklyPicks,
-				function_name: 'getAllPicksForWeek',
-				location: 'weekly/view-picks.svelte'
+				traceLocation: true
 			});
 			return weeklyPicks;
 		} catch (error) {
@@ -56,13 +52,13 @@
 			});
 		}
 	};
-	const getAllGamesForWeek = async (selectedWeek: number, selectedYear: number) => {
+	const getAllGamesForWeek = async () => {
 		try {
 			const games: Game[] = [];
 			const q = query(
 				scheduleCollection,
-				where('week', '==', selectedWeek),
-				where('year', '==', selectedYear),
+				where('week', '==', $selected_week),
+				where('year', '==', $selected_year),
 				orderBy('id')
 			);
 			const gameDocs = await getDocs(q.withConverter(gameConverter));
@@ -72,8 +68,7 @@
 			myLog({
 				msg: 'games: ',
 				additional_params: games,
-				function_name: 'getAllGamesForWeek',
-				location: 'weekly/view-picks.svelte'
+				traceLocation: true
 			});
 			return games;
 		} catch (error) {
@@ -105,9 +100,9 @@
 			});
 		}
 	};
-	const getData = async (selectedWeek: number, selectedYear: number) => {
-		picksPromise = getAllPicksForWeek(selectedWeek, selectedYear);
-		gamesPromise = getAllGamesForWeek(selectedWeek, selectedYear);
+	const getData = async () => {
+		picksPromise = getAllPicksForWeek();
+		gamesPromise = getAllGamesForWeek();
 		playersPromise = getWeeklyPlayers(false);
 		teamsPromise = getAllTeams();
 		const [picks, games, players, teams] = await Promise.all([
@@ -129,12 +124,12 @@
 		games: Game[];
 		players: Player[];
 		teams: Team[];
-	}> = getData($selectedWeek, selectedYear);
+	}> = getData();
 
 	onMount(async () => {
 		// selectedWeek = await weekPromise;  TODO:  this is fine during regular season, but not during playoffs
 	});
-	$: data_promise = getData($selectedWeek, selectedYear);
+	$: data_promise = getData();
 </script>
 
 <PageTitle>View League Picks</PageTitle>
@@ -233,7 +228,7 @@
 							<ErrorModal {error} />
 						{/await}
 					{/each}
-					{player?.weeklyPickRecord[`week_${selectedWeek}`]?.wins}
+					{player?.weeklyPickRecord[`week_${selected_week}`]?.wins}
 				{/each}
 			</Grid>
 		</TransitionWrapper>
@@ -281,6 +276,7 @@
 	}
 	.hovered {
 		outline: 2px solid hsla(var(--accent-value), 40%);
+		transition: background-color 350ms ease-in-out, outline 20ms ease-in-out;
 		&.winner {
 			background-color: hsla(120, 100%, 20%, 50%);
 			&.dark {

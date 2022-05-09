@@ -7,16 +7,16 @@
 		overrideDisabled,
 		picksPromise,
 		preferredScoreView,
-		selectedSeasonType,
-		selectedPlayer,
-		selectedWeek,
-		selectedSeasonYear,
+		selected_season_type,
+		selected_player,
+		selected_week,
 		showATSwinner,
 		showIDs,
 		showNetTiebreakers,
 		showSpreads,
 		showTimestamps,
-		tiebreakerPromise
+		tiebreakerPromise,
+		selected_year
 	} from '$scripts/store';
 	import { faBars, faCog, faLock, faUnlock } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
@@ -39,34 +39,33 @@
 	import PlayerSelect from '$lib/components/selects/PlayerSelect.svelte';
 	import { changedQuery } from '$lib/scripts/weekly/weeklyPlayers';
 	import type { Player } from '$lib/scripts/classes/player';
+	import { adminControlsPages } from '$lib/scripts/site';
 
-	let playersPromise: Promise<Player[]>;
 	let storedScoreViewPreference: ScoreViewPreference;
 	let viewPreferences: { label: string; value: ScoreViewPreference }[] = [
 		{ label: 'Actual', value: 'Actual' },
 		{ label: 'ATS', value: 'ATS' },
 		{ label: 'Both', value: 'Both' }
 	];
-	let adminControlsPages: string[] = ['/weekly/makePicks'];
 
-	onMount(async () => {
-		storedScoreViewPreference = await getLocalStorageItem('scoreViewPreference');
-	});
 	function toggleNav(): void {
 		$navChecked = !$navChecked;
 	}
 	export async function adminSelectorsUpdated() {
 		const promises = changedQuery(
-			$selectedSeasonYear,
-			$selectedSeasonType,
-			$selectedWeek,
-			$selectedPlayer.uid
+			$selected_year,
+			$selected_season_type,
+			$selected_week,
+			$selected_player
 		);
 		$gamesPromise = (await promises).gamesPromise;
 		$picksPromise = (await promises).picksPromise;
 		$tiebreakerPromise = (await promises).tiebreakerPromise;
 		$currentPicks = await $picksPromise;
 	}
+	onMount(async () => {
+		storedScoreViewPreference = await getLocalStorageItem('scoreViewPreference');
+	});
 </script>
 
 <menu />
@@ -78,7 +77,6 @@
 			class="nav-label {$navChecked && !$largerThanMobile ? 'mobile-nav-open' : ''}"
 		>
 			<Fa icon={faBars} class="fa-bars" size="lg" />
-			<!-- <input type="checkbox" id="nav-toggle" on:click={toggleNav} />  button makes this redundant -->
 		</button>
 	{:else}
 		<ModalButtonAndSlot modalButtonStyles={'background:transparent'} discreetButton={true}>
@@ -95,7 +93,7 @@
 		{#if adminControlsPages.includes($page.url.pathname)}
 			<AdminControlsModal modalButtonStyles={`border-radius: 1rem; padding: 0.75rem;`}>
 				<Grid slot="modal-content" repeatColumns={2}>
-					{#if $page.url.pathname === '/weekly/makePicks'}
+					{#if $page.url.pathname === '/weekly/make-picks'}
 						<p>Show Game IDs</p>
 						<ToggleSwitch bind:checked={$showIDs} />
 						<p>Show Timestamps</p>
@@ -108,21 +106,11 @@
 						<p>Override Locked Games <Fa icon={$overrideDisabled ? faUnlock : faLock} /></p>
 						<ToggleSwitch bind:checked={$overrideDisabled} />
 						<p>Select Season Type</p>
-						<SeasonTypeSelect
-							bind:selectedSeasonType={$selectedSeasonType}
-							on:seasonTypeChanged={adminSelectorsUpdated}
-						/>
+						<SeasonTypeSelect on:change={adminSelectorsUpdated} />
 						<p>Select Year</p>
-						<YearSelect
-							bind:selectedYear={$selectedSeasonYear}
-							on:yearChanged={adminSelectorsUpdated}
-						/>
+						<YearSelect on:change={adminSelectorsUpdated} />
 						<p>Select Player</p>
-						<PlayerSelect
-							bind:selectedPlayer={$selectedPlayer}
-							bind:playersPromise
-							on:change={adminSelectorsUpdated}
-						/>
+						<PlayerSelect player_pool="weekly" on:change={adminSelectorsUpdated} />
 					{/if}
 				</Grid>
 			</AdminControlsModal>

@@ -3,12 +3,12 @@
 	import type { Team } from '$scripts/classes/team';
 	import { scorePicksForWeek, updateGamesAndATSWinners } from '$scripts/scorePicks';
 	import {
-		selectedWeek,
-		selectedSeasonYear,
+		selected_week,
+		selected_season_year,
 		showATSwinner,
 		showIDs,
 		showSpreads,
-		player_data
+		current_player
 	} from '$scripts/store';
 	import type { Timestamp } from '@firebase/firestore';
 	import DateTimeOrDownDistance from './DateTimeOrDownDistance.svelte';
@@ -35,14 +35,7 @@
 	<!-- <WinLossAt {promiseScores} {promiseStatus} {homeTeam} {awayTeam} {selectedTeam} {spread} {isATSwinner} /> -->
 	<WinLossAt {isATSwinner} {gameIsOver} />
 	<StatusInfo {promiseStatus} {promiseScores} {spread} {ATSwinner} {homeTeam} {awayTeam} />
-	<SpreadOrPossession
-		{spread}
-		{disabled}
-		{awayTeam}
-		{homeTeam}
-		{promiseSituation}
-		selectedWeek={$selectedWeek}
-	/>
+	<SpreadOrPossession {spread} {disabled} {awayTeam} {homeTeam} {promiseSituation} />
 	<DateTimeOrDownDistance {timestamp} {promiseStatus} {promiseSituation} />
 	<input id="{id}-none" type="radio" bind:group={selectedTeam} value="" {disabled} />
 	{#if $showIDs}
@@ -52,12 +45,12 @@
 		<div style="grid-area:spreads">{spread > 0 ? `+${spread}` : spread}</div>
 	{/if}
 	<!-- @NOTE: Shows the ATS winner to admins if it hasn't been set AND the game is already over. i.e. the admin is able to score it now -->
-	{#if $showATSwinner || ($player_data.admin && gameIsOver && !ATSwinner)}
+	{#if $showATSwinner || ($current_player.admin && gameIsOver && !ATSwinner)}
 		<button
 			class="admin"
 			on:click={async () => {
-				await updateGamesAndATSWinners($selectedWeek, $selectedSeasonYear);
-				await scorePicksForWeek($selectedWeek, $selectedSeasonYear);
+				await updateGamesAndATSWinners($selected_week, $selected_season_year);
+				await scorePicksForWeek($selected_week, $selected_season_year);
 			}}
 		>
 			{ATSwinner ? ATSwinner : 'Score Games!'}

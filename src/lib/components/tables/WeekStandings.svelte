@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { selectedWeek, showIDs, showNetTiebreakers, windowWidth } from '$scripts/store';
+	import { selected_week, showIDs, showNetTiebreakers, windowWidth } from '$scripts/store';
 	import { query, where, orderBy, type DocumentData, Query, getDocs } from '@firebase/firestore';
 	import {
 		scheduleCollection,
@@ -35,13 +35,13 @@ import ReturnToTop from '$components/buttons/ReturnToTop.svelte';
 				where('year', '==', selectedYear),
 				where('week', '==', selectedWeek)
 			);
-			const querySnapshot = await getDocs(q.withConverter(weeklyTiebreakerConverter));
-			querySnapshot.forEach((doc) => {
-				if (doc.exists()) {
+			const tiebreaker_docs = await getDocs(q.withConverter(weeklyTiebreakerConverter));
+			if(tiebreaker_docs.size > 0) {
+			tiebreaker_docs.forEach((doc) => {
 					const data = doc.data();
 					tiebreakers.push(data);
-				}
 			});
+		}
 			return tiebreakers;
 		} catch (error) {
 			ErrorAndToast({msg: 'Error encountered while getting tiebreakers.', error, function_name: 'getAllTiebreakers', location: 'weekly/WeeklyStandings.svelte'});
@@ -86,8 +86,8 @@ import ReturnToTop from '$components/buttons/ReturnToTop.svelte';
 	};
 
 	// Update the data promise if the week changes
-	let data_promise = getData($selectedWeek)
-	$: data_promise = getData($selectedWeek)
+	let data_promise = getData($selected_week)
+	$: data_promise = getData($selected_week)
 
 	// Reactive statements allow headers to update when the screen resizes
 	$: headerCount = weekHeaders.length;

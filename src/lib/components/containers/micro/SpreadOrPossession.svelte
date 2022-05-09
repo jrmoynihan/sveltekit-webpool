@@ -1,5 +1,6 @@
 <script lang="ts">
 	import StyledButton from '$lib/components/buttons/StyledButton.svelte';
+	import { selected_week, selected_year } from '$lib/scripts/store';
 	import type { ESPNSituation } from '$scripts/classes/game';
 	import type { Team } from '$scripts/classes/team';
 	import { getTeamWithPossession } from '$scripts/dataFetching';
@@ -18,15 +19,13 @@
 	export let promiseSituation: Promise<ESPNSituation>;
 	export let awayTeam: Team;
 	export let homeTeam: Team;
-	export let selectedWeek: number;
-	export let selectedYear: number = new Date().getFullYear();
 </script>
 
 {#if spread}
 	<div class="spreadOrPossession" class:active-game={disabled} style="line-height: 2;">
 		{#if disabled}
 			{#await promiseSituation then situation}
-				{#if situation.possessionText}
+				{#if situation.possessionText && situation.team}
 					{#await getTeamWithPossession(situation.team.$ref) then teamWithPossession}
 						{#if teamWithPossession === awayTeam.abbreviation}
 							<Fa icon={faFootballBall} size="lg" rotate={45} />
@@ -80,7 +79,7 @@
 	<div class="spreadOrPossession">
 		<StyledButton
 			on:click={() => {
-				updateGameSpreads(selectedWeek, selectedYear);
+				updateGameSpreads($selected_week, $selected_year);
 			}}
 			text="No spread set. Click to set spreads."
 		/>

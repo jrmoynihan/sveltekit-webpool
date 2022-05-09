@@ -7,7 +7,7 @@
 	import PrizeCard from '$containers/rules/PrizeCard.svelte';
 	import RulesCategoryGrid from '$containers/rules/RulesCategoryGrid.svelte';
 	import Tabs from '$navigation/Tabs.svelte';
-	import { editing, player_data } from '$scripts/store';
+	import { editing, current_player } from '$scripts/store';
 	import { onDestroy } from 'svelte';
 	import { myLog } from '$scripts/logging';
 	import type { RuleCategory, RuleTab } from '$classes/rules';
@@ -19,7 +19,7 @@
 	let editable = false;
 
 	// But an admin will have the option to make it editable
-	$: editable = $player_data?.admin;
+	$: editable = $current_player?.admin;
 
 	let ruleCategories: RuleCategory[];
 	const ruleQuery = query(rulesCollection, orderBy('order'));

@@ -1,23 +1,16 @@
 <script lang="ts">
-	import { allTeams } from '$scripts/store';
+	import { all_teams } from '$scripts/store';
 	import TeamImage from './containers/TeamImage.svelte';
 	import TeamNameImage from './containers/TeamNameImage.svelte';
 </script>
 
 <div class="team-gallery">
-	<!-- {#await teamsPromise()}
-        Loading teams...
-    {:then teams} -->
-	{#each $allTeams as team}
+	{#each $all_teams as team}
 		<div class="team-image-container">
 			<TeamImage {team} />
 			<TeamNameImage {team} />
 		</div>
 	{/each}
-	<!-- {:catch}
-        Failed to load teams -- please contact site admin.
-        {@debug teamsPromise}
-    {/await} -->
 </div>
 
 <style lang="postcss">

@@ -1,27 +1,12 @@
 <script lang="ts">
-	import { startingYear } from '$scripts/classes/constants';
+	import { all_seasons, selected_year } from '$lib/scripts/store';
 
-	import { createEventDispatcher } from 'svelte';
-
-	export let years: number[] = [];
-	let currentYear = new Date().getFullYear();
-	export let selectedYear: number = currentYear;
-	export let gridArea = '';
-
-	for (let i = startingYear; i <= currentYear; i++) {
-		years = [...years, i];
-	}
-
-	const dispatch = createEventDispatcher();
+	let all_years = [...new Set($all_seasons.map((season) => season.year))].sort();
+	export let grid_area = '';
 </script>
 
-<select
-	id="year-select"
-	bind:value={selectedYear}
-	on:change={() => dispatch('yearChanged', selectedYear)}
-	style={gridArea ? gridArea : ''}
->
-	{#each years as year}
+<select id="year-select" bind:value={$selected_year} on:change style:grid-area={grid_area}>
+	{#each all_years as year}
 		<option value={year}>{year}</option>
 	{/each}
 </select>

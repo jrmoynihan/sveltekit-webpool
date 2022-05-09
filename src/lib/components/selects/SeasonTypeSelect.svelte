@@ -1,24 +1,13 @@
 <script lang="ts">
-	import { seasonTypes } from '$classes/constants';
-	import type { SeasonType } from '$classes/seasonType';
+	import { selected_season_type } from '$lib/scripts/store';
 
-	import { createEventDispatcher } from 'svelte';
-
-	let types: SeasonType[] = seasonTypes;
-	let currentSeasonType = types[1]; // @TODO find a function to determine the NFL week automatically
-	export let selectedSeasonType: SeasonType = currentSeasonType;
 	export let gridArea = '';
-
-	const dispatch = createEventDispatcher();
+	let seasons: string[] = ['Regular Season', 'Post-Season', 'Pre-Season', 'Off-Season'];
 </script>
 
-<select
-	bind:value={selectedSeasonType}
-	on:change={() => dispatch('seasonTypeChanged', selectedSeasonType)}
-	style={gridArea ? gridArea : ''}
->
-	{#each types as type}
-		<option value={type}>{type.text}</option>
+<select bind:value={$selected_season_type} on:change style={gridArea ? gridArea : ''}>
+	{#each seasons as season}
+		<option value={season}>{season}</option>
 	{/each}
 </select>
 

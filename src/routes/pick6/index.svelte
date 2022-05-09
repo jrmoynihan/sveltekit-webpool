@@ -5,7 +5,7 @@
 	import PickSixGroup from '$lib/components/containers/accordions/PickSixGroup.svelte';
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
 	import type { Team } from '$scripts/classes/team';
-	import { largerThanMobile, allTeams } from '$scripts/store';
+	import { largerThanMobile, all_teams, current_season_year } from '$scripts/store';
 	import type { pickSixItem } from '$scripts/types/types';
 	import { quintOut } from 'svelte/easing';
 	import { crossfade, fly, slide } from 'svelte/transition';
@@ -14,10 +14,7 @@
 	import Grid from '$lib/components/containers/Grid.svelte';
 	import StyledButton from '$lib/components/buttons/StyledButton.svelte';
 
-	// If the date is January-August (0-9), then return the previous year, since that is when the season started
-	let currentYear: number =
-		new Date().getMonth() < 9 ? new Date().getFullYear() - 1 : new Date().getFullYear();
-	let previousYear = currentYear - 1;
+	let previousYear = $current_season_year - 1;
 
 	let groupOneTeams: pickSixItem[] = [];
 	let groupTwoTeams: pickSixItem[] = [];
@@ -25,8 +22,8 @@
 	let arrays: Team[][] = [];
 	let sortedByWins: Team[] = [];
 
-	if ($allTeams.length > 0) {
-		sortedByWins = $allTeams.sort(
+	if ($all_teams.length > 0) {
+		sortedByWins = $all_teams.sort(
 			(teamOne, teamTwo) =>
 				teamOne.records[`${previousYear}`].wins - teamTwo.records[`${previousYear}`].wins
 		);

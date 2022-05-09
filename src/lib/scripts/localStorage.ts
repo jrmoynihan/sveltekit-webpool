@@ -1,8 +1,7 @@
-console.log('localStorage.ts...');
 import { browser } from '$app/env';
 import { playersCollection } from '$scripts/collections';
 import { playerConverter } from '$scripts/converters';
-import { player_data } from '$scripts/store';
+import { current_player, selected_player } from '$scripts/store';
 import { doc, getDoc } from '@firebase/firestore';
 import { Player } from '$classes/player';
 import { all_icons } from '$classes/constants';
@@ -32,7 +31,8 @@ export const savePlayerData = async (firebase_user: User) => {
 		const player_snapshot = await getDoc(player_doc_ref.withConverter(playerConverter));
 		const player = new Player({ ...player_snapshot.data() });
 
-		player_data.set(player);
+		current_player.set(player);
+		selected_player.set(player);
 
 		for (const property in player) {
 			setLocalStorageItem(property, player[property]);
@@ -40,18 +40,14 @@ export const savePlayerData = async (firebase_user: User) => {
 
 		myLog({
 			msg: 'Set player data and saved it to local storage:',
-			function_name: 'savePlayerData',
 			icon: all_icons.detective,
-			additional_params: player_data
+			additional_params: current_player
 		});
 	} catch (error) {
 		myError({
 			location: 'localStorage.ts',
-			function_name: 'savePlayerData',
 			error,
 			msg: 'Unable to save player data to local storage!'
 		});
 	}
 };
-
-console.log('localStorage.ts... done');
