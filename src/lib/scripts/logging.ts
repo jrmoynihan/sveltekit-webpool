@@ -1,38 +1,44 @@
-import { type all_icons, defaultConsoleLogStyle } from "$classes/constants";
-import { type myToastOptions, defaultToast } from "$scripts/toasts";
+import { all_icons, defaultConsoleLogStyle } from "$classes/constants";
+import { type myToastOptions, defaultToast, errorToast } from "$scripts/toasts";
 
 export type myErrorType = {
 	error: Error;
 	msg?: string;
-	icon?: all_icons | null;
+	icon?: string | null;
 	function_name?: string;
 	location?: string;
 	additional_params?: any;
 };
 export type myLogType = {
 	msg: string;
-	icon?: all_icons;
-	function_name?: string;
-	location?: string;
+	icon?: string | null;
 	additional_params?: any;
+	traceLocation?: boolean
 };
+
+// Creates a union of the two types for combined usage
 export type LogAndToastType = myToastOptions & myLogType;
 export type ErrorAndToastType = myToastOptions & myErrorType;
 
 export const myError = (input: myErrorType): void => {
-	const { error, msg, icon, function_name, location, additional_params } = input;
+	const { error, msg, icon = all_icons.policeCarLight, function_name, location, additional_params } = input;
 	console.error(
-		`${icon ? `%c${icon} ` : '%c'}Error in ${location ? `${location} ->` : ''} ${function_name ?? ''}! \n ${msg ?? ''}`, defaultConsoleLogStyle, error ?? '', additional_params ?? '');
+		`${icon ? `%c${icon} ` : '%c'}${location || function_name ? 'Error in ' : ''}${location ? `${location} -> ` : ''}${function_name ?? ''}\n ${msg ?? ''}`, defaultConsoleLogStyle, error ?? '', additional_params ?? '');
 };
 export const myLog = (input: myLogType): void => {
-	const { msg, icon, function_name, location, additional_params } = input;
-	console.log(
-		`${icon ? `%c${icon} ` : '%c'}${location ? `${location} ->` : ''} ${function_name ?? ''} \n ${msg ?? ''}`,
-		defaultConsoleLogStyle,
-		additional_params ?? ''
-	);
+	const { msg, icon, traceLocation, additional_params } = input;
+	let str = icon ? `%c${icon} ` : '%c';
+	str += `\n ${msg}\ `;
+	let args = [str, defaultConsoleLogStyle];
+	
+	if(additional_params) args = args.concat(additional_params);
+	
+	if(traceLocation){
+		console.trace(...args);
+	}else{
+		console.log(...args)
+	}
 };
-
 
 export const LogAndToast = (options: LogAndToastType ): void => {
 	myLog({...options});
@@ -40,5 +46,5 @@ export const LogAndToast = (options: LogAndToastType ): void => {
 }
 export const ErrorAndToast = (options: ErrorAndToastType ): void => {
 	myError({...options});
-	defaultToast({...options});
+	errorToast({...options});
 }
