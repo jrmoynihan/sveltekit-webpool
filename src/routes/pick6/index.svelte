@@ -1,6 +1,3 @@
-<script context="module">
-</script>
-
 <script lang="ts">
 	import PickSixGroup from '$lib/components/containers/accordions/PickSixGroup.svelte';
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
