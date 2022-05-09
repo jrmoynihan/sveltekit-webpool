@@ -1,4 +1,3 @@
-console.log('dataFetching.ts...');
 import type {
 	RefOnlyESPN,
 	ESPNStatus,
@@ -10,6 +9,19 @@ import type {
 } from '$classes/game';
 import { myError } from '$scripts/logging';
 import { all_icons } from '$classes/constants';
+
+export const fetchWithTimeout = async (resourceUrl: string, options: { timeout: number }) => {
+	const { timeout = 8000 } = options;
+
+	const controller = new AbortController();
+	const id = setTimeout(() => controller.abort(), timeout);
+	const response = await fetch(resourceUrl, {
+		...options,
+		signal: controller.signal
+	});
+	clearTimeout(id);
+	return response;
+};
 
 export const convertToHttps = async (httpAddress: string): Promise<string> => {
 	return httpAddress.replace('http', 'https');
@@ -101,5 +113,3 @@ export const getMostRecentDrive = async (drivesRef: string): Promise<ESPNDrive> 
 	const lastDrive: ESPNDrive = data.items[lastDriveNumber];
 	return lastDrive;
 };
-
-console.log('dataFetching.ts... done');
