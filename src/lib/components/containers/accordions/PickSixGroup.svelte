@@ -12,8 +12,8 @@
 	export let groupSelectedCount: number;
 	export let groupLetter: string;
 	let accordion: AccordionDetails;
-	let isCollapsing: boolean;
 	let open: boolean;
+	let toggle: () => boolean;
 
 	const [send, receive] = crossfade({
 		duration: (d) => Math.sqrt(d * 200),
@@ -34,14 +34,16 @@
 	});
 	$: groupSelectedCount === 2
 		? setTimeout(() => {
-				accordion?.collapse();
-		  }, 750)
-		: accordion?.expand();
+				open ? accordion?.toggle() : null;
+		  }, 500)
+		: !open
+		? accordion?.toggle()
+		: null;
 </script>
 
 <AccordionDetails
 	bind:this={accordion}
-	bind:isCollapsing
+	bind:toggle
 	bind:open
 	showArrow={true}
 	expandTitle="Group {groupLetter} ({groupSelectedCount}/2 picks made)"
