@@ -1,4 +1,3 @@
-console.log('site.ts...');
 import { PageOption } from '$classes/pageOption';
 
 export const mobileBreakpoint = 1024;
@@ -18,4 +17,5 @@ export const weeklyTabs: PageOption[] = [
 	new PageOption({ navigationText: 'Standings', path: '/weekly/standings' }),
 	new PageOption({ navigationText: 'Rules', path: '/weekly/rules' })
 ];
-console.log('site.ts... done');
+// Set which pages should have an admin control button appear in the app-menu bar
+export const adminControlsPages: string[] = ['/weekly/make-picks'];
