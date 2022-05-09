@@ -458,6 +458,9 @@ export interface ESPNDriveStartOrEnd {
 	yardLine: number;
 	text: string;
 }
+
+// ESPNSeason: used for finding season start and end timestamps, and can navigate to league (groups) and week (weeks) data
+// https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/2022/types/2/
 export interface ESPNSeason {
 	$ref: string;
 	id: string;
@@ -475,7 +478,9 @@ export interface ESPNSeason {
 	corrections: RefOnlyESPN;
 	slug: string;
 }
-export interface ESPNWeek {
+// ESPNWeek: used for finding week number, start and end timestamps, rankings, and can be used to get to week events (if they exist)
+// https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/2022/types/1/weeks/2?lang=en&region=us
+export interface ESPNSeasonWeek {
 	$ref: string;
 	number: number;
 	startDate: string;
@@ -483,4 +488,43 @@ export interface ESPNWeek {
 	text: string;
 	rankings: RefOnlyESPN;
 	events: RefOnlyESPN;
+}
+export interface ESPNSeasonYear {
+	$ref: string;
+	year: number;
+	startDate: string;
+	endDate: string;
+	displayName: string;
+	type: ESPNSeason;
+	rankings: RefOnlyESPN;
+	futures: RefOnlyESPN;
+	types: {
+		$ref: string;
+		count: number;
+		pageIndex: number;
+		pageSize: number;
+		pageCount: number;
+		items: ESPNSeason[];
+	};
+}
+export interface ESPNWeekEvent {
+	$meta?: {
+		parameters: {
+			week: string[]; // the week number
+			season: string[]; // the year
+			seasontypes: string[]; // the season type (1 = preseason, 2 = regular season, 3 = post season)
+		};
+	};
+	count: number;
+	pageIndex: number;
+	pageSize: number;
+	pageCount: number;
+	items: RefOnlyESPN[];
+}
+export interface ESPNSeasonCollection {
+	count: number;
+	pageIndex: number;
+	pageSize: number;
+	pageCount: number;
+	items: RefOnlyESPN[];
 }
