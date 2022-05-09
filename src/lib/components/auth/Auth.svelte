@@ -42,7 +42,7 @@
 >
 	<svelte:fragment slot="modal-content">
 		{#if $firebase_user !== undefined && $firebase_user !== null}
-			<button id="sign-out-button" on:click={startSignOut}>Sign Out</button>
+			<button class="sign-out-button" on:click={startSignOut}>Sign Out</button>
 		{:else}
 			<GoogleLoginButton on:click={() => login('Google')} />
 			<FacebookLoginButton on:click={() => login('Facebook')} />
@@ -106,7 +106,7 @@
 		display: grid;
 		position: relative;
 	}
-	#sign-out-button {
+	.sign-out-button {
 		@include frostedGlassHighContrast;
 		background-color: white;
 		font-size: 1.4rem;
