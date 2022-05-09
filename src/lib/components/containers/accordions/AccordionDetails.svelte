@@ -17,12 +17,6 @@
 	export let slideParameters = { duration: 500, easing: cubicInOut };
 
 	export const toggle = () => (open = !open);
-
-	const checkforSpace = async (e: KeyboardEvent & { currentTarget: EventTarget & HTMLElement }) => {
-		if (e.code === 'Space') {
-			toggle();
-		}
-	};
 </script>
 
 <div class="accordion-container">
@@ -32,7 +26,6 @@
 		class:adminOnly
 		on:click={toggle}
 		aria-expanded={open}
-		on:keydown|preventDefault={(e) => checkforSpace(e)}
 		tabindex="0"
 		style={customSummaryStyles}
 	>
@@ -65,7 +58,7 @@
 
 <style lang="scss">
 	button {
-		@include normalShadow;
+		// @include normalShadow;
 		box-sizing: border-box;
 		border: none;
 		background: none;
