@@ -346,7 +346,7 @@
 				{#each poolsToJoin as pool}
 					<div class="accordionWrapper" transition:slide={slideParameters}>
 						<AccordionDetails
-							showArrow={true}
+							expanderIconSide={'left'}
 							customContentStyles="color:var(--text); padding-top: 1rem; {pool.toggled
 								? 'background-color:hsl(82,39%,30%);color:white;'
 								: ''}"

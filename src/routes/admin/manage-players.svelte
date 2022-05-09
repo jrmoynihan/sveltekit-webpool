@@ -1,5 +1,5 @@
 <script lang="ts">
-	import AccordionDetails3 from '$lib/components/containers/accordions/AccordionDetails.svelte';
+	import AccordionDetails from '$lib/components/containers/accordions/AccordionDetails.svelte';
 	import Grid from '$lib/components/containers/Grid.svelte';
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
 	import PlayerSelect from '$lib/components/selects/PlayerSelect.svelte';
@@ -105,7 +105,7 @@
 	<input id="amountPaid" type="number" value={$selected_player.amountPaidToPools} />
 
 	<label for="winningsSummary" class="title"> Weekly Winnings </label>
-	<AccordionDetails3 showArrow={false}>
+	<AccordionDetails expanderIconSide={'none'}>
 		<div id="winningsSummary" slot="summary">
 			<p class="title">${$selected_player.weeklyWinnings.total} total</p>
 			<p><small><i>(click to reveal breakdown)</i></small></p>
@@ -117,7 +117,7 @@
 				{/each}
 			{/if}
 		</div>
-	</AccordionDetails3>
+	</AccordionDetails>
 </Grid>
 
 <style lang="scss">

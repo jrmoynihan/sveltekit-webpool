@@ -15,7 +15,7 @@
 	{/if}
 	{#each gameData as game, i (game.id)}
 		<AccordionDetails
-			showArrow={false}
+			expanderIconSide={'left'}
 			cloudyBackground={false}
 			expandTitle={`Game ${i + 1} -- ${game.date.substring(0, 10)} ${game.name}`}
 			customSummaryStyles="padding:1rem;"

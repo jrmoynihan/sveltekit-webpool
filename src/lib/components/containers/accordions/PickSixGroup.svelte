@@ -39,7 +39,7 @@
 	bind:this={accordion}
 	bind:toggle
 	bind:open
-	showArrow={true}
+	expanderIconSide={'left'}
 	expandTitle="Group {groupLetter} ({groupSelectedCount}/2 picks made)"
 	customSummaryStyles="font-weight:bold; {groupSelectedCount === 2
 		? 'background: hsla(var(--accent-value), 40%); color:var(--text);'
