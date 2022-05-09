@@ -35,11 +35,11 @@ export const getAllGames = async (showToast = true) => {
 		if (showToast) {
 			defaultToast({ title, msg });
 		}
-		myLog({ location: 'weeklyAdmin.ts', msg, function_name: 'getAllGames' });
+		myLog({ msg, traceLocation: true });
 		return games;
 	} catch (error) {
 		const msg = `Encountered an error while trying to get all game documents.  Check the console for more info. ${error}`;
-		errorToast(msg);
+		errorToast({msg});
 		myError({ location: 'weeklyAdmin.ts', function_name: 'getAllGames', error, msg });
 	}
 };
@@ -64,7 +64,7 @@ export const getSpecificGames = async (
 		if (showToast) {
 			defaultToast({ title, msg });
 		}
-		myLog({ location: 'weeklyAdmin.ts', msg, function_name: 'getSpecificGames' });
+		myLog({ msg, traceLocation: true });
 		return games;
 	} catch (error) {
 		const msg = `Encountered an error while trying to get a specific week/year of game documents.  Check the console for more info. ${error}`;
@@ -79,7 +79,7 @@ const getMaxGameWeek = async (): Promise<number> => {
 		});
 		const maxWeek: number = Math.max(...gameWeeks);
 		const msg = `determined the max game week was ${maxWeek}`;
-		myLog({ msg, function_name: 'getMaxGameWeek', location: 'weeklyAdmin.ts' });
+		myLog({ msg, traceLocation: true });
 		return maxWeek;
 	} catch (error) {
 		const msg = `Encountered an error while finding max game week.`;
@@ -99,8 +99,7 @@ export const createWeeklyPicksForAllPlayers = async () => {
 		LogAndToast({
 			title,
 			msg,
-			function_name: 'createWeeklyPicksForPlayer',
-			location: 'weeklyAdmin.ts'
+			traceLocation: true
 		});
 	} catch (error) {
 		const msg = `Encountered an error while trying to create all players' picks.  Check the console for more info. ${error}`;
@@ -148,7 +147,7 @@ export const createWeeklyPicksForPlayer = async (
 		const title = 'Created Weekly Picks!';
 		const msg = `Pick documents were created for every game for ${player.name} (${player.nickname})`;
 		if (logAll) {
-			myLog({ msg, function_name: 'createWeeklyPicksForPlayer', location: 'weeklyAdmin.ts' });
+			myLog({ msg, traceLocation: true });
 		}
 		if (showToast) {
 			defaultToast({ title, msg });
@@ -180,8 +179,7 @@ export const deleteWeeklyPicksForAllPlayers = async () => {
 		LogAndToast({
 			title,
 			msg,
-			function_name: 'deleteWeeklyPicksForAllPlayers',
-			location: 'weeklyAdmin.ts'
+			traceLocation: true
 		});
 	} catch (error) {
 		const msg = `Encountered an error while trying to delete all players's picks.  Check the console for more info. ${error}`;
@@ -221,8 +219,7 @@ export const deleteWeeklyPicksForPlayer = async (
 		LogAndToast({
 			title,
 			msg,
-			function_name: 'deleteWeeklyPicksForPlayer',
-			location: 'weeklyAdmin.ts'
+			traceLocation: true
 		});
 	} catch (error) {
 		const msg = `Encountered an error while trying to delete ${player.name}'s picks. Check the console for more info. ${error}`;
@@ -245,8 +242,7 @@ export const createTiebreakersForAllPlayers = async () => {
 		LogAndToast({
 			title,
 			msg,
-			function_name: 'createTiebreakersForAllPlayers',
-			location: 'weeklyAdmin.ts'
+			traceLocation: true
 		});
 	} catch (error) {
 		const msg = `Encountered an error while trying to create all players' tiebreaker documents.  Check the console for more info. ${error}`;
@@ -338,8 +334,7 @@ export const deleteTiebreakersForAllPlayers = async () => {
 			LogAndToast({
 				title,
 				msg,
-				function_name: 'deleteTiebreakersForAllPlayers',
-				location: 'weeklyAdmin.ts'
+				traceLocation: true
 			});
 		}
 	} catch (error) {
@@ -384,8 +379,7 @@ export const deleteTiebreakersForPlayer = async (
 			LogAndToast({
 				title,
 				msg,
-				function_name: 'deleteTiebreakersForPlayer',
-				location: 'weeklyAdmin.ts'
+				traceLocation: true
 			});
 		}
 	} catch (error) {
