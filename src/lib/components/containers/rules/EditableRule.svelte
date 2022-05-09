@@ -13,7 +13,7 @@
 			myLog({ msg: 'after rule change: ', additional_params: rule });
 		} catch (err) {
 			console.error(err);
-			errorToast('Unable to make rule change.  See console log for details.');
+			errorToast({ msg: 'Unable to make rule change.  See console log for details.' });
 		}
 	};
 </script>
