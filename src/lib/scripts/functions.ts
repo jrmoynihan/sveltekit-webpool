@@ -1,4 +1,3 @@
-console.log('functions.ts...');
 import { maxPreseasonWeeks, maxRegularSeasonWeeks } from '$classes/constants';
 import type { Timestamp } from '@firebase/firestore';
 import { getLocalStorageItem } from '$scripts/localStorage';
@@ -81,4 +80,3 @@ export const getUserId = async (): Promise<any> => {
 		myError({ location: 'functions.ts', function_name: 'getUserId', error });
 	}
 };
-console.log('functions.ts... done');
