@@ -1,4 +1,3 @@
-console.log('converters.ts...');
 import type { QueryDocumentSnapshot, SnapshotOptions } from '@firebase/firestore';
 import { Team } from '$lib/scripts/classes/team';
 import { Rule, RuleCategory } from '$lib/scripts/classes/rules';
@@ -7,6 +6,7 @@ import { WeeklyPickDoc } from './classes/picks';
 import { WeeklyTiebreaker } from './classes/tiebreaker';
 import { WeekBoundDoc } from './classes/weekBound';
 import { Player } from './classes/player';
+import { SeasonBoundDoc } from './classes/seasonBound';
 
 export const playerConverter = {
 	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -88,7 +88,16 @@ export const weekBoundConverter = {
 	fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): WeekBoundDoc => {
 		const data = snapshot.data(options);
 		const { ref, id } = snapshot; // Destructure the ref and id props from snapshot object
-		return new WeekBoundDoc({ docRef: ref, docID: id, ...data });
+		return new WeekBoundDoc({ doc_ref: ref, doc_id: id, ...data });
 	}
 };
-console.log('converters.ts... done');
+export const seasonBoundConverter = {
+	toFirestore: (bound: SeasonBoundDoc): SeasonBoundDoc => {
+		return { ...bound };
+	},
+	fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): SeasonBoundDoc => {
+		const data = snapshot.data(options);
+		const { ref, id } = snapshot; // Destructure the ref and id props from snapshot object
+		return new SeasonBoundDoc({ doc_ref: ref, doc_id: id, ...data });
+	}
+};
