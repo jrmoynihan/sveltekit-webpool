@@ -9,10 +9,9 @@ import {
 	signOut,
 	getRedirectResult,
 	browserPopupRedirectResolver,
-	type User, type UserCredential, type AuthProvider, onAuthStateChanged, getIdTokenResult, getIdToken
+	type User, type UserCredential, type AuthProvider, onAuthStateChanged
 } from '@firebase/auth';
 import { firebaseAuth } from '$lib/scripts/firebase/firebase';
-import { get } from 'svelte/store';
 import { Player } from '$lib/scripts/classes/player';
 import { doc, setDoc } from '@firebase/firestore';
 import { playersCollection } from '$scripts/collections';
@@ -20,8 +19,9 @@ import { goto } from '$app/navigation';
 import { playerConverter } from '$scripts/converters';
 import { WeeklyPickRecord, PlayerWinnings } from '$classes/playerRecord';
 import { savePlayerData } from '$scripts/localStorage';
-import { firebase_user, player_data } from '$scripts/store';
+import { firebase_user, current_player } from '$scripts/store';
 import { myError, myLog } from '$scripts/logging';
+import {browser} from '$app/env';
 
 /**
  *
@@ -49,17 +49,21 @@ export const signInWithRedirectOrPopup = async (
 	useRedirect: boolean
 ): Promise<UserCredential> => {
 	try {
+		let result: UserCredential
 		if (useRedirect) {
-			await signInWithRedirect(firebaseAuth, provider);
-			const result = await getRedirectResult(firebaseAuth);
-			console.log('signed in user:',result.user);
-			return result;
+			await signInWithRedirect(firebaseAuth, provider, browserPopupRedirectResolver);
+			result = await getRedirectResult(firebaseAuth);
 		} else {
-			const result = await signInWithPopup(firebaseAuth, provider);
+			result = await signInWithPopup(firebaseAuth, provider, browserPopupRedirectResolver);
+		}
+
+		if(result){
+			console.log('signed in user: ',result.user);
 			return result;
 		}
+
 	} catch (error) {
-		myError({location: 'auth.ts', function_name: 'getUserCredential', error});
+		myError({location: 'login.ts', function_name: 'getUserCredential', error});
 	}
 };
 
@@ -84,10 +88,8 @@ export const startSignIn = async (loginPlatform: string, useRedirect: boolean = 
 	}
 
 	// Store the promised user credential that the auth provider returns
-	if (useRedirect) {
-		myLog({msg:'signing in with redirect...'});
-		await signInWithRedirect(firebaseAuth, provider, browserPopupRedirectResolver);
-	}
+		myLog({msg:'signing in...'});
+		await signInWithRedirectOrPopup(provider, useRedirect);
 };
 
 /**
@@ -145,17 +147,17 @@ export const createNewPlayerDocument = async (
 		// Write some initial data to the user document
 		await setDoc(new_player_ref.withConverter(playerConverter), new_player_data);
 
-		console.info(`New player doc for ${firebase_user.displayName} (${firebase_user.uid}) added!`);
+		myLog({msg: `New player doc for ${firebase_user.displayName} (${firebase_user.uid}) added!`});
 	} catch (error) {
-		console.warn('error in createNewPlayerDocument', error);
+		myError({msg: 'error in createNewPlayerDocument', error});
 	}
 };
 
 export const startSignOut = async (): Promise<void> => {
-	player_data.set(undefined);
+	current_player.set(undefined);
 	firebase_user.set(undefined);
 	signOut(firebaseAuth);
-	myLog({function_name:'startSignOut', msg: 'user has signed out ', additional_params: {player_data: player_data, firebase_user, firestoreAuth: firebaseAuth}});
+	myLog({msg: 'user has signed out ', traceLocation: true, additional_params: {player_data: current_player, firebase_user, firestoreAuth: firebaseAuth}});
 	goto('/'); // go to the index page, navigating the user away from any authorized page they may be on currently
 };
 
@@ -176,11 +178,11 @@ onAuthStateChanged(firebaseAuth,
 		if (firebaseAuth.currentUser) {
 			firebase_user.set(firebaseAuth.currentUser);
 			savePlayerData(firebaseAuth.currentUser);
-			myLog({location: 'auth.ts', function_name: 'onAuthStateChanged', msg: 'Current user is: ', additional_params: firebaseAuth.currentUser.displayName })
-		} else {
+			myLog({msg: `Current user is: ${firebaseAuth.currentUser.displayName}`, traceLocation: true})
+		} else if (browser) {
 			goto('/');
-			myLog({msg: 'No current user.', location: 'auth.ts', function_name: 'onAuthStateChanged'});
+			myLog({msg: 'No current user.', traceLocation: true});
 		}
 	},
-	(error) => myError({location: 'auth.ts', function_name: 'onAuthStateChanged', error})
+	(error) => myError({location: 'login.ts', function_name: 'onAuthStateChanged', error})
 );
