@@ -1,5 +1,5 @@
 <script lang="ts">
-	import AccordionDetails3 from '../accordions/AccordionDetails3.svelte';
+	import AccordionDetails3 from '../accordions/AccordionDetails.svelte';
 	import Grid from '../Grid.svelte';
 
 	export let summaryText = '';
@@ -9,7 +9,7 @@
 	export let customContentStyles: string = undefined;
 </script>
 
-<AccordionDetails3 isOpen={startOpen} {customContentStyles}>
+<AccordionDetails3 open={startOpen} {customContentStyles}>
 	<h3 slot="summary">{summaryText}</h3>
 	<Grid slot="content" bind:minColumns bind:maxColumns>
 		<slot />

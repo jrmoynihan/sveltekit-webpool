@@ -1,5 +1,5 @@
 <script lang="ts">
-	import AccordionDetails3 from '$lib/components/containers/accordions/AccordionDetails3.svelte';
+	import AccordionDetails3 from '$lib/components/containers/accordions/AccordionDetails.svelte';
 	import MultiToggleSwitch from '$lib/components/switches/MultiToggleSwitch.svelte';
 	import DriveChart from '$lib/images/DriveChart.svelte';
 	import type { CompetitorESPN, ESPNGame, ESPNTeamData, Game } from '$scripts/classes/game';
@@ -75,7 +75,7 @@
 	<DriveChart {awayTeam} {homeTeam} {homeColors} {awayColors} {game} {drivesRef} {gameData} />
 {/await}
 
-<AccordionDetails3 bind:isOpen={open}>
+<AccordionDetails3 bind:open>
 	<div slot="summary">
 		<h2>Open: {open}</h2>
 	</div>

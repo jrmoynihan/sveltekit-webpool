@@ -22,7 +22,7 @@
 	import ModalOnly from '../modals/Modal.svelte';
 	import ToggleSwitch from '../switches/ToggleSwitch.svelte';
 	import { cubicInOut } from 'svelte/easing';
-	import AccordionDetails3 from '../containers/accordions/AccordionDetails3.svelte';
+	import AccordionDetails3 from '../containers/accordions/AccordionDetails.svelte';
 
 	export let modalOnlyComponent: ModalOnly;
 	let nickname = '';
@@ -130,7 +130,7 @@
 			modalOnlyComponent.close();
 			setTimeout(() => (creatingNewAccount = false), 300);
 		} catch (error) {
-			errorToast('We ran into an error while creating the account.');
+			errorToast({ msg: 'We ran into an error while creating the account.' });
 			myError({ location: 'NewPlayerForm', function_name: 'createAccount', error });
 		}
 	};
@@ -340,9 +340,9 @@
 			{/if}
 			{#if nicknameEntered && !typing && !nicknameTooLong && !illegalCharacters}
 				<h3 class="two-column" transition:slide={slideParameters}>Pick Your Pools</h3>
-				<h5 class="reveal two-column" transition:slide={slideParameters}>
+				<!-- <h5 class="reveal two-column" transition:slide={slideParameters}>
 					Click to show/hide pool descriptions
-				</h5>
+				</h5> -->
 				{#each poolsToJoin as pool}
 					<div class="accordionWrapper" transition:slide={slideParameters}>
 						<AccordionDetails3
@@ -353,7 +353,7 @@
 							customSummaryStyles="width:100%;font-weight:bold;{pool.toggled
 								? `background-color:hsl(82,39%,30%);color:white;`
 								: ``}"
-							expandTitle={pool.name}
+							expandTitle={`${pool.name} && (click to learn more)`}
 							{slideParameters}
 						>
 							<svelte:fragment slot="content">
