@@ -32,13 +32,7 @@
 			};
 		}
 	});
-	$: groupSelectedCount === 2
-		? setTimeout(() => {
-				open ? accordion?.toggle() : null;
-		  }, 500)
-		: !open
-		? accordion?.toggle()
-		: null;
+	$: if (groupSelectedCount === 2) setTimeout(() => accordion?.toggle(), 500);
 </script>
 
 <AccordionDetails
