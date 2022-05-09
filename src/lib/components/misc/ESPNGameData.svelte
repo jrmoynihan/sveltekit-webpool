@@ -19,7 +19,7 @@
 			cloudyBackground={false}
 			expandTitle={`Game ${i + 1} -- ${game.date.substring(0, 10)} ${game.name}`}
 			customSummaryStyles="padding:1rem;"
-			customDetailsStyles={`max-height: ${maxHeight}vh; scrollbar-width: thin;`}
+			customContentStyles={`max-height: ${maxHeight}vh; scrollbar-width: thin;`}
 		>
 			<svelte:fragment slot="content">
 				{#each Object.entries(game) as [key, value] (key)}
