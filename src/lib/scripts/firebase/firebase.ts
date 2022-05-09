@@ -1,7 +1,7 @@
 import { dev } from '$app/env';
-import { getApps, getApp, initializeApp } from '@firebase/app';
-import { getAuth, setPersistence, inMemoryPersistence } from '@firebase/auth';
-import { getFirestore } from '@firebase/firestore';
+import { getApps, getApp, initializeApp, type FirebaseApp } from 'firebase/app';
+import { getAuth, type Auth } from '@firebase/auth';
+import { Firestore, getFirestore } from '@firebase/firestore';
 
 const API_KEY: string = dev ? (import.meta.env.VITE_API_KEY as string) : process.env.API_KEY;
 const firebaseConfig = {
@@ -15,7 +15,7 @@ const firebaseConfig = {
 	measurementId: 'G-8Y5HV7HDFZ'
 };
 
-export function initializeFirebaseApp() {
+export function initializeFirebaseApp(): FirebaseApp {
 	// If a firebase app is already initialized, use that one
 	if (getApps().length === 0) {
 		return initializeApp(firebaseConfig);
@@ -23,9 +23,9 @@ export function initializeFirebaseApp() {
 		return getApp();
 	}
 }
-const myApp = initializeFirebaseApp();
-export const firestoreDB = getFirestore(myApp);
-export const firebaseAuth = getAuth(myApp);
+const myApp : FirebaseApp = initializeFirebaseApp();
+export const firestoreDB : Firestore = getFirestore(myApp);
+export const firebaseAuth : Auth = getAuth(myApp);
 
 // Prevents persistence of Auth state in the CLIENT; the server will hold the cookie!
-setPersistence(firebaseAuth, inMemoryPersistence);
+// setPersistence(firebaseAuth, inMemoryPersistence);
