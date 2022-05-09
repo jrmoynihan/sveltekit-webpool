@@ -11,11 +11,10 @@
 
 <nav
 	class:offsetTop
-	class="navigationList {$navChecked ? 'expanded' : 'collapsed'} {$largerThanMobile
-		? null
-		: useModal
-		? 'modal'
-		: null}"
+	class:modal={!$largerThanMobile && useModal}
+	class:expanded={$navChecked}
+	class:collapsed={!$navChecked}
+	class="navigationList"
 	style="--minItemSize:{minItemSize}; --maxItemSize: {maxItemSize}; {customStyles}"
 >
 	<slot {modalID} />
@@ -37,10 +36,8 @@
 		transition: gap 500ms ease-in-out;
 		width: 100%;
 		z-index: var(--above);
-		background: linear-gradient(
-			hsla(var(--background, hsl(120, 16%, 17%)), 90%) 50%,
-			transparent 120%
-		);
+		background: var(--background);
+
 		@supports (backdrop-filter: none) {
 			backdrop-filter: blur(5px);
 		}
