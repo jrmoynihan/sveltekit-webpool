@@ -60,7 +60,6 @@
 	button {
 		// @include normalShadow;
 		box-sizing: border-box;
-		border: none;
 		background: none;
 		display: grid;
 		color: inherit;
