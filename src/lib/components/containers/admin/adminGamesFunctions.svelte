@@ -5,11 +5,13 @@
 	import { largerThanMobile, selected_week, selected_year } from '$scripts/store';
 	import AdminExpandSection from './adminExpandSection.svelte';
 
+	export let customContentStyles = null;
+	export let customSummaryStyles = null;
 	let minColumns: string | number;
 	$: minColumns = $largerThanMobile ? 0 : '40%';
 </script>
 
-<AdminExpandSection summaryText="Games" bind:minColumns>
+<AdminExpandSection summaryText="Games" bind:minColumns {customContentStyles} {customSummaryStyles}>
 	<StyledButton on:click={() => updateGamesAndATSWinners($selected_week)}
 		><span>Find Winners of <b>Week {$selected_week}</b> NFL Games</span></StyledButton
 	>

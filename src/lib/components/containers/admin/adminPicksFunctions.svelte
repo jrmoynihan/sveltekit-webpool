@@ -12,11 +12,13 @@
 	import DeletionButton from '$lib/components/buttons/DeletionButton.svelte';
 	import { selected_player, selected_week, selected_year } from '$scripts/store';
 
+	export let customContentStyles = null;
+	export let customSummaryStyles = null;
 	// Min and Max for a minmax grid column function
 	let minColumns: string | number = '40%';
 </script>
 
-<AdminExpandSection summaryText="Picks" bind:minColumns>
+<AdminExpandSection summaryText="Picks" bind:minColumns {customContentStyles} {customSummaryStyles}>
 	<StyledButton on:click={() => scorePicksForWeek($selected_week, $selected_year)}>
 		<span>Score Picks For <b>Week {$selected_week}, {$selected_year}</b></span>
 	</StyledButton>

@@ -10,10 +10,17 @@
 	} from '$scripts/weekly/weeklyAdmin';
 	import AdminExpandSection from './adminExpandSection.svelte';
 
+	export let customContentStyles = null;
+	export let customSummaryStyles = null;
 	let minColumns: string | number = '40%';
 </script>
 
-<AdminExpandSection summaryText="Tiebreakers" bind:minColumns>
+<AdminExpandSection
+	summaryText="Tiebreakers"
+	bind:minColumns
+	{customContentStyles}
+	{customSummaryStyles}
+>
 	<StyledButton on:click={() => createTiebreakersForAllPlayers()}>
 		Create Tiebreakers for All Players
 	</StyledButton>
