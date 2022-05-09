@@ -23,20 +23,16 @@
 		new PageOption({ navigationText: 'The Sandbox', path: '/admin/sandbox' })
 	];
 
-	const textLengths: number[] = adminTabs.map((tab) => {
-		return tab.navigationText.length;
-	});
-
-	const maxLengthText: number = Math.max(...textLengths);
+	const maxLengthText: number = 10;
+	// Can change 'maxLengthText = Math.max(...textLengths)' to keep all text in a single line
+	// const textLengths: number[] = adminTabs.map((tab) => {
+	// 	return tab.navigationText.length;
+	// });
 </script>
 
 <Navigator minItemSize="{maxLengthText}ch" maxItemSize="max-content" customStyles="top:3.2rem;">
 	{#each adminTabs as tab, index}
-		<!-- {#if dev} -->
 		<NavLink {index} pageOption={tab} fullyRounded={true} />
-		<!-- {:else if tab.navigationText !== 'Toggle Roles'}
-			<NavLink {index} pageOption={tab} fullyRounded={true} /> -->
-		<!-- {/if} -->
 	{/each}
 </Navigator>
 <TransitionWrapper {refresh} customStyles="display:grid;">
