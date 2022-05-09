@@ -41,7 +41,8 @@ import {
 	scheduleCollection,
 	playersCollection,
 	weeklyPicksCollection,
-	weeklyTiebreakersCollection
+	weeklyTiebreakersCollection,
+	teamsCollection
 } from './collections';
 import {
 	gameConverter,
@@ -51,7 +52,6 @@ import {
 	weeklyTiebreakerConverter
 } from './converters';
 import { defaultToast, errorToast } from './toasts';
-import { teamsCollection } from './teams';
 import type { Team } from './classes/team';
 import type { WeeklyTiebreaker } from './classes/tiebreaker';
 import type { WeeklyPickDoc } from './classes/picks';
@@ -250,7 +250,7 @@ export const scorePicksForWeek = async (
 				}
 			});
 		} else {
-			myLog({ msg: 'skipping assignment of season prizes', function_name: 'scorePicksForWeek' });
+			myLog({ msg: 'skipping assignment of season prizes', traceLocation: true });
 		}
 
 		toast.pop(startingToastId);
@@ -884,7 +884,7 @@ export const updateTeamRecordOnGameDocs = async (
 		return writeCount;
 	} catch (error) {
 		myError({ location: 'scorePicks.ts', function_name: 'updateTeamRecordOnGameDocs', error });
-		errorToast(`Unable to update team record on game doc.`);
+		errorToast({msg: `Unable to update team record on game doc.`});
 	}
 };
 export const updateTeamRecord = async (
