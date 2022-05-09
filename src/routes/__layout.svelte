@@ -55,13 +55,7 @@
 		}
 	};
 
-	// $: if ($currentUser && userConverter) {
-	// 	saveUserData();
-	// 	const q = query(usersCollection, where('id', '==', $currentUser.uid));
-	// 	$userDataSnapshot = get(userQueryAsStore(q));
-	// }
-
-	onMount(() => {
+	onMount(async () => {
 		checkWindowWidth();
 		lookupUserThemePreference();
 	});
@@ -77,7 +71,7 @@
 >
 	<AppMenu />
 	{#if $largerThanMobile}
-		<Navigator offsetTop={true}>
+		<Navigator offsetTop={true} customStyles="padding-bottom: 0.5rem;">
 			<SiteNavOptions />
 		</Navigator>
 	{/if}
