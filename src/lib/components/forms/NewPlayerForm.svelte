@@ -3,7 +3,7 @@
 	import { all_icons } from '$scripts/classes/constants';
 	import { myError, myLog } from '$scripts/logging';
 	import { savePlayerData } from '$scripts/localStorage';
-	import { godSequence, godMode, firebase_user, player_data } from '$scripts/store';
+	import { godSequence, godMode, firebase_user, current_player } from '$scripts/store';
 	import { defaultToast, errorToast } from '$scripts/toasts';
 	import {
 		createTiebreakersForPlayer,
@@ -22,7 +22,7 @@
 	import ModalOnly from '../modals/Modal.svelte';
 	import ToggleSwitch from '../switches/ToggleSwitch.svelte';
 	import { cubicInOut } from 'svelte/easing';
-	import AccordionDetails3 from '../containers/accordions/AccordionDetails.svelte';
+	import AccordionDetails from '$components/containers/accordions/AccordionDetails.svelte';
 
 	export let modalOnlyComponent: ModalOnly;
 	let nickname = '';
@@ -119,8 +119,8 @@
 			// TODO: create the necessary docs for each pool they've joined...
 			// may not need to await here, but could instead use Workers!
 			const games = await getAllGames(false);
-			createWeeklyPicksForPlayer($player_data, true, false, games);
-			createTiebreakersForPlayer($player_data);
+			createWeeklyPicksForPlayer($current_player, true, false, games);
+			createTiebreakersForPlayer($current_player);
 			//prettier-ignore
 			defaultToast({
 				title: `Account Created!`,
@@ -163,7 +163,6 @@
 	};
 	const isOneOrMorePoolsSelected = async () => {
 		for (const pool of poolsToJoin) {
-			// console.log(`${pool.name} is ${pool.toggled ? 'toggled' : 'not toggled'}`);
 			if (pool.toggled) {
 				buttonHidden = false;
 				return;
@@ -224,7 +223,7 @@
 	) => {
 		// console.log(e.key);
 		const secretCode = ['G', 'O', 'D'];
-		if (!$godMode && $player_data?.admin) {
+		if (!$godMode && $current_player?.admin) {
 			if (
 				e.key !== 'G' &&
 				e.key !== 'g' &&
@@ -293,6 +292,8 @@
 			<label for="nickname" class="two-column">
 				{#if !nicknameEntered}
 					<h3 transition:slide={slideParameters}>Enter Your Nickname</h3>
+				{:else}
+					<h5 transition:slide={slideParameters}>Nickname</h5>
 				{/if}
 				<input
 					id="nickname"
@@ -326,7 +327,6 @@
 				{/if}
 			</label>
 
-			<!-- </div> -->
 			{#if illegalCharacters}
 				<span class="error two-column">{illegalCharacterMsg}</span>
 			{/if}
@@ -340,20 +340,20 @@
 			{/if}
 			{#if nicknameEntered && !typing && !nicknameTooLong && !illegalCharacters}
 				<h3 class="two-column" transition:slide={slideParameters}>Pick Your Pools</h3>
-				<!-- <h5 class="reveal two-column" transition:slide={slideParameters}>
-					Click to show/hide pool descriptions
-				</h5> -->
+				<h5 class="reveal two-column" transition:slide={slideParameters}>
+					(Click a pool to learn more)
+				</h5>
 				{#each poolsToJoin as pool}
 					<div class="accordionWrapper" transition:slide={slideParameters}>
-						<AccordionDetails3
+						<AccordionDetails
 							showArrow={true}
-							customContentStyles="color:var(--text); {pool.toggled
+							customContentStyles="color:var(--text); padding-top: 1rem; {pool.toggled
 								? 'background-color:hsl(82,39%,30%);color:white;'
 								: ''}"
-							customSummaryStyles="width:100%;font-weight:bold;{pool.toggled
+							customSummaryStyles="width:100%;font-weight:bold;border:1px solid hsla(var(--text-value), 20%);{pool.toggled
 								? `background-color:hsl(82,39%,30%);color:white;`
 								: ``}"
-							expandTitle={`${pool.name} && (click to learn more)`}
+							expandTitle={`${pool.name}`}
 							{slideParameters}
 						>
 							<svelte:fragment slot="content">
@@ -370,7 +370,7 @@
 								</ul>
 								<p class="price">(${pool.price} {pool.textAfterPrice})</p>
 							</svelte:fragment>
-						</AccordionDetails3>
+						</AccordionDetails>
 					</div>
 					<div class="toggle-slide" transition:slide={slideParameters}>
 						<ToggleSwitch
@@ -499,6 +499,9 @@
 		border: 1px inset;
 		&:hover {
 			cursor: inherit;
+		}
+		&:disabled {
+			background-color: hsla(0, 0%, 100%, 10%);
 		}
 	}
 	.hidden {
