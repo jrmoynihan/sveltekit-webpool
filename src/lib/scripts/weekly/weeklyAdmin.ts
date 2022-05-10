@@ -46,14 +46,14 @@ export const getAllGames = async (showToast = false): Promise<Game[]> => {
 	}
 };
 type getSpecificGameOptions = {
-	queryConstraints: QueryConstraint[];
+	constraints: QueryConstraint[];
 	showToast?: boolean;
 }
 export const getSpecificGames = async (input : getSpecificGameOptions) => {
 	try {
-		const { queryConstraints, showToast } = input;
+		const { constraints, showToast } = input;
 		const games: Game[] = [];
-		const q = query(scheduleCollection, ...queryConstraints);
+		const q = query(scheduleCollection, ...constraints);
 		const querySnapshot = await getDocs(q.withConverter(gameConverter));
 		
 		querySnapshot.forEach((doc) => {
@@ -78,7 +78,7 @@ export const getFutureGames = async(): Promise<Game[]> => {
 	const now_timestamp = Timestamp.now();
 	// Get all games that will be played in the future
 	const games = await getSpecificGames({
-	queryConstraints: [where('timestamp', '>=', now_timestamp)]
+	constraints: [where('timestamp', '>=', now_timestamp)]
 			});
 	return games;
 }
