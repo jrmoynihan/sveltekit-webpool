@@ -41,11 +41,13 @@ export const myLog = (input: myLogType): void => {
 	}
 };
 
-export const LogAndToast = (options: LogAndToastType ): void => {
+export const LogAndToast = (options: LogAndToastType ): number => {
 	myLog({...options});
-	defaultToast({...options});
+	const toastId = defaultToast({...options});
+	return toastId;
 }
-export const ErrorAndToast = (options: ErrorAndToastType ): void => {
+export const ErrorAndToast = (options: ErrorAndToastType ): number => {
 	myError({...options});
-	errorToast({...options});
+	const toastId = errorToast({...options});
+	return toastId;
 }
