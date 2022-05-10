@@ -4,6 +4,7 @@
 	import { createEventDispatcher } from 'svelte';
 	import Fa from 'svelte-fa';
 	import type { SeasonBoundDoc } from '$classes/seasonBound';
+	import { makeNumericArrayOfDesiredLength } from '$lib/scripts/functions';
 
 	export let weeks: number[] = [];
 	export let showButtons = true;
@@ -23,7 +24,7 @@
 	};
 
 	const changeWeeksAvailable = async (selected_season: SeasonBoundDoc): Promise<void> => {
-		weeks = Array.from({ length: selected_season.number_of_weeks }, (_, i) => i + 1);
+		weeks = makeNumericArrayOfDesiredLength(selected_season.number_of_weeks);
 		$selected_week = weeks[0];
 	};
 

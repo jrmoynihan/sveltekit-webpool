@@ -80,3 +80,6 @@ export const getUserId = async (): Promise<any> => {
 		myError({ location: 'functions.ts', function_name: 'getUserId', error });
 	}
 };
+export const makeNumericArrayOfDesiredLength = (length: number): number[] => {
+	return Array.from({ length }, (_, index) => index + 1);
+};
