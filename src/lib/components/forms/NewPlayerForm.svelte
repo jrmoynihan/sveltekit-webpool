@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createNewPlayerDocument } from '$lib/scripts/auth/login';
 	import { all_icons } from '$scripts/classes/constants';
-	import { ErrorAndToast, myError, myLog } from '$scripts/logging';
+	import { ErrorAndToast, myLog } from '$scripts/logging';
 	import { savePlayerData } from '$scripts/localStorage';
 	import {
 		godSequence,
@@ -10,12 +10,12 @@
 		current_player,
 		current_season
 	} from '$scripts/store';
-	import { defaultToast, errorToast } from '$scripts/toasts';
+	import { defaultToast } from '$scripts/toasts';
 	import {
 		createWeeklyTiebreakersForPlayer,
 		createWeeklyPicksForPlayer,
-		getAllGames,
-		getSpecificGames
+		getSpecificGames,
+		getFutureGames
 	} from '$scripts/weekly/weeklyAdmin';
 	import {
 		faArrowAltCircleRight,
@@ -127,11 +127,8 @@
 			await savePlayerData($firebase_user);
 			// TODO: create the necessary docs for each pool they've joined...
 			// TODO: Move these to Cloud Functions triggered on new player doc creation...
-			const now_timestamp = Timestamp.now();
 			// Get all games that will be played in the future
-			const games = await getSpecificGames({
-				queryConstraints: [where('timestamp', '>=', now_timestamp)]
-			});
+			const games = await getFutureGames();
 			createWeeklyPicksForPlayer({ player: $current_player, games, logAll: true, showToast: true });
 			const season = $current_season || (await findCurrentSeason());
 			createWeeklyTiebreakersForPlayer({ player: $current_player, season });
