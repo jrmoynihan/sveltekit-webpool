@@ -1,4 +1,4 @@
-import type { Handle } from '@sveltejs/kit';
+import type { GetSession, Handle } from '@sveltejs/kit';
 import * as cookie from 'cookie';
 import { nanoid } from 'nanoid';
 import admin from '$lib/scripts/firebase/firebase-admin';
@@ -25,8 +25,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	return response;
 };
 
-/** @type {import('@sveltejs/kit').GetSession} */
-export const getSession = async (event) => {
+export const getSession: GetSession = async (event) => {
 	const { session } = cookie.parse(event.request.headers.get('cookie') || '');
 	try {
 		const claims = await admin.auth().verifySessionCookie(session);
