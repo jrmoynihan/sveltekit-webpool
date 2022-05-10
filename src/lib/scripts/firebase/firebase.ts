@@ -1,4 +1,4 @@
-import { getApps, getApp, initializeApp, type FirebaseApp } from 'firebase/app';
+import { getApps, getApp, initializeApp, type FirebaseApp } from '@firebase/app';
 import { getAuth, type Auth } from '@firebase/auth';
 import { Firestore, getFirestore } from '@firebase/firestore';
 
@@ -14,6 +14,7 @@ const firebaseConfig = {
 	measurementId: 'G-8Y5HV7HDFZ'
 };
 console.log('firebaseConfig:', firebaseConfig);
+console.log('test env var',process.env.TEST)
 
 export function initializeFirebaseApp(): FirebaseApp {
 	// If a firebase app is already initialized, use that one
