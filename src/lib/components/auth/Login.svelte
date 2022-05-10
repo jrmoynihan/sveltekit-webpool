@@ -1,4 +1,6 @@
 <script lang="ts">
+	// TODO: Complete or abandon?
+
 	import { firebaseAuth } from '$lib/scripts/firebase/firebase';
 	import { request } from '$lib/fetch';
 	import { startSignIn } from '$lib/scripts/auth/login';
