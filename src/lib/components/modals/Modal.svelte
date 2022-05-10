@@ -1,24 +1,4 @@
-<script context="module" lang="ts">
-	// let dialogPolyfill: DialogPolyfillType;
-
-	// async function getPolyfill() {
-	// 	dialogPolyfill = (await import('dialog-polyfill')).default;
-	// 	await import('dialog-polyfill/dialog-polyfill.css');
-	// }
-
-	// function isDialogSupported() {
-	// 	if (browser && window.HTMLDialogElement === undefined) {
-	// 		return false;
-	// 	} else if (browser) {
-	// 		console.log('dialogs supported', window.HTMLDialogElement);
-	// 		return true;
-	// 	}
-	// }
-	// isDialogSupported() ? getPolyfill() : null;
-</script>
-
 <script lang="ts">
-	// import dialogPolyfill from 'dialog-polyfill';
 	import {
 		checkForEscape,
 		displayModal,
@@ -28,7 +8,6 @@
 	import { onMount } from 'svelte';
 	export let modalForegroundStyles = '';
 	export let dialogStyles = '';
-	// Apply a random Universally Unique ID to allow more than one modal component to be present in the same window, but be targeted separately for opening/closing
 	export let modalID = nanoid();
 	export let dialogOpen = false;
 	export let isError = false;
@@ -42,16 +21,7 @@
 		displayModal(modal);
 	};
 	onMount(() => {
-		// dialogPolyfill.registerDialog(modal);
 		dialogOpen ? open() : null;
-
-		// if (dialogPolyfill === undefined) {
-		// 	console.log('getting polyfill...');
-		// 	getPolyfill();
-		// } else {
-		// 	console.log('registering dialog...', modal.id);
-		// 	dialogPolyfill.registerDialog(modal);
-		// }
 	});
 </script>
 
@@ -75,8 +45,6 @@
 		@include frostedGlass;
 		scrollbar-width: thin;
 		position: fixed;
-		// top: 50%;
-		// transform: translate(-50vw, -50%);
 		transition: all 300ms ease-in-out;
 		border: none;
 		border-radius: 25px;
