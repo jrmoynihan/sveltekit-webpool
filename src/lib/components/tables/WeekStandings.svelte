@@ -21,7 +21,6 @@ import ReturnToTop from '$components/buttons/ReturnToTop.svelte';
 	let initialWeekHeaders: string[] = ['Rank', 'Player', 'Wins', 'Losses', 'Tiebreaker', 'Prize'];
 	let abbreviatedWeekHeaders: string[] = ['#', 'Name', 'W', 'L', 'T', '$'];
 	let weekHeaders: string[] = initialWeekHeaders;
-	let weeklyPlayerQuery: Query<DocumentData>;
 	let headerCount: number;
 
 	export const getAllTiebreakers = async (
@@ -64,7 +63,7 @@ import ReturnToTop from '$components/buttons/ReturnToTop.svelte';
 
 	const getData = async (selectedWeek: number): Promise<{ weeklyPlayers: Player[]; tiebreakers: WeeklyTiebreaker[]; lastGame: Game; }> => {
 
-		weeklyPlayerQuery = query(
+		let weeklyPlayerQuery: Query<DocumentData> = query(
 			playersCollection,
 			where('weekly', '==', true),
 			orderBy(`weeklyPickRecord.week_${selectedWeek}.wins`, 'desc'),
@@ -72,7 +71,7 @@ import ReturnToTop from '$components/buttons/ReturnToTop.svelte';
 		);
 
 		// Get the data asynchronously for each collection
-		const weeklyPlayerPromise : Promise<Player[]> = getWeeklyPlayers(false, weeklyPlayerQuery);
+		const weeklyPlayerPromise : Promise<Player[]> = getWeeklyPlayers();  // FIXME: this was using the query above, but this data structure needs to be reworked.
 		const tiebreakerPromise : Promise<WeeklyTiebreaker[]> = getAllTiebreakers(selectedWeek);
 		const lastGamePromise : Promise<Game> = getLastGame(selectedWeek);
 		

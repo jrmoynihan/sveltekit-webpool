@@ -97,7 +97,7 @@
 	const getData = async () => {
 		picksPromise = getAllPicksForWeek();
 		gamesPromise = getAllGamesForWeek();
-		playersPromise = getWeeklyPlayers(false);
+		playersPromise = getWeeklyPlayers();
 		teamsPromise = getAllTeams();
 		const [picks, games, players, teams] = await Promise.all([
 			picksPromise,
