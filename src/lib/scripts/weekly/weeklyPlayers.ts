@@ -2,7 +2,7 @@ import type { Game } from '$classes/game';
 import type { WeeklyPickDoc } from '$classes/picks';
 import type { WeeklyTiebreaker } from '$classes/tiebreaker';
 import { Player } from '$classes/player';
-import { query, where, getDocs, orderBy } from '@firebase/firestore';
+import { query, where, getDocs, orderBy, QueryConstraint } from '@firebase/firestore';
 import { all_icons } from '$classes/constants';
 import { ErrorAndToast, LogAndToast, myLog } from '$scripts/logging';
 import {
@@ -21,14 +21,19 @@ import type { PoolsToQuery } from '$scripts/types/types';
 
 type getPlayersOptions = {
 	roles?: PoolsToQuery[];
+	constraints?: QueryConstraint[];
 	showToast?: boolean;
 };
 export const getPlayers = async (input: getPlayersOptions) => {
-	const { roles, showToast } = input;
+	const { roles, showToast, constraints } = input;
 	try {
 		const players: Player[] = [];
-		const wheres = roles.map((role) => where(`${role}`, '==', true));
-		const player_query = query(playersCollection.withConverter(playerConverter), ...wheres);
+		const role_constraints = roles.map((role) => where(`${role}`, '==', true));
+		const query_constraints = [...role_constraints, ...constraints];
+		const player_query = query(
+			playersCollection.withConverter(playerConverter),
+			...query_constraints
+		);
 		const player_docs = await getDocs(player_query);
 		player_docs.forEach((player_doc) => {
 			players.push(new Player({ ...player_doc.data() }));
