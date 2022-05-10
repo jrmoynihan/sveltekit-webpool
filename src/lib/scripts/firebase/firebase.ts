@@ -3,7 +3,7 @@ import { getApps, getApp, initializeApp, type FirebaseApp } from 'firebase/app';
 import { getAuth, type Auth } from '@firebase/auth';
 import { Firestore, getFirestore } from '@firebase/firestore';
 
-const API_KEY: string = import.meta.env.VITE_API_KEY as string;
+const API_KEY: string = dev && !browser ? process.env.FIREBASE_API_KEY : import.meta.env.VITE_API_KEY as string;
 const firebaseConfig = {
 	apiKey: API_KEY,
 	authDomain: 'tonyswebpool.firebaseapp.com',
