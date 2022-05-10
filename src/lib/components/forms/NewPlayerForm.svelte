@@ -1,14 +1,21 @@
 <script lang="ts">
 	import { createNewPlayerDocument } from '$lib/scripts/auth/login';
 	import { all_icons } from '$scripts/classes/constants';
-	import { myError, myLog } from '$scripts/logging';
+	import { ErrorAndToast, myError, myLog } from '$scripts/logging';
 	import { savePlayerData } from '$scripts/localStorage';
-	import { godSequence, godMode, firebase_user, current_player } from '$scripts/store';
+	import {
+		godSequence,
+		godMode,
+		firebase_user,
+		current_player,
+		current_season
+	} from '$scripts/store';
 	import { defaultToast, errorToast } from '$scripts/toasts';
 	import {
-		createTiebreakersForPlayer,
+		createWeeklyTiebreakersForPlayer,
 		createWeeklyPicksForPlayer,
-		getAllGames
+		getAllGames,
+		getSpecificGames
 	} from '$scripts/weekly/weeklyAdmin';
 	import {
 		faArrowAltCircleRight,
@@ -23,6 +30,8 @@
 	import ToggleSwitch from '../switches/ToggleSwitch.svelte';
 	import { cubicInOut } from 'svelte/easing';
 	import AccordionDetails from '$components/containers/accordions/AccordionDetails.svelte';
+	import { Timestamp, where } from '@firebase/firestore';
+	import { findCurrentSeason } from '$lib/scripts/schedule';
 
 	export let modalOnlyComponent: ModalOnly;
 	let nickname = '';
@@ -117,10 +126,15 @@
 			await createNewPlayerDocument($firebase_user, nickname, toggledPools, totalPriceToEnter, 0);
 			await savePlayerData($firebase_user);
 			// TODO: create the necessary docs for each pool they've joined...
-			// may not need to await here, but could instead use Workers!
-			const games = await getAllGames(false);
-			createWeeklyPicksForPlayer($current_player, true, false, games);
-			createTiebreakersForPlayer($current_player);
+			// TODO: Move these to Cloud Functions triggered on new player doc creation...
+			const now_timestamp = Timestamp.now();
+			// Get all games that will be played in the future
+			const games = await getSpecificGames({
+				queryConstraints: [where('timestamp', '>=', now_timestamp)]
+			});
+			createWeeklyPicksForPlayer({ player: $current_player, games, logAll: true, showToast: true });
+			const season = $current_season || (await findCurrentSeason());
+			createWeeklyTiebreakersForPlayer({ player: $current_player, season });
 			//prettier-ignore
 			defaultToast({
 				title: `Account Created!`,
@@ -130,8 +144,8 @@
 			modalOnlyComponent.close();
 			setTimeout(() => (creatingNewAccount = false), 300);
 		} catch (error) {
-			errorToast({ msg: 'We ran into an error while creating the account.' });
-			myError({ location: 'NewPlayerForm', function_name: 'createAccount', error });
+			const msg = 'We ran into an error while creating the account.';
+			ErrorAndToast({ error, msg });
 		}
 	};
 	const confirmToggledPools = async () => {
