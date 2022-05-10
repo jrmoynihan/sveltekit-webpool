@@ -1,5 +1,4 @@
 <script lang="ts">
-	import type { Player } from '$classes/player';
 	import StyledButton from '$lib/components/buttons/StyledButton.svelte';
 	import { resetScoredPicksForWeek, scorePicksForWeek } from '$scripts/scorePicks';
 	import {
@@ -28,7 +27,7 @@
 				const proceed = confirm(
 					'Are you sure?  These picks are created upon joining the pool.  You may want to delete all existing pick documents first, or delete/create picks for an individual player instead.'
 				);
-				if (proceed) createWeeklyPicksForPlayer($selected_player, false, true);
+				if (proceed) createWeeklyPicksForPlayer({ player: $selected_player });
 			}}
 		>
 			<span>Create All Picks for <b>{$selected_player.name}</b></span>
