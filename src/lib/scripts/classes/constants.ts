@@ -1,5 +1,3 @@
-import type { SeasonBoundDoc } from './seasonBound';
-
 export const maxRegularSeasonWeeks = 18;
 export const maxPreseasonWeeks = 4;
 
