@@ -14,7 +14,7 @@ import {
 } from '$lib/scripts/converters';
 import { defaultToast, errorToast } from '$lib/scripts/toasts';
 import { getWeeklyPlayers } from './weeklyPlayers';
-import { updateDoc, deleteDoc, doc, getDocs, query, setDoc, where, type QueryConstraint } from '@firebase/firestore';
+import { updateDoc, deleteDoc, doc, getDocs, query, setDoc, where, type QueryConstraint, Timestamp } from '@firebase/firestore';
 import { findCurrentWeekOfSchedule } from '$lib/scripts/schedule';
 import { getConsensusSpread } from '$lib/scripts/dataFetching';
 import { toast } from '@zerodevx/svelte-toast';
@@ -73,6 +73,15 @@ export const getSpecificGames = async (input : getSpecificGameOptions) => {
 		ErrorAndToast({ msg, error});
 	}
 };
+
+export const getFutureGames = async(): Promise<Game[]> => {
+	const now_timestamp = Timestamp.now();
+	// Get all games that will be played in the future
+	const games = await getSpecificGames({
+	queryConstraints: [where('timestamp', '>=', now_timestamp)]
+			});
+	return games;
+}
 
 export const createWeeklyPicksForAllPlayers = async () => {
 	try {
