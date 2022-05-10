@@ -1,6 +1,6 @@
 import { query, where, getDocs, setDoc, updateDoc, doc, Timestamp } from '@firebase/firestore';
 import type { QuerySnapshot, DocumentReference } from '@firebase/firestore';
-import { myError, myLog } from '$scripts/logging';
+import { ErrorAndToast, myError, myLog } from '$scripts/logging';
 import type {
 	ESPNSeason,
 	ESPNSeasonCollection,
@@ -92,10 +92,8 @@ export const findCurrentWeekOfSchedule = async (showToast?: boolean): Promise<nu
 			} else throw new Error('Could not find current week of schedule via ESPN API either.');
 		}
 	} catch (error) {
-		myError({ location: 'schedule.ts', function_name: 'findCurrentWeekOfSchedule', error });
-		if (showToast) {
-			errorToast({ msg: `We ran into an error finding the current week: ${error}` });
-		}
+		const msg = 'Ran into an error finding the current week.';
+		showToast ? ErrorAndToast({ error, msg }) : myError({ error, msg });
 	}
 };
 const getWeekFromESPN = async () => {
@@ -112,7 +110,7 @@ const getWeekFromESPN = async () => {
 		const week_refs = await fetchWeekRefsOfSeason(espn_season_data);
 		return findWhichWeekIncludesToday(week_refs);
 	} catch (error) {
-		myError({ location: 'schedule.ts', function_name: 'getWeekFromESPN', error });
+		myError({ error });
 	}
 };
 
@@ -221,8 +219,7 @@ export const findCurrentSeason = async (): Promise<SeasonBoundDoc> => {
 			} else throw new Error('Could not find current week of schedule via ESPN API either.');
 		}
 	} catch (error) {
-		myError({ location: 'schedule.ts', function_name: 'findCurrentSeason', error });
-		errorToast({ msg: `Error finding the current season: ${error}` });
+		ErrorAndToast({ msg: `Error finding the current season.`, error });
 	}
 };
 

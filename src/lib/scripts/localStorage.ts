@@ -44,10 +44,6 @@ export const savePlayerData = async (firebase_user: User) => {
 			additional_params: current_player
 		});
 	} catch (error) {
-		myError({
-			location: 'localStorage.ts',
-			error,
-			msg: 'Unable to save player data to local storage!'
-		});
+		myError({ msg: 'Unable to save player data to local storage!', error });
 	}
 };

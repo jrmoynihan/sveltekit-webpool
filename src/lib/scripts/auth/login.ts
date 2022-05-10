@@ -63,7 +63,7 @@ export const signInWithRedirectOrPopup = async (
 		}
 
 	} catch (error) {
-		myError({location: 'login.ts', function_name: 'getUserCredential', error});
+		myError({msg: 'Unable to sign in with redirect or popup.', error});
 	}
 };
 
@@ -184,5 +184,5 @@ onAuthStateChanged(firebaseAuth,
 			myLog({msg: 'No current user.', traceLocation: true});
 		}
 	},
-	(error) => myError({location: 'login.ts', function_name: 'onAuthStateChanged', error})
+	(error) => myError({error})
 );

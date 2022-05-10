@@ -77,7 +77,7 @@ export const getUserId = async (): Promise<any> => {
 		const id = await getLocalStorageItem('id');
 		return id;
 	} catch (error) {
-		myError({ location: 'functions.ts', function_name: 'getUserId', error });
+		myError({ error });
 	}
 };
 export const makeNumericArrayOfDesiredLength = (length: number): number[] => {

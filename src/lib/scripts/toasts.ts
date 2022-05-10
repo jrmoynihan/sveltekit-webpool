@@ -125,6 +125,6 @@ export const getToast = async (page: string) => {
 		myLog({ msg: 'got toast', icon: all_icons.bread });
 		return { msg: msg, title: title };
 	} catch (error) {
-		myError({ location: 'toasts.ts', function_name: 'getToast', error, icon: all_icons.bread });
+		myError({ error, icon: all_icons.bread });
 	}
 };

@@ -44,7 +44,7 @@ import ReturnToTop from '$components/buttons/ReturnToTop.svelte';
 		}
 			return tiebreakers;
 		} catch (error) {
-			ErrorAndToast({msg: 'Error encountered while getting tiebreakers.', error, function_name: 'getAllTiebreakers', location: 'weekly/WeeklyStandings.svelte'});
+			ErrorAndToast({msg: 'Error encountered while getting tiebreakers.', error });
 		}
 	};
 	const getLastGame = async (selectedWeek: number) => {
@@ -58,7 +58,7 @@ import ReturnToTop from '$components/buttons/ReturnToTop.svelte';
 			const lastGame = lastGameDoc.docs[0].data();
 			return lastGame;
 		} catch (error) {
-			ErrorAndToast({msg: 'Error encountered while getting last game.', error, function_name: 'getLastGame', location: 'weekly/WeeklyStandings.svelte'});
+			ErrorAndToast({msg: 'Error encountered while getting last game.', error });
 		}
 	};
 

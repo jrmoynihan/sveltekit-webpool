@@ -149,8 +149,6 @@
 					ErrorAndToast({
 						msg,
 						error,
-						function_name: 'submitPicksAndTiebreaker',
-						location: 'weekly/make-picks.svelte',
 						additional_params: currentPick
 					});
 				}
@@ -178,8 +176,6 @@
 			ErrorAndToast({
 				msg,
 				error,
-				function_name: 'submitPicksAndTiebreaker',
-				location: 'weekly/make-picks.svelte',
 				additional_params: currentPicks
 			});
 		}
@@ -210,8 +206,6 @@
 			ErrorAndToast({
 				msg,
 				error,
-				function_name: 'updateTiebreakerDoc',
-				location: 'weekly/make-picks.svelte',
 				additional_params: { scoreGuess, uid, tiebreakerDocRef }
 			});
 		}
@@ -257,8 +251,6 @@
 			ErrorAndToast({
 				msg,
 				error,
-				function_name: 'updatePicks',
-				location: 'weekly/make-picks.svelte',
 				additional_params: {
 					games,
 					picks,
@@ -342,8 +334,6 @@
 			ErrorAndToast({
 				msg,
 				error,
-				function_name: 'pickAllFavored',
-				location: 'weekly/make-picks.svelte',
 				additional_params: { games, picks }
 			});
 		}
@@ -389,8 +379,6 @@
 			ErrorAndToast({
 				msg,
 				error,
-				function_name: 'pickAllDogs',
-				location: 'weekly/make-picks.svelte',
 				additional_params: { games, picks }
 			});
 		}

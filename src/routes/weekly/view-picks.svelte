@@ -46,9 +46,7 @@
 			const msg = 'Error getting weekly picks. See console for details.';
 			ErrorAndToast({
 				msg,
-				error,
-				function_name: 'getAllPicksForWeek',
-				location: 'weekly/view-picks.svelte'
+				error
 			});
 		}
 	};
@@ -75,9 +73,7 @@
 			const msg = 'Error getting games. See console for details.';
 			ErrorAndToast({
 				msg,
-				error,
-				function_name: 'getAllGamesForWeek',
-				location: 'weekly/view-picks.svelte'
+				error
 			});
 		}
 	};
@@ -94,9 +90,7 @@
 			const msg = 'Error getting teams. See console for details.';
 			ErrorAndToast({
 				msg,
-				error,
-				function_name: 'getAllTeams',
-				location: 'weekly/view-picks.svelte'
+				error
 			});
 		}
 	};

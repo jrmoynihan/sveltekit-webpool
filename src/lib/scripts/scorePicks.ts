@@ -36,7 +36,7 @@ import {
 	secondPlaceWeeklyAmount,
 	thirdPlaceWeeklyAmount
 } from './classes/constants';
-import { myError, myLog } from '$scripts/logging';
+import { ErrorAndToast, myError, myLog } from '$scripts/logging';
 import {
 	scheduleCollection,
 	playersCollection,
@@ -259,7 +259,7 @@ export const scorePicksForWeek = async (
 			msg: `Successfully scored each player's picks for Week ${selectedWeek}, ${selectedYear}.`
 		});
 	} catch (error) {
-		myError({ location: 'scorePicks.ts', function_name: 'scorePicksForWeek', error });
+		myError({ error });
 	}
 };
 
@@ -381,7 +381,7 @@ export const findWeeklySeasonLeaders = async (
 		});
 		return leaders;
 	} catch (error) {
-		myError({ location: 'scorePicks.ts', function_name: 'findWeeklySeasonLeaders', error });
+		myError({ error });
 	}
 };
 
@@ -406,7 +406,7 @@ export const findWeeklyLeaders = async (
 		});
 		return leaders;
 	} catch (error) {
-		myError({ location: 'scorePicks.ts', function_name: 'findWeeklyLeaders', error });
+		myError({ error });
 	}
 };
 
@@ -487,7 +487,7 @@ export const markIfPickIsCorrect = async (
 			}
 		});
 	} catch (error) {
-		myError({ location: 'scorePicks.ts', function_name: 'markIfPickIsCorrect', error });
+		myError({  error });
 	}
 };
 export const scoreNetTiebreakers = async (
@@ -519,7 +519,7 @@ export const scoreNetTiebreakers = async (
 			});
 		}
 	} catch (error) {
-		myError({ location: 'scorePicks.ts', function_name: 'scoreNetTiebreakers', error });
+		myError({  error });
 	}
 };
 
@@ -551,7 +551,7 @@ export const resetScoredPicksForWeek = async (
 			});
 		}
 	} catch (error) {
-		myError({ location: 'scorePicks.ts', function_name: 'resetScoredPicksForWeek', error });
+		myError({  error });
 	}
 };
 
@@ -583,7 +583,7 @@ export const updateGamesAndATSWinners = async (
 			msg: `Winners have been added/updated to each game document.`
 		});
 	} catch (error) {
-		myError({ location: 'scorePicks.ts', function_name: 'updateGamesAndATSWinners', error });
+		myError({  error });
 	}
 };
 
@@ -630,7 +630,7 @@ export const updateGameandATSWinner = async (
 		// 	);
 		// }
 	} catch (error) {
-		myError({ location: 'scorePicks.ts', function_name: 'updatedGameAndATSWinner', error });
+		myError({ error });
 	}
 };
 
@@ -647,7 +647,7 @@ export const findWinnerAndLoser = async (
 			return { winner: everyoneWinsResult, loser: everyoneWinsResult };
 		}
 	} catch (error) {
-		myError({ location: 'scorePicks.ts', function_name: 'findWinnerAndLoser', error });
+		myError({ error });
 	}
 };
 export const findATSWinner = async (
@@ -759,7 +759,7 @@ export const removeWinnersFromGames = async (
 			msg: `Successfully removed winners from games for week ${selectedWeek}.`
 		});
 	} catch (error) {
-		myError({ location: 'scorePicks.ts', function_name: 'removeWinnersFromGames', error });
+		myError({ error });
 	}
 };
 // TODO: turn this into a cloud function listener!
@@ -842,7 +842,7 @@ export const updateTeamRecordsFromESPN = async (
 		toast.push({ msg: `wrote ${writeCount} times!`, duration: 30000 });
 		myLog({ msg: `made ${writeCount} writes to update the records on team and game documents` });
 	} catch (error) {
-		myError({ location: 'scorePicks.ts', function_name: 'updateTeamRecordsFromESPN', error });
+		myError({ error });
 	}
 };
 
@@ -883,8 +883,7 @@ export const updateTeamRecordOnGameDocs = async (
 		}
 		return writeCount;
 	} catch (error) {
-		myError({ location: 'scorePicks.ts', function_name: 'updateTeamRecordOnGameDocs', error });
-		errorToast({msg: `Unable to update team record on game doc.`});
+		ErrorAndToast({msg: `Unable to update team record on game doc.`, error});
 	}
 };
 export const updateTeamRecord = async (
@@ -1004,6 +1003,6 @@ export const resetWeeklyPlayerRecords = async (): Promise<void> => {
 			msg: `${checkmark} All weekly pool player records have been reset.`
 		});
 	} catch (error) {
-		myError({ location: 'scorePicks.ts', function_name: 'resetWeeklyPlayerRecords', error });
+		myError({ error });
 	}
 };
