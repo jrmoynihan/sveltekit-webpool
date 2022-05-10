@@ -1,4 +1,3 @@
-console.log('ScorePicks.ts loaded');
 import type {
 	ESPNRecord,
 	ESPNScore,
@@ -6,7 +5,7 @@ import type {
 	PrunedCompetition,
 	RefOnlyESPN,
 	Game
-} from './classes/game';
+} from '$classes/game';
 import {
 	DocumentReference,
 	QuerySnapshot,
@@ -51,7 +50,7 @@ import {
 	weeklyPickConverter,
 	weeklyTiebreakerConverter
 } from './converters';
-import { defaultToast, errorToast } from './toasts';
+import { defaultToast } from './toasts';
 import type { Team } from './classes/team';
 import type { WeeklyTiebreaker } from './classes/tiebreaker';
 import type { WeeklyPickDoc } from './classes/picks';
