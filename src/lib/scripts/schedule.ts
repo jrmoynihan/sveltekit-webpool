@@ -12,7 +12,6 @@ import type {
 } from '$classes/game';
 import { seasonBoundsCollection, weekBoundsCollection } from './collections';
 import { seasonBoundConverter, weekBoundConverter } from './converters';
-import { errorToast } from './toasts';
 import { current_season_year, current_season, current_season_type_number } from '$scripts/store';
 import { get } from 'svelte/store';
 import { SeasonBoundDoc } from './classes/seasonBound';
@@ -98,7 +97,7 @@ export const findCurrentWeekOfSchedule = async (showToast?: boolean): Promise<nu
 };
 const getWeekFromESPN = async () => {
 	try {
-		let espn_season_data;
+		let espn_season_data: ESPNSeason;
 		if (get(current_season_year) && get(current_season_type_number)) {
 			espn_season_data = await fetchESPNSeasonData(
 				get(current_season_year),
