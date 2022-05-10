@@ -101,32 +101,32 @@
 	color: black;
 }
 
-@mixin editableCell($frosted: true) {
+@mixin editableCell($frosted: false, $shadowed: false) {
 	@include cell;
 
 	@if ($frosted) {
 		@include frostedGlass;
 	}
-
-	@include normalShadow;
+	@if ($shadowed) {
+		@include normalShadow;
+	}
 	width: max-content;
 	max-width: 100%;
 
 	&:hover,
-	&:focus {
+	&:focus-within {
 		cursor: text;
 		filter: brightness(105%);
-		outline: none;
 
 		@include dayShadow;
 
-		&:focus {
+		&:focus-within {
 			@include nightShadow;
 		}
 	}
 }
 
-@mixin editableInput($frosted: true) {
+@mixin editableInput($frosted: false) {
 	@include editableCell($frosted);
 }
 
@@ -180,7 +180,7 @@
 
 @mixin defaultButtonStyles {
 	@include frostedGlass;
-	@include glassShadow;
+	// @include glassShadow;
 	@include rounded(5vh);
 	@include centeredButton;
 	@include hoverBoxShadow;
@@ -369,7 +369,6 @@
 	color: white;
 	text-shadow: 1px 1px 10px black;
 	width: 100%;
-	// box-shadow: 4px 4px 15px 5px hsla(0, 0%, 0%, 0.5);
 	border: 4px solid hsla(var(--accent-value), 80%);
 	background: radial-gradient(
 		hsla(var(--accent-value), 70%) 50%,
