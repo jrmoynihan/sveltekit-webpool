@@ -4,7 +4,7 @@ import { Firestore, getFirestore } from '@firebase/firestore';
 
 const API_KEY: string = import.meta.env.DEV ? import.meta.env.API_KEY as string : process.env.API_KEY as string;
 const firebaseConfig = {
-	apiKey: `${API_KEY}`, // NOTE: Must leave string interpolation for SSR build to turn the env var into a string
+	apiKey: 'AIzaSyDEAAXuJcftdIqBRxi_OmDYmFEMs2qnpIw', // FIXME - why isn't Vercel processing this?
 	authDomain: 'tonyswebpool.firebaseapp.com',
 	databaseURL: 'https://tonyswebpool.firebaseio.com',
 	projectId: 'tonyswebpool',
@@ -13,7 +13,6 @@ const firebaseConfig = {
 	appId: '1:1009472673898:web:349b4dad1bccd89d2e9213',
 	measurementId: 'G-8Y5HV7HDFZ'
 };
-console.log('firebaseConfig:', firebaseConfig);
 console.log('test env var',`${process.env.TEST}`)
 
 export function initializeFirebaseApp(): FirebaseApp {
