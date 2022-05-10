@@ -2,7 +2,7 @@ import { getApps, getApp, initializeApp, type FirebaseApp } from '@firebase/app'
 import { getAuth, type Auth } from '@firebase/auth';
 import { Firestore, getFirestore } from '@firebase/firestore';
 
-const API_KEY: string = import.meta.env.DEV ? import.meta.env.API_KEY as string : process.env.FIREBASE_API_KEY as string;
+const API_KEY: string = import.meta.env.DEV ? import.meta.env.API_KEY as string : process.env.API_KEY as string;
 const firebaseConfig = {
 	apiKey: `${API_KEY}`, // NOTE: Must leave string interpolation for SSR build to turn the env var into a string
 	authDomain: 'tonyswebpool.firebaseapp.com',
@@ -14,7 +14,7 @@ const firebaseConfig = {
 	measurementId: 'G-8Y5HV7HDFZ'
 };
 console.log('firebaseConfig:', firebaseConfig);
-console.log('test env var',process.env.TEST)
+console.log('test env var',`${process.env.TEST}`)
 
 export function initializeFirebaseApp(): FirebaseApp {
 	// If a firebase app is already initialized, use that one
