@@ -5,11 +5,14 @@
 		createWeeklyPicksForAllPlayers,
 		createWeeklyPicksForPlayer,
 		deleteWeeklyPicksForAllPlayers,
-		deleteWeeklyPicksForPlayer
+		deleteWeeklyPicksForPlayer,
+		getFutureGames,
+		getSpecificGames
 	} from '$scripts/weekly/weeklyAdmin';
 	import AdminExpandSection from './adminExpandSection.svelte';
 	import DeletionButton from '$lib/components/buttons/DeletionButton.svelte';
 	import { selected_player, selected_week, selected_year } from '$scripts/store';
+	import { where } from '@firebase/firestore';
 
 	export let customContentStyles = null;
 	export let customSummaryStyles = null;
@@ -23,29 +26,31 @@
 	</StyledButton>
 	{#if $selected_player}
 		<StyledButton
-			on:click={() => {
+			on:click={async () => {
 				const proceed = confirm(
 					'Are you sure?  These picks are created upon joining the pool.  You may want to delete all existing pick documents first, or delete/create picks for an individual player instead.'
 				);
-				if (proceed) createWeeklyPicksForPlayer({ player: $selected_player });
+				if (proceed) {
+					const games = await getFutureGames();
+					createWeeklyPicksForPlayer({ player: $selected_player, games, showToast: true });
+				}
 			}}
 		>
 			<span>Create All Picks for <b>{$selected_player.name}</b></span>
 		</StyledButton>
 		<StyledButton
-			on:click={() => {
+			on:click={async () => {
 				const proceed = confirm(
 					'Are you sure?  These picks are created upon joining the pool.  You may want to delete all existing pick documents first, or delete/create picks for an individual player instead.'
 				);
-				if (proceed)
-					createWeeklyPicksForPlayer(
-						$selected_player,
-						false,
-						true,
-						undefined,
-						$selected_week,
-						$selected_year
-					);
+				if (proceed) {
+					const constraints = [
+						where('week', '==', $selected_week),
+						where('year', '==', $selected_year)
+					];
+					const games = await getSpecificGames({ constraints });
+					createWeeklyPicksForPlayer({ player: $selected_player, games, showToast: true });
+				}
 			}}
 		>
 			<span
