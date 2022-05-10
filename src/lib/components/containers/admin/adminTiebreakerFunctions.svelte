@@ -1,10 +1,10 @@
 <script lang="ts">
 	import DeletionButton from '$lib/components/buttons/DeletionButton.svelte';
 	import StyledButton from '$lib/components/buttons/StyledButton.svelte';
-	import { selected_week, selected_year, selected_player } from '$scripts/store';
+	import { selected_week, selected_year, selected_player, selected_season } from '$scripts/store';
 	import {
-		createTiebreakersForAllPlayers,
-		createTiebreakersForPlayer,
+		createWeeklyTiebreakersForAllPlayers,
+		createWeeklyTiebreakersForPlayer,
 		deleteTiebreakersForAllPlayers,
 		deleteTiebreakersForPlayer
 	} from '$scripts/weekly/weeklyAdmin';
@@ -21,19 +21,14 @@
 	{customContentStyles}
 	{customSummaryStyles}
 >
-	<StyledButton on:click={() => createTiebreakersForAllPlayers()}>
+	<StyledButton on:click={() => createWeeklyTiebreakersForAllPlayers($selected_season)}>
 		Create Tiebreakers for All Players
 	</StyledButton>
 	<StyledButton
-		on:click={() => createTiebreakersForPlayer($selected_player, undefined, undefined, true)}
+		on:click={() =>
+			createWeeklyTiebreakersForPlayer({ player: $selected_player, season: $selected_season })}
 	>
 		Create All Tiebreakers for {$selected_player.name}
-	</StyledButton>
-	<StyledButton
-		on:click={() =>
-			createTiebreakersForPlayer($selected_player, $selected_week, $selected_year, true)}
-	>
-		Create Tiebreakers for {$selected_player.name} for Week {$selected_week}, {$selected_year}
 	</StyledButton>
 	<DeletionButton on:click={() => deleteTiebreakersForPlayer($selected_player)}>
 		Delete All Tiebreakers for {$selected_player.name}
