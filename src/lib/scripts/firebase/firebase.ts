@@ -1,9 +1,9 @@
-import { dev } from '$app/env';
+import { browser, dev } from '$app/env';
 import { getApps, getApp, initializeApp, type FirebaseApp } from 'firebase/app';
 import { getAuth, type Auth } from '@firebase/auth';
 import { Firestore, getFirestore } from '@firebase/firestore';
 
-const API_KEY: string = dev ? (import.meta.env.VITE_API_KEY as string) : process.env.API_KEY;
+const API_KEY: string = import.meta.env.VITE_API_KEY as string;
 const firebaseConfig = {
 	apiKey: API_KEY,
 	authDomain: 'tonyswebpool.firebaseapp.com',
