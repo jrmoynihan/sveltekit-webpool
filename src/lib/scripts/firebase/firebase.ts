@@ -13,6 +13,7 @@ const firebaseConfig = {
 	appId: '1:1009472673898:web:349b4dad1bccd89d2e9213',
 	measurementId: 'G-8Y5HV7HDFZ'
 };
+console.log('firebaseConfig:', firebaseConfig);
 
 export function initializeFirebaseApp(): FirebaseApp {
 	// If a firebase app is already initialized, use that one
