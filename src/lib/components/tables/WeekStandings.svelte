@@ -1,22 +1,19 @@
 <script lang="ts">
 	import { selected_week, showIDs, showNetTiebreakers, windowWidth } from '$scripts/store';
-	import { query, where, orderBy, type DocumentData, Query, getDocs } from '@firebase/firestore';
-	import {
-		scheduleCollection,
-		playersCollection,
-weeklyTiebreakersCollection
-	} from '$scripts/collections';
-	import { getWeeklyPlayers } from '$scripts/weekly/weeklyPlayers';
-	import {ErrorAndToast } from '$scripts/logging';
+	import { query, where, orderBy, getDocs } from '@firebase/firestore';
+	import { scheduleCollection, weeklyTiebreakersCollection } from '$scripts/collections';
+	import { getPlayers } from '$scripts/weekly/weeklyPlayers';
+	import { ErrorAndToast } from '$scripts/logging';
 	import type { Game } from '$classes/game';
 	import ErrorModal from '../modals/ErrorModal.svelte';
-import type { WeeklyTiebreaker } from '$classes/tiebreaker';
-import type { Player } from '$classes/player';
-import { gameConverter, weeklyTiebreakerConverter } from '$scripts/converters';
-import { mobileBreakpoint } from '$scripts/site';
-import WeekSelect from '$components/selects/WeekSelect.svelte';
-import WeeklyStandingsRow from '$components/tables/WeeklyStandingsRow.svelte';
-import ReturnToTop from '$components/buttons/ReturnToTop.svelte';
+	import type { WeeklyTiebreaker } from '$classes/tiebreaker';
+	import type { Player } from '$classes/player';
+	import { gameConverter, weeklyTiebreakerConverter } from '$scripts/converters';
+	import { mobileBreakpoint } from '$scripts/site';
+	import WeekSelect from '$components/selects/WeekSelect.svelte';
+	import WeeklyStandingsRow from '$components/tables/WeeklyStandingsRow.svelte';
+	import ReturnToTop from '$components/buttons/ReturnToTop.svelte';
+	import type { PoolsToQuery } from '$lib/scripts/types/types';
 
 	let initialWeekHeaders: string[] = ['Rank', 'Player', 'Wins', 'Losses', 'Tiebreaker', 'Prize'];
 	let abbreviatedWeekHeaders: string[] = ['#', 'Name', 'W', 'L', 'T', '$'];
@@ -35,15 +32,15 @@ import ReturnToTop from '$components/buttons/ReturnToTop.svelte';
 				where('week', '==', selectedWeek)
 			);
 			const tiebreaker_docs = await getDocs(q.withConverter(weeklyTiebreakerConverter));
-			if(tiebreaker_docs.size > 0) {
-			tiebreaker_docs.forEach((doc) => {
+			if (tiebreaker_docs.size > 0) {
+				tiebreaker_docs.forEach((doc) => {
 					const data = doc.data();
 					tiebreakers.push(data);
-			});
-		}
+				});
+			}
 			return tiebreakers;
 		} catch (error) {
-			ErrorAndToast({msg: 'Error encountered while getting tiebreakers.', error });
+			ErrorAndToast({ msg: 'Error encountered while getting tiebreakers.', error });
 		}
 	};
 	const getLastGame = async (selectedWeek: number) => {
@@ -57,36 +54,40 @@ import ReturnToTop from '$components/buttons/ReturnToTop.svelte';
 			const lastGame = lastGameDoc.docs[0].data();
 			return lastGame;
 		} catch (error) {
-			ErrorAndToast({msg: 'Error encountered while getting last game.', error });
+			ErrorAndToast({ msg: 'Error encountered while getting last game.', error });
 		}
 	};
 
-	const getData = async (selectedWeek: number): Promise<{ weeklyPlayers: Player[]; tiebreakers: WeeklyTiebreaker[]; lastGame: Game; }> => {
-
-		let weeklyPlayerQuery: Query<DocumentData> = query(
-			playersCollection,
-			where('weekly', '==', true),
+	const getData = async (
+		selectedWeek: number
+	): Promise<{ weeklyPlayers: Player[]; tiebreakers: WeeklyTiebreaker[]; lastGame: Game }> => {
+		const roles: PoolsToQuery[] = ['weekly'];
+		const constraints = [
 			orderBy(`weeklyPickRecord.week_${selectedWeek}.wins`, 'desc'),
 			orderBy(`weeklyPickRecord.week_${selectedWeek}.netTiebreaker`)
-		);
+		];
 
 		// Get the data asynchronously for each collection
-		const weeklyPlayerPromise : Promise<Player[]> = getWeeklyPlayers();  // FIXME: this was using the query above, but this data structure needs to be reworked.
-		const tiebreakerPromise : Promise<WeeklyTiebreaker[]> = getAllTiebreakers(selectedWeek);
-		const lastGamePromise : Promise<Game> = getLastGame(selectedWeek);
-		
-		// Wait for all the data to come in before resolving the getData() promise with the results
-		const data : [Player[], WeeklyTiebreaker[], Game] = await Promise.all([weeklyPlayerPromise, tiebreakerPromise, lastGamePromise]);
-		const weeklyPlayers : Player[] = data[0];
-		const tiebreakers : WeeklyTiebreaker[] = data[1];
-		const lastGame : Game = data[2];
+		const weeklyPlayerPromise: Promise<Player[]> = getPlayers({ roles, constraints });
+		const tiebreakerPromise: Promise<WeeklyTiebreaker[]> = getAllTiebreakers(selectedWeek);
+		const lastGamePromise: Promise<Game> = getLastGame(selectedWeek);
 
-		return {weeklyPlayers, tiebreakers, lastGame};
+		// Wait for all the data to come in before resolving the getData() promise with the results
+		const data: [Player[], WeeklyTiebreaker[], Game] = await Promise.all([
+			weeklyPlayerPromise,
+			tiebreakerPromise,
+			lastGamePromise
+		]);
+		const weeklyPlayers: Player[] = data[0];
+		const tiebreakers: WeeklyTiebreaker[] = data[1];
+		const lastGame: Game = data[2];
+
+		return { weeklyPlayers, tiebreakers, lastGame };
 	};
 
 	// Update the data promise if the week changes
-	let data_promise = getData($selected_week)
-	$: data_promise = getData($selected_week)
+	let data_promise = getData($selected_week);
+	$: data_promise = getData($selected_week);
 
 	// Reactive statements allow headers to update when the screen resizes
 	$: headerCount = weekHeaders.length;

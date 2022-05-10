@@ -1,11 +1,10 @@
 <script lang="ts">
 	import { windowWidth } from '$scripts/store';
 	import SeasonStandingsRow from './SeasonStandingsRow.svelte';
-	import { orderBy, query, where } from '@firebase/firestore';
+	import { orderBy, where } from '@firebase/firestore';
 	import type { Player } from '$classes/player';
 	import { mobileBreakpoint } from '$scripts/site';
-	import { playersCollection } from '$scripts/collections';
-	import { getWeeklyPlayers } from '$scripts/weekly/weeklyPlayers';
+	import { getPlayers } from '$scripts/weekly/weeklyPlayers';
 	import { onMount } from 'svelte';
 
 	let initialSeasonHeaders = ['Rank', 'Player', 'Wins', 'Losses', '% Won', 'Prizes'];
@@ -29,12 +28,9 @@
 		}
 	}
 	const getData = async () => {
-		const weeklyPlayerQuery = query(
-			playersCollection,
-			where('weekly', '==', true),
-			orderBy('totalWeeklyWins', 'desc')
-		);
-		weeklyPlayerPromise = getWeeklyPlayers(false, weeklyPlayerQuery);
+		const constraints = [where('weekly', '==', true), orderBy('totalWeeklyWins', 'desc')];
+
+		weeklyPlayerPromise = getPlayers({ constraints });
 	};
 
 	// TODO: Move to endpoint
