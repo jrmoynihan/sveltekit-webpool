@@ -38,7 +38,6 @@
 	import YearSelect from '$lib/components/selects/YearSelect.svelte';
 	import PlayerSelect from '$lib/components/selects/PlayerSelect.svelte';
 	import { changedQuery } from '$lib/scripts/weekly/weeklyPlayers';
-	import type { Player } from '$lib/scripts/classes/player';
 	import { adminControlsPages } from '$lib/scripts/site';
 
 	let storedScoreViewPreference: ScoreViewPreference;
