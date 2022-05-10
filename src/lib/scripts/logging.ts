@@ -5,8 +5,6 @@ export type myErrorType = {
 	error: Error;
 	msg?: string;
 	icon?: string | null;
-	function_name?: string;
-	location?: string;
 	additional_params?: any;
 };
 export type myLogType = {
@@ -21,9 +19,12 @@ export type LogAndToastType = myToastOptions & myLogType;
 export type ErrorAndToastType = myToastOptions & myErrorType;
 
 export const myError = (input: myErrorType): void => {
-	const { error, msg, icon = all_icons.policeCarLight, function_name, location, additional_params } = input;
-	console.error(
-		`${icon ? `%c${icon} ` : '%c'}${location || function_name ? 'Error in ' : ''}${location ? `${location} -> ` : ''}${function_name ?? ''}\n ${msg ?? ''}`, defaultConsoleLogStyle, error ?? '', additional_params ?? '');
+	const { error, msg, icon = all_icons.policeCarLight, additional_params } = input;
+	let str = icon ? `%c${icon} ` : '%c';
+	str += `\n ${msg}\ `;
+	let args = [str, defaultConsoleLogStyle, error];
+	if (additional_params) args = args.concat(additional_params);
+	console.error(...args);
 };
 export const myLog = (input: myLogType): void => {
 	const { msg, icon, traceLocation, additional_params } = input;
