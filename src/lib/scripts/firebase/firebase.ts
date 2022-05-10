@@ -4,7 +4,7 @@ import { Firestore, getFirestore } from '@firebase/firestore';
 
 const API_KEY: string = import.meta.env.PROD ? process.env.FIREBASE_API_KEY : import.meta.env.API_KEY as string;
 const firebaseConfig = {
-	apiKey: process.env.API_KEY,
+	apiKey: `${process.env.API_KEY}`,
 	authDomain: 'tonyswebpool.firebaseapp.com',
 	databaseURL: 'https://tonyswebpool.firebaseio.com',
 	projectId: 'tonyswebpool',
