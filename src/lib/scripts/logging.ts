@@ -1,17 +1,17 @@
 import { all_icons, defaultConsoleLogStyle } from "$classes/constants";
 import { type myToastOptions, defaultToast, errorToast } from "$scripts/toasts";
 
-export type myErrorType = {
-	error: Error;
-	msg?: string;
-	icon?: string | null;
-	additional_params?: any;
-};
-export type myLogType = {
+export interface myLogType {
 	msg: string;
 	icon?: string | null;
 	additional_params?: any;
 	traceLocation?: boolean
+};
+export interface myErrorType{
+	error: Error;
+	msg?: string;
+	icon?: string | null;
+	additional_params?: any;
 };
 
 // Creates a union of the two types for combined usage
