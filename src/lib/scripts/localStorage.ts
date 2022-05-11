@@ -1,9 +1,5 @@
 import { browser } from '$app/env';
-import { playersCollection } from '$scripts/collections';
-import { playerConverter } from '$scripts/converters';
-import { current_player, selected_player } from '$scripts/store';
-import { doc, getDoc } from '@firebase/firestore';
-import { Player } from '$classes/player';
+import { current_player } from '$scripts/store';
 import { all_icons } from '$classes/constants';
 import { myError, myLog } from '$scripts/logging';
 import type { User } from '@firebase/auth';
