@@ -1,7 +1,7 @@
 <script lang="ts">
 	import RowData from '$lib/components/containers/micro/RowData.svelte';
 	import type { Player } from '$lib/scripts/classes/player';
-	import { largerThanMobile } from '$lib/scripts/store';
+	import { larger_than_mobile } from '$lib/scripts/store';
 
 	export let player: Player;
 	export let i: number;
@@ -39,7 +39,7 @@
 				(player.totalWeeklyWins / (player.totalWeeklyWins + player.totalWeeklyLosses)) *
 				100
 			).toFixed(2)}%
-			{#if $largerThanMobile}
+			{#if $larger_than_mobile}
 				<span
 					style="--win-radii:{(
 						(player.totalWeeklyWins / (player.totalWeeklyWins + player.totalWeeklyLosses)) *

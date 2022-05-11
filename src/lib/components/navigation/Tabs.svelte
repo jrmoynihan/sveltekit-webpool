@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { largerThanMobile, use_dark_theme } from '$scripts/store';
+	import { larger_than_mobile, use_dark_theme } from '$scripts/store';
 	import TransitionWrapper from '../TransitionWrapper.svelte';
 
 	export let tabs = [];
@@ -19,7 +19,7 @@
 				/>
 				<label
 					class="defaultTransition {$use_dark_theme ? 'dark' : 'light'}
-					{$largerThanMobile ? '' : 'mobile'}"
+					{$larger_than_mobile ? '' : 'mobile'}"
 					for={tab.name}><h3>{tab.name}</h3></label
 				>
 			{/each}

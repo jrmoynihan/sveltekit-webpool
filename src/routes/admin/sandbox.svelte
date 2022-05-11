@@ -6,7 +6,7 @@
 	import { scheduleCollection } from '$scripts/collections';
 	import { gameConverter, } from '$scripts/converters';
 	import { fetchHttpsToJson } from '$scripts/dataFetching';
-	import { preferredScoreView } from '$scripts/store';
+	import { preferred_score_view } from '$scripts/store';
 	import type { ScoreViewPreference } from '$scripts/types/types';
 	import {
 		faCalculator,
@@ -67,7 +67,7 @@
 	titleText="all true"
 	selectedItem={viewPreferences[0]}
 	showIcon={false}
-	bind:selectedValue={$preferredScoreView}
+	bind:selectedValue={$preferred_score_view}
 />
 {#await getData()}
 	Loading game...

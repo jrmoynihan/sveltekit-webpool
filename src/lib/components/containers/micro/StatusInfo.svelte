@@ -4,7 +4,7 @@
 	import FinalGameScore from './FinalGameScore.svelte';
 	import ScoresAts from './ScoresATS.svelte';
 	import ErrorModal from '$lib/components/modals/ErrorModal.svelte';
-	import { preferredScoreView } from '$scripts/store';
+	import { preferred_score_view } from '$scripts/store';
 
 	export let promiseStatus: Promise<ESPNStatus>;
 	export let promiseScores: Promise<{ homeScoreData: ESPNScore; awayScoreData: ESPNScore }>;
@@ -49,7 +49,7 @@
 				<div class="finalOrTime">Final</div>
 				<div class="home">--</div>
 			{:then { awayScoreData, homeScoreData }}
-				{#if $preferredScoreView === 'Actual' || $preferredScoreView === 'Both'}
+				{#if $preferred_score_view === 'Actual' || $preferred_score_view === 'Both'}
 					<FinalGameScore
 						isHigherScore={awayScoreData.value > homeScoreData.value}
 						displayedScore={awayScoreData}
@@ -97,7 +97,7 @@
 	{:catch error}
 		<ErrorModal {error} />
 	{/await}
-	{#if $preferredScoreView === 'Both' || $preferredScoreView === 'ATS'}
+	{#if $preferred_score_view === 'Both' || $preferred_score_view === 'ATS'}
 		<ScoresAts {promiseStatus} {promiseScores} {spread} {ATSwinner} {homeTeam} {awayTeam} />
 	{/if}
 </div>

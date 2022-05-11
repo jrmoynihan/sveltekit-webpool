@@ -5,9 +5,9 @@
 	import {
 		selected_week,
 		selected_season_year,
-		showATSwinner,
-		showIDs,
-		showSpreads,
+		show_ATS_winner,
+		show_IDs,
+		show_spreads,
 		current_player
 	} from '$scripts/store';
 	import type { Timestamp } from '@firebase/firestore';
@@ -38,14 +38,14 @@
 	<SpreadOrPossession {spread} {disabled} {awayTeam} {homeTeam} {promiseSituation} />
 	<DateTimeOrDownDistance {timestamp} {promiseStatus} {promiseSituation} />
 	<input id="{id}-none" type="radio" bind:group={selectedTeam} value="" {disabled} />
-	{#if $showIDs}
+	{#if $show_IDs}
 		<div style="grid-area:IDs">{id}</div>
 	{/if}
-	{#if $showSpreads}
+	{#if $show_spreads}
 		<div style="grid-area:spreads">{spread > 0 ? `+${spread}` : spread}</div>
 	{/if}
 	<!-- @NOTE: Shows the ATS winner to admins if it hasn't been set AND the game is already over. i.e. the admin is able to score it now -->
-	{#if $showATSwinner || ($current_player.admin && gameIsOver && !ATSwinner)}
+	{#if $show_ATS_winner || ($current_player.admin && gameIsOver && !ATSwinner)}
 		<button
 			class="admin"
 			on:click={async () => {

@@ -5,20 +5,20 @@
 	import type { WeeklyPickDoc } from '$scripts/classes/picks';
 	import { weeklyPickConverter, weeklyTiebreakerConverter } from '$scripts/converters';
 	import {
-		changeableTiebreakerScoreGuess,
 		currentPicks,
-		gamesPromise,
-		largerThanMobile,
+		games_promise,
+		larger_than_mobile,
 		overrideDisabled,
-		picksPromise,
-		preferredScoreView,
-		tiebreakerPromise,
-		useDarkTheme,
+		picks_promise,
+		preferred_score_view,
+		tiebreaker_promise,
+		use_dark_theme,
 		selected_week,
 		selected_player,
 		selected_season_year,
 		selected_season_type,
-		selected_year
+		selected_year,
+		tiebreaker_score_guess
 	} from '$scripts/store';
 	import { DocumentReference, updateDoc } from '@firebase/firestore';
 	import { tweened } from 'svelte/motion';
@@ -65,12 +65,12 @@
 		easing: cubicOut
 	});
 
-	$: gridColumns = $largerThanMobile ? 2 : 1;
+	$: gridColumns = $larger_than_mobile ? 2 : 1;
 
 	onMount(async () => {
 		getData();
 		const toastSeen = await getLocalStorageItem(toastSeenKey);
-		$preferredScoreView = await getLocalStorageItem('scoreViewPreference');
+		$preferred_score_view = await getLocalStorageItem('scoreViewPreference');
 		if (toastSeen !== 'true') {
 			const promisedToast = await getToast('Make Picks');
 			defaultToast({
@@ -89,14 +89,14 @@
 			$selected_week,
 			$selected_player
 		);
-		$gamesPromise = promises.gamesPromise;
-		$picksPromise = promises.picksPromise;
-		$tiebreakerPromise = promises.tiebreakerPromise;
-		$currentPicks = await $picksPromise;
-		const tiebreakerDoc = await $tiebreakerPromise;
-		$changeableTiebreakerScoreGuess = tiebreakerDoc?.scoreGuess;
-		games = await $gamesPromise;
-		picks = await $picksPromise;
+		$games_promise = promises.gamesPromise;
+		$picks_promise = promises.picksPromise;
+		$tiebreaker_promise = promises.tiebreakerPromise;
+		$currentPicks = await $picks_promise;
+		const tiebreakerDoc = await $tiebreaker_promise;
+		$tiebreaker_score_guess = tiebreakerDoc?.scoreGuess;
+		games = await $games_promise;
+		picks = await $picks_promise;
 		countedGameTimes = await countPlayedOrUpcomingGames(games);
 	};
 
@@ -156,7 +156,7 @@
 				icon: all_icons.okHand,
 				additional_params: currentPicks
 			});
-			$picksPromise = getPicksForPlayer(
+			$picks_promise = getPicksForPlayer(
 				$selected_week,
 				$selected_player,
 				$selected_season_year,
@@ -406,12 +406,12 @@
 			$selected_week,
 			$selected_player
 		);
-		$gamesPromise = (await promises).gamesPromise;
-		$picksPromise = (await promises).picksPromise;
-		$tiebreakerPromise = (await promises).tiebreakerPromise;
-		$currentPicks = await $picksPromise;
-		games = await $gamesPromise;
-		picks = await $picksPromise;
+		$games_promise = (await promises).gamesPromise;
+		$picks_promise = (await promises).picksPromise;
+		$tiebreaker_promise = (await promises).tiebreakerPromise;
+		$currentPicks = await $picks_promise;
+		games = await $games_promise;
+		picks = await $picks_promise;
 	};
 
 	const getYardLine = (index: number) => {
@@ -439,33 +439,33 @@
 
 <PageTitle>Make Weekly Picks</PageTitle>
 <section class="grid positioning">
-	<div class="pick-status fixed grid {$largerThanMobile ? 'bottom-left' : 'bottom-right'}">
+	<div class="pick-status fixed grid {$larger_than_mobile ? 'bottom-left' : 'bottom-right'}">
 		{#if currentPickCount >= 0 && totalGameCount > 0}
 			{#key currentPickCount}
 				<PickCounter
-					invisible={$changeableTiebreakerScoreGuess >= 10 && showTiebreakerInput}
+					invisible={$tiebreaker_score_guess >= 10 && showTiebreakerInput}
 					bind:currentPicks={$currentPicks}
 					bind:currentPickCount
 					bind:totalGameCount
 					bind:upcomingGamesCount
 				/>
 			{/key}
-			{#await $tiebreakerPromise then tiebreaker}
+			{#await $tiebreaker_promise then tiebreaker}
 				{@const { docRef, scoreGuess } = tiebreaker}
 				<SubmitPicks
 					on:click={() =>
 						submitPicksAndTiebreaker(
 							$selected_player.uid,
 							docRef,
-							$changeableTiebreakerScoreGuess,
+							$tiebreaker_score_guess,
 							$currentPicks
 						)}
 					on:click={() => console.log(scoreGuess)}
 					disabled={!tiebreaker}
-					ableToTab={$changeableTiebreakerScoreGuess >= 10 ? 0 : -1}
-					pulse={$changeableTiebreakerScoreGuess >= 10}
-					invisible={$changeableTiebreakerScoreGuess < 10 ||
-						$changeableTiebreakerScoreGuess === undefined ||
+					ableToTab={$tiebreaker_score_guess >= 10 ? 0 : -1}
+					pulse={$tiebreaker_score_guess >= 10}
+					invisible={$tiebreaker_score_guess < 10 ||
+						$tiebreaker_score_guess === undefined ||
 						upcomingGamesCount === 0}
 				/>
 			{:catch error}
@@ -473,9 +473,9 @@
 			{/await}
 			{#if showTiebreakerInput}
 				<TiebreakerInput
-					scoreGuess={$changeableTiebreakerScoreGuess}
+					scoreGuess={$tiebreaker_score_guess}
 					on:change={(e) => {
-						$changeableTiebreakerScoreGuess = parseInt(e.detail);
+						$tiebreaker_score_guess = parseInt(e.detail);
 					}}
 				/>
 			{:else if upcomingGamesCount !== 0}
@@ -488,7 +488,7 @@
 	</div>
 	<div
 		class="first-row grid"
-		style={$largerThanMobile ? `margin-right:${offsetRightPercentage}%;` : ''}
+		style={$larger_than_mobile ? `margin-right:${offsetRightPercentage}%;` : ''}
 	>
 		<WeekSelect
 			customStyles="grid-area: week;"
@@ -501,39 +501,39 @@
 			disabled={!$currentPicks || !games}
 			style="grid-area:reset;"
 			on:click={async () => ($currentPicks = await resetPicks(games, $currentPicks))}
-			class:dark-mode={$useDarkTheme}
+			class:dark-mode={$use_dark_theme}
 			class="hotkeys">Reset Picks</button
 		>
 	</div>
 
 	<!-- prettier-ignore -->
-	<div class="second-row grid" style="{$largerThanMobile ? `margin-right:${offsetRightPercentage}%;`:''}">
-		<button disabled={!games || !picks} on:click={async ()=> $currentPicks = await pickAllAway(games,picks)} class:dark-mode={$useDarkTheme} class="hotkeys">All Away</button>
-		<button disabled={!games || !picks} on:click={async ()=> $currentPicks = await pickAllFavored(games,picks)} class:dark-mode={$useDarkTheme} class="hotkeys">All Favored</button>
-		<button disabled={!games || !picks} on:click={async ()=> $currentPicks = await pickAllDogs(games,picks)} class:dark-mode={$useDarkTheme} class="hotkeys">All Underdogs</button>
-		<button disabled={!games || !picks} on:click={async ()=> $currentPicks = await pickAllHome(games,picks)} class:dark-mode={$useDarkTheme} class="hotkeys">All Home</button>
+	<div class="second-row grid" style="{$larger_than_mobile ? `margin-right:${offsetRightPercentage}%;`:''}">
+		<button disabled={!games || !picks} on:click={async ()=> $currentPicks = await pickAllAway(games,picks)} class:dark-mode={$use_dark_theme} class="hotkeys">All Away</button>
+		<button disabled={!games || !picks} on:click={async ()=> $currentPicks = await pickAllFavored(games,picks)} class:dark-mode={$use_dark_theme} class="hotkeys">All Favored</button>
+		<button disabled={!games || !picks} on:click={async ()=> $currentPicks = await pickAllDogs(games,picks)} class:dark-mode={$use_dark_theme} class="hotkeys">All Underdogs</button>
+		<button disabled={!games || !picks} on:click={async ()=> $currentPicks = await pickAllHome(games,picks)} class:dark-mode={$use_dark_theme} class="hotkeys">All Home</button>
 	</div>
 
 	<div
 		class="grid weekGames"
-		style="{$largerThanMobile
+		style="{$larger_than_mobile
 			? `width:${widthMeasure}%; margin-right:${offsetRightPercentage}%;`
 			: ''} grid-template-columns:repeat({gridColumns},1fr)"
 	>
-		{#await $picksPromise}
+		{#await $picks_promise}
 			<LoadingSpinner msg="Loading picks..." width="100%" />
 		{:then}
 			{#each $currentPicks as pickDoc (pickDoc.gameId)}
-				{#await $gamesPromise}
+				{#await $games_promise}
 					<LoadingSpinner msg="Loading games..." width="100%" />
 				{:then games}
 					{#each games as game, i (game.id)}
 						{#if pickDoc.gameId === game.id}
 							<div
 								class="game-container"
-								class:showYard={$largerThanMobile}
-								class:rightYard={i % 2 !== 0 && $largerThanMobile}
-								class:leftYard={i % 2 === 0 && $largerThanMobile}
+								class:showYard={$larger_than_mobile}
+								class:rightYard={i % 2 !== 0 && $larger_than_mobile}
+								class:leftYard={i % 2 === 0 && $larger_than_mobile}
 								style="--yard:'{getYardLine(i) > 50
 									? ((getYardLine(i) - 100) * -1).toString()
 									: getYardLine(i).toString()}';"
@@ -541,7 +541,7 @@
 								out:fly={{ x: 100, duration: 300 }}
 								class:winner={game.ATSwinner === pickDoc.pick && game.ATSwinner !== ''}
 								class:loser={game.ATSwinner ? game.ATSwinner !== pickDoc.pick : null}
-								class:dark={$useDarkTheme}
+								class:dark={$use_dark_theme}
 							>
 								<MatchupContainer
 									bind:selectedTeam={pickDoc.pick}

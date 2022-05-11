@@ -2,7 +2,7 @@
 	import PickSixGroup from '$lib/components/containers/accordions/PickSixGroup.svelte';
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
 	import type { Team } from '$scripts/classes/team';
-	import { largerThanMobile, all_teams, current_season_year } from '$scripts/store';
+	import { larger_than_mobile, all_teams, current_season_year } from '$scripts/store';
 	import type { pickSixItem } from '$scripts/types/types';
 	import { quintOut } from 'svelte/easing';
 	import { crossfade, fly, slide } from 'svelte/transition';
@@ -74,7 +74,7 @@
 	<title>Pick6 Pool</title>
 </svelte:head>
 
-<div class="grid" style={$largerThanMobile ? '' : 'margin-bottom: 20%;'}>
+<div class="grid" style={$larger_than_mobile ? '' : 'margin-bottom: 20%;'}>
 	<button
 		class="reset"
 		on:click={() => {
@@ -101,7 +101,7 @@
 		bind:groupSelectedCount={groupThreeSelectedCount}
 		groupLetter={'C'}
 	/>
-	{#if $largerThanMobile && groupOneSelectedCount === 2 && groupTwoSelectedCount === 2 && groupThreeSelectedCount === 2}
+	{#if $larger_than_mobile && groupOneSelectedCount === 2 && groupTwoSelectedCount === 2 && groupThreeSelectedCount === 2}
 		<div
 			transition:fly={{ delay: 1250, y: 300, duration: 500, easing: quintOut }}
 			style={'max-width:max-content; margin:auto;margin-top:15%'}
@@ -113,14 +113,14 @@
 	{/if}
 </div>
 
-<div class="fixed" class:to-left={$largerThanMobile} class:to-bottom={!$largerThanMobile}>
+<div class="fixed" class:to-left={$larger_than_mobile} class:to-bottom={!$larger_than_mobile}>
 	<Grid
-		customStyles={$largerThanMobile ? 'grid-template-rows:repeat(6,minmax(0,1fr));' : ''}
-		repeatColumns={$largerThanMobile
+		customStyles={$larger_than_mobile ? 'grid-template-rows:repeat(6,minmax(0,1fr));' : ''}
+		repeatColumns={$larger_than_mobile
 			? 1
 			: groupOneSelectedCount + groupTwoSelectedCount + groupThreeSelectedCount}
 	>
-		{#if !$largerThanMobile && groupOneSelectedCount === 2 && groupTwoSelectedCount === 2 && groupThreeSelectedCount === 2}
+		{#if !$larger_than_mobile && groupOneSelectedCount === 2 && groupTwoSelectedCount === 2 && groupThreeSelectedCount === 2}
 			<div transition:slide class="submit-picks">
 				<StyledButton on:click={() => alert('add the CRUD!')} customStyles=""
 					>Submit Picks</StyledButton

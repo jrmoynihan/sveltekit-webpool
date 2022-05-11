@@ -3,7 +3,7 @@
 	import StyledButton from '$lib/components/buttons/StyledButton.svelte';
 	import { defaultToast } from '$lib/scripts/toasts';
 	import { updateTeamRecordsFromESPN } from '$scripts/scorePicks';
-	import { all_teams, largerThanMobile, selected_year } from '$scripts/store';
+	import { all_teams, larger_than_mobile, selected_year } from '$scripts/store';
 	import { updateDoc } from '@firebase/firestore';
 	import AdminExpandSection from './adminExpandSection.svelte';
 
@@ -26,7 +26,7 @@
 	};
 
 	let minColumns: string | number;
-	$: minColumns = $largerThanMobile ? 0 : '40%';
+	$: minColumns = $larger_than_mobile ? 0 : '40%';
 </script>
 
 <AdminExpandSection

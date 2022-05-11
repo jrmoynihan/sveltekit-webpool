@@ -1,32 +1,10 @@
 <script lang="ts">
 	import { browser } from '$app/env';
-	import { chosenMixBlendMode, use_dark_theme } from '$scripts/store';
+	import { use_dark_theme } from '$scripts/store';
 
 	export let invisible = false;
 
-	let root: HTMLElement;
-	if (browser) {
-		root = document.documentElement;
-	}
-
-	let mixBlendModes = [
-		'normal',
-		'multiply',
-		'screen',
-		'overlay',
-		'darken',
-		'lighten',
-		'color-dodge',
-		'color-burn',
-		'hard-light',
-		'soft-light',
-		'difference',
-		'exclusion',
-		'hue',
-		'saturation',
-		'color',
-		'luminosity'
-	];
+	let root: HTMLElement = browser ? document.documentElement : null;
 
 	export let lightThemeColors = {
 		text: 'hsla(0, 0%, 0%, 1)', // main/text color
@@ -109,19 +87,6 @@
 </script>
 
 <section class:invisible>
-	<!-- <DatalistSelect
-		inputID="mix-blend-mode-selector"
-		items={mixBlendModes}
-		displayedKeyNames={['name']}
-		placeholder={'Select a mix-blend-mode'}
-		bind:selectedItem={$chosenMixBlendMode}
-	/> -->
-	<select bind:value={$chosenMixBlendMode}>
-		{#each mixBlendModes as mode}
-			<option value={mode}>{mode}</option>
-		{/each}
-	</select>
-
 	{#each Object.keys($use_dark_theme ? darkThemeColors : lightThemeColors) as color}
 		<div class="container">
 			<label for="{color}-color-picker">{color}</label>
@@ -159,12 +124,6 @@
 	button {
 		@include defaultButtonStyles;
 		display: inline-block;
-	}
-	select {
-		@include defaultButtonStyles;
-		color: initial;
-		background-color: revert;
-		text-shadow: none;
 	}
 	.invisible {
 		visibility: hidden;

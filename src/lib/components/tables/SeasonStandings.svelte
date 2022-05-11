@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { windowWidth } from '$scripts/store';
+	import { window_width } from '$scripts/store';
 	import SeasonStandingsRow from './SeasonStandingsRow.svelte';
 	import { orderBy, where } from '@firebase/firestore';
 	import type { Player } from '$classes/player';
@@ -21,7 +21,7 @@
 	let headerCount: number;
 	$: headerCount = seasonHeaders.length;
 	$: {
-		if ($windowWidth < mobileBreakpoint - 500) {
+		if ($window_width < mobileBreakpoint - 500) {
 			seasonHeaders = abbreviatedSeasonHeaders;
 		} else {
 			seasonHeaders = initialSeasonHeaders;

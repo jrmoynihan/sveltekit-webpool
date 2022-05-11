@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { browser } from '$app/env';
-	import { largerThanMobile } from '$scripts/store';
+	import { larger_than_mobile } from '$scripts/store';
 	import { faArrowUp } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import { spring } from 'svelte/motion';
@@ -26,7 +26,7 @@
 	export const scrollProgress = spring<number>(0, { damping: 0.5, stiffness: 0.1 });
 </script>
 
-{#if !$largerThanMobile && $scrollProgress > 0.1}
+{#if !$larger_than_mobile && $scrollProgress > 0.1}
 	{#if showButton}
 		<button on:click={returnToTop} style={customStyles} transition:fade>
 			<Fa icon={faArrowUp} class="fa-icon" size="lg" />

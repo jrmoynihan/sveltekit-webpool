@@ -18,16 +18,13 @@
 <script lang="ts">
 	import '../app.css';
 	import {
-		chosenMixBlendMode,
 		current_season,
 		firebase_user,
-		largerThanMobile,
-		navChecked,
+		larger_than_mobile,
+		nav_toggled,
 		selected_season,
-		selected_week,
-		selected_year,
-		useDarkTheme,
-		windowWidth
+		use_dark_theme,
+		window_width
 	} from '$scripts/store';
 	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
 	import Navigator from '$navigation/Navigator.svelte';
@@ -47,16 +44,16 @@
 	export let refresh: any;
 	let modalOnlyComponent: ModalOnly;
 	const checkWindowWidth = () => {
-		if ($windowWidth > mobileBreakpoint) {
-			$largerThanMobile = true;
+		if ($window_width > mobileBreakpoint) {
+			$larger_than_mobile = true;
 		} else {
-			$largerThanMobile = false;
+			$larger_than_mobile = false;
 		}
 	};
 	const lookupUserThemePreference = async () => {
 		const foundTheme: boolean = await getLocalStorageItem('useDarkTheme');
 		if (foundTheme) {
-			$useDarkTheme = foundTheme;
+			$use_dark_theme = foundTheme;
 		}
 	};
 	const setSeasons = async () => {
@@ -74,13 +71,11 @@
 <!-- {#if $navChecked && $useDarkTheme && $chosenMixBlendMode} -->
 <div
 	id="app-background"
-	class="app-wrapper pseudo {$navChecked ? 'expanded' : 'collapsed'} {$useDarkTheme
-		? ''
-		: 'invert'}"
-	style="--mix-blend-mode:{$chosenMixBlendMode};"
+	class="app-wrapper pseudo {$nav_toggled ? 'expanded' : 'collapsed'}"
+	class:invert={!$use_dark_theme}
 >
 	<AppMenu />
-	{#if $largerThanMobile}
+	{#if $larger_than_mobile}
 		<Navigator offsetTop={true} customStyles="padding-bottom: 0.5rem;">
 			<SiteNavOptions />
 		</Navigator>
@@ -89,7 +84,7 @@
 	<main>
 		<TransitionWrapper
 			{refresh}
-			customStyles={$navChecked ? 'margin-top: 0.6rem;' : 'margin-top: 0;'}
+			customStyles={$nav_toggled ? 'margin-top: 0.6rem;' : 'margin-top: 0;'}
 		>
 			<slot />
 		</TransitionWrapper>
@@ -102,7 +97,7 @@
 <SvelteToast />
 <svelte:window
 	on:resize={() => {
-		$windowWidth = window.innerWidth;
+		$window_width = window.innerWidth;
 		checkWindowWidth();
 	}}
 />

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { isBeforeGameTime } from '$scripts/functions';
-	import { overrideDisabled, windowWidth } from '$scripts/store';
+	import { overrideDisabled, window_width } from '$scripts/store';
 	import type { Timestamp } from '@firebase/firestore';
 	import type { Team } from '$scripts/classes/team';
 	import type { WeeklyPickDoc } from '$scripts/classes/picks';
@@ -60,7 +60,7 @@
 
 	// Show additional images in larger layout sizes
 	$: {
-		if ($windowWidth < layoutBreakpoint * gridColumns) {
+		if ($window_width < layoutBreakpoint * gridColumns) {
 			showTeamNameImages = false;
 		} else {
 			showTeamNameImages = true;

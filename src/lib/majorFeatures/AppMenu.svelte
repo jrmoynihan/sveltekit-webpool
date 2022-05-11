@@ -1,21 +1,21 @@
 <script lang="ts">
 	import {
 		currentPicks,
-		gamesPromise,
-		largerThanMobile,
-		navChecked,
+		games_promise,
+		larger_than_mobile,
+		nav_toggled,
 		overrideDisabled,
-		picksPromise,
-		preferredScoreView,
+		picks_promise,
+		preferred_score_view,
 		selected_season_type,
 		selected_player,
 		selected_week,
-		showATSwinner,
-		showIDs,
-		showNetTiebreakers,
-		showSpreads,
-		showTimestamps,
-		tiebreakerPromise,
+		show_ATS_winner,
+		show_IDs,
+		show_net_tiebreakers,
+		show_spreads,
+		show_timestamps,
+		tiebreaker_promise,
 		selected_year
 	} from '$scripts/store';
 	import { faBars, faCog, faLock, faUnlock } from '@fortawesome/free-solid-svg-icons';
@@ -48,7 +48,7 @@
 	];
 
 	function toggleNav(): void {
-		$navChecked = !$navChecked;
+		$nav_toggled = !$nav_toggled;
 	}
 	export async function adminSelectorsUpdated() {
 		const promises = changedQuery(
@@ -57,10 +57,10 @@
 			$selected_week,
 			$selected_player
 		);
-		$gamesPromise = (await promises).gamesPromise;
-		$picksPromise = (await promises).picksPromise;
-		$tiebreakerPromise = (await promises).tiebreakerPromise;
-		$currentPicks = await $picksPromise;
+		$games_promise = (await promises).gamesPromise;
+		$picks_promise = (await promises).picksPromise;
+		$tiebreaker_promise = (await promises).tiebreakerPromise;
+		$currentPicks = await $picks_promise;
 	}
 	onMount(async () => {
 		storedScoreViewPreference = await getLocalStorageItem('scoreViewPreference');
@@ -69,11 +69,11 @@
 
 <menu />
 <aside id="app-menu">
-	{#if $largerThanMobile}
+	{#if $larger_than_mobile}
 		<button
 			id="nav-label"
 			on:click={toggleNav}
-			class="nav-label {$navChecked && !$largerThanMobile ? 'mobile-nav-open' : ''}"
+			class="nav-label {$nav_toggled && !$larger_than_mobile ? 'mobile-nav-open' : ''}"
 		>
 			<Fa icon={faBars} class="fa-bars" size="lg" />
 		</button>
@@ -94,13 +94,13 @@
 				<Grid slot="modal-content" repeatColumns={2}>
 					{#if $page.url.pathname === '/weekly/make-picks'}
 						<p>Show Game IDs</p>
-						<ToggleSwitch bind:checked={$showIDs} />
+						<ToggleSwitch bind:checked={$show_IDs} />
 						<p>Show Timestamps</p>
-						<ToggleSwitch bind:checked={$showTimestamps} />
+						<ToggleSwitch bind:checked={$show_timestamps} />
 						<p>Show Spreads</p>
-						<ToggleSwitch bind:checked={$showSpreads} />
+						<ToggleSwitch bind:checked={$show_spreads} />
 						<p>Show ATS Winner</p>
-						<ToggleSwitch bind:checked={$showATSwinner} />
+						<ToggleSwitch bind:checked={$show_ATS_winner} />
 
 						<p>Override Locked Games <Fa icon={$overrideDisabled ? faUnlock : faLock} /></p>
 						<ToggleSwitch bind:checked={$overrideDisabled} />
@@ -131,15 +131,16 @@
 						selectedItem={storedScoreViewPreference
 							? viewPreferences.find((preference) => preference.value === storedScoreViewPreference)
 							: viewPreferences[1]}
-						bind:selectedValue={$preferredScoreView}
-						on:toggle={() => setLocalStorageItem('scoreViewPreference', $preferredScoreView)}
+						bind:selectedValue={$preferred_score_view}
+						on:toggle={() => setLocalStorageItem('scoreViewPreference', $preferred_score_view)}
 					/>
 					<label class="score-view-selector-label"
 						>View Scores
-						<select class="score-view-selector" bind:value={$preferredScoreView}>
+						<select class="score-view-selector" bind:value={$preferred_score_view}>
 							{#each viewPreferences as preference}
-								<option selected={preference.value === $preferredScoreView} value={preference.value}
-									>{preference.label}</option
+								<option
+									selected={preference.value === $preferred_score_view}
+									value={preference.value}>{preference.label}</option
 								>
 							{/each}
 						</select>
@@ -147,9 +148,9 @@
 				{:else if $page.url.pathname === '/weekly/standings'}
 					<Grid slot="modal-content" repeatColumns={2}>
 						<span>Show Net Tiebreakers</span>
-						<ToggleSwitch adminOnly={true} bind:checked={$showNetTiebreakers} />
+						<ToggleSwitch adminOnly={true} bind:checked={$show_net_tiebreakers} />
 						<span>Show UIDs</span>
-						<ToggleSwitch adminOnly={true} bind:checked={$showIDs} />
+						<ToggleSwitch adminOnly={true} bind:checked={$show_IDs} />
 					</Grid>
 				{/if}
 				<ThemeSelector invisible={true} />

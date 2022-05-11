@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { largerThanMobile } from '$scripts/store';
+	import { larger_than_mobile } from '$scripts/store';
 	import { createEventDispatcher } from 'svelte';
 	import { fade, slide } from 'svelte/transition';
 	import Tooltip from '../containers/Tooltip.svelte';
@@ -13,10 +13,10 @@
 
 <span class="tiebreaker-container" class:pulse={scoreGuess < 10 || scoreGuess === undefined}>
 	<Tooltip
-		arrowhorizontalPosition={$largerThanMobile ? '23%' : '50%'}
-		tooltipHorizontalPosition={$largerThanMobile ? '-25%' : '-55%'}
-		tooltipWidth={$largerThanMobile ? '200%' : 'clamp(10rem,50ch,100%)'}
-		tooltipTop={$largerThanMobile ? '-300%' : '-410%'}
+		arrowhorizontalPosition={$larger_than_mobile ? '23%' : '50%'}
+		tooltipHorizontalPosition={$larger_than_mobile ? '-25%' : '-55%'}
+		tooltipWidth={$larger_than_mobile ? '200%' : 'clamp(10rem,50ch,100%)'}
+		tooltipTop={$larger_than_mobile ? '-300%' : '-410%'}
 	>
 		<svelte:fragment slot="content">
 			<input

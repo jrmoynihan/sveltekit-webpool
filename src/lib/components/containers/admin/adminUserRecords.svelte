@@ -2,14 +2,14 @@
 	import DeletionButton from '$lib/components/buttons/DeletionButton.svelte';
 
 	import { resetWeeklyPlayerRecords } from '$scripts/scorePicks';
-	import { largerThanMobile } from '$scripts/store';
+	import { larger_than_mobile } from '$scripts/store';
 	import Tooltip from '../Tooltip.svelte';
 	import AdminExpandSection from './adminExpandSection.svelte';
 
 	export let customContentStyles = null;
 	export let customSummaryStyles = null;
 	let minColumns: string | number;
-	$: minColumns = $largerThanMobile ? 0 : '40%';
+	$: minColumns = $larger_than_mobile ? 0 : '40%';
 </script>
 
 <AdminExpandSection

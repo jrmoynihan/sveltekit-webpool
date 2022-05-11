@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { largerThanMobile } from '$scripts/store';
+	import { larger_than_mobile } from '$scripts/store';
 
 	import type { pickSixItem } from '$scripts/types/types';
 	import { faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -24,7 +24,7 @@
 		{#if teamOption.selected}
 			<Fa
 				icon={faTrash}
-				style={$largerThanMobile ? 'position:absolute; right: 10%; top: 10%;' : ''}
+				style={$larger_than_mobile ? 'position:absolute; right: 10%; top: 10%;' : ''}
 			/>
 		{/if}
 		{teamOption.team.abbreviation}

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { selected_week, showIDs, showNetTiebreakers, windowWidth } from '$scripts/store';
+	import { selected_week, show_IDs, show_net_tiebreakers, window_width } from '$scripts/store';
 	import { query, where, orderBy, getDocs } from '@firebase/firestore';
 	import { scheduleCollection, weeklyTiebreakersCollection } from '$scripts/collections';
 	import { getPlayers } from '$scripts/weekly/weeklyPlayers';
@@ -92,7 +92,7 @@
 	// Reactive statements allow headers to update when the screen resizes
 	$: headerCount = weekHeaders.length;
 	$: weekHeaders =
-		$windowWidth < mobileBreakpoint - 500 ? abbreviatedWeekHeaders : initialWeekHeaders;
+		$window_width < mobileBreakpoint - 500 ? abbreviatedWeekHeaders : initialWeekHeaders;
 </script>
 
 <div class="week grid" style="--columns:{headerCount}">
@@ -112,9 +112,9 @@
 							{player}
 							{i}
 							{tiebreaker}
-							showNetTiebreakers={$showNetTiebreakers}
+							showNetTiebreakers={$show_net_tiebreakers}
 							{lastGame}
-							showUID={$showIDs}
+							showUID={$show_IDs}
 						/>
 					{/if}
 				{/each}

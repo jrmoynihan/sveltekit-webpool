@@ -12,7 +12,7 @@
 	import {
 		all_players,
 		current_season,
-		largerThanMobile,
+		larger_than_mobile,
 		selected_season,
 		selected_season_year,
 		selected_year
@@ -30,7 +30,7 @@
 </script>
 
 <PageTitle>Weekly Pool Admin</PageTitle>
-<Grid minColumns={$largerThanMobile ? '40%' : '100%'} customStyles={'align-items:start;'}>
+<Grid minColumns={$larger_than_mobile ? '40%' : '100%'} customStyles={'align-items:start;'}>
 	<AdminSelectors player_pool={'weekly'} {customContentStyles} />
 	<AdminSpreadFunctions {customContentStyles} />
 	<AdminPicksFunctions {customContentStyles} />

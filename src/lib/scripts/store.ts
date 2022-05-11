@@ -14,17 +14,17 @@ import { firebaseAuth } from './firebase/firebase';
 import type { SeasonBoundDoc } from './classes/seasonBound';
 
 export const use_dark_theme = writable(false);
-export const chosenMixBlendMode = writable('normal');
 export const nav_toggled = writable(true);
-export const windowWidth = writable(browser ? window.innerWidth : null);
-export const largerThanMobile = writable(true);
+export const window_width = writable(browser ? window.innerWidth : null);
+export const larger_than_mobile = writable(true);
 export const editing = writable(false);
-export const showPickWarning = writable(false);
-export const showIDs = writable(false);
-export const showNetTiebreakers = writable(false);
-export const showSpreads = writable(false);
-export const preferredScoreView = writable<ScoreViewPreference>('Both');
-export const showTimestamps = writable(false);
+export const show_missing_pick_warning = writable(false);
+export const show_IDs = writable(false);
+export const show_net_tiebreakers = writable(false);
+export const show_spreads = writable(false);
+export const show_timestamps = writable(false);
+export const show_ATS_winner = writable(false);
+export const preferred_score_view = writable<ScoreViewPreference>('Both');
 export const current_season = writable<SeasonBoundDoc>();
 export const current_season_type_number = derived(current_season, $currentSeason => $currentSeason?.type_number)
 export const current_season_start = derived(current_season, $currentSeason => $currentSeason?.start_date)
@@ -39,19 +39,16 @@ export const selected_season_year = derived(selected_season, $selectedSeason => 
 export const selected_player = writable<Player>(new Player({}));
 export const selected_week = writable(get(current_season_week) || 1);
 export const selected_year = writable(get(current_season_year) || new Date().getFullYear());
-export const gamesPromise = writable<Promise<Game[]>>();
-export const picksPromise = writable<Promise<WeeklyPickDoc[]>>();
+export const games_promise = writable<Promise<Game[]>>();
+export const picks_promise = writable<Promise<WeeklyPickDoc[]>>();
 export const currentPicks = writable<WeeklyPickDoc[]>([]);
-export const tiebreakerPromise = writable<Promise<WeeklyTiebreaker>>(null);
+export const tiebreaker_promise = writable<Promise<WeeklyTiebreaker>>(null);
 export const players_promise = writable<Promise<Player[]>>(new Promise<Player[]>(() => {}));
-export const changeableTiebreakerScoreGuess = writable<number>(0);
-export const showATSwinner = writable(false);
 export const overrideDisabled = writable(false);
-export const godMode = writable(false);
-export const godSequence = writable<string[]>([]);
 export const firebase_user = writable<User>(firebaseAuth.currentUser); // The firebase user. Not necessarily a player yet, and without web pool-specific data
 export const current_player = writable<Player>(new Player({}));  // Who is logged into the app; their player data
 export const player_not_found = writable(false);
+export const tiebreaker_score_guess = writable(0);
 
 // export const queryAsStore = (
 // 	query: Query,

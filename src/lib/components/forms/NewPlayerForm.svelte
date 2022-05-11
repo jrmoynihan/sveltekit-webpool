@@ -3,18 +3,11 @@
 	import { all_icons } from '$scripts/classes/constants';
 	import { ErrorAndToast, myLog } from '$scripts/logging';
 	import { savePlayerData } from '$scripts/localStorage';
-	import {
-		godSequence,
-		godMode,
-		firebase_user,
-		current_player,
-		current_season
-	} from '$scripts/store';
+	import { firebase_user, current_player, current_season } from '$scripts/store';
 	import { defaultToast } from '$scripts/toasts';
 	import {
 		createWeeklyTiebreakersForPlayer,
 		createWeeklyPicksForPlayer,
-		getSpecificGames,
 		getFutureGames
 	} from '$scripts/weekly/weeklyAdmin';
 	import {
@@ -30,7 +23,6 @@
 	import ToggleSwitch from '../switches/ToggleSwitch.svelte';
 	import { cubicInOut } from 'svelte/easing';
 	import AccordionDetails from '$components/containers/accordions/AccordionDetails.svelte';
-	import { Timestamp, where } from '@firebase/firestore';
 	import { findCurrentSeason } from '$lib/scripts/schedule';
 
 	export let modalOnlyComponent: ModalOnly;
@@ -229,52 +221,6 @@
 	// const currentYear = new Date().getFullYear();
 	// weeklyCutoffDate = await getWeeklyCutoffDate(currentYear)
 
-	export const enableGodMode = async (
-		e: KeyboardEvent & { currentTarget: EventTarget & Window }
-	) => {
-		// console.log(e.key);
-		const secretCode = ['G', 'O', 'D'];
-		if (!$godMode && $current_player?.admin) {
-			if (
-				e.key !== 'G' &&
-				e.key !== 'g' &&
-				e.key !== 'O' &&
-				e.key !== 'o' &&
-				e.key !== 'D' &&
-				e.key !== 'd'
-			) {
-				$godMode = false;
-				$godSequence = [];
-				// console.log('an incorrect character', $godSequence);
-				return;
-			}
-			if (e.key === 'G' || e.key === 'g') {
-				$godSequence.push('G');
-			}
-			if (e.key === 'O' || e.key === 'o') {
-				$godSequence.push('O');
-			}
-			if (e.key === 'D' || e.key === 'd') {
-				$godSequence.push('D');
-			}
-			// console.log($godSequence);
-			if (
-				$godSequence.length === 3 &&
-				$godSequence.every((letter, index) => {
-					// console.log(secretCode[index]);
-					if (secretCode[index] === undefined) {
-						return false;
-					} else {
-						return letter === secretCode[index];
-					}
-				})
-			) {
-				$godMode = true;
-			} else {
-				$godMode = false;
-			}
-		}
-	};
 	export const checkForEnter = (
 		e: KeyboardEvent & { currentTarget: EventTarget & HTMLInputElement }
 	) => {
@@ -284,12 +230,6 @@
 		}
 	};
 </script>
-
-<svelte:window
-	on:keydown={(e) => {
-		enableGodMode(e);
-	}}
-/>
 
 <ModalOnly bind:this={modalOnlyComponent} dialogStyles={'width: min(100vw, 600px);'}>
 	<input type="text" placeholder="test" />

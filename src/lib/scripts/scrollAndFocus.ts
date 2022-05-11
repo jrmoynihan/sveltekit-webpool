@@ -2,7 +2,7 @@ console.log('scrollAndFocus.ts...');
 import { browser } from '$app/env';
 import type { WeeklyPickDoc } from './classes/picks';
 import { isBeforeGameTime } from './functions';
-import { showPickWarning, overrideDisabled } from '$lib/scripts/store';
+import { show_missing_pick_warning, overrideDisabled } from '$lib/scripts/store';
 import { get } from 'svelte/store';
 
 export const scrollToNextGame = (
@@ -19,11 +19,11 @@ export const scrollToNextGame = (
 			const yOffset = -300;
 			const y = element.getBoundingClientRect().top + window.scrollY + yOffset;
 			scrollToTopSmooth(y);
-			showPickWarning.set(false);
+			show_missing_pick_warning.set(false);
 		} else if (!get(overrideDisabled)) {
 			setTimeout(() => {
 				if (currentPickCount < upcomingGameCount - 1) {
-					showPickWarning.set(true);
+					show_missing_pick_warning.set(true);
 				}
 			}, 1000);
 			scrollToTopSmooth();

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { ESPNSituation, ESPNStatus } from '$scripts/classes/game';
 	import type { Timestamp } from '@firebase/firestore';
-	import { showTimestamps } from '$scripts/store';
+	import { show_timestamps } from '$scripts/store';
 	import GameTime from './GameTime.svelte';
 
 	export let timestamp: Timestamp;
@@ -10,7 +10,7 @@
 </script>
 
 <div class="dateTime info">
-	{$showTimestamps
+	{$show_timestamps
 		? `${timestamp.toDate().toLocaleDateString()} ${timestamp.toDate().toLocaleTimeString()}`
 		: ''}
 	{#await promiseStatus}

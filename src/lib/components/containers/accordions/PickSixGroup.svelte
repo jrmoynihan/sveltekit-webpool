@@ -5,7 +5,7 @@
 	import { crossfade } from 'svelte/transition';
 	import type { pickSixItem } from '$scripts/types/types';
 	import { flip } from 'svelte/animate';
-	import { largerThanMobile } from '$scripts/store';
+	import { larger_than_mobile } from '$scripts/store';
 	import PickSixButton from '$lib/components/buttons/PickSixButton.svelte';
 
 	export let group: pickSixItem[];
@@ -48,7 +48,7 @@
 	<div
 		slot="content"
 		class="pick6 grid"
-		style="grid-template-columns: {$largerThanMobile ? '1fr 1fr' : '1fr'}"
+		style="grid-template-columns: {$larger_than_mobile ? '1fr 1fr' : '1fr'}"
 	>
 		<Grid
 			minColumns={'25%'}
@@ -66,12 +66,12 @@
 				</div>
 			{/each}
 		</Grid>
-		{#if $largerThanMobile}
+		{#if $larger_than_mobile}
 			<Grid
 				minColumns={'25%'}
 				maxColumns={'49%'}
 				customStyles={`align-items:start; grid-template-rows: repeat(3,minmax(0,1fr)); grid-template-columns: ${
-					$largerThanMobile ? '1fr 1fr' : '1fr'
+					$larger_than_mobile ? '1fr 1fr' : '1fr'
 				};`}
 			>
 				{#each group.filter((item) => item.selected) as teamOption (teamOption.team.abbreviation)}

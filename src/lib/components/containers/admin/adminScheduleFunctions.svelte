@@ -3,7 +3,7 @@
 	import { findCurrentSeason } from '$lib/scripts/schedule';
 	import { defaultToast } from '$lib/scripts/toasts';
 
-	import { largerThanMobile } from '$scripts/store';
+	import { larger_than_mobile } from '$scripts/store';
 	import AdminExpandSection from './adminExpandSection.svelte';
 
 	export let customContentStyles = null;
@@ -16,7 +16,7 @@
 	let dateString = `${year}-${month.toString().length < 2 ? '0' + month : month}-${
 		day.toString().length < 2 ? '0' + day : day
 	}`;
-	$: minColumns = $largerThanMobile ? 0 : '40%';
+	$: minColumns = $larger_than_mobile ? 0 : '40%';
 
 	function findWeekDateTimeBounds() {
 		defaultToast({ title: 'Not Yet Implemented', msg: 'Find Week Bounds is not yet implemented.' });
