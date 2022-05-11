@@ -18,10 +18,12 @@
 <script lang="ts">
 	import '../app.css';
 	import {
+		current_player,
 		current_season,
 		firebase_user,
 		larger_than_mobile,
 		nav_toggled,
+		selected_player,
 		selected_season,
 		use_dark_theme,
 		window_width
@@ -40,6 +42,7 @@
 	import type { LoadInput, LoadOutput } from '@sveltejs/kit';
 	import { get } from 'svelte/store';
 	import { findCurrentSeason } from '$lib/scripts/schedule';
+	import { getPlayer } from '$lib/scripts/weekly/weeklyPlayers';
 
 	export let refresh: any;
 	let modalOnlyComponent: ModalOnly;
@@ -56,11 +59,13 @@
 			$use_dark_theme = foundTheme;
 		}
 	};
-	const setSeasons = async () => {
+	const setStores = async () => {
+		$current_player = await getPlayer($firebase_user);
+		$selected_player = $current_player;
 		$current_season = await findCurrentSeason();
 		$selected_season = $current_season;
 	};
-	$: if ($firebase_user) setSeasons();
+	$: if ($firebase_user) setStores();
 
 	onMount(async () => {
 		checkWindowWidth();
@@ -68,7 +73,6 @@
 	});
 </script>
 
-<!-- {#if $navChecked && $useDarkTheme && $chosenMixBlendMode} -->
 <div
 	id="app-background"
 	class="app-wrapper pseudo {$nav_toggled ? 'expanded' : 'collapsed'}"
@@ -93,8 +97,9 @@
 
 	<ReturnToTop showButton={false} />
 </div>
-<!-- {/if} -->
+
 <SvelteToast />
+
 <svelte:window
 	on:resize={() => {
 		$window_width = window.innerWidth;

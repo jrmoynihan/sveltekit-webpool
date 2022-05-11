@@ -7,6 +7,7 @@ import { Player } from '$classes/player';
 import { all_icons } from '$classes/constants';
 import { myError, myLog } from '$scripts/logging';
 import type { User } from '@firebase/auth';
+import { getPlayer } from './weekly/weeklyPlayers';
 
 export const getLocalStorageItem = async <T>(key: string): Promise<T | null> => {
 	if (browser) {
@@ -27,12 +28,7 @@ export const setLocalStorageItem = async (key: string, value: unknown): Promise<
 /**  Saves player data to local storage and sets it in the $player_data store */
 export const savePlayerData = async (firebase_user: User) => {
 	try {
-		const player_doc_ref = doc(playersCollection, firebase_user.uid);
-		const player_snapshot = await getDoc(player_doc_ref.withConverter(playerConverter));
-		const player = new Player({ ...player_snapshot.data() });
-
-		current_player.set(player);
-		selected_player.set(player);
+		const player = await getPlayer(firebase_user);
 
 		for (const property in player) {
 			setLocalStorageItem(property, player[property]);
