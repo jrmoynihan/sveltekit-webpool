@@ -8,6 +8,7 @@
 	export let invisible = false;
 	export let pulse = false;
 	export let ableToTab = 0;
+	export let disabled = false;
 
 	const dispatch = createEventDispatcher();
 	function buttonClicked(event: { detail: any }): void {
@@ -17,6 +18,7 @@
 
 <button
 	on:click={buttonClicked}
+	{disabled}
 	class="submit {$useDarkTheme ? 'dark-mode' : 'light-mode'}"
 	class:invisible
 	class:pulse

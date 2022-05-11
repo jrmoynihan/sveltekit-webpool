@@ -18,8 +18,6 @@
 		selected_player,
 		selected_season_year,
 		selected_season_type,
-		selected_season,
-		current_season,
 		selected_year
 	} from '$scripts/store';
 	import { DocumentReference, updateDoc } from '@firebase/firestore';
@@ -48,7 +46,6 @@
 	import { focusTiebreaker } from '$scripts/scrollAndFocus';
 	import { changedQuery, getPicksForPlayer } from '$scripts/weekly/weeklyPlayers';
 	import { ErrorAndToast, myLog } from '$scripts/logging';
-	import { findCurrentSeason } from '$lib/scripts/schedule';
 
 	let showTiebreakerInput = false;
 	let countedGameTimes: { upcomingGamesCount: any; playedGamesCount: any };
@@ -61,6 +58,8 @@
 	let widthMeasure = 85;
 	let offsetRightPercentage = 15;
 	let toastSeenKey = 'toast_makeWeeklyPicks_NewTiebreakerAndSubmit';
+	let games: Game[];
+	let picks: WeeklyPickDoc[];
 	const progress = tweened(0, {
 		duration: 400,
 		easing: cubicOut
@@ -69,8 +68,6 @@
 	$: gridColumns = $largerThanMobile ? 2 : 1;
 
 	onMount(async () => {
-		$current_season = await findCurrentSeason();
-		$selected_season = $current_season;
 		getData();
 		const toastSeen = await getLocalStorageItem(toastSeenKey);
 		$preferredScoreView = await getLocalStorageItem('scoreViewPreference');
@@ -98,7 +95,8 @@
 		$currentPicks = await $picksPromise;
 		const tiebreakerDoc = await $tiebreakerPromise;
 		$changeableTiebreakerScoreGuess = tiebreakerDoc?.scoreGuess;
-		const games = await $gamesPromise;
+		games = await $gamesPromise;
+		picks = await $picksPromise;
 		countedGameTimes = await countPlayedOrUpcomingGames(games);
 	};
 
@@ -412,6 +410,8 @@
 		$picksPromise = (await promises).picksPromise;
 		$tiebreakerPromise = (await promises).tiebreakerPromise;
 		$currentPicks = await $picksPromise;
+		games = await $gamesPromise;
+		picks = await $picksPromise;
 	};
 
 	const getYardLine = (index: number) => {
@@ -450,7 +450,8 @@
 					bind:upcomingGamesCount
 				/>
 			{/key}
-			{#await $tiebreakerPromise then { docRef, scoreGuess }}
+			{#await $tiebreakerPromise then tiebreaker}
+				{@const { docRef, scoreGuess } = tiebreaker}
 				<SubmitPicks
 					on:click={() =>
 						submitPicksAndTiebreaker(
@@ -460,12 +461,15 @@
 							$currentPicks
 						)}
 					on:click={() => console.log(scoreGuess)}
+					disabled={!tiebreaker}
 					ableToTab={$changeableTiebreakerScoreGuess >= 10 ? 0 : -1}
 					pulse={$changeableTiebreakerScoreGuess >= 10}
 					invisible={$changeableTiebreakerScoreGuess < 10 ||
 						$changeableTiebreakerScoreGuess === undefined ||
 						upcomingGamesCount === 0}
 				/>
+			{:catch error}
+				<ErrorModal {error} />
 			{/await}
 			{#if showTiebreakerInput}
 				<TiebreakerInput
@@ -492,29 +496,23 @@
 			on:incrementWeek={selectorsUpdated}
 			on:decrementWeek={selectorsUpdated}
 		/>
-		{#await $gamesPromise then games}
-			{#await $picksPromise then}
-				<button
-					style="grid-area:reset;"
-					on:click={async () => ($currentPicks = await resetPicks(games, $currentPicks))}
-					class:dark-mode={$useDarkTheme}
-					class="hotkeys">Reset Picks</button
-				>
-			{/await}
-		{/await}
+
+		<button
+			disabled={!$currentPicks || !games}
+			style="grid-area:reset;"
+			on:click={async () => ($currentPicks = await resetPicks(games, $currentPicks))}
+			class:dark-mode={$useDarkTheme}
+			class="hotkeys">Reset Picks</button
+		>
 	</div>
 
 	<!-- prettier-ignore -->
-	{#await $gamesPromise then games}
-	{#await $picksPromise then picks}
 	<div class="second-row grid" style="{$largerThanMobile ? `margin-right:${offsetRightPercentage}%;`:''}">
-		<button on:click={async ()=> $currentPicks = await pickAllAway(games,picks)} class:dark-mode={$useDarkTheme} class="hotkeys">All Away</button>
-		<button on:click={async ()=> $currentPicks = await pickAllFavored(games,picks)} class:dark-mode={$useDarkTheme} class="hotkeys">All Favored</button>
-		<button on:click={async ()=> $currentPicks = await pickAllDogs(games,picks)} class:dark-mode={$useDarkTheme} class="hotkeys">All Underdogs</button>
-		<button on:click={async ()=> $currentPicks = await pickAllHome(games,picks)} class:dark-mode={$useDarkTheme} class="hotkeys">All Home</button>
+		<button disabled={!games || !picks} on:click={async ()=> $currentPicks = await pickAllAway(games,picks)} class:dark-mode={$useDarkTheme} class="hotkeys">All Away</button>
+		<button disabled={!games || !picks} on:click={async ()=> $currentPicks = await pickAllFavored(games,picks)} class:dark-mode={$useDarkTheme} class="hotkeys">All Favored</button>
+		<button disabled={!games || !picks} on:click={async ()=> $currentPicks = await pickAllDogs(games,picks)} class:dark-mode={$useDarkTheme} class="hotkeys">All Underdogs</button>
+		<button disabled={!games || !picks} on:click={async ()=> $currentPicks = await pickAllHome(games,picks)} class:dark-mode={$useDarkTheme} class="hotkeys">All Home</button>
 	</div>
-	{/await}
-	{/await}
 
 	<div
 		class="grid weekGames"
