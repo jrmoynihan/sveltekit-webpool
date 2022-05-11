@@ -19,9 +19,13 @@
 	import '../app.css';
 	import {
 		chosenMixBlendMode,
+		current_season,
 		firebase_user,
 		largerThanMobile,
 		navChecked,
+		selected_season,
+		selected_week,
+		selected_year,
 		useDarkTheme,
 		windowWidth
 	} from '$scripts/store';
@@ -38,6 +42,7 @@
 	import type ModalOnly from '$lib/components/modals/Modal.svelte';
 	import type { LoadInput, LoadOutput } from '@sveltejs/kit';
 	import { get } from 'svelte/store';
+	import { findCurrentSeason } from '$lib/scripts/schedule';
 
 	export let refresh: any;
 	let modalOnlyComponent: ModalOnly;
@@ -58,6 +63,8 @@
 	onMount(async () => {
 		checkWindowWidth();
 		lookupUserThemePreference();
+		$current_season = await findCurrentSeason();
+		$selected_season = $current_season;
 	});
 </script>
 
@@ -99,28 +106,11 @@
 
 <style lang="scss">
 	:root {
-		/* stylelint-disable custom-property-pattern */
-		--toastContainerTop: 15%;
-		--toastWidth: 100%;
-		--toastContainerLeft: 2%;
-		--toastContainerRight: 2%;
-
 		@include responsive_desktop_only {
 			--toastContainerLeft: math.max(5%, 2rem);
 			--toastContainerRight: 70%;
 			--toastWidth: clamp(45ch, 25%, 75ch);
 		}
-		/* stylelint-enable custom-property-pattern */
-
-		font-family: Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-		box-sizing: border-box;
-		font-display: swap;
-		color: var(--text, white);
-		scrollbar-width: thin;
-		scrollbar-color: var(--accent, hsl(37, 75%, 65%)) var(--background, hsl(120, 16%, 17%));
-	}
-	* {
-		box-sizing: border-box;
 	}
 	.app-wrapper {
 		box-sizing: border-box;

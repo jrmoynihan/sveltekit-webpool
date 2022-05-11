@@ -2,7 +2,7 @@
 	margin: 0;
 	padding: 0;
 	font-display: swap;
-	font-family: Open Sans;
+	font-family: 'Open Sans';
 }
 html {
 	box-sizing: border-box;
@@ -12,7 +12,14 @@ html {
   }
 
 :root {
-	--h1-size:  clamp(2rem,5vw,5rem);
+	--font: 'Open Sans', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+	font-family: var(--font);
+	font-display: swap;
+	color: var(--text, black);
+	scrollbar-width: thin;
+	scrollbar-color: var(--accent, hsl(37, 75%, 65%)) var(--background, hsl(120, 16%, 17%));
+
+	--h1-size:  clamp(2rem,5vw,3rem);
 	--h2-size: clamp(0.5rem,4vw,1rem);
 	--padding-normal: 1rem;
 	--padding-double: calc(var(--padding-normal) * 2);
@@ -37,6 +44,15 @@ html {
 	/* Static Colors (won't change between light/dark mode)  */
 	--pick6-selection: hsla(120, 20%, 25%, 0.8);
 	--pick6-selection-value: 120, 20%, 25%;
+
+	/* Toast variables */
+		/* stylelint-disable custom-property-pattern */
+		--toastContainerTop: 15%;
+		--toastWidth: 100%;
+		--toastContainerLeft: 2%;
+		--toastContainerRight: 2%;
+		/* stylelint-enable custom-property-pattern */
+	
 }
 
 body {
