@@ -46,7 +46,7 @@
 		box-shadow: 0 0 4px 2px var(--accent, hsl(37, 75%, 65%));
 	}
 	input {
-		@include editableInput;
+		@include defaultInput;
 		display: flex;
 		background-color: white;
 		padding: 2%;
