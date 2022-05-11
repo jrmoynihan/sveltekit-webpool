@@ -25,7 +25,7 @@ type getPlayersOptions = {
 	showToast?: boolean;
 };
 export const getPlayers = async (input: getPlayersOptions) => {
-	const { roles, showToast, constraints } = input;
+	const { roles, showToast, constraints = [] } = input;
 	try {
 		const players: Player[] = [];
 		const role_constraints = roles.map((role) => where(`${role}`, '==', true));
