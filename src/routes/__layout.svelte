@@ -59,12 +59,15 @@
 			$useDarkTheme = foundTheme;
 		}
 	};
+	const setSeasons = async () => {
+		$current_season = await findCurrentSeason();
+		$selected_season = $current_season;
+	};
+	$: if ($firebase_user) setSeasons();
 
 	onMount(async () => {
 		checkWindowWidth();
 		lookupUserThemePreference();
-		$current_season = await findCurrentSeason();
-		$selected_season = $current_season;
 	});
 </script>
 
