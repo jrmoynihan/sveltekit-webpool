@@ -13,10 +13,9 @@ import type { User } from '@firebase/auth';
 import { firebaseAuth } from './firebase/firebase';
 import type { SeasonBoundDoc } from './classes/seasonBound';
 
-export const useDarkTheme = writable(false);
+export const use_dark_theme = writable(false);
 export const chosenMixBlendMode = writable('normal');
-export const navChecked = writable(true);
-export const sidePanelChecked = writable(true);
+export const nav_toggled = writable(true);
 export const windowWidth = writable(browser ? window.innerWidth : null);
 export const largerThanMobile = writable(true);
 export const editing = writable(false);
