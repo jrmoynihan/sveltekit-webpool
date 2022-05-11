@@ -10,7 +10,12 @@
 	export let customSummaryStyles: string = null;
 </script>
 
-<AccordionDetails open={startOpen} {customContentStyles} {customSummaryStyles}>
+<AccordionDetails
+	open={startOpen}
+	{customContentStyles}
+	{customSummaryStyles}
+	expanderIconSide={'right'}
+>
 	<h3 slot="summary">{summaryText}</h3>
 	<Grid slot="content" bind:minColumns bind:maxColumns>
 		<slot />

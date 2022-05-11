@@ -21,6 +21,8 @@
 	import { onMount } from 'svelte';
 	import { findCurrentSeason } from '$lib/scripts/schedule';
 
+	let customContentStyles = 'padding-top: 1rem;';
+
 	onMount(async () => {
 		$selected_season = $current_season || (await findCurrentSeason());
 		$selected_year = $selected_season_year;
@@ -29,17 +31,17 @@
 
 <PageTitle>Weekly Pool Admin</PageTitle>
 <Grid minColumns={$largerThanMobile ? '40%' : '100%'} customStyles={'align-items:start;'}>
-	<AdminSelectors player_pool={'weekly'} />
-	<AdminSpreadFunctions />
-	<AdminPicksFunctions />
-	<AdminTiebreakerFunctions />
-	<AdminGamesFunctions />
-	<AdminTeamRecords />
-	<AdminUserRecords />
-	<AdminScheduleFunctions />
+	<AdminSelectors player_pool={'weekly'} {customContentStyles} />
+	<AdminSpreadFunctions {customContentStyles} />
+	<AdminPicksFunctions {customContentStyles} />
+	<AdminTiebreakerFunctions {customContentStyles} />
+	<AdminGamesFunctions {customContentStyles} />
+	<AdminTeamRecords {customContentStyles} />
+	<AdminUserRecords {customContentStyles} />
+	<AdminScheduleFunctions {customContentStyles} />
 </Grid>
 
-<AccordionDetails expandTitle="Weekly Users">
+<AccordionDetails expandTitle="Weekly Users" {customContentStyles} expanderIconSide={'right'}>
 	<svelte:fragment slot="content">
 		{#each $all_players.filter((player) => player.weekly === true) as player}
 			<p>{player.name}</p>
