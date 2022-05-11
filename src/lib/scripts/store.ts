@@ -1,5 +1,5 @@
 import { browser } from '$app/env';
-import { type Writable, writable, derived } from 'svelte/store';
+import { type Writable, writable, derived, get } from 'svelte/store';
 import { doc, updateDoc, onSnapshot, query, type Query, type FirestoreDataConverter } from '@firebase/firestore';
 import { playerConverter, seasonBoundConverter, teamConverter } from './converters';
 import { Player } from '$classes/player';
@@ -26,19 +26,20 @@ export const showNetTiebreakers = writable(false);
 export const showSpreads = writable(false);
 export const preferredScoreView = writable<ScoreViewPreference>('Both');
 export const showTimestamps = writable(false);
-export const selected_week = writable(1);
-export const selected_year = writable(new Date().getFullYear());
-export const current_season = writable<SeasonBoundDoc>()
+export const current_season = writable<SeasonBoundDoc>();
 export const current_season_type_number = derived(current_season, $currentSeason => $currentSeason?.type_number)
 export const current_season_start = derived(current_season, $currentSeason => $currentSeason?.start_date)
 export const current_season_end = derived(current_season, $currentSeason => $currentSeason?.end_date)
 export const current_season_type_name = derived(current_season, $currentSeasonType => $currentSeasonType?.type_name)
 export const current_season_year = derived(current_season, $currentSeason => parseInt($currentSeason?.doc_id))
+export const current_season_week = writable(1);
 export const selected_season = writable<SeasonBoundDoc>();
 export const selected_season_type = writable<string>('Regular Season')
 export const selected_season_type_number = derived(selected_season, $selectedSeason => $selectedSeason?.type_number)
 export const selected_season_year = derived(selected_season, $selectedSeason => parseInt($selectedSeason?.doc_id))
 export const selected_player = writable<Player>(new Player({}));
+export const selected_week = writable(get(current_season_week) || 1);
+export const selected_year = writable(get(current_season_year) || new Date().getFullYear());
 export const gamesPromise = writable<Promise<Game[]>>();
 export const picksPromise = writable<Promise<WeeklyPickDoc[]>>();
 export const currentPicks = writable<WeeklyPickDoc[]>([]);
