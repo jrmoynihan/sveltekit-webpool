@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { useDarkTheme } from '$scripts/store';
+	import { use_dark_theme } from '$scripts/store';
 	import { faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
 	import Tooltip from '../Tooltip.svelte';
@@ -27,7 +27,7 @@
 				slot="content"
 				icon={faTimesCircle}
 				size="2x"
-				color={$useDarkTheme ? 'tomato' : 'darkred'}
+				color={$use_dark_theme ? 'tomato' : 'darkred'}
 				style="background-color: white; border-radius:100%;"
 			/>
 		</Tooltip>

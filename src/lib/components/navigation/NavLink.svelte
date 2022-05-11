@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { navChecked, useDarkTheme } from '$scripts/store';
+	import { navChecked, use_dark_theme } from '$scripts/store';
 	import type { PageOption } from '$scripts/classes/pageOption';
 	import Fa from 'svelte-fa';
 	import { faFootballBall } from '@fortawesome/free-solid-svg-icons';
@@ -35,7 +35,7 @@
 	tabindex={1 + index}
 	on:click={cleanupToNavigate}
 	class:active
-	class="{$navChecked ? 'expanded' : 'collapsed'} {$useDarkTheme
+	class="{$navChecked ? 'expanded' : 'collapsed'} {$use_dark_theme
 		? 'dark-mode'
 		: 'light-mode'} {fullyRounded ? 'rounded' : ''}"
 >
@@ -44,7 +44,7 @@
 		id={pageOption.navigationText}
 		sveltekit:prefetch
 		href={pageOption.path}
-		class={$useDarkTheme ? 'dark-mode' : 'light-mode'}
+		class={$use_dark_theme ? 'dark-mode' : 'light-mode'}
 	>
 		<Fa icon={faFootballBall} size="lg" />
 		<h2>{pageOption.navigationText}</h2>

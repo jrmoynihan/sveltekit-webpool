@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { useDarkTheme } from '$scripts/store';
+	import { use_dark_theme } from '$scripts/store';
 	import { fly } from 'svelte/transition';
 
 	export let evenRow = false;
@@ -8,7 +8,7 @@
 	export let xEvenRow = 250;
 	export let xOddRow = -250;
 	export let duration = 600;
-	let dark = $useDarkTheme;
+	let dark = $use_dark_theme;
 </script>
 
 {#if evenRow}

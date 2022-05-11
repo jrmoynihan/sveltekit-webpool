@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { largerThanMobile, navChecked } from '$scripts/store';
+	import { largerThanMobile, nav_toggled } from '$scripts/store';
 
 	export let minItemSize = '200px';
 	export let maxItemSize = '1fr';
@@ -12,8 +12,8 @@
 <nav
 	class:offsetTop
 	class:modal={!$largerThanMobile && useModal}
-	class:expanded={$navChecked}
-	class:collapsed={!$navChecked}
+	class:expanded={$nav_toggled}
+	class:collapsed={!$nav_toggled}
 	class="navigationList"
 	style="--minItemSize:{minItemSize}; --maxItemSize: {maxItemSize}; {customStyles}"
 >

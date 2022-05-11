@@ -11,7 +11,7 @@
 	import { scheduleCollection, teamsCollection, weeklyPicksCollection } from '$scripts/collections';
 	import { gameConverter, teamConverter, weeklyPickConverter } from '$scripts/converters';
 	import { isBeforeGameTime } from '$scripts/functions';
-	import { selected_week, selected_year, useDarkTheme } from '$scripts/store';
+	import { selected_week, selected_year, use_dark_theme } from '$scripts/store';
 	import { query, where, getDocs, orderBy } from '@firebase/firestore';
 	import { onMount } from 'svelte';
 	import { fade, fly } from 'svelte/transition';
@@ -191,7 +191,7 @@
 														transition:fly={{ x: -100, duration: 750 }}
 														class="rounded image-holder"
 														class:winner={pick.isCorrect}
-														class:dark={$useDarkTheme}
+														class:dark={$use_dark_theme}
 														class:hovered={hoverPlayer === player.uid || hoverGame === game.id}
 														on:mouseover={() => {
 															hoverPlayer = player.uid;

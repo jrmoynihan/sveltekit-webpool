@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { setLocalStorageItem } from '$scripts/localStorage';
-	import { useDarkTheme } from '$scripts/store';
+	import { use_dark_theme } from '$scripts/store';
 
 	const storeDarkThemePreference = async () => {
-		await setLocalStorageItem('useDarkTheme', $useDarkTheme);
+		await setLocalStorageItem('useDarkTheme', $use_dark_theme);
 	};
 </script>
 
 <label class="switch" tabindex="0">
-	<input type="checkbox" bind:checked={$useDarkTheme} on:change={storeDarkThemePreference} />
+	<input type="checkbox" bind:checked={$use_dark_theme} on:change={storeDarkThemePreference} />
 	<div>
 		<span />
 	</div>

@@ -10,7 +10,7 @@
 	import NavLink from '$navigation/NavLink.svelte';
 	import Navigator from '$navigation/Navigator.svelte';
 	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
-	import { navChecked } from '$scripts/store';
+	import { nav_toggled } from '$scripts/store';
 	import type { LoadInput, LoadOutput } from '@sveltejs/kit';
 	import { weeklyTabs } from '$scripts/site';
 
@@ -22,6 +22,6 @@
 		<NavLink {index} pageOption={tab} fullyRounded={true} />
 	{/each}
 </Navigator>
-<TransitionWrapper {refresh} customStyles={$navChecked ? 'margin-top: 0.6rem;' : 'margin-top: 0;'}>
+<TransitionWrapper {refresh} customStyles={$nav_toggled ? 'margin-top: 0.6rem;' : 'margin-top: 0;'}>
 	<slot />
 </TransitionWrapper>

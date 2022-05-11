@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Team } from '$scripts/classes/team';
 	import { scrollToNextGame } from '$scripts/scrollAndFocus';
-	import { useDarkTheme } from '$scripts/store';
+	import { use_dark_theme } from '$scripts/store';
 	// import IntersectionObserver from 'svelte-intersection-observer';
 	import TeamImage from '../TeamImage.svelte';
 	import TeamNameImage from '../TeamNameImage.svelte';
@@ -24,7 +24,7 @@
 	class="rounded dayShadow nightShadow"
 	class:pressed={selectedTeam === homeOrAwayTeam.abbreviation}
 	class:selected={selectedTeam === homeOrAwayTeam.abbreviation}
-	class:dark-mode={$useDarkTheme}
+	class:dark-mode={$use_dark_theme}
 	class:disabled
 	tabindex="0"
 >
