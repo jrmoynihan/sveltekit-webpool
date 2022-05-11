@@ -2,7 +2,7 @@
 	import Fa from 'svelte-fa';
 	import { createEventDispatcher } from 'svelte';
 	import { fly } from 'svelte/transition';
-	import { useDarkTheme } from '$scripts/store';
+	import { use_dark_theme } from '$scripts/store';
 	import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 
 	export let invisible = false;
@@ -19,7 +19,7 @@
 <button
 	on:click={buttonClicked}
 	{disabled}
-	class="submit {$useDarkTheme ? 'dark-mode' : 'light-mode'}"
+	class="submit {$use_dark_theme ? 'dark-mode' : 'light-mode'}"
 	class:invisible
 	class:pulse
 	tabindex={ableToTab}
