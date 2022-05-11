@@ -3,11 +3,9 @@
 	import NewPlayerForm from '$lib/components/forms/NewPlayerForm.svelte';
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
 	import type ModalOnly from '$lib/components/modals/Modal.svelte';
-	import { all_players } from '$scripts/store';
 	import { toastIt } from '$scripts/toasts';
 
 	let modalOnlyComponent: ModalOnly;
-
 </script>
 
 <PageTitle>Admin</PageTitle>
@@ -21,12 +19,6 @@
 		>Toast It!</button
 	>
 </Grid>
-{#each $all_players as player}
-	<label>
-		{player.name}
-		<input type="checkbox" name="" id="" bind:checked={player.pick6} />
-	</label>
-{/each}
 
 <style lang="scss">
 	button {
