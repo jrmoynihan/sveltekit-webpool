@@ -122,7 +122,7 @@
 
 <style lang="scss">
 	input {
-		@include editableInput;
+		@include defaultInput;
 	}
 	.title {
 		font-weight: bold;

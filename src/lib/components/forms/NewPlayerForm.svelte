@@ -462,7 +462,7 @@
 		position: relative;
 	}
 	input {
-		@include editableInput;
+		@include defaultInput;
 		@include cloudyBackground;
 		background-color: white;
 		text-align: center;

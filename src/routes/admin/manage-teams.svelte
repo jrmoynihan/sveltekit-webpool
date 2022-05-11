@@ -114,7 +114,7 @@
 		padding: 1rem;
 	}
 	input {
-		@include editableInput;
+		@include defaultInput;
 		@include rounded;
 		box-sizing: border-box;
 		padding: 1rem;
