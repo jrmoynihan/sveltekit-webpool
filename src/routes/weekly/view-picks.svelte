@@ -126,7 +126,12 @@
 </script>
 
 <PageTitle>View League Picks</PageTitle>
-<WeekSelect customStyles={'width:fit-content;margin:auto;'} on:change={changedWeek} />
+<WeekSelect
+	customStyles={'width:fit-content;margin:auto;'}
+	on:change={changedWeek}
+	on:incrementWeek={changedWeek}
+	on:decrementWeek={changedWeek}
+/>
 
 {#await data_promise}
 	<LoadingSpinner />
