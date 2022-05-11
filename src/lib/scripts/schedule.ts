@@ -161,10 +161,11 @@ const findWhichWeekIncludesToday = async (week_refs: string[]) => {
 const occursInWeek = async (today: number, week_data: ESPNSeasonWeek) => {
 	return today > Date.parse(week_data.startDate) && today < Date.parse(week_data.endDate);
 };
-export const findCurrentSeason = async (): Promise<SeasonBoundDoc> => {
+export const findCurrentSeason = async (specificDate?: Date): Promise<SeasonBoundDoc> => {
 	try {
 		console.log('finding current season...');
-		const now = Timestamp.fromDate(new Date());
+		// NOTE: This can be manually set to force a specific season/date to search for.
+		const now = Timestamp.fromDate(specificDate ? specificDate : new Date());
 		const q = query(
 			seasonBoundsCollection,
 			where('end_date', '>=', now)
@@ -186,7 +187,7 @@ export const findCurrentSeason = async (): Promise<SeasonBoundDoc> => {
 			throw new Error('Found more than one season bounds document!');
 		} else {
 			myLog({ msg: 'no bounds document found! Attempting to use ESPN API to find week...' });
-			const espn_season_year_data = await getCurrentSeasonFromESPN();
+			const espn_season_year_data = await getCurrentSeasonFromESPN(specificDate);
 
 			if (espn_season_year_data) {
 				myLog({
@@ -197,7 +198,9 @@ export const findCurrentSeason = async (): Promise<SeasonBoundDoc> => {
 				// Set the document so you don't have to repeat this polling of the ESPN API
 				const new_doc_ref = doc(
 					seasonBoundsCollection,
-					`${espn_season_year_data.year}_${espn_season_year_data.name.replace(' ', '')}`
+					`${espn_season_year_data.year}_${espn_season_year_data.name
+						.toLocaleLowerCase()
+						.replace(' ', '')}`
 				);
 				const data = new SeasonBoundDoc({
 					end_date: Timestamp.fromDate(new Date(espn_season_year_data.endDate)),
@@ -222,7 +225,7 @@ export const findCurrentSeason = async (): Promise<SeasonBoundDoc> => {
 	}
 };
 
-export const getCurrentSeasonFromESPN = async () => {
+export const getCurrentSeasonFromESPN = async (specificDate?: Date) => {
 	const response = await fetch(
 		'https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/'
 	);
@@ -235,7 +238,7 @@ export const getCurrentSeasonFromESPN = async () => {
 	for await (const item of items) {
 		const latest_season_response = await fetch(item.$ref);
 		const latest_season_data = (await latest_season_response.json()) as ESPNSeasonYear;
-		const current_season = await identifyCurrentSeasonType(latest_season_data);
+		const current_season = await identifyCurrentSeasonType(latest_season_data, specificDate);
 		if (current_season) {
 			const number_of_weeks_response = await fetch(current_season.weeks.$ref);
 			const number_of_weeks_data = (await number_of_weeks_response.json()) as ESPNWeekEvent;
@@ -245,11 +248,14 @@ export const getCurrentSeasonFromESPN = async () => {
 	}
 	return null;
 };
-export const identifyCurrentSeasonType = async (latest_season_data: ESPNSeasonYear) => {
+export const identifyCurrentSeasonType = async (
+	latest_season_data: ESPNSeasonYear,
+	specificDate?: Date
+) => {
 	const { types } = latest_season_data;
 	const { items } = types;
-	// This can be manually set to force a specific season period to be queried
-	const now_numeric = new Date('August 10, 2022');
+	// NOTE: This can be manually set to force a specific season period to be queried
+	const now_numeric = specificDate ? specificDate : new Date();
 	const currentSeasonType = items.find((item) => {
 		const { startDate, endDate } = item;
 		const start_date_numeric = new Date(startDate);
