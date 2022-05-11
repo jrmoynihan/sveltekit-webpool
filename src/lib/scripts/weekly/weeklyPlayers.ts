@@ -2,7 +2,7 @@ import type { Game } from '$classes/game';
 import type { WeeklyPickDoc } from '$classes/picks';
 import type { WeeklyTiebreaker } from '$classes/tiebreaker';
 import { Player } from '$classes/player';
-import { query, where, getDocs, orderBy, QueryConstraint } from '@firebase/firestore';
+import { query, where, getDocs, orderBy, QueryConstraint, doc, getDoc } from '@firebase/firestore';
 import { all_icons } from '$classes/constants';
 import { ErrorAndToast, LogAndToast, myLog } from '$scripts/logging';
 import {
@@ -18,6 +18,13 @@ import {
 	weeklyTiebreakerConverter
 } from '$scripts/converters';
 import type { PoolsToQuery } from '$scripts/types/types';
+import type { User } from '@firebase/auth';
+
+export const getPlayer = async (firebase_user: User): Promise<Player> => {
+	const player_doc_ref = doc(playersCollection, firebase_user.uid);
+	const player_snapshot = await getDoc(player_doc_ref.withConverter(playerConverter));
+	return new Player({ ...player_snapshot.data() });
+};
 
 type getPlayersOptions = {
 	roles?: PoolsToQuery[];
