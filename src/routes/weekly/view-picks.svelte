@@ -120,14 +120,13 @@
 		teams: Team[];
 	}> = getData();
 
-	onMount(async () => {
-		// selectedWeek = await weekPromise;  TODO:  this is fine during regular season, but not during playoffs
-	});
-	$: data_promise = getData();
+	function changedWeek() {
+		data_promise = getData();
+	}
 </script>
 
 <PageTitle>View League Picks</PageTitle>
-<WeekSelect customStyles={'width:fit-content;margin:auto;'} />
+<WeekSelect customStyles={'width:fit-content;margin:auto;'} on:change={changedWeek} />
 
 {#await data_promise}
 	<LoadingSpinner />
