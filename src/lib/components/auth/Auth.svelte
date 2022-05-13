@@ -24,8 +24,8 @@
 
 <ModalWithButton
 	bind:close={closeLoginModal}
-	displayModalButtonText={$firebase_user ? '' : 'Login'}
-	modalButtonStyles={$firebase_user
+	button_text={$firebase_user ? '' : 'Login'}
+	modal_button_styles={$firebase_user
 		? 'padding:0;border-radius:50%;'
 		: 'height: 100%; background:none; display:grid; align-content:center;'}
 >

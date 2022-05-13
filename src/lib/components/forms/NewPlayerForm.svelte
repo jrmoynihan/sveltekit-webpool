@@ -263,7 +263,7 @@
 <Modal
 	bind:open={openNewPlayerForm}
 	bind:close={closeNewPlayerForm}
-	dialogStyles={'width: min(100vw, 600px);'}
+	dialog_styles={'width: min(100vw, 600px);'}
 >
 	<input type="text" placeholder="test" />
 	<Grid
