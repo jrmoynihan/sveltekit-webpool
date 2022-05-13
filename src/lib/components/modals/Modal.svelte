@@ -1,44 +1,39 @@
 <script lang="ts">
-	import {
-		checkForEscape,
-		displayModal,
-		hideThisModalDelayed
-	} from '$scripts/modals/modalFunctions';
-	import { nanoid } from 'nanoid';
-	import { onMount } from 'svelte';
-	export let modalForegroundStyles = '';
-	export let dialogStyles = '';
-	export let modalID = nanoid();
-	export let dialogOpen = false;
-	export let isError = false;
+	export let modal_foreground_styles = '';
+	export let dialog_styles = '';
+	// Should the dialog initialize open by default?
+	export let dialog_starts_open = false;
+	// Is it an error modal?
+	export let is_error = false;
+	export let transition_style: 'scale' | 'fly' = 'scale';
 	let modal: HTMLDialogElement;
+	let is_open = false;
 	export const close = async (): Promise<void> => {
-		dialogOpen = false;
-		hideThisModalDelayed(modal);
+		is_open = false;
+		// Delay the actual close long enough for the class-based transition to play
+		setTimeout(() => modal?.close(), 300);
 	};
 	export const open = async (): Promise<void> => {
-		dialogOpen = true;
-		displayModal(modal);
+		modal?.showModal();
+		is_open = true;
 	};
-	onMount(() => {
-		dialogOpen ? open() : null;
-	});
+	$: dialog_starts_open && modal ? open() : close();
 </script>
 
 <dialog
-	class="fixed"
-	class:isError
-	id={`modal-${modalID}`}
-	style="{dialogOpen ? 'opacity:1' : 'opacity:0'}; {dialogStyles}"
-	on:click|capture|self={close}
 	bind:this={modal}
+	class="fixed"
+	class:is_open
+	class:is_error
+	class:scale={transition_style === 'scale'}
+	class:fly={transition_style === 'fly'}
+	style={dialog_styles}
+	on:click|capture|self={close}
 >
-	<div class="modal-foreground" style={modalForegroundStyles}>
+	<div class="modal-foreground" style={modal_foreground_styles}>
 		<slot name="modal-content">slotted modal content goes here</slot>
 	</div>
 </dialog>
-
-<svelte:window on:keydown|self={(e) => checkForEscape(e, modal)} />
 
 <style lang="scss">
 	dialog {
@@ -54,15 +49,37 @@
 		font-size: initial;
 		margin: auto; // centers the dialog for bad browser user-agent stylesheets that default to top-left
 		width: max-content;
+		opacity: 0;
+		&.scale {
+			transform: scale3d(0, 0, 0);
+		}
+		&.fly {
+			transform: translate3d(0, 5rem, 0);
+		}
+
+		&.is_open,
+		&.is_open > .modal-foreground {
+			opacity: 1;
+			pointer-events: all;
+		}
+		&.is_open {
+			&.scale {
+				transform: scale3d(1, 1, 1);
+			}
+			&.fly {
+				transform: translate3d(0, 0, 0);
+			}
+		}
 
 		&::backdrop {
 			background-color: hsla(0, 0%, 0%, 0.4);
 			padding: 10rem;
-			&.isError {
+			&.is_error {
 				background-color: hsla(0, 41%, 58%, 0.4);
 			}
 		}
 	}
+
 	.modal-foreground {
 		display: grid;
 		grid-auto-rows: max-content;
@@ -72,8 +89,11 @@
 		align-items: center;
 		justify-items: center;
 		padding: 1rem;
+		transition: all 200ms ease-in-out;
+		opacity: 0;
+		pointer-events: none;
 	}
-	.isError {
+	.is_error {
 		background-color: pink;
 		color: darkred;
 	}

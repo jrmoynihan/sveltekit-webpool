@@ -3,7 +3,7 @@
 	export let error = '';
 </script>
 
-<Modal dialogOpen={true} isError={true}>
+<Modal dialog_starts_open={true} is_error={true}>
 	<slot slot="modal-content" />
 	{error}
 </Modal>
