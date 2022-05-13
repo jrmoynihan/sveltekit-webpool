@@ -21,7 +21,7 @@
 	export let currentPicks: WeeklyPickDoc[] = [];
 	export let gridColumns = 1;
 	export let isATSwinner: null | boolean = null;
-	export let ATSwinner: string;
+	export let ATS_winner: string;
 	export let beforeGameTime = false;
 	let layoutBreakpoint = 620;
 	let showTeamNameImages = false;
@@ -134,7 +134,7 @@
 		bind:promiseStatus
 		bind:promiseSituation
 		bind:isATSwinner
-		bind:ATSwinner
+		bind:ATSwinner={ATS_winner}
 		bind:gameIsOver
 	/>
 	<TeamSelectRadioInput
