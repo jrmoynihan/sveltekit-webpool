@@ -20,7 +20,7 @@
 	};
 </script>
 
-<div id="rules-grid" class:editing>
+<div class="rules-grid" class:editing>
 	{#await getRuleData()}
 		Loading rules...
 	{:then rules}
@@ -37,7 +37,7 @@
 </div>
 
 <style lang="scss">
-	#rules-grid {
+	.rules-grid {
 		@include gridCenter($gap: 10px);
 		&.editing {
 			grid-template-columns: 1fr;
