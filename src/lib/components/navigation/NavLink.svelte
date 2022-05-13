@@ -5,49 +5,35 @@
 	import Fa from 'svelte-fa';
 	import { faFootballBall } from '@fortawesome/free-solid-svg-icons';
 	import { matchPath } from '$scripts/functions';
-	import { toast } from '@zerodevx/svelte-toast';
-	import { hideThisModalDelayed } from '$scripts/modals/modalFunctions';
 
 	export let index = 0;
-	export let pageOption: PageOption;
-	export let fullyRounded = false;
+	export let page_option: PageOption;
+	export let fully_rounded = false;
 	let active = false;
 
 	$: active =
-		pageOption.path === '/' && $page.url.pathname !== '/'
+		page_option.path === '/' && $page.url.pathname !== '/'
 			? false
-			: matchPath(pageOption.path, $page.url.pathname);
-
-	//TODO: remove this if no longer needed; 04/30/2022
-	const cleanupToNavigate = () => {
-		const modals = Array.from(document.getElementsByTagName('dialog'));
-		if (modals) {
-			for (const modal of modals) {
-				hideThisModalDelayed(modal);
-			}
-		}
-		toast.pop(0);
-	};
+			: matchPath(page_option.path, $page.url.pathname);
 </script>
 
 <label
-	for={pageOption.navigationText}
+	for={page_option.navigation_text}
 	tabindex={1 + index}
-	on:click={cleanupToNavigate}
 	class:active
 	class="{$nav_toggled ? 'expanded' : 'collapsed'} {$use_dark_theme
 		? 'dark-mode'
-		: 'light-mode'} {fullyRounded ? 'rounded' : ''}"
+		: 'light-mode'} {fully_rounded ? 'rounded' : ''}"
 >
 	<a
 		class:active
-		id={pageOption.navigationText}
+		id={page_option.navigation_text}
 		sveltekit:prefetch
-		href={pageOption.path}
+		href={page_option.path}
 		class={$use_dark_theme ? 'dark-mode' : 'light-mode'}
 	>
 		<Fa icon={faFootballBall} size="lg" />
-		<h2>{pageOption.navigationText}</h2>
+		<h2>{page_option.navigation_text}</h2>
 	</a>
 </label>
 
