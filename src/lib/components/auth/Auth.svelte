@@ -4,18 +4,14 @@
 	import Fa from 'svelte-fa';
 	import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
 	import ToggleSwitch from '$lib/components/switches/ToggleSwitch.svelte';
-	import ModalButtonAndSlot from '$lib/components/modals/ModalWithButton.svelte';
+	import ModalWithButton from '$lib/components/modals/ModalWithButton.svelte';
 	import GoogleLoginButton from '$lib/components/buttons/GoogleLoginButton.svelte';
 	import FacebookLoginButton from '$lib/components/buttons/FacebookLoginButton.svelte';
 	import { dev } from '$app/env';
 	import OnlineStatusIndicator from '$lib/components/containers/micro/OnlineStatusIndicator.svelte';
-	import NewPlayerForm from '$lib/components/forms/NewPlayerForm.svelte';
-	import type ModalOnly from '$lib/components/modals/Modal.svelte';
-	import { myLog } from '$scripts/logging';
-	import { firebase_user, player_not_found } from '$scripts/store';
+	import { firebase_user } from '$scripts/store';
 
 	export let useRedirect = true;
-	let newPlayerFormComponent: ModalOnly;
 	let closeLoginModal: () => Promise<void>;
 
 	const login = async (provider_name: string) => {
@@ -24,16 +20,9 @@
 			closeLoginModal();
 		}
 	};
-
-	$: if ($player_not_found) {
-		newPlayerFormComponent.open();
-		myLog({ msg: `Player NOT found: ${$firebase_user?.displayName}` });
-	} else {
-		myLog({ msg: `Player found: ${$firebase_user?.displayName}` });
-	}
 </script>
 
-<ModalButtonAndSlot
+<ModalWithButton
 	bind:close={closeLoginModal}
 	displayModalButtonText={$firebase_user ? '' : 'Login'}
 	modalButtonStyles={$firebase_user
@@ -49,7 +38,6 @@
 			{#if dev}
 				<ToggleSwitch
 					bind:checked={useRedirect}
-					labelStyles={'color:white;'}
 					labelText={`Use ${useRedirect ? 'redirect' : 'popup'} login method`}
 				/>
 			{/if}
@@ -74,8 +62,7 @@
 			</picture>
 		{/if}
 	</svelte:fragment>
-</ModalButtonAndSlot>
-<NewPlayerForm bind:modalOnlyComponent={newPlayerFormComponent} />
+</ModalWithButton>
 
 <style lang="scss">
 	button {
