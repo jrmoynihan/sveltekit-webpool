@@ -3,7 +3,7 @@
 	import { all_icons } from '$scripts/classes/constants';
 	import { ErrorAndToast, myLog } from '$scripts/logging';
 	import { savePlayerData } from '$scripts/localStorage';
-	import { firebase_user, current_player, current_season } from '$scripts/store';
+	import { firebase_user, current_player, current_season, selected_player } from '$scripts/store';
 	import { defaultToast } from '$scripts/toasts';
 	import {
 		createWeeklyTiebreakersForPlayer,
@@ -19,13 +19,14 @@
 	import { fly, slide } from 'svelte/transition';
 	import Grid from '../containers/Grid.svelte';
 	import LoadingSpinner from '../misc/LoadingSpinner.svelte';
-	import ModalOnly from '../modals/Modal.svelte';
+	import Modal from '../modals/Modal.svelte';
 	import ToggleSwitch from '../switches/ToggleSwitch.svelte';
 	import { cubicInOut } from 'svelte/easing';
 	import AccordionDetails from '$components/containers/accordions/AccordionDetails.svelte';
 	import { findCurrentSeason } from '$lib/scripts/schedule';
 
-	export let modalOnlyComponent: ModalOnly;
+	export let openNewPlayerForm: () => Promise<void> = null;
+	export let closeNewPlayerForm: () => Promise<void> = null;
 	let nickname = '';
 	let creatingNewAccount = false;
 	let buttonHidden = true;
@@ -115,22 +116,48 @@
 				additional_params: toggledPools
 			});
 
-			await createNewPlayerDocument($firebase_user, nickname, toggledPools, totalPriceToEnter, 0);
+			// defaultToast({title: 'Still under construction!', msg: 'Incomplete feature! Go add pool-specific doc creation functions!'});
+			// return
+
+			const { college, pick6, playoffs, survivor, weekly } = toggledPools;
+			$current_player = await createNewPlayerDocument(
+				$firebase_user,
+				nickname,
+				college,
+				pick6,
+				playoffs,
+				survivor,
+				weekly,
+				totalPriceToEnter
+			);
+			$selected_player = $current_player;
 			await savePlayerData($firebase_user);
 			// TODO: create the necessary docs for each pool they've joined...
 			// TODO: Move these to Cloud Functions triggered on new player doc creation...
-			// Get all games that will be played in the future
-			const games = await getFutureGames();
-			createWeeklyPicksForPlayer({ player: $current_player, games, logAll: true, showToast: true });
-			const season = $current_season || (await findCurrentSeason());
-			createWeeklyTiebreakersForPlayer({ player: $current_player, season });
+
+			// Get all games that will be played in the future and make picks for the player
+			if (weekly) {
+				const games = await getFutureGames();
+				createWeeklyPicksForPlayer({
+					player: $current_player,
+					games,
+					logAll: true,
+					showToast: true
+				});
+				const season = $current_season || (await findCurrentSeason());
+				createWeeklyTiebreakersForPlayer({ player: $current_player, season });
+				// TODO: createWeeklyRecords;
+			}
+
+			// TODO: createSeasonRecords;  should occur for any player, since all pools will likely have seasonal record data
+
 			//prettier-ignore
 			defaultToast({
 				title: `Account Created!`,
 				msg: `${$firebase_user.displayName} (${sanitizedNickname}) has joined the following pools: ${poolsWillJoinNames.join(', ')}`
 			});
 			//#prettier-ignore
-			modalOnlyComponent.close();
+			closeNewPlayerForm();
 			setTimeout(() => (creatingNewAccount = false), 300);
 		} catch (error) {
 			const msg = 'We ran into an error while creating the account.';
@@ -145,6 +172,8 @@
 			survivor: false,
 			weekly: false
 		};
+
+		// TODO: This could probably be written better!
 		poolsToJoin.forEach((pool) => {
 			if (pool.fieldName === 'college') {
 				pools.college = pool.toggled;
@@ -231,7 +260,11 @@
 	};
 </script>
 
-<ModalOnly bind:this={modalOnlyComponent} dialogStyles={'width: min(100vw, 600px);'}>
+<Modal
+	bind:open={openNewPlayerForm}
+	bind:close={closeNewPlayerForm}
+	dialogStyles={'width: min(100vw, 600px);'}
+>
 	<input type="text" placeholder="test" />
 	<Grid
 		slot="modal-content"
@@ -366,7 +399,7 @@
 			</LoadingSpinner>
 		{/if}
 	</Grid>
-</ModalOnly>
+</Modal>
 
 <style lang="scss">
 	h3 {
