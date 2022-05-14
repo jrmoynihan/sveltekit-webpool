@@ -41,13 +41,12 @@ export const selected_week = writable(get(current_season_week) || 1);
 export const selected_year = writable(get(current_season_year) || new Date().getFullYear());
 export const games_promise = writable<Promise<Game[]>>();
 export const picks_promise = writable<Promise<WeeklyPickDoc[]>>();
-export const currentPicks = writable<WeeklyPickDoc[]>([]);
-export const tiebreaker_promise = writable<Promise<WeeklyTiebreaker>>(null);
+export const current_picks = writable<WeeklyPickDoc[]>([]);
+export const tiebreaker_promise = writable<Promise<WeeklyTiebreaker[]>>();
 export const players_promise = writable<Promise<Player[]>>(new Promise<Player[]>(() => {}));
 export const overrideDisabled = writable(false);
 export const firebase_user = writable<User>(firebaseAuth.currentUser); // The firebase user. Not necessarily a player yet, and without web pool-specific data
 export const current_player = writable<Player>(new Player({}));  // Who is logged into the app; their player data
-export const player_not_found = writable(false);
 export const tiebreaker_score_guess = writable(0);
 
 // export const queryAsStore = (
@@ -118,3 +117,4 @@ export const updatePlayer = async (player: Player): Promise<void> => {
 export const all_seasons = writableQueryAsStore(query(seasonBoundsCollection), seasonBoundConverter) as Writable<SeasonBoundDoc[]>;
 export const all_teams = writableQueryAsStore(query(teamsCollection), teamConverter) as Writable<Team[]>;
 export const all_players = writableQueryAsStore(query(playersCollection), playerConverter) as Writable<Player[]>;
+export const weekly_players = derived(all_players, $allPlayers => $allPlayers.filter(player => player.weekly))
