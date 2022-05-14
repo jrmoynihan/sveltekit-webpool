@@ -1,4 +1,3 @@
-console.log('scrollAndFocus.ts...');
 import { browser } from '$app/env';
 import type { WeeklyPickDoc } from './classes/picks';
 import { isBeforeGameTime } from './functions';
@@ -65,5 +64,3 @@ export const goToMissedPick = async (currentPicks: WeeklyPickDoc[]): Promise<voi
 		scrollToTopSmooth();
 	}
 };
-
-console.log('scrollAndFocus.ts... done');
