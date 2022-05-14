@@ -1,6 +1,6 @@
 <script lang="ts">
 	import {
-		currentPicks,
+		current_picks,
 		games_promise,
 		larger_than_mobile,
 		nav_toggled,
@@ -37,8 +37,9 @@
 	import SeasonTypeSelect from '$lib/components/selects/SeasonTypeSelect.svelte';
 	import YearSelect from '$lib/components/selects/YearSelect.svelte';
 	import PlayerSelect from '$lib/components/selects/PlayerSelect.svelte';
-	import { changedQuery } from '$lib/scripts/weekly/weeklyPlayers';
-	import { adminControlsPages } from '$lib/scripts/site';
+	import { admin_controls_pages } from '$lib/scripts/site';
+	import { getGameData, getPicksData, getTiebreakerData } from '$lib/scripts/weekly/weeklyPlayers';
+	import { orderBy, where } from '@firebase/firestore';
 
 	let storedScoreViewPreference: ScoreViewPreference;
 	let viewPreferences: { label: string; value: ScoreViewPreference }[] = [
@@ -51,16 +52,25 @@
 		$nav_toggled = !$nav_toggled;
 	}
 	export async function adminSelectorsUpdated() {
-		const promises = changedQuery(
-			$selected_year,
-			$selected_season_type,
-			$selected_week,
-			$selected_player
-		);
-		$games_promise = (await promises).gamesPromise;
-		$picks_promise = (await promises).picksPromise;
-		$tiebreaker_promise = (await promises).tiebreakerPromise;
-		$currentPicks = await $picks_promise;
+		const game_constraints = [
+			where('year', '==', $selected_year),
+			where('week', '==', $selected_week),
+			where('season_type', '==', $selected_season_type)
+		];
+		const tiebreaker_constraints = [
+			...game_constraints.slice(0, game_constraints.length - 1),
+			where('uid', '==', $selected_player.uid)
+		];
+		const picks_constraints = [
+			...game_constraints,
+			where('uid', '==', $selected_player.uid),
+			orderBy('timestamp'),
+			orderBy('game_id')
+		];
+		$games_promise = getGameData({ constraints: game_constraints });
+		$picks_promise = getPicksData({ constraints: picks_constraints });
+		$tiebreaker_promise = getTiebreakerData({ constraints: tiebreaker_constraints });
+		$current_picks = await $picks_promise;
 	}
 	onMount(async () => {
 		storedScoreViewPreference = await getLocalStorageItem('scoreViewPreference');
@@ -78,7 +88,7 @@
 			<Fa icon={faBars} class="fa-bars" size="lg" />
 		</button>
 	{:else}
-		<ModalButtonAndSlot modalButtonStyles={'background:transparent'} discreetButton={true}>
+		<ModalButtonAndSlot modal_button_styles={'background:transparent'} use_discreet_button={true}>
 			<Fa slot="button-icon" icon={faBars} class="fa-bars" size="lg" />
 			<Navigator slot="modal-content" useModal={true} customStyles="background:var(--background)">
 				<SiteNavOptions />
@@ -89,27 +99,29 @@
 	<Auth />
 
 	<div class="settings-wrapper">
-		{#if adminControlsPages.includes($page.url.pathname)}
-			<AdminControlsModal modalButtonStyles={`border-radius: 1rem; padding: 0.75rem;`}>
+		{#if admin_controls_pages.includes($page.url.pathname)}
+			<AdminControlsModal modal_button_styles={`border-radius: 1rem; padding: 0.75rem;`}>
 				<Grid slot="modal-content" repeatColumns={2}>
-					{#if $page.url.pathname === '/weekly/make-picks'}
-						<p>Show Game IDs</p>
-						<ToggleSwitch bind:checked={$show_IDs} />
-						<p>Show Timestamps</p>
-						<ToggleSwitch bind:checked={$show_timestamps} />
-						<p>Show Spreads</p>
-						<ToggleSwitch bind:checked={$show_spreads} />
-						<p>Show ATS Winner</p>
-						<ToggleSwitch bind:checked={$show_ATS_winner} />
-
-						<p>Override Locked Games <Fa icon={$overrideDisabled ? faUnlock : faLock} /></p>
-						<ToggleSwitch bind:checked={$overrideDisabled} />
+					{#if $page.url.pathname.includes('/weekly')}
 						<p>Select Season Type</p>
 						<SeasonTypeSelect on:change={adminSelectorsUpdated} />
 						<p>Select Year</p>
 						<YearSelect on:change={adminSelectorsUpdated} />
 						<p>Select Player</p>
 						<PlayerSelect player_pool="weekly" on:change={adminSelectorsUpdated} />
+						{#if $page.url.pathname === '/weekly/make-picks'}
+							<p>Show Game IDs</p>
+							<ToggleSwitch bind:checked={$show_IDs} />
+							<p>Show Timestamps</p>
+							<ToggleSwitch bind:checked={$show_timestamps} />
+							<p>Show Spreads</p>
+							<ToggleSwitch bind:checked={$show_spreads} />
+							<p>Show ATS Winner</p>
+							<ToggleSwitch bind:checked={$show_ATS_winner} />
+
+							<p>Override Locked Games <Fa icon={$overrideDisabled ? faUnlock : faLock} /></p>
+							<ToggleSwitch bind:checked={$overrideDisabled} />
+						{/if}
 					{/if}
 				</Grid>
 			</AdminControlsModal>
@@ -117,7 +129,7 @@
 
 		<LightDarkToggle />
 
-		<ModalButtonAndSlot discreetButton={true} modalButtonStyles={'background:transparent;'}>
+		<ModalButtonAndSlot use_discreet_button={true} modal_button_styles={'background:transparent;'}>
 			<svelte:fragment slot="button-icon">
 				<Fa icon={faCog} class="fa-Cog" size="lg" />
 			</svelte:fragment>
@@ -125,13 +137,13 @@
 			<svelte:fragment slot="modal-content">
 				{#if $page.url.pathname === '/weekly/makePicks'}
 					<MultiToggleSwitch
-						titleText="View Scores"
-						showSelectedValue={false}
+						title_text="View Scores"
+						show_selected_value={false}
 						items={viewPreferences}
-						selectedItem={storedScoreViewPreference
+						selected_item={storedScoreViewPreference
 							? viewPreferences.find((preference) => preference.value === storedScoreViewPreference)
 							: viewPreferences[1]}
-						bind:selectedValue={$preferred_score_view}
+						bind:selected_value={$preferred_score_view}
 						on:toggle={() => setLocalStorageItem('scoreViewPreference', $preferred_score_view)}
 					/>
 					<label class="score-view-selector-label"
