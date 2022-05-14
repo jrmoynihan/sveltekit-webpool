@@ -17,7 +17,6 @@ import { doc, setDoc } from '@firebase/firestore';
 import { playersCollection } from '$scripts/collections';
 import { goto } from '$app/navigation';
 import { playerConverter } from '$scripts/converters';
-import { WeeklyPickRecord, PlayerWinnings } from '$classes/playerRecord';
 import { savePlayerData } from '$scripts/localStorage';
 import { firebase_user, current_player } from '$scripts/store';
 import { myError, myLog } from '$scripts/logging';
@@ -107,20 +106,17 @@ export const startSignIn = async (loginPlatform: string, useRedirect: boolean = 
 export const createNewPlayerDocument = async (
 	firebase_user: User,
 	nickname: string,
-	pools: {
-		college: boolean;
-		pick6: boolean;
-		playoffs: boolean;
-		survivor: boolean;
-		weekly: boolean;
-	},
-	amountOwedToPools = 0,
-	amountPaidToPools = 0
-): Promise<void> => {
+		college: boolean,
+		pick6: boolean,
+		playoffs: boolean,
+		survivor: boolean,
+		weekly: boolean,
+	amount_owed_to_pools: number,
+): Promise<Player> => {
 	try {
 		// Make a document reference for the user with the user's UID, making it both unique and easy to lookup after they login
 		const new_player_ref = doc(playersCollection, firebase_user.uid);
-
+		
 		const new_player_data = new Player({
 			uid: firebase_user.uid,
 			ref: new_player_ref,
@@ -129,25 +125,25 @@ export const createNewPlayerDocument = async (
 			email: firebase_user.email,
 			active: true,
 			admin: false,
-			college: pools.college,
-			pick6: pools.pick6,
-			playoffs: pools.playoffs,
-			survivor: pools.survivor,
-			weekly: pools.weekly,
-			weeklyPickRecord: { ...new WeeklyPickRecord({}) },
-			weeklyWinnings: { ...new PlayerWinnings({}) },
-			amountOwedToPools,
-			amountPaidToPools,
-			paidWeekly: false,
-			paidCollege: false,
-			paidPlayoffs: false,
-			paidSurvivor: false,
-			paidPick6: false
+			college,
+			pick6,
+			playoffs,
+			survivor,
+			weekly,
+			paid_weekly: false,
+			paid_college: false,
+			paid_playoffs: false,
+			paid_survivor: false,
+			paid_pick6: false,
+			amount_owed_to_pools,
+			amount_paid_to_pools: 0,
 		});
 		// Write some initial data to the user document
 		await setDoc(new_player_ref.withConverter(playerConverter), new_player_data);
 
 		myLog({msg: `New player doc for ${firebase_user.displayName} (${firebase_user.uid}) added!`});
+		
+		return new_player_data;
 	} catch (error) {
 		myError({msg: 'error in createNewPlayerDocument', error});
 	}
