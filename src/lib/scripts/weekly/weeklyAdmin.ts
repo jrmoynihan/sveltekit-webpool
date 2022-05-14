@@ -116,29 +116,36 @@ export const createWeeklyPicksForPlayer = async (
 	input: createWeeklyPicksForPlayerOptions
 ) => {
 	const { player, games, showToast, logAll } = input;
+	const { uid, name, nickname} = player;
 	try {
-		for await (const game of games) {
-			const newWeeklyPickRef = doc(weeklyPicksCollection);  // auto-generates a new doc ref/id
-			const pickDoc = new WeeklyPickDoc({
-				docRef: newWeeklyPickRef,
-				gameId: game.id,
-				pick: '',
-				uid: player.uid,
-				week: game.week,
-				year: game.timestamp.toDate().getFullYear(),
-				timestamp: game.timestamp,
-				name: player.name,
-				nickname: player.nickname,
-				type: game.type,
-				isCorrect: null
-			});
-			setDoc(newWeeklyPickRef.withConverter(weeklyPickConverter), pickDoc);
+		if(player && games.length > 0 ){
+			for await (const game of games) {
+				const { id: game_id, week, timestamp, season_type} = game
+				const year = timestamp.toDate().getFullYear();
+				const newWeeklyPickRef = doc(weeklyPicksCollection);  // auto-generates a new doc ref/id
+				const pickDoc = new WeeklyPickDoc({
+					doc_ref: newWeeklyPickRef,
+					game_id,
+					pick: '',
+					uid,
+					week,
+					year,
+					timestamp,
+					name,
+					nickname,
+					season_type,
+					is_correct: null
+				});
+				await setDoc(newWeeklyPickRef.withConverter(weeklyPickConverter), pickDoc);
+			}
+			const title = 'Created Weekly Picks!';
+			const msg = `Pick documents were created for every game for ${player.name} (${player.nickname})`;
+			
+			if (logAll) myLog({ msg, traceLocation: true });
+			if (showToast)	defaultToast({ title, msg });
+		}else{
+			throw new Error("No games or player to create picks for");
 		}
-		const title = 'Created Weekly Picks!';
-		const msg = `Pick documents were created for every game for ${player.name} (${player.nickname})`;
-		
-		if (logAll) myLog({ msg, traceLocation: true });
-		if (showToast)	defaultToast({ title, msg });
 
 	} catch (error) {
 		const msg = `Encountered an error while trying to create ${player.name}'s picks.  Check the console for more info. ${error}`;
@@ -233,55 +240,56 @@ export const createWeeklyTiebreakersForAllPlayers = async (season : SeasonBoundD
 type createWeeklyTiebreakersForPlayerOptions = {
 	player: Player;
 	season: SeasonBoundDoc;
+	show_toast?: boolean;
 }
 // TODO: Move to cloud function performed when player joins the pool
 export const createWeeklyTiebreakersForPlayer = async (
 	input: createWeeklyTiebreakersForPlayerOptions
 ) => {
-	const { player, season } = input;
+	const { player, season, show_toast } = input;
 	try {
 		const {uid} = player;
-		const {year, number_of_weeks} = season;
+		const {year, number_of_weeks, type_name} = season;
 		// Make an array from the number of weeks, starting with 1
 		const weeks = makeNumericArrayOfDesiredLength(number_of_weeks);
 		// Create a tiebreaker doc for each week
 		weeks.forEach(async (week) => {
-			await setNewTiebreakerDoc(uid, week, year);
+			await createTiebreaker(uid, week, year, type_name);
 		})
 		myLog({ msg: `set tiebreakers for ${player.name} (${player.nickname})` });
 	} catch (error) {
 		const msg = `Encountered an error while trying to create tiebreaker documents for ${player.name} (${player.nickname})`;
-		ErrorAndToast({
+		show_toast ? ErrorAndToast({
 			msg,
 			error
-		});
+		}) : myError({ msg, error });
 	}
 };
-export const setNewTiebreakerDoc = async (
+export const createTiebreaker = async (
 	uid: string,
-	selectedWeek: number,
-	selectedYear: number,
-	type = 'Regular Season',
-	scoreGuess = null
+	week: number,
+	year: number,
+	season_type = 'Regular Season',
+	score_guess = null
 ) => {
-	const docRef = doc(weeklyTiebreakersCollection);
+	const doc_ref = doc(weeklyTiebreakersCollection);
 	try {
-		await setDoc(docRef.withConverter(weeklyTiebreakerConverter), {
-			scoreGuess,
-			docRef,
+		await setDoc(doc_ref.withConverter(weeklyTiebreakerConverter), {
+			score_guess,
+			doc_ref,
 			uid,
-			type,
-			week: selectedWeek,
-			year: selectedYear
+			season_type,
+			week,
+			year
 		});
 		myLog({
-			msg: `set tiebreaker doc (${docRef}); uid: ${uid}, week ${selectedWeek}, ${selectedYear}`
+			msg: `set tiebreaker doc (${doc_ref}); uid: ${uid}, week ${week}, ${year}`
 		});
 	} catch (error) {
 		ErrorAndToast({
-			msg: `Encountered an error while trying to set tiebreaker doc (${docRef})`,
+			msg: `Encountered an error while trying to set tiebreaker doc (${doc_ref})`,
 			error,
-			additional_params: `unable to update tiebreaker ${docRef.path} for player ${uid}`
+			additional_params: `unable to update tiebreaker ${doc_ref.path} for player ${uid}`
 		});
 	}
 };

@@ -17,13 +17,13 @@
 	import { getDocs, query, where } from '@firebase/firestore';
 
 	let open = false;
-	let otherItems = [
+	let other_items = [
 		{ label: 'One', value: 1 },
 		{ label: 'Two', value: 2 },
 		{ label: 'Three', value: 3 },
 		{ label: 'Four', value: 4 }
 	];
-	let viewPreferences: { label: string; value: ScoreViewPreference; icon?: IconDefinition }[] = [
+	let view_preferences: { label: string; value: ScoreViewPreference; icon?: IconDefinition }[] = [
 		{ label: 'Actual Scores Only', value: 'Actual', icon: faFootballBall },
 		{ label: 'ATS Only', value: 'ATS', icon: faCalculator },
 		{ label: 'Both', value: 'Both', icon: faCheckDouble }
@@ -35,10 +35,10 @@
 	};
 	const getESPNGameData = async (game: Game) => {
 		const data: ESPNGame = await fetchHttpsToJson(game.$ref);
-		const homeTeam: CompetitorESPN = data.competitions[0].competitors[0];
-		const awayTeam: CompetitorESPN = data.competitions[0].competitors[1];
-		const drivesRef: string = data.competitions[0].drives.$ref;
-		return { homeTeam, awayTeam, drivesRef, data };
+		const home_team: CompetitorESPN = data.competitions[0].competitors[0];
+		const away_team: CompetitorESPN = data.competitions[0].competitors[1];
+		const drives_ref: string = data.competitions[0].drives.$ref;
+		return { home_team, away_team, drives_ref, data };
 	};
 	const getTeamColors = async (competitor: CompetitorESPN) => {
 		const data: ESPNTeamData = await fetchHttpsToJson(competitor.team.$ref);
@@ -49,30 +49,34 @@
 
 	const getData = async () => {
 		const game: Game = await getGame();
-		const { awayTeam, homeTeam } = game;
-		const gameData = await getESPNGameData(game);
-		const homeCompetitor: CompetitorESPN = gameData.homeTeam;
-		const awayCompetitor: CompetitorESPN = gameData.awayTeam;
-		const drivesRef: string = gameData.drivesRef;
-		const homeColors: { color: string; altColor: string } = await getTeamColors(homeCompetitor);
-		const awayColors: { color: string; altColor: string } = await getTeamColors(awayCompetitor);
-		return { game, awayTeam, homeTeam, homeColors, awayColors, drivesRef, gameData: gameData.data };
+		const { away_team, home_team } = game;
+		const ESPN_game_data = await getESPNGameData(game);
+		const home_competitor: CompetitorESPN = ESPN_game_data.home_team;
+		const away_competitor: CompetitorESPN = ESPN_game_data.away_team;
+		const drives_ref: string = ESPN_game_data.drives_ref;
+		const home_colors: { color: string; altColor: string } = await getTeamColors(home_competitor);
+		const away_colors: { color: string; altColor: string } = await getTeamColors(away_competitor);
+		return { game, away_team, home_team, home_colors, away_colors, drives_ref, game_data: ESPN_game_data.data };
 	};
 </script>
 
-<MultiToggleSwitch items={otherItems} selectedItem={otherItems[1]} titleText="This is the Title" />
+<MultiToggleSwitch
+	items={other_items}
+	selected_item={other_items[1]}
+	title_text="This is the Title"
+/>
 
 <MultiToggleSwitch
-	items={viewPreferences}
-	titleText="all true"
-	selectedItem={viewPreferences[0]}
-	showIcon={false}
-	bind:selectedValue={$preferred_score_view}
+	items={view_preferences}
+	title_text="all true"
+	selected_item={view_preferences[0]}
+	show_icon={false}
+	bind:selected_value={$preferred_score_view}
 />
 {#await getData()}
 	Loading game...
-{:then { game, awayTeam, homeTeam, homeColors, awayColors, drivesRef, gameData }}
-	<DriveChart {awayTeam} {homeTeam} {homeColors} {awayColors} {game} {drivesRef} {gameData} />
+{:then { game, away_team, home_team, home_colors, away_colors, drives_ref, game_data }}
+	<DriveChart {away_team} {home_team} {home_colors} {away_colors} {game} {drives_ref} {game_data} />
 {/await}
 
 <AccordionDetails3 bind:open>

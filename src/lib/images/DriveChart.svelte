@@ -11,75 +11,75 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { draw } from 'svelte/transition';
 
-	export let awayTeam: Team;
-	export let homeTeam: Team;
+	export let away_team: Team;
+	export let home_team: Team;
 	export let game: Game;
-	export let homeColors: { color: string; altColor: string };
-	export let awayColors: { color: string; altColor: string };
-	export let drivesRef: string;
-	export let gameData: ESPNGame;
-	export let teamTextColor = 'var(--text)';
+	export let home_colors: { color: string; altColor: string };
+	export let away_colors: { color: string; altColor: string };
+	export let drives_ref: string;
+	export let game_data: ESPNGame;
+	export let team_text_color = 'var(--text)';
 
-	let awayTeamColor: string = awayColors.color;
-	let homeTeamColor: string = homeColors.color;
-	let possessionTeamImageUrl = '';
-	let refreshGameDataInterval: NodeJS.Timer;
-	let svgWidth = 595;
+	let away_team_primary_color: string = away_colors.color;
+	let home_team_primary_color: string = home_colors.color;
+	let possession_team_image_url = '';
+	let refresh_game_data_interval: NodeJS.Timer;
+	let svg_width = 595;
 
 	const getData = async () => {
-		const situation: ESPNSituation = await getSituation(gameData.competitions);
-		const teamWithPossession = situation.team
+		const situation: ESPNSituation = await getSituation(game_data.competitions);
+		const team_with_possession = situation.team
 			? await getTeamWithPossession(situation.team.$ref)
 			: null;
-		const lastDrive: ESPNDrive = await getMostRecentDrive(drivesRef);
-		const isScore = lastDrive.isScore;
-		const driveResult = lastDrive.result;
-		const lastPlayNumber = lastDrive.plays.items.length - 1;
-		const lastPlay = lastDrive?.plays.items[lastPlayNumber];
-		if (teamWithPossession) {
-			possessionTeamImageUrl =
-				teamWithPossession === awayTeam.abbreviation
-					? awayTeam.logoPath
-					: teamWithPossession === homeTeam.abbreviation
-					? homeTeam.logoPath
+		const last_drive: ESPNDrive = await getMostRecentDrive(drives_ref);
+		const is_score = last_drive?.isScore;
+		const drive_result = last_drive?.result;
+		const last_play_number = last_drive?.plays.items.length - 1;
+		const last_play = last_drive?.plays.items[last_play_number];
+		if (team_with_possession) {
+			possession_team_image_url =
+				team_with_possession === away_team.abbreviation
+					? away_team.logoPath
+					: team_with_possession === home_team.abbreviation
+					? home_team.logoPath
 					: '';
 		} else {
-			possessionTeamImageUrl = awayTeam.logoPath;
+			possession_team_image_url = away_team.logoPath;
 		}
 		return {
 			situation,
-			teamWithPossession,
-			lastDrive,
-			lastPlay,
-			isScore,
-			driveResult,
-			lastPlayNumber
+			team_with_possession,
+			last_drive,
+			last_play,
+			is_score,
+			drive_result,
+			last_play_number
 		};
 	};
 	onMount(() => {
-		refreshGameDataInterval = setInterval(async () => {
+		refresh_game_data_interval = setInterval(async () => {
 			getData();
 		}, 20000);
 	});
 	onDestroy(() => {
-		clearInterval(refreshGameDataInterval);
+		clearInterval(refresh_game_data_interval);
 	});
 </script>
 
 <Grid customStyles={'justify-items:center; grid-template-columns: 1fr'}>
-	<input type="range" bind:value={svgWidth} min={100} max={1000} />
+	<input type="range" bind:value={svg_width} min={100} max={1000} />
 	{#await convertToHttps(game.$ref)}
 		Getting game link...
 	{:then ref}
 		<a href={ref}>Game Link</a>
 	{/await}
-	{#await getData() then { situation, teamWithPossession, lastDrive, lastPlay, isScore, driveResult, lastPlayNumber }}
+	{#await getData() then { situation, team_with_possession, last_drive, last_play, is_score, drive_result, last_play_number }}
 		<svg
 			id="drivechart"
 			class="desktop-tablet-only"
 			height="110"
 			version="1.1"
-			width={svgWidth}
+			width={svg_width}
 			xmlns="http://www.w3.org/2000/svg"
 			xmlns:xlink="http://www.w3.org/1999/xlink"
 			style="overflow: hidden; position: relative; left: -0.65625px;"
@@ -243,7 +243,7 @@
 			/>
 			<path
 				class="field-top field-home"
-				fill="#{homeTeamColor}"
+				fill="#{home_team_primary_color}"
 				stroke="#000000"
 				d="M551.3,5L510.1,5L542.2,35L589,35L589.5,35Z"
 				stroke-width="0"
@@ -262,7 +262,7 @@
 			/>
 			<path
 				class="field-top field-away"
-				fill="#{awayTeamColor}"
+				fill="#{away_team_primary_color}"
 				stroke="#000000"
 				d="M51.6,35L83.7,5L45.3,5L7.1,35L51,35Z"
 				stroke-width="0"
@@ -279,11 +279,11 @@
 				font-family="BentonSans, Arial, Helvetica, sans-serif"
 				font-size="10px"
 				stroke="none"
-				fill={teamTextColor}
+				fill={team_text_color}
 				style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: start; font-family: BentonSans, Arial, Helvetica, sans-serif; font-size: 10px;"
 			>
 				<tspan dy="3.5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
-					>{awayTeam?.abbreviation ? awayTeam.abbreviation : 'away'}</tspan
+					>{away_team?.abbreviation ? away_team.abbreviation : 'away'}</tspan
 				>
 			</text>
 			<text
@@ -294,11 +294,11 @@
 				font-family="BentonSans, Arial, Helvetica, sans-serif"
 				font-size="10px"
 				stroke="none"
-				fill={teamTextColor}
+				fill={team_text_color}
 				style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: end; font-family: BentonSans, Arial, Helvetica, sans-serif; font-size: 10px;"
 			>
 				<tspan dy="3.5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
-					>{homeTeam?.abbreviation ? homeTeam.abbreviation : 'home'}</tspan
+					>{home_team?.abbreviation ? home_team.abbreviation : 'home'}</tspan
 				>
 			</text>
 			<text
@@ -629,7 +629,7 @@
 				style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); stroke-opacity: 1;"
 			/>
 			<desc>Created with Snap https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/d </desc>
-			{#key lastPlayNumber}
+			{#key last_play_number}
 				<path
 					transition:draw
 					d="M 102.645 20 A 3.5,3.5,0,0,1,99.145,23.5 A 3.5,3.5,0,0,1,95.645,20 A 3.5,3.5,0,0,1,99.145,16.5 A 3.5,3.5,0,0,1,102.645,20 Z"
@@ -681,7 +681,7 @@
 				transform="matrix(1,0,0,1,464.87,-37.25)"
 			/><g transform="matrix(1,0,0,1,464.87,-37.25)"
 				><image
-					xlink:href={possessionTeamImageUrl}
+					xlink:href={possession_team_image_url}
 					preserveAspectRatio="true"
 					x="5.5"
 					y="5"
@@ -743,16 +743,16 @@
 				/></clipPath
 			></svg
 		>
-		{#if lastPlay.text !== 'END GAME'}
-			{#if lastDrive}
-				<p>{lastDrive.description}</p>
+		{#if last_play.text !== 'END GAME'}
+			{#if last_drive}
+				<p>{last_drive.description}</p>
 			{/if}
 			{#if situation}
 				<p>{situation.downDistanceText}</p>
 			{/if}
 		{/if}
-		{#if lastPlay}
-			<p>{lastPlay.text}</p>
+		{#if last_play}
+			<p>{last_play.text}</p>
 		{/if}
 	{/await}
 </Grid>

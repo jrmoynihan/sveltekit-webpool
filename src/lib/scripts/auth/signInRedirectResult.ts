@@ -11,7 +11,7 @@ import {
 import { getDoc, doc } from '@firebase/firestore';
 import { get } from 'svelte/store';
 import { capitalizeWord } from '$scripts/functions';
-import { firebase_user, player_not_found } from '$scripts/store';
+import { firebase_user } from '$scripts/store';
 import { request } from '$lib/fetch';
 
 const doStuffOnRedirect = async (): Promise<void> => {
@@ -67,7 +67,5 @@ async function getCurrentPlayerDoc(): Promise<void> {
 		console.info(`Player doc already exists`);
 	} else {
 		console.info('Player doc not found!');
-		// Set a global store that will indicate the user needs a New User prompt
-		player_not_found.set(true);
 	}
 }

@@ -205,47 +205,48 @@
 		const gameDocRef = doc(firestoreDB, scheduleCollection.path, game.id);
 
 		// Load the game to a new object that will gain Firebase-friendly formatting changes
-		const gameFormatted = new Game({ ...game });
+		const formatted_game = new Game({ ...game });
 
-		// Start with adding that docRef to the document itself
-		gameFormatted.docRef = gameDocRef;
+		// Start with adding that renamed fields that don't match in the constructor to the formatted game document
+		// If we did this a lot, it might be worth making the constructor more flexible in handling this ESPN input data
+		formatted_game.doc_ref = gameDocRef;
+		formatted_game.season_ref = game.season
+		formatted_game.season_type_ref = game.seasonType
+		formatted_game.short_name = game.shortName
 
-		// Add the numeric year/week, instead of using ESPN's nested reference object
-		gameFormatted.week = $selected_week;
-		gameFormatted.year = $selected_year;
-		gameFormatted.type = $selected_season_type;
+		// Add the season_type, year, and week, instead of using ESPN's nested reference object
+		formatted_game.week = $selected_week;
+		formatted_game.year = $selected_year;
+		formatted_game.season_type = $selected_season_type;
 
 		// Get the spread by querying the game id on the spread API
 		const consensus = await getConsensusSpread(game.id);
-		gameFormatted.spread = consensus as number;
+		formatted_game.spread = consensus as number;
 
 		// Convert the date to the server format
-		const date = new Date(gameFormatted.date);
+		const date = new Date(formatted_game.date);
 		const timestamp = Timestamp.fromDate(date);
-		gameFormatted.timestamp = timestamp;
+		formatted_game.timestamp = timestamp;
 
 		// Get the home and away teams for easier access
-		const shortName = gameFormatted.shortName;
-		const homeAndAwayTeams = shortName.split('@');
-		const trimmedTeams = homeAndAwayTeams.map((team) => team.trim());
-		const awayTeam = trimmedTeams[0];
-		const homeTeam = trimmedTeams[1];
+		const shortName = formatted_game.short_name;
+		const [away_team, home_team] = shortName.split(' @ ');
 
 		// Set their records on the game document
 		for (const team of $all_teams) {
 			myLog({msg: 'adding team...'});
-			if (team.abbreviation === homeTeam) {
+			if (team.abbreviation === home_team) {
 				myLog({msg: 'home team:', additional_params: team.abbreviation, icon: all_icons.home});
-				gameFormatted.homeTeam = { ...team };
+				formatted_game.home_team = { ...team };
 			}
-			if (team.abbreviation === awayTeam) {
+			if (team.abbreviation === away_team) {
 				myLog({msg: 'away team:', additional_params: team.abbreviation, icon: all_icons.airplaneDeparture});
-				gameFormatted.awayTeam = { ...team };
+				formatted_game.away_team = { ...team };
 			}
 		}
 
 		// Set/update the game document with the formatted data
-		await setDoc(gameDocRef.withConverter(gameConverter), gameFormatted);
+		await setDoc(gameDocRef.withConverter(gameConverter), formatted_game);
 	};
 	const deleteAllGames = async () => {
 		const continueDelete = confirm(

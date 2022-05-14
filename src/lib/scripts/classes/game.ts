@@ -2,52 +2,52 @@ import type { DocumentReference, Timestamp } from '@firebase/firestore';
 import type { Team } from './team';
 
 export class Game {
-	docRef: DocumentReference;
+	doc_ref: DocumentReference;
 	$ref: string;
 	competitions: PrunedCompetition[];
 	date: string;
 	id: string;
 	loser: string;
 	name: string;
-	season: { $ref: string };
-	seasonType: { $ref: string };
-	shortName: string;
+	season_ref: { $ref: string };
+	season_type_ref: { $ref: string };
+	short_name: string;
 	spread: number;
 	timestamp: Timestamp;
 	year: number;
 	week: number;
-	type: string;
-	homeTeam: Team;
-	awayTeam: Team;
+	season_type: string;
+	home_team: Team;
+	away_team: Team;
 	winner: string;
-	ATSwinner: string;
-	totalScore: number;
-	isLastGameOfWeek: boolean;
-	isBeforeGameTime?: boolean;
+	ATS_winner: string;
+	total_score: number;
+	is_last_game_of_week: boolean;
+	is_before_game_time?: boolean;
 
 	constructor({ ...args }) {
-		// this.docRef = args.docRef;
+		this.doc_ref = args.doc_ref;
 		this.$ref = args.$ref;
 		this.competitions = args.competitions;
 		this.date = args.date;
 		this.id = args.id;
 		this.name = args.name;
-		this.season = args.season;
-		this.seasonType = args.seasonType;
-		this.shortName = args.shortName;
+		this.season_ref = args.season_ref;
+		this.season_type_ref = args.season_type_ref;
+		this.short_name = args.short_name;
 		this.spread = args.spread;
 		this.timestamp = args.timestamp;
 		this.year = args.year;
 		this.week = args.week;
-		this.type = args.type;
-		this.homeTeam = args.homeTeam;
-		this.awayTeam = args.awayTeam;
+		this.season_type = args.season_type;
+		this.home_team = args.home_team;
+		this.away_team = args.away_team;
 		this.winner = args.winner || '';
 		this.loser = args.loser || '';
-		this.ATSwinner = args.ATSwinner || '';
-		this.totalScore = args.totalScore || null;
-		this.isLastGameOfWeek = args.isLastGameOfWeek || false;
-		this.isBeforeGameTime = args.isBeforeGameTime || false;
+		this.ATS_winner = args.ATS_winner || '';
+		this.total_score = args.total_score || null;
+		this.is_last_game_of_week = args.is_last_game_of_week || false;
+		this.is_before_game_time = args.is_before_game_time || false;
 	}
 }
 export interface ESPNCompetition {
