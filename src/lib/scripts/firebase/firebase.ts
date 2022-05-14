@@ -5,7 +5,7 @@ import { Firestore, getFirestore } from '@firebase/firestore';
 
 const API_KEY: string = dev ? import.meta.env.API_KEY as string : process.env.API_KEY as string;
 const firebaseConfig = {
-	apiKey: 'AIzaSyDEAAXuJcftdIqBRxi_OmDYmFEMs2qnpIw', // FIXME - why isn't Vercel processing this?
+	apiKey: 'AIzaSyDEAAXuJcftdIqBRxi_OmDYmFEMs2qnpIw', // FIXME - 5/10/22 - Why isn't Vercel processing this when I use process.env?
 	authDomain: 'tonyswebpool.firebaseapp.com',
 	databaseURL: 'https://tonyswebpool.firebaseio.com',
 	projectId: 'tonyswebpool',
