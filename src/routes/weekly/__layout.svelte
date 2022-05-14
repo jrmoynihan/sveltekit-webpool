@@ -12,14 +12,14 @@
 	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
 	import { nav_toggled } from '$scripts/store';
 	import type { LoadInput, LoadOutput } from '@sveltejs/kit';
-	import { weeklyTabs } from '$scripts/site';
+	import { weekly_tabs } from '$scripts/site';
 
 	export let refresh: unknown;
 </script>
 
 <Navigator minItemSize="10rem" maxItemSize="max-content" customStyles="top: 3.5rem;">
-	{#each weeklyTabs as tab, index}
-		<NavLink {index} pageOption={tab} fullyRounded={true} />
+	{#each weekly_tabs as tab, index}
+		<NavLink {index} page_option={tab} fully_rounded={true} />
 	{/each}
 </Navigator>
 <TransitionWrapper {refresh} customStyles={$nav_toggled ? 'margin-top: 0.6rem;' : 'margin-top: 0;'}>
