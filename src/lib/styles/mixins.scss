@@ -81,7 +81,7 @@
 	top: 0;
 }
 
-@mixin gridAndGap($gap: 10px) {
+@mixin gridAndGap($gap: 1rem) {
 	display: grid;
 	gap: $gap;
 }
