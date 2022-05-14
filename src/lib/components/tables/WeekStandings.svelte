@@ -1,123 +1,109 @@
 <script lang="ts">
-	import { selected_week, show_IDs, show_net_tiebreakers, window_width } from '$scripts/store';
-	import { query, where, orderBy, getDocs } from '@firebase/firestore';
-	import { scheduleCollection, weeklyTiebreakersCollection } from '$scripts/collections';
-	import { getPlayers } from '$scripts/weekly/weeklyPlayers';
+	import { selected_week, selected_year, window_width } from '$scripts/store';
+	import { where, orderBy } from '@firebase/firestore';
+	import {
+		getGameData,
+		getTiebreakerData,
+		getWeeklyPlayers,
+		getWeeklyRecordData
+	} from '$scripts/weekly/weeklyPlayers';
 	import { ErrorAndToast } from '$scripts/logging';
 	import type { Game } from '$classes/game';
 	import ErrorModal from '../modals/ErrorModal.svelte';
 	import type { WeeklyTiebreaker } from '$classes/tiebreaker';
 	import type { Player } from '$classes/player';
-	import { gameConverter, weeklyTiebreakerConverter } from '$scripts/converters';
-	import { mobileBreakpoint } from '$scripts/site';
+	import { mobile_breakpoint } from '$scripts/site';
 	import WeekSelect from '$components/selects/WeekSelect.svelte';
 	import WeeklyStandingsRow from '$components/tables/WeeklyStandingsRow.svelte';
 	import ReturnToTop from '$components/buttons/ReturnToTop.svelte';
-	import type { PoolsToQuery } from '$lib/scripts/types/types';
+	import type { PlayerRecord } from '$lib/scripts/classes/playerRecord';
+	import { dev } from '$app/env';
+	import AdminOnlyControl from '../misc/AdminOnlyControl.svelte';
+	import YearSelect from '../selects/YearSelect.svelte';
 
-	let initialWeekHeaders: string[] = ['Rank', 'Player', 'Wins', 'Losses', 'Tiebreaker', 'Prize'];
-	let abbreviatedWeekHeaders: string[] = ['#', 'Name', 'W', 'L', 'T', '$'];
-	let weekHeaders: string[] = initialWeekHeaders;
-	let headerCount: number;
+	let initial_week_headers: string[] = ['Rank', 'Player', 'Wins', 'Losses', 'Tiebreaker', 'Prize'];
+	let abbreviated_week_headers: string[] = ['#', 'Name', 'W', 'L', 'T', '$'];
+	let week_headers: string[] = initial_week_headers;
+	let header_count: number;
 
-	export const getAllTiebreakers = async (
-		selectedWeek: number,
-		selectedYear = new Date().getFullYear()
-	) => {
+	const getLastGame = async (selected_week: number, selected_year: number) => {
 		try {
-			const tiebreakers: WeeklyTiebreaker[] = [];
-			const q = query(
-				weeklyTiebreakersCollection,
-				where('year', '==', selectedYear),
-				where('week', '==', selectedWeek)
-			);
-			const tiebreaker_docs = await getDocs(q.withConverter(weeklyTiebreakerConverter));
-			if (tiebreaker_docs.size > 0) {
-				tiebreaker_docs.forEach((doc) => {
-					const data = doc.data();
-					tiebreakers.push(data);
-				});
-			}
-			return tiebreakers;
-		} catch (error) {
-			ErrorAndToast({ msg: 'Error encountered while getting tiebreakers.', error });
-		}
-	};
-	const getLastGame = async (selectedWeek: number) => {
-		try {
-			const lastGameQuery = query(
-				scheduleCollection,
-				where('week', '==', selectedWeek),
+			const last_game_constraints = [
+				where('week', '==', selected_week),
+				where('year', '==', selected_year),
 				where('isLastGameOfWeek', '==', true)
-			);
-			const lastGameDoc = await getDocs(lastGameQuery.withConverter(gameConverter));
-			const lastGame = lastGameDoc.docs[0].data();
-			return lastGame;
+			];
+			const last_game = await getGameData({ constraints: last_game_constraints });
+			if (last_game.length === 1) return last_game[0];
+			if (last_game.length === 0) throw new Error('No last game found.');
+			if (last_game.length > 1) throw new Error('Multiple last games found.');
 		} catch (error) {
 			ErrorAndToast({ msg: 'Error encountered while getting last game.', error });
 		}
 	};
 
 	const getData = async (
-		selectedWeek: number
-	): Promise<{ weeklyPlayers: Player[]; tiebreakers: WeeklyTiebreaker[]; lastGame: Game }> => {
-		const roles: PoolsToQuery[] = ['weekly'];
-		const constraints = [
-			orderBy(`weeklyPickRecord.week_${selectedWeek}.wins`, 'desc'),
-			orderBy(`weeklyPickRecord.week_${selectedWeek}.netTiebreaker`)
+		week: number,
+		year: number
+	): Promise<{
+		weekly_players: Player[];
+		tiebreakers: WeeklyTiebreaker[];
+		last_game: Game;
+		weekly_records: PlayerRecord[];
+	}> => {
+		const player_record_constraints = [
+			where('week', '==', week),
+			where('year', '==', year),
+			orderBy('wins', 'desc'),
+			orderBy('net_tiebreaker_absolute')
 		];
+		const tiebreaker_constraints = [where('week', '==', week), where('year', '==', year)];
 
 		// Get the data asynchronously for each collection
-		const weeklyPlayerPromise: Promise<Player[]> = getPlayers({ roles, constraints });
-		const tiebreakerPromise: Promise<WeeklyTiebreaker[]> = getAllTiebreakers(selectedWeek);
-		const lastGamePromise: Promise<Game> = getLastGame(selectedWeek);
+		let weekly_player_promise: Promise<Player[]> = getWeeklyPlayers();
+		let tiebreaker_promise: Promise<WeeklyTiebreaker[]> = getTiebreakerData({
+			constraints: tiebreaker_constraints
+		});
+		let last_game_promise: Promise<Game> = getLastGame(week, year);
+		let weekly_records_promise: Promise<PlayerRecord[]> = getWeeklyRecordData({
+			constraints: player_record_constraints
+		});
 
 		// Wait for all the data to come in before resolving the getData() promise with the results
-		const data: [Player[], WeeklyTiebreaker[], Game] = await Promise.all([
-			weeklyPlayerPromise,
-			tiebreakerPromise,
-			lastGamePromise
-		]);
-		const weeklyPlayers: Player[] = data[0];
-		const tiebreakers: WeeklyTiebreaker[] = data[1];
-		const lastGame: Game = data[2];
+		const weekly_players: Player[] = await weekly_player_promise;
+		const tiebreakers: WeeklyTiebreaker[] = await tiebreaker_promise;
+		const last_game: Game = await last_game_promise;
+		const weekly_records: PlayerRecord[] = await weekly_records_promise;
 
-		return { weeklyPlayers, tiebreakers, lastGame };
+		return { weekly_players, tiebreakers, last_game, weekly_records };
 	};
 
 	// Update the data promise if the week changes
-	let data_promise = getData($selected_week);
-	$: data_promise = getData($selected_week);
+	let data_promise = getData($selected_week, $selected_year);
+	$: data_promise = getData($selected_week, $selected_year);
 
 	// Reactive statements allow headers to update when the screen resizes
-	$: headerCount = weekHeaders.length;
-	$: weekHeaders =
-		$window_width < mobileBreakpoint - 500 ? abbreviatedWeekHeaders : initialWeekHeaders;
+	$: header_count = week_headers.length;
+	$: week_headers =
+		$window_width < mobile_breakpoint - 500 ? abbreviated_week_headers : initial_week_headers;
 </script>
 
-<div class="week grid" style="--columns:{headerCount}">
+<div class="week grid" style="--columns:{header_count}">
 	<WeekSelect customStyles="grid-area:selector;" />
-	<!-- on:weekChanged={() => getData($selectedWeek)}
-		on:incrementWeek={() => getData($selectedWeek)}
-		on:decrementWeek={() => getData($selectedWeek)} -->
+	{#if dev}
+		<AdminOnlyControl>
+			<YearSelect />
+		</AdminOnlyControl>
+	{/if}
 	<div class="table grid">
-		{#each weekHeaders as header}
+		{#each week_headers as header}
 			<div class="header">{header}</div>
 		{/each}
-		{#await data_promise then { weeklyPlayers, tiebreakers, lastGame }}
-			{#each weeklyPlayers as player, i}
-				{#each tiebreakers as tiebreaker}
-					{#if tiebreaker.uid === player.uid}
-						<WeeklyStandingsRow
-							{player}
-							{i}
-							{tiebreaker}
-							showNetTiebreakers={$show_net_tiebreakers}
-							{lastGame}
-							showUID={$show_IDs}
-						/>
-					{/if}
-				{/each}
+		{#await data_promise then { weekly_players, tiebreakers, last_game, weekly_records }}
+			{#each weekly_players as player, i}
+				{@const tiebreaker = tiebreakers.find((doc) => doc.uid === player.uid)}
+				{@const record = weekly_records.find((doc) => doc.uid === player.uid)}
+				<WeeklyStandingsRow {player} {i} {tiebreaker} {last_game} {record} />
 			{/each}
 		{:catch error}
 			<ErrorModal>
