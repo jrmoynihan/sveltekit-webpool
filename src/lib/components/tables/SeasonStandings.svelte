@@ -1,57 +1,42 @@
 <script lang="ts">
-	import { window_width } from '$scripts/store';
+	import { weekly_players, selected_year, window_width } from '$scripts/store';
 	import SeasonStandingsRow from './SeasonStandingsRow.svelte';
 	import { orderBy, where } from '@firebase/firestore';
-	import type { Player } from '$classes/player';
-	import { mobileBreakpoint } from '$scripts/site';
-	import { getPlayers } from '$scripts/weekly/weeklyPlayers';
-	import { onMount } from 'svelte';
+	import { mobile_breakpoint } from '$scripts/site';
+	import { getSeasonRecordsData } from '$lib/scripts/scorePicks';
 
-	let initialSeasonHeaders = ['Rank', 'Player', 'Wins', 'Losses', '% Won', 'Prizes'];
-	let abbreviatedSeasonHeaders = ['#', 'Name', 'W', 'L', '%', '$'];
-	let seasonHeaders = initialSeasonHeaders;
-	let weeklyPlayerPromise: Promise<Player[]>;
-	// TODO query the collection by week, and sort by wins, then net tiebreaker
-	// let playerData = [
-	// 	{ nickname: 'jrmoynihan', wins: 10, losses: 6, tiebreaker: 42 },
-	// 	{ nickname: 'moynihan', wins: 9, losses: 7, tiebreaker: 35 },
-	// 	{ nickname: 'winston', wins: 7, losses: 9, tiebreaker: 38 },
-	// 	{ nickname: 'daphne', wins: 4, losses: 12, tiebreaker: 49 }
-	// ];
-	let headerCount: number;
-	$: headerCount = seasonHeaders.length;
-	$: {
-		if ($window_width < mobileBreakpoint - 500) {
-			seasonHeaders = abbreviatedSeasonHeaders;
-		} else {
-			seasonHeaders = initialSeasonHeaders;
-		}
+	const season_record_constraints = [
+		where('weekly', '==', true),
+		where('year', '==', $selected_year),
+		orderBy('total_weekly_wins', 'desc')
+	];
+
+	let initial_season_headers = ['Rank', 'Player', 'Wins', 'Losses', '% Won', 'Prizes'];
+	let abbreviated_season_headers = ['#', 'Name', 'W', 'L', '%', '$'];
+	let season_record_promise = getSeasonRecordsData({ constraints: season_record_constraints });
+	let season_headers = initial_season_headers;
+	let header_count: number;
+
+	$: header_count = season_headers.length;
+	$: if ($window_width < mobile_breakpoint - 500) {
+		season_headers = abbreviated_season_headers;
+	} else {
+		season_headers = initial_season_headers;
 	}
-	const getData = async () => {
-		const constraints = [where('weekly', '==', true), orderBy('totalWeeklyWins', 'desc')];
-
-		weeklyPlayerPromise = getPlayers({ constraints });
-	};
-
-	// TODO: Move to endpoint
-	onMount(async () => {
-		getData();
-	});
 </script>
 
-<div class="table grid" style="--columns:{headerCount}">
-	{#each seasonHeaders as header}
+<div class="table grid" style="--columns:{header_count}">
+	{#each season_headers as header}
 		<div class="header">{header}</div>
 	{/each}
-	{#if weeklyPlayerPromise}
-		{#await weeklyPlayerPromise}
-			Loading data...
-		{:then weeklyPlayerData}
-			{#each weeklyPlayerData as player, i}
-				<SeasonStandingsRow {player} {i} />
-			{/each}
-		{/await}
-	{/if}
+	{#await season_record_promise}
+		Loading data...
+	{:then season_record_data}
+		{#each $weekly_players as player, i}
+			{@const player_season_data = season_record_data.find((data) => data.uid === player.uid)}
+			<SeasonStandingsRow {player} {player_season_data} {i} />
+		{/each}
+	{/await}
 </div>
 
 <style lang="scss">
