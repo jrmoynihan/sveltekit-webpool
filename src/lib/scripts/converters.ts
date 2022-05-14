@@ -7,6 +7,7 @@ import { WeeklyTiebreaker } from './classes/tiebreaker';
 import { WeekBoundDoc } from './classes/weekBound';
 import { Player } from './classes/player';
 import { SeasonBoundDoc } from './classes/seasonBound';
+import { PlayerRecord, SeasonRecord } from './classes/playerRecord';
 
 export const playerConverter = {
 	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -55,9 +56,9 @@ export const gameConverter = {
 		return { ...game };
 	},
 	fromFirestore: (snapshot: QueryDocumentSnapshot): Game => {
-		const docRef = snapshot.ref;
+		const doc_ref = snapshot.ref;
 		const data = snapshot.data();
-		return new Game({ docRef, ...data });
+		return new Game({ doc_ref, ...data });
 	}
 };
 
@@ -66,9 +67,9 @@ export const weeklyPickConverter = {
 		return { ...pick };
 	},
 	fromFirestore: (snapshot: QueryDocumentSnapshot): WeeklyPickDoc => {
-		const docRef = snapshot.ref;
+		const doc_ref = snapshot.ref;
 		const data = snapshot.data();
-		return new WeeklyPickDoc({ docRef, ...data });
+		return new WeeklyPickDoc({ doc_ref, ...data });
 	}
 };
 export const weeklyTiebreakerConverter = {
@@ -76,9 +77,9 @@ export const weeklyTiebreakerConverter = {
 		return { ...tiebreaker };
 	},
 	fromFirestore: (snapshot: QueryDocumentSnapshot): WeeklyTiebreaker => {
-		const docRef = snapshot.ref;
+		const doc_ref = snapshot.ref;
 		const data = snapshot.data();
-		return new WeeklyTiebreaker({ docRef, ...data });
+		return new WeeklyTiebreaker({ doc_ref, ...data });
 	}
 };
 export const weekBoundConverter = {
@@ -99,5 +100,25 @@ export const seasonBoundConverter = {
 		const data = snapshot.data(options);
 		const { ref, id } = snapshot; // Destructure the ref and id props from snapshot object
 		return new SeasonBoundDoc({ doc_ref: ref, doc_id: id, ...data });
+	}
+};
+export const recordConverter = {
+	toFirestore: (record: PlayerRecord): PlayerRecord => {
+		return { ...record };
+	},
+	fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): PlayerRecord => {
+		const data = snapshot.data(options);
+		const { ref, id } = snapshot; // Destructure the ref and id props from snapshot object
+		return new PlayerRecord({ doc_ref: ref, doc_id: id, ...data });
+	}
+};
+export const seasonRecordConverter = {
+	toFirestore: (record: SeasonRecord): SeasonRecord => {
+		return { ...record };
+	},
+	fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): SeasonRecord => {
+		const data = snapshot.data(options);
+		const { ref, id } = snapshot; // Destructure the ref and id props from snapshot object
+		return new SeasonRecord({ doc_ref: ref, doc_id: id, ...data });
 	}
 };

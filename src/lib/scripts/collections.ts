@@ -10,4 +10,5 @@ export const weeklyTiebreakersCollection = collection(firestoreDB, 'WeeklyTiebre
 export const weekBoundsCollection = collection(firestoreDB, 'WeekScheduleBounds');
 export const seasonBoundsCollection = collection(firestoreDB, 'SeasonScheduleBounds');
 export const teamsCollection = collection(firestoreDB, 'Teams');
-export const recordsCollection = collection(firestoreDB, 'Records');
+export const weeklyRecordsCollection = collection(firestoreDB, 'WeeklyRecords');
+export const seasonRecordsCollection = collection(firestoreDB, 'SeasonRecords');
