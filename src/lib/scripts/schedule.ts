@@ -1,5 +1,4 @@
-import { query, where, getDocs, setDoc, updateDoc, doc, Timestamp } from '@firebase/firestore';
-import type { QuerySnapshot, DocumentReference } from '@firebase/firestore';
+import { query, where, getDocs, setDoc, doc, Timestamp } from '@firebase/firestore';
 import { ErrorAndToast, myError, myLog } from '$scripts/logging';
 import type {
 	ESPNSeason,
@@ -7,7 +6,6 @@ import type {
 	ESPNSeasonWeek,
 	ESPNSeasonYear,
 	ESPNWeekEvent,
-	Game,
 	RefOnlyESPN
 } from '$classes/game';
 import { seasonBoundsCollection, weekBoundsCollection } from './collections';
@@ -16,57 +14,6 @@ import { current_season_year, current_season, current_season_type_number } from 
 import { get } from 'svelte/store';
 import { SeasonBoundDoc } from './classes/seasonBound';
 
-export const getFirstAndLastGameTime = async (
-	weekOfGames: QuerySnapshot<Game>
-): Promise<{ first: Timestamp; last: Timestamp }> => {
-	let firstGameofWeekTime: Timestamp;
-	let lastGameofWeekTime: Timestamp;
-	let lastGameRef: DocumentReference<Game>;
-
-	for await (const game of weekOfGames.docs) {
-		const data = game.data();
-		const gameTime = data.timestamp;
-		if (firstGameofWeekTime === undefined || gameTime < firstGameofWeekTime) {
-			firstGameofWeekTime = gameTime;
-			// alert(`gameTime: ${gameTime.toDate()} is less than ${firstGameofWeekTime.toDate()}`);
-		}
-		if (lastGameofWeekTime === undefined || gameTime > lastGameofWeekTime) {
-			lastGameofWeekTime = gameTime;
-			lastGameRef = game.ref;
-			// alert(`gameTime: ${gameTime.toDate()} is greater than ${lastGameofWeekTime.toDate()}`);
-		}
-	}
-	// Set the flag to indicate that this game's score will be used for the tiebreaker comparison
-	updateDoc(lastGameRef, { isLastGameOfWeek: true });
-	return { first: firstGameofWeekTime, last: lastGameofWeekTime };
-};
-
-// export const setBounds = async (weekBound: WeekBoundDoc, year?: number): Promise<void> => {
-// 	try {
-// 		myLog({
-// 			msg: `week ${weekBound.week} firstGameTime: ${weekBound.firstGameTime}, lastGameTime: ${weekBound.lastGameTime}`
-// 		});
-// 		const currentYear = year || new Date().getFullYear();
-// 		const docRef = doc(weekBoundsCollection, currentYear.toString());
-// 		const data = {
-// 			[`week_${weekBound.week}`]: {
-// 				firstGameTime: weekBound.firstGameTime,
-// 				lastGameTime: weekBound.lastGameTime,
-// 				week: weekBound.week
-// 			}
-// 		};
-// 		const boundsDoc = await getDoc(docRef);
-// 		if (boundsDoc.exists()) {
-// 			await updateDoc(docRef, data);
-// 		} else {
-// 			await setDoc(docRef, data);
-// 		}
-
-// 		myLog({ msg: 'set Week Bound document: ', additional_params: data });
-// 	} catch (error) {
-// 		myError({ location: 'schedule.ts', function_name: 'setBounds', error });
-// 	}
-// };
 export const findCurrentWeekOfSchedule = async (showToast?: boolean): Promise<number> => {
 	try {
 		const now = Timestamp.fromDate(new Date());
