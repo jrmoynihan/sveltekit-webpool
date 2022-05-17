@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { larger_than_mobile } from '$scripts/store';
-
 	import type { pickSixItem } from '$scripts/types/types';
 	import { faTrash } from '@fortawesome/free-solid-svg-icons';
 	import Fa from 'svelte-fa';
@@ -38,6 +37,7 @@
 		display: grid;
 		gap: 0.5rem;
 		height: 100%;
+		grid-template-rows: minmax(0, auto) minmax(0, 1fr);
 		@include responsive_mobile-only {
 			grid-column: span 2;
 		}
