@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { faToolbox } from '@fortawesome/free-solid-svg-icons';
+	import { faToolbox } from '@fortawesome/free-solid-svg-icons/index.es';
 	import Fa from 'svelte-fa';
 	import AdminOnlyControl from '../misc/AdminOnlyControl.svelte';
 	import PageTitle from '../misc/PageTitle.svelte';

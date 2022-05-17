@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { use_dark_theme } from '$scripts/store';
-	import { faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
+	import { faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons/index.es';
 	import Fa from 'svelte-fa';
 	import Tooltip from '../Tooltip.svelte';
 

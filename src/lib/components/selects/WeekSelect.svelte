@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { selected_week, selected_season } from '$scripts/store';
-	import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+	import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons/index.es';
 	import { createEventDispatcher } from 'svelte';
 	import Fa from 'svelte-fa';
 	import { makeNumericArrayOfDesiredLength } from '$lib/scripts/functions';

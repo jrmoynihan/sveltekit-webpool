@@ -3,7 +3,7 @@
 	import { nav_toggled, use_dark_theme } from '$scripts/store';
 	import type { PageOption } from '$scripts/classes/pageOption';
 	import Fa from 'svelte-fa';
-	import { faFootballBall } from '@fortawesome/free-solid-svg-icons';
+	import { faFootballBall } from '@fortawesome/free-solid-svg-icons/index.es';
 	import { matchPath } from '$scripts/functions';
 
 	export let index = 0;

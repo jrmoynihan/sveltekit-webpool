@@ -2,7 +2,7 @@
 	import { orderBy, query, CollectionReference, onSnapshot } from '@firebase/firestore';
 	import ToggleSwitch from '$switches/ToggleSwitch.svelte';
 	import Fa from 'svelte-fa';
-	import { faLock, faUnlock } from '@fortawesome/free-solid-svg-icons';
+	import { faLock, faUnlock } from '@fortawesome/free-solid-svg-icons/index.es';
 	import { ruleCategoryConverter } from '$scripts/converters';
 	import PrizeCard from '$containers/rules/PrizeCard.svelte';
 	import RulesCategoryGrid from '$containers/rules/RulesCategoryGrid.svelte';

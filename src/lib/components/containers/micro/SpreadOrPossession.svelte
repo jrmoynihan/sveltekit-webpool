@@ -10,7 +10,7 @@
 		faArrowCircleRight,
 		faFootballBall,
 		faLock
-	} from '@fortawesome/free-solid-svg-icons';
+	} from '@fortawesome/free-solid-svg-icons/index.es';
 	import Fa from 'svelte-fa';
 	import Tooltip from '../Tooltip.svelte';
 

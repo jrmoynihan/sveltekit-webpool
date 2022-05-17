@@ -2,7 +2,7 @@
 	import { fade } from 'svelte/transition';
 	import { startSignOut, startSignIn } from '$lib/scripts/auth/login';
 	import Fa from 'svelte-fa';
-	import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
+	import { faUserCircle } from '@fortawesome/free-solid-svg-icons/index.es';
 	import ToggleSwitch from '$lib/components/switches/ToggleSwitch.svelte';
 	import ModalWithButton from '$lib/components/modals/ModalWithButton.svelte';
 	import GoogleLoginButton from '$lib/components/buttons/GoogleLoginButton.svelte';

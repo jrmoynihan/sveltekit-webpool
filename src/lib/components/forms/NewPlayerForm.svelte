@@ -14,7 +14,7 @@
 		faArrowAltCircleRight,
 		faFootballBall,
 		faTimesCircle
-	} from '@fortawesome/free-solid-svg-icons';
+	} from '@fortawesome/free-solid-svg-icons/index.es';
 	import Fa from 'svelte-fa';
 	import { fly, slide } from 'svelte/transition';
 	import Grid from '../containers/Grid.svelte';

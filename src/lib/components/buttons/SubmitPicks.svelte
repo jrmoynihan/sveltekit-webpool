@@ -3,7 +3,7 @@
 	import { createEventDispatcher } from 'svelte';
 	import { fly } from 'svelte/transition';
 	import { use_dark_theme } from '$scripts/store';
-	import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+	import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/index.es';
 
 	export let invisible = false;
 	export let pulse = false;

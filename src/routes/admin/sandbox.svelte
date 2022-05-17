@@ -13,7 +13,7 @@
 		faCheckDouble,
 		faFootballBall,
 		type IconDefinition
-	} from '@fortawesome/free-solid-svg-icons';
+	} from '@fortawesome/free-solid-svg-icons/index.es';
 	import { getDocs, query, where } from '@firebase/firestore';
 
 	let open = false;

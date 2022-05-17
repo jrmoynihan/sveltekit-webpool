@@ -18,7 +18,7 @@
 		tiebreaker_promise,
 		selected_year
 	} from '$scripts/store';
-	import { faBars, faCog, faLock, faUnlock } from '@fortawesome/free-solid-svg-icons';
+	import { faBars, faCog, faLock, faUnlock } from '@fortawesome/free-solid-svg-icons/index.es';
 	import Fa from 'svelte-fa';
 	import Auth from '$lib/components/auth/Auth.svelte';
 	import ModalButtonAndSlot from '$lib/components/modals/ModalWithButton.svelte';

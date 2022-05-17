@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { browser } from '$app/env';
 	import { larger_than_mobile } from '$scripts/store';
-	import { faArrowUp } from '@fortawesome/free-solid-svg-icons';
+	import { faArrowUp } from '@fortawesome/free-solid-svg-icons/index.es';
 	import Fa from 'svelte-fa';
 	import { spring } from 'svelte/motion';
 	import { fade } from 'svelte/transition';

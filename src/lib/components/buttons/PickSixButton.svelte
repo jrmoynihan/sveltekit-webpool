@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { larger_than_mobile } from '$scripts/store';
 	import type { pickSixItem } from '$scripts/types/types';
-	import { faTrash } from '@fortawesome/free-solid-svg-icons';
+	import { faTrash } from '@fortawesome/free-solid-svg-icons/index.es';
 	import Fa from 'svelte-fa';
 	import TeamImage from '../containers/TeamImage.svelte';
 

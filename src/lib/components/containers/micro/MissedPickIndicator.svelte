@@ -2,7 +2,7 @@
 	import type { WeeklyPickDoc } from '$scripts/classes/picks';
 	import { goToMissedPick } from '$scripts/scrollAndFocus';
 	import { show_missing_pick_warning } from '$scripts/store';
-	import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+	import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons/index.es';
 	import Fa from 'svelte-fa';
 	import Tooltip from '../Tooltip.svelte';
 

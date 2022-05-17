@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
-	import { faFacebook } from '@fortawesome/free-brands-svg-icons';
+	import { faFacebook } from '@fortawesome/free-brands-svg-icons/index.es';
 	import Fa from 'svelte-fa';
 
 	const dispatch = createEventDispatcher();

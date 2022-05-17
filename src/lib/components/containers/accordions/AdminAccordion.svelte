@@ -1,6 +1,6 @@
 <script lang="ts">
 	import AdminOnlyControl from '$lib/components/misc/AdminOnlyControl.svelte';
-	import { faToolbox } from '@fortawesome/free-solid-svg-icons';
+	import { faToolbox } from '@fortawesome/free-solid-svg-icons/index.es';
 	import Fa from 'svelte-fa';
 	import { fly } from 'svelte/transition';
 	import AccordionDetails3 from './AccordionDetails.svelte';
