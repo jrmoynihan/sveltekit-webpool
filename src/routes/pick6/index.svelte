@@ -122,7 +122,7 @@
 			group_letter={'C'}
 		/>
 	</div>
-	{#if $larger_than_mobile && group_one_selected_count === 2 && group_two_selected_count === 2 && group_three_selected_count === 2}
+	{#if group_one_selected_count === 2 && group_two_selected_count === 2 && group_three_selected_count === 2}
 		<button
 			transition:fly={{ y: 300, duration: 500, easing: quintOut }}
 			class="submit"
