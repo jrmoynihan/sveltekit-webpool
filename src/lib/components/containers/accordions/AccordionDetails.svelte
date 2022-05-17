@@ -10,6 +10,7 @@
 	export let iconClass: string = 'fa-CaretDown';
 	export let customContentStyles: string = '';
 	export let customSummaryStyles: string = '';
+	export let customAccordionContainerStyles: string = '';
 	export let cloudyBackground = false;
 	export let frostedGlass = true;
 	export let open = false;
@@ -23,6 +24,7 @@
 
 <div
 	class="accordion-container"
+	style={customAccordionContainerStyles}
 	style:--icon-closed-rotation={`${iconClosedRotation}deg`}
 	style:--icon-open-rotation={`${iconOpenRotation}deg`}
 >
