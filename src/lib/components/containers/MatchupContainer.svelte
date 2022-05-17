@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { isBeforeGameTime } from '$scripts/functions';
-	import { overrideDisabled, windowWidth } from '$scripts/store';
-	import type { Timestamp } from 'firebase/firestore';
+	import { overrideDisabled, window_width } from '$scripts/store';
+	import type { Timestamp } from '@firebase/firestore';
 	import type { Team } from '$scripts/classes/team';
 	import type { WeeklyPickDoc } from '$scripts/classes/picks';
 	import { onDestroy, onMount } from 'svelte';
@@ -21,7 +21,7 @@
 	export let currentPicks: WeeklyPickDoc[] = [];
 	export let gridColumns = 1;
 	export let isATSwinner: null | boolean = null;
-	export let ATSwinner: string;
+	export let ATS_winner: string;
 	export let beforeGameTime = false;
 	let layoutBreakpoint = 620;
 	let showTeamNameImages = false;
@@ -60,7 +60,7 @@
 
 	// Show additional images in larger layout sizes
 	$: {
-		if ($windowWidth < layoutBreakpoint * gridColumns) {
+		if ($window_width < layoutBreakpoint * gridColumns) {
 			showTeamNameImages = false;
 		} else {
 			showTeamNameImages = true;
@@ -134,7 +134,7 @@
 		bind:promiseStatus
 		bind:promiseSituation
 		bind:isATSwinner
-		bind:ATSwinner
+		bind:ATSwinner={ATS_winner}
 		bind:gameIsOver
 	/>
 	<TeamSelectRadioInput

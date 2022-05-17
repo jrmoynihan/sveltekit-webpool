@@ -1,9 +1,11 @@
 <script lang="ts">
 	import RowData from '$lib/components/containers/micro/RowData.svelte';
 	import type { Player } from '$lib/scripts/classes/player';
-	import { largerThanMobile } from '$lib/scripts/store';
+	import type { SeasonRecord } from '$lib/scripts/classes/playerRecord';
+	import { larger_than_mobile } from '$lib/scripts/store';
 
 	export let player: Player;
+	export let player_season_data: SeasonRecord;
 	export let i: number;
 	const isEvenRow = (index: number) => {
 		if ((index + 1) % 2 === 0) {
@@ -12,37 +14,35 @@
 			return false;
 		}
 	};
-	const evenRow = isEvenRow(i);
-	const inTheMoney = i < 3;
+	const even_row = isEvenRow(i);
+	const in_the_money = i < 3;
+	const { total_weekly_wins, total_weekly_losses } = player_season_data;
 </script>
 
-<RowData {evenRow} {inTheMoney}>
+<RowData {even_row} {in_the_money}>
 	{i + 1}
 </RowData>
-<RowData {evenRow} {inTheMoney}>
+<RowData {even_row} {in_the_money}>
 	{#if player.nickname}
 		{player.nickname}
 	{:else}
 		{player.name}
 	{/if}
 </RowData>
-<RowData {evenRow} {inTheMoney}>
-	{player.totalWeeklyWins}
+<RowData {even_row} {in_the_money}>
+	{total_weekly_wins}
 </RowData>
-<RowData {evenRow} {inTheMoney}>
-	{player.totalWeeklyLosses}
+<RowData {even_row} {in_the_money}>
+	{total_weekly_losses}
 </RowData>
-<RowData {evenRow} {inTheMoney}>
+<RowData {even_row} {in_the_money}>
 	<div class="percentage">
-		{#if player.totalWeeklyWins > 0 || player.totalWeeklyLosses > 0}
-			{(
-				(player.totalWeeklyWins / (player.totalWeeklyWins + player.totalWeeklyLosses)) *
-				100
-			).toFixed(2)}%
-			{#if $largerThanMobile}
+		{#if total_weekly_wins > 0 || total_weekly_losses > 0}
+			{((total_weekly_wins / (total_weekly_wins + total_weekly_losses)) * 100).toFixed(2)}%
+			{#if $larger_than_mobile}
 				<span
 					style="--win-radii:{(
-						(player.totalWeeklyWins / (player.totalWeeklyWins + player.totalWeeklyLosses)) *
+						(total_weekly_wins / (total_weekly_wins + total_weekly_losses)) *
 						100
 					).toString()}%"
 				/>
@@ -52,8 +52,8 @@
 		{/if}
 	</div>
 </RowData>
-<RowData {evenRow} {inTheMoney}>
-	${player.weeklyWinnings.total}
+<RowData {even_row} {in_the_money}>
+	${player.weekly_pool_season_winnings}
 </RowData>
 
 <style lang="scss">

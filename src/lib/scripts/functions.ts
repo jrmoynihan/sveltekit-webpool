@@ -1,6 +1,7 @@
-import { maxPreseasonWeeks, maxRegularSeasonWeeks, myError } from './classes/constants';
-import type { Timestamp } from 'firebase/firestore';
-import { getLocalStorageItem } from './localStorage';
+import { maxPreseasonWeeks, maxRegularSeasonWeeks } from '$classes/constants';
+import type { Timestamp } from '@firebase/firestore';
+import { getLocalStorageItem } from '$scripts/localStorage';
+import { myError } from '$scripts/logging';
 
 export const isPropertyOf = <T>(
 	varToBeChecked: unknown,
@@ -76,6 +77,9 @@ export const getUserId = async (): Promise<any> => {
 		const id = await getLocalStorageItem('id');
 		return id;
 	} catch (error) {
-		myError({ location: 'functions.ts', function_name: 'getUserId', error });
+		myError({ error });
 	}
+};
+export const makeNumericArrayOfDesiredLength = (length: number): number[] => {
+	return Array.from({ length }, (_, index) => index + 1);
 };

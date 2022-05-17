@@ -1,13 +1,13 @@
 <script lang="ts">
 	import type { Team } from '$scripts/classes/team';
-	import { useDarkTheme } from '$scripts/store';
+	import { use_dark_theme } from '$scripts/store';
 
 	export let showTeamAbbreviation = false;
 	export let disabled = false;
 	export let team: Team;
 </script>
 
-<span class="rounded team-abbreviation" class:dark-mode={$useDarkTheme} class:disabled>
+<span class="rounded team-abbreviation" class:dark-mode={$use_dark_theme} class:disabled>
 	{#if showTeamAbbreviation}
 		{team.abbreviation}
 	{/if}

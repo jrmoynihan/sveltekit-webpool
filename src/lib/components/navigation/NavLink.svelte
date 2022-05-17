@@ -1,53 +1,39 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { navChecked, useDarkTheme } from '$scripts/store';
+	import { nav_toggled, use_dark_theme } from '$scripts/store';
 	import type { PageOption } from '$scripts/classes/pageOption';
 	import Fa from 'svelte-fa';
-	import { faFootballBall } from '@fortawesome/free-solid-svg-icons';
+	import { faFootballBall } from '@fortawesome/free-solid-svg-icons/index.es';
 	import { matchPath } from '$scripts/functions';
-	import { toast } from '@zerodevx/svelte-toast';
-	import { hideThisModalDelayed } from '$scripts/modals/modalFunctions';
 
 	export let index = 0;
-	export let pageOption: PageOption;
-	export let fullyRounded = false;
+	export let page_option: PageOption;
+	export let fully_rounded = false;
 	let active = false;
 
 	$: active =
-		pageOption.path === '/' && $page.url.pathname !== '/'
+		page_option.path === '/' && $page.url.pathname !== '/'
 			? false
-			: matchPath(pageOption.path, $page.url.pathname);
-
-	//TODO: remove this if no longer needed; 04/30/2022
-	const cleanupToNavigate = () => {
-		const modals = Array.from(document.getElementsByTagName('dialog'));
-		if (modals) {
-			for (const modal of modals) {
-				hideThisModalDelayed(modal);
-			}
-		}
-		toast.pop(0);
-	};
+			: matchPath(page_option.path, $page.url.pathname);
 </script>
 
 <label
-	for={pageOption.navigationText}
+	for={page_option.navigation_text}
 	tabindex={1 + index}
-	on:click={cleanupToNavigate}
 	class:active
-	class="{$navChecked ? 'expanded' : 'collapsed'} {$useDarkTheme
+	class="{$nav_toggled ? 'expanded' : 'collapsed'} {$use_dark_theme
 		? 'dark-mode'
-		: 'light-mode'} {fullyRounded ? 'rounded' : ''}"
+		: 'light-mode'} {fully_rounded ? 'rounded' : ''}"
 >
 	<a
 		class:active
-		id={pageOption.navigationText}
+		id={page_option.navigation_text}
 		sveltekit:prefetch
-		href={pageOption.path}
-		class={$useDarkTheme ? 'dark-mode' : 'light-mode'}
+		href={page_option.path}
+		class={$use_dark_theme ? 'dark-mode' : 'light-mode'}
 	>
 		<Fa icon={faFootballBall} size="lg" />
-		<h2>{pageOption.navigationText}</h2>
+		<h3>{page_option.navigation_text}</h3>
 	</a>
 </label>
 
@@ -119,7 +105,6 @@
 		&.active {
 			@include responsive_desktop_only {
 				margin: 0 min(2%, 2.5rem);
-				scale: 1.1;
 			}
 			&.dark-mode {
 				@include active($backgroundAlpha: 0.4);

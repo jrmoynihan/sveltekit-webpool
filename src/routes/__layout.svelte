@@ -1,5 +1,12 @@
 <script context="module" lang="ts">
 	export async function load({ url }: LoadInput): Promise<LoadOutput> {
+		// Check if the user is logged in
+		if (get(firebase_user)) {
+			console.log('User is logged in');
+		} else {
+			console.log('User is NOT logged in');
+		}
+
 		return {
 			props: {
 				refresh: url.pathname.split('/')[1]
@@ -11,11 +18,16 @@
 <script lang="ts">
 	import '../app.css';
 	import {
-		chosenMixBlendMode,
-		largerThanMobile,
-		navChecked,
-		useDarkTheme,
-		windowWidth
+		all_players,
+		current_player,
+		current_season,
+		firebase_user,
+		larger_than_mobile,
+		nav_toggled,
+		selected_player,
+		selected_season,
+		use_dark_theme,
+		window_width
 	} from '$scripts/store';
 	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
 	import Navigator from '$navigation/Navigator.svelte';
@@ -23,52 +35,65 @@
 	import SiteNavOptions from '$navigation/siteNavOptions.svelte';
 	import ReturnToTop from '$lib/components/buttons/ReturnToTop.svelte';
 	import { SvelteToast } from '@zerodevx/svelte-toast';
-	import { mobileBreakpoint } from '$scripts/site';
+	import { mobile_breakpoint } from '$scripts/site';
 	import { onMount } from 'svelte';
 	import { getLocalStorageItem } from '$scripts/localStorage';
 	import NewPlayerForm from '$lib/components/forms/NewPlayerForm.svelte';
-	import type ModalOnly from '$lib/components/modals/Modal.svelte';
 	import type { LoadInput, LoadOutput } from '@sveltejs/kit';
+	import { get } from 'svelte/store';
+	import { findCurrentSeason } from '$lib/scripts/schedule';
+	import { myLog } from '$lib/scripts/logging';
 
 	export let refresh: any;
-	let modalOnlyComponent: ModalOnly;
+	let openNewPlayerForm: () => Promise<void> = async () => {};
 	const checkWindowWidth = () => {
-		if ($windowWidth > mobileBreakpoint) {
-			$largerThanMobile = true;
+		if ($window_width > mobile_breakpoint) {
+			$larger_than_mobile = true;
 		} else {
-			$largerThanMobile = false;
+			$larger_than_mobile = false;
 		}
 	};
 	const lookupUserThemePreference = async () => {
 		const foundTheme: boolean = await getLocalStorageItem('useDarkTheme');
 		if (foundTheme) {
-			$useDarkTheme = foundTheme;
+			$use_dark_theme = foundTheme;
 		}
 	};
+	const setStores = async () => {
+		if ($firebase_user) {
+			$current_player = $all_players.find((player) => player.uid === $firebase_user.uid);
+			$selected_player = $current_player;
 
-	// $: if ($currentUser && userConverter) {
-	// 	saveUserData();
-	// 	const q = query(usersCollection, where('id', '==', $currentUser.uid));
-	// 	$userDataSnapshot = get(userQueryAsStore(q));
-	// }
+			if ($current_player) {
+				myLog({ msg: `Player found: ${$current_player.name} (${$current_player.nickname})` });
+			} else {
+				openNewPlayerForm();
+				myLog({ msg: `Player NOT found for user: ${$firebase_user?.displayName}` });
+			}
+			$current_season = await findCurrentSeason();
+			$selected_season = $current_season;
+		}
+	};
+	// Update the current player whenever their document has changes
+	$: $current_player = $all_players.find((player) => player.uid === $firebase_user.uid);
 
-	onMount(() => {
+	// After the players are loaded in the onSnapshot listener, we can set the current/selected player
+	$: if ($all_players) setStores();
+
+	onMount(async () => {
 		checkWindowWidth();
 		lookupUserThemePreference();
 	});
 </script>
 
-<!-- {#if $navChecked && $useDarkTheme && $chosenMixBlendMode} -->
 <div
 	id="app-background"
-	class="app-wrapper pseudo {$navChecked ? 'expanded' : 'collapsed'} {$useDarkTheme
-		? ''
-		: 'invert'}"
-	style="--mix-blend-mode:{$chosenMixBlendMode};"
+	class="app-wrapper pseudo {$nav_toggled ? 'expanded' : 'collapsed'}"
+	class:invert={!$use_dark_theme}
 >
 	<AppMenu />
-	{#if $largerThanMobile}
-		<Navigator offsetTop={true}>
+	{#if $larger_than_mobile}
+		<Navigator offsetTop={true} customStyles="padding-bottom: 0.5rem;">
 			<SiteNavOptions />
 		</Navigator>
 	{/if}
@@ -76,48 +101,32 @@
 	<main>
 		<TransitionWrapper
 			{refresh}
-			customStyles={$navChecked ? 'margin-top: 0.6rem;' : 'margin-top: 0;'}
+			customStyles={$nav_toggled ? 'margin-top: 0.6rem;' : 'margin-top: 0;'}
 		>
 			<slot />
 		</TransitionWrapper>
-		<NewPlayerForm bind:modalOnlyComponent />
+		<NewPlayerForm bind:openNewPlayerForm />
 	</main>
 
 	<ReturnToTop showButton={false} />
 </div>
-<!-- {/if} -->
+
 <SvelteToast />
+
 <svelte:window
 	on:resize={() => {
-		$windowWidth = window.innerWidth;
+		$window_width = window.innerWidth;
 		checkWindowWidth();
 	}}
 />
 
 <style lang="scss">
 	:root {
-		/* stylelint-disable custom-property-pattern */
-		--toastContainerTop: 15%;
-		--toastWidth: 100%;
-		--toastContainerLeft: 2%;
-		--toastContainerRight: 2%;
-
 		@include responsive_desktop_only {
 			--toastContainerLeft: math.max(5%, 2rem);
 			--toastContainerRight: 70%;
 			--toastWidth: clamp(45ch, 25%, 75ch);
 		}
-		/* stylelint-enable custom-property-pattern */
-
-		font-family: Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-		box-sizing: border-box;
-		font-display: swap;
-		color: var(--text, white);
-		scrollbar-width: thin;
-		scrollbar-color: var(--accent, hsl(37, 75%, 65%)) var(--background, hsl(120, 16%, 17%));
-	}
-	* {
-		box-sizing: border-box;
 	}
 	.app-wrapper {
 		box-sizing: border-box;

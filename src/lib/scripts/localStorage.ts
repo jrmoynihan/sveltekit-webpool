@@ -1,11 +1,9 @@
 import { browser } from '$app/env';
-import { playersCollection } from '$scripts/collections';
-import { playerConverter } from '$scripts/converters';
-import { playerData } from '$scripts/store';
-import { doc, getDoc } from 'firebase/firestore';
-import { Player } from '$lib/scripts/classes/player';
-import { all_icons, myError, myLog } from '$classes/constants';
-import type { User } from 'firebase/auth';
+import { current_player } from '$scripts/store';
+import { all_icons } from '$classes/constants';
+import { myError, myLog } from '$scripts/logging';
+import type { User } from '@firebase/auth';
+import { getPlayer } from './weekly/weeklyPlayers';
 
 export const getLocalStorageItem = async <T>(key: string): Promise<T | null> => {
 	if (browser) {
@@ -23,13 +21,10 @@ export const setLocalStorageItem = async (key: string, value: unknown): Promise<
 	}
 };
 
+/**  Saves player data to local storage and sets it in the $player_data store */
 export const savePlayerData = async (firebase_user: User) => {
 	try {
-		const player_doc_ref = doc(playersCollection, firebase_user.uid);
-		const snapshot = await getDoc(player_doc_ref.withConverter(playerConverter));
-		const player = new Player({ ...snapshot.data() });
-
-		playerData.set(player);
+		const player = await getPlayer(firebase_user);
 
 		for (const property in player) {
 			setLocalStorageItem(property, player[property]);
@@ -37,16 +32,10 @@ export const savePlayerData = async (firebase_user: User) => {
 
 		myLog({
 			msg: 'Set player data and saved it to local storage:',
-			function_name: 'savePlayerData',
 			icon: all_icons.detective,
-			additional_params: playerData
+			additional_params: current_player
 		});
 	} catch (error) {
-		myError({
-			location: 'localStorage.ts',
-			function_name: 'savePlayerData',
-			error,
-			msg: 'Unable to save player data to local storage!'
-		});
+		myError({ msg: 'Unable to save player data to local storage!', error });
 	}
 };

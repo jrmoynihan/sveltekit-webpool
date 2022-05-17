@@ -1,8 +1,9 @@
 import { toast } from '@zerodevx/svelte-toast';
 import SeenToast from '$switches/SeenToast.svelte';
-import { all_icons, bread, myError, myLog, policeCarLight } from './classes/constants';
-import { query, where, getDocs } from 'firebase/firestore';
-import { toastsCollection } from './collections';
+import { all_icons, policeCarLight } from '$classes/constants';
+import { query, where, getDocs } from '@firebase/firestore';
+import { toastsCollection } from '$scripts/collections';
+import { myError, myLog } from '$scripts/logging';
 
 export type myToastOptions = {
 	title?: string;
@@ -22,6 +23,7 @@ export type myToastOptions = {
 	toastBarHeight?: string;
 	toastBarWidth?: string;
 	toastProgressBorderRadius?: string;
+	icon?: string;
 };
 
 export const defaultToast = ({
@@ -41,11 +43,12 @@ export const defaultToast = ({
 	toastBarWidth = '90%',
 	toastBarLeft = '5%',
 	toastProgressBorderRadius = '5rem',
-	toastBarHeight = '4px'
+	toastBarHeight = '4px',
+	icon = null
 }: myToastOptions) => {
 	const msgBuilder = `<div style="display:grid;grid-template-columns:minmax(0,auto);text-align:center;font-weight:${textFontWeight}">
 						<h3>
-							${title}
+							${icon ?? ''}${title}
 						</h3>
 						<section style="overflow:auto;word-wrap:anywhere;">
 							${msg}
@@ -85,16 +88,17 @@ export const defaultToast = ({
 	return id;
 };
 
-export const errorToast = (msg: string, duration = 30_000) => {
+export const errorToast = (options: myToastOptions) => {
 	const id = defaultToast({
 		title: 'Error!',
-		msg,
-		duration,
 		toastColor: 'white',
-		toastBackground: 'darkred'
+		toastBackground: 'darkred',
+		icon: options.icon ?? all_icons.policeCarLight,
+		...options
 	});
 	return id;
 };
+
 export const toastIt = (title: string, msg: string, useSeenToastComponent = true) => {
 	const id = defaultToast({
 		title,
@@ -105,8 +109,8 @@ export const toastIt = (title: string, msg: string, useSeenToastComponent = true
 	});
 	return id;
 };
-export const errorToastIt = () =>
-	errorToast(`${policeCarLight} This is a test error. Try to avoid the real thing.`);
+export const testErrorToast = () =>
+	errorToast({ msg: `${policeCarLight} This is a test error. Try to avoid the real thing.` });
 
 export const getToast = async (page: string) => {
 	try {
@@ -121,6 +125,6 @@ export const getToast = async (page: string) => {
 		myLog({ msg: 'got toast', icon: all_icons.bread });
 		return { msg: msg, title: title };
 	} catch (error) {
-		myError({ location: 'toasts.ts', function_name: 'getToast', error, icon: all_icons.bread });
+		myError({ error, icon: all_icons.bread });
 	}
 };

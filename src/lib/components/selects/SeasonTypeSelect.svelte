@@ -1,39 +1,40 @@
 <script lang="ts">
-	import { seasonTypes } from '$scripts/classes/constants';
-	import type { SeasonType } from '$scripts/classes/seasonType';
-
+	import { seasonBoundsCollection } from '$lib/scripts/collections';
+	import { seasonBoundConverter } from '$lib/scripts/converters';
+	import { selected_season, selected_season_type, selected_year } from '$lib/scripts/store';
+	import { doc, getDoc } from '@firebase/firestore';
 	import { createEventDispatcher } from 'svelte';
 
-	let types: SeasonType[] = seasonTypes;
-	let currentSeasonType = types[1]; // @TODO find a function to determine the NFL week automatically
-	export let selectedSeasonType: SeasonType = currentSeasonType;
 	export let gridArea = '';
-
+	let seasons: string[] = ['Regular Season', 'Post-Season', 'Pre-Season', 'Off-Season'];
 	const dispatch = createEventDispatcher();
+
+	const updateSelectedSeason = async () => {
+		const doc_ref = doc(
+			seasonBoundsCollection.withConverter(seasonBoundConverter),
+			`${$selected_year}_${$selected_season_type
+				.toLocaleLowerCase()
+				.replace(' ', '')
+				.replace('-', '')}`
+		);
+		const season_doc = await getDoc(doc_ref);
+		$selected_season = season_doc.data();
+		dispatch('change', { $selected_season, $selected_season_type });
+	};
 </script>
 
 <select
-	bind:value={selectedSeasonType}
-	on:change={() => dispatch('seasonTypeChanged', selectedSeasonType)}
+	bind:value={$selected_season_type}
+	on:change={updateSelectedSeason}
 	style={gridArea ? gridArea : ''}
 >
-	{#each types as type}
-		<option value={type}>{type.text}</option>
+	{#each seasons as season}
+		<option value={season}>{season}</option>
 	{/each}
 </select>
 
 <style lang="scss">
 	select {
-		@include frostedGlassHighContrast;
-		@include rounded;
-		display: inline-flex;
-		padding: 1rem;
-		font-weight: bold;
-		&:focus {
-			@include nightShadow;
-		}
-		&:hover {
-			@include dayShadow;
-		}
+		@include defaultSelect;
 	}
 </style>

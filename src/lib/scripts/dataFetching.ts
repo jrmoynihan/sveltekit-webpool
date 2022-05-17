@@ -1,4 +1,3 @@
-import { myError, policeCarLight } from './classes/constants';
 import type {
 	RefOnlyESPN,
 	ESPNStatus,
@@ -7,7 +6,22 @@ import type {
 	ESPNTeamData,
 	ESPNDrive,
 	ESPNDriveRef
-} from './classes/game';
+} from '$classes/game';
+import { myError } from '$scripts/logging';
+import { all_icons } from '$classes/constants';
+
+export const fetchWithTimeout = async (resourceUrl: string, options: { timeout: number }) => {
+	const { timeout = 8000 } = options;
+
+	const controller = new AbortController();
+	const id = setTimeout(() => controller.abort(), timeout);
+	const response = await fetch(resourceUrl, {
+		...options,
+		signal: controller.signal
+	});
+	clearTimeout(id);
+	return response;
+};
 
 export const convertToHttps = async (httpAddress: string): Promise<string> => {
 	return httpAddress.replace('http', 'https');
@@ -62,7 +76,7 @@ export const getScores = async (
 			throw `error getting scores`;
 		}
 	} catch (error) {
-		console.error(`%c${policeCarLight} error getting scores!`);
+		myError({ msg: 'Error getting scores', error, icon: all_icons.policeCarLight });
 	}
 };
 

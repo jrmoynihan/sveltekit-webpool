@@ -1,32 +1,32 @@
 <script lang="ts">
-	import { createNewPlayerDocument } from '$scripts/auth/auth';
-	import { all_icons, football, myError, myLog } from '$scripts/classes/constants';
-	import { weekBoundsCollection } from '$scripts/collections';
+	import { createNewPlayerDocument } from '$lib/scripts/auth/login';
+	import { all_icons } from '$scripts/classes/constants';
+	import { ErrorAndToast, myLog } from '$scripts/logging';
 	import { savePlayerData } from '$scripts/localStorage';
-	import { godSequence, godMode, firebase_user, playerData } from '$scripts/store';
-	import { defaultToast, errorToast } from '$scripts/toasts';
+	import { firebase_user, current_player, current_season, selected_player } from '$scripts/store';
+	import { defaultToast } from '$scripts/toasts';
 	import {
-		createTiebreakersForPlayer,
+		createWeeklyTiebreakersForPlayer,
 		createWeeklyPicksForPlayer,
-		getAllGames
+		getFutureGames
 	} from '$scripts/weekly/weeklyAdmin';
-	import { doc } from 'firebase/firestore';
 	import {
 		faArrowAltCircleRight,
 		faFootballBall,
 		faTimesCircle
-	} from '@fortawesome/free-solid-svg-icons';
-	import { onMount } from 'svelte';
+	} from '@fortawesome/free-solid-svg-icons/index.es';
 	import Fa from 'svelte-fa';
 	import { fly, slide } from 'svelte/transition';
 	import Grid from '../containers/Grid.svelte';
 	import LoadingSpinner from '../misc/LoadingSpinner.svelte';
-	import ModalOnly from '../modals/Modal.svelte';
+	import Modal from '../modals/Modal.svelte';
 	import ToggleSwitch from '../switches/ToggleSwitch.svelte';
 	import { cubicInOut } from 'svelte/easing';
-	import AccordionDetails3 from '../containers/accordions/AccordionDetails3.svelte';
+	import AccordionDetails from '$components/containers/accordions/AccordionDetails.svelte';
+	import { findCurrentSeason } from '$lib/scripts/schedule';
 
-	export let modalOnlyComponent: ModalOnly;
+	export let openNewPlayerForm: () => Promise<void> = null;
+	export let closeNewPlayerForm: () => Promise<void> = null;
 	let nickname = '';
 	let creatingNewAccount = false;
 	let buttonHidden = true;
@@ -116,24 +116,52 @@
 				additional_params: toggledPools
 			});
 
-			await createNewPlayerDocument($firebase_user, nickname, toggledPools, totalPriceToEnter, 0);
+			// defaultToast({title: 'Still under construction!', msg: 'Incomplete feature! Go add pool-specific doc creation functions!'});
+			// return
+
+			const { college, pick6, playoffs, survivor, weekly } = toggledPools;
+			$current_player = await createNewPlayerDocument(
+				$firebase_user,
+				nickname,
+				college,
+				pick6,
+				playoffs,
+				survivor,
+				weekly,
+				totalPriceToEnter
+			);
+			$selected_player = $current_player;
 			await savePlayerData($firebase_user);
 			// TODO: create the necessary docs for each pool they've joined...
-			// may not need to await here, but could instead use Workers!
-			const games = await getAllGames(false);
-			createWeeklyPicksForPlayer($playerData, true, false, games);
-			createTiebreakersForPlayer($playerData);
+			// TODO: Move these to Cloud Functions triggered on new player doc creation...
+
+			// Get all games that will be played in the future and make picks for the player
+			if (weekly) {
+				const games = await getFutureGames();
+				createWeeklyPicksForPlayer({
+					player: $current_player,
+					games,
+					logAll: true,
+					showToast: true
+				});
+				const season = $current_season || (await findCurrentSeason());
+				createWeeklyTiebreakersForPlayer({ player: $current_player, season });
+				// TODO: createWeeklyRecords;
+			}
+
+			// TODO: createSeasonRecords;  should occur for any player, since all pools will likely have seasonal record data
+
 			//prettier-ignore
 			defaultToast({
 				title: `Account Created!`,
 				msg: `${$firebase_user.displayName} (${sanitizedNickname}) has joined the following pools: ${poolsWillJoinNames.join(', ')}`
 			});
 			//#prettier-ignore
-			modalOnlyComponent.close();
+			closeNewPlayerForm();
 			setTimeout(() => (creatingNewAccount = false), 300);
 		} catch (error) {
-			errorToast('We ran into an error while creating the account.');
-			myError({ location: 'NewPlayerForm', function_name: 'createAccount', error });
+			const msg = 'We ran into an error while creating the account.';
+			ErrorAndToast({ error, msg });
 		}
 	};
 	const confirmToggledPools = async () => {
@@ -144,6 +172,8 @@
 			survivor: false,
 			weekly: false
 		};
+
+		// TODO: This could probably be written better!
 		poolsToJoin.forEach((pool) => {
 			if (pool.fieldName === 'college') {
 				pools.college = pool.toggled;
@@ -165,7 +195,6 @@
 	};
 	const isOneOrMorePoolsSelected = async () => {
 		for (const pool of poolsToJoin) {
-			// console.log(`${pool.name} is ${pool.toggled ? 'toggled' : 'not toggled'}`);
 			if (pool.toggled) {
 				buttonHidden = false;
 				return;
@@ -213,62 +242,14 @@
 	// }, 1250);
 
 	//possible TODO
-	const getWeeklyCutoffDate = async (currentYear: number) => {
-		const boundDoc = doc(weekBoundsCollection, currentYear.toString());
-	};
-	onMount(() => {
-		$godMode = false;
-		// possible TODO
-		// const currentYear = new Date().getFullYear();
-		// weeklyCutoffDate = await getWeeklyCutoffDate(currentYear)
-	});
+	// const getWeeklyCutoffDate = async (currentYear: number) => {
+	// 	const boundDoc = doc(weekBoundsCollection, currentYear.toString());
+	// };
 
-	export const enableGodMode = async (
-		e: KeyboardEvent & { currentTarget: EventTarget & Window }
-	) => {
-		// console.log(e.key);
-		const secretCode = ['G', 'O', 'D'];
-		if (!$godMode && $playerData?.admin) {
-			if (
-				e.key !== 'G' &&
-				e.key !== 'g' &&
-				e.key !== 'O' &&
-				e.key !== 'o' &&
-				e.key !== 'D' &&
-				e.key !== 'd'
-			) {
-				$godMode = false;
-				$godSequence = [];
-				// console.log('an incorrect character', $godSequence);
-				return;
-			}
-			if (e.key === 'G' || e.key === 'g') {
-				$godSequence.push('G');
-			}
-			if (e.key === 'O' || e.key === 'o') {
-				$godSequence.push('O');
-			}
-			if (e.key === 'D' || e.key === 'd') {
-				$godSequence.push('D');
-			}
-			// console.log($godSequence);
-			if (
-				$godSequence.length === 3 &&
-				$godSequence.every((letter, index) => {
-					// console.log(secretCode[index]);
-					if (secretCode[index] === undefined) {
-						return false;
-					} else {
-						return letter === secretCode[index];
-					}
-				})
-			) {
-				$godMode = true;
-			} else {
-				$godMode = false;
-			}
-		}
-	};
+	// possible TODO
+	// const currentYear = new Date().getFullYear();
+	// weeklyCutoffDate = await getWeeklyCutoffDate(currentYear)
+
 	export const checkForEnter = (
 		e: KeyboardEvent & { currentTarget: EventTarget & HTMLInputElement }
 	) => {
@@ -279,13 +260,11 @@
 	};
 </script>
 
-<svelte:window
-	on:keydown={(e) => {
-		enableGodMode(e);
-	}}
-/>
-
-<ModalOnly bind:this={modalOnlyComponent} dialogStyles={'width: min(100vw, 600px);'}>
+<Modal
+	bind:open={openNewPlayerForm}
+	bind:close={closeNewPlayerForm}
+	dialog_styles={'width: min(100vw, 600px);'}
+>
 	<input type="text" placeholder="test" />
 	<Grid
 		slot="modal-content"
@@ -297,6 +276,8 @@
 			<label for="nickname" class="two-column">
 				{#if !nicknameEntered}
 					<h3 transition:slide={slideParameters}>Enter Your Nickname</h3>
+				{:else}
+					<h5 transition:slide={slideParameters}>Nickname</h5>
 				{/if}
 				<input
 					id="nickname"
@@ -330,7 +311,6 @@
 				{/if}
 			</label>
 
-			<!-- </div> -->
 			{#if illegalCharacters}
 				<span class="error two-column">{illegalCharacterMsg}</span>
 			{/if}
@@ -345,19 +325,19 @@
 			{#if nicknameEntered && !typing && !nicknameTooLong && !illegalCharacters}
 				<h3 class="two-column" transition:slide={slideParameters}>Pick Your Pools</h3>
 				<h5 class="reveal two-column" transition:slide={slideParameters}>
-					Click to show/hide pool descriptions
+					(Click a pool to learn more)
 				</h5>
 				{#each poolsToJoin as pool}
 					<div class="accordionWrapper" transition:slide={slideParameters}>
-						<AccordionDetails3
-							showArrow={true}
-							customContentStyles="color:var(--text); {pool.toggled
+						<AccordionDetails
+							expanderIconSide={'left'}
+							customContentStyles="color:var(--text); padding-top: 1rem; {pool.toggled
 								? 'background-color:hsl(82,39%,30%);color:white;'
 								: ''}"
-							customSummaryStyles="width:100%;font-weight:bold;{pool.toggled
+							customSummaryStyles="width:100%;font-weight:bold;border:1px solid hsla(var(--text-value), 20%);{pool.toggled
 								? `background-color:hsl(82,39%,30%);color:white;`
 								: ``}"
-							expandTitle={pool.name}
+							expandTitle={`${pool.name}`}
 							{slideParameters}
 						>
 							<svelte:fragment slot="content">
@@ -374,7 +354,7 @@
 								</ul>
 								<p class="price">(${pool.price} {pool.textAfterPrice})</p>
 							</svelte:fragment>
-						</AccordionDetails3>
+						</AccordionDetails>
 					</div>
 					<div class="toggle-slide" transition:slide={slideParameters}>
 						<ToggleSwitch
@@ -419,7 +399,7 @@
 			</LoadingSpinner>
 		{/if}
 	</Grid>
-</ModalOnly>
+</Modal>
 
 <style lang="scss">
 	h3 {
@@ -455,7 +435,7 @@
 		position: relative;
 	}
 	input {
-		@include editableInput;
+		@include defaultInput;
 		@include cloudyBackground;
 		background-color: white;
 		text-align: center;
@@ -503,6 +483,9 @@
 		border: 1px inset;
 		&:hover {
 			cursor: inherit;
+		}
+		&:disabled {
+			background-color: hsla(0, 0%, 100%, 10%);
 		}
 	}
 	.hidden {

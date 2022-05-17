@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { largerThanMobile, navChecked } from '$scripts/store';
+	import { larger_than_mobile, nav_toggled } from '$scripts/store';
 
 	export let minItemSize = '200px';
 	export let maxItemSize = '1fr';
@@ -11,11 +11,10 @@
 
 <nav
 	class:offsetTop
-	class="navigationList {$navChecked ? 'expanded' : 'collapsed'} {$largerThanMobile
-		? null
-		: useModal
-		? 'modal'
-		: null}"
+	class:modal={!$larger_than_mobile && useModal}
+	class:expanded={$nav_toggled}
+	class:collapsed={!$nav_toggled}
+	class="navigationList"
 	style="--minItemSize:{minItemSize}; --maxItemSize: {maxItemSize}; {customStyles}"
 >
 	<slot {modalID} />
@@ -37,10 +36,8 @@
 		transition: gap 500ms ease-in-out;
 		width: 100%;
 		z-index: var(--above);
-		background: linear-gradient(
-			hsla(var(--background, hsl(120, 16%, 17%)), 90%) 50%,
-			transparent 120%
-		);
+		background: var(--background);
+
 		@supports (backdrop-filter: none) {
 			backdrop-filter: blur(5px);
 		}

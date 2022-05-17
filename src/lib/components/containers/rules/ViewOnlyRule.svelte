@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { faFootballBall } from '@fortawesome/free-solid-svg-icons';
+	import { faFootballBall } from '@fortawesome/free-solid-svg-icons/index.es';
 	import Fa from 'svelte-fa';
 	import type { Rule } from '$scripts/classes/rules';
 

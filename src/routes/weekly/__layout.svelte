@@ -10,18 +10,18 @@
 	import NavLink from '$navigation/NavLink.svelte';
 	import Navigator from '$navigation/Navigator.svelte';
 	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
-	import { navChecked } from '$scripts/store';
+	import { nav_toggled } from '$scripts/store';
 	import type { LoadInput, LoadOutput } from '@sveltejs/kit';
-	import { weeklyTabs } from '$scripts/site';
+	import { weekly_tabs } from '$scripts/site';
 
 	export let refresh: unknown;
 </script>
 
-<Navigator minItemSize="10rem" maxItemSize="max-content">
-	{#each weeklyTabs as tab, index}
-		<NavLink {index} pageOption={tab} fullyRounded={true} />
+<Navigator minItemSize="10rem" maxItemSize="max-content" customStyles="top: 3.5rem;">
+	{#each weekly_tabs as tab, index}
+		<NavLink {index} page_option={tab} fully_rounded={true} />
 	{/each}
 </Navigator>
-<TransitionWrapper {refresh} customStyles={$navChecked ? 'margin-top: 0.6rem;' : 'margin-top: 0;'}>
+<TransitionWrapper {refresh} customStyles={$nav_toggled ? 'margin-top: 0.6rem;' : 'margin-top: 0;'}>
 	<slot />
 </TransitionWrapper>

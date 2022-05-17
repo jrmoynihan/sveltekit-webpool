@@ -1,32 +1,10 @@
 <script lang="ts">
 	import { browser } from '$app/env';
-	import { chosenMixBlendMode, useDarkTheme } from '$scripts/store';
+	import { use_dark_theme } from '$scripts/store';
 
 	export let invisible = false;
 
-	let root: HTMLElement;
-	if (browser) {
-		root = document.documentElement;
-	}
-
-	let mixBlendModes = [
-		'normal',
-		'multiply',
-		'screen',
-		'overlay',
-		'darken',
-		'lighten',
-		'color-dodge',
-		'color-burn',
-		'hard-light',
-		'soft-light',
-		'difference',
-		'exclusion',
-		'hue',
-		'saturation',
-		'color',
-		'luminosity'
-	];
+	let root: HTMLElement = browser ? document.documentElement : null;
 
 	export let lightThemeColors = {
 		text: 'hsla(0, 0%, 0%, 1)', // main/text color
@@ -88,6 +66,7 @@
 					root.style.setProperty(`--${key}-hue`, `${h}`);
 					root.style.setProperty(`--${key}-saturation`, `${s}`);
 					root.style.setProperty(`--${key}-lightness`, `${l}`);
+					root.style.setProperty(`--${key}-alpha`, `${a}`);
 				}
 			}
 		}
@@ -95,36 +74,25 @@
 
 	// Resets both the CSS custom properties and the internal state of these theme objects to their defaults
 	const resetCSSvariable = (colorName: string) => {
-		const resetColor = $useDarkTheme ? darkResets[colorName] : lightResets[colorName];
-		$useDarkTheme ? (darkThemeColors = { ...darkResets }) : (lightThemeColors = { ...lightResets });
+		const resetColor = $use_dark_theme ? darkResets[colorName] : lightResets[colorName];
+		$use_dark_theme
+			? (darkThemeColors = { ...darkResets })
+			: (lightThemeColors = { ...lightResets });
 		root.style.setProperty(`--${colorName}-color`, resetColor);
 	};
 
 	// Update/set the CSS custom properties anytime the colors object changes
-	$: colors = $useDarkTheme ? { ...darkThemeColors } : { ...lightThemeColors };
+	$: colors = $use_dark_theme ? { ...darkThemeColors } : { ...lightThemeColors };
 	$: setCSSvariable(colors);
 </script>
 
 <section class:invisible>
-	<!-- <DatalistSelect
-		inputID="mix-blend-mode-selector"
-		items={mixBlendModes}
-		displayedKeyNames={['name']}
-		placeholder={'Select a mix-blend-mode'}
-		bind:selectedItem={$chosenMixBlendMode}
-	/> -->
-	<select bind:value={$chosenMixBlendMode}>
-		{#each mixBlendModes as mode}
-			<option value={mode}>{mode}</option>
-		{/each}
-	</select>
-
-	{#each Object.keys($useDarkTheme ? darkThemeColors : lightThemeColors) as color}
+	{#each Object.keys($use_dark_theme ? darkThemeColors : lightThemeColors) as color}
 		<div class="container">
 			<label for="{color}-color-picker">{color}</label>
 
 			<!--@TODO Replace these with a more robust custom color picker -->
-			{#if $useDarkTheme}
+			{#if $use_dark_theme}
 				<input type="color" id="{color}-color-picker" bind:value={darkThemeColors[color]} />
 			{:else}
 				<input type="color" id="{color}-color-picker" bind:value={lightThemeColors[color]} />
@@ -156,12 +124,6 @@
 	button {
 		@include defaultButtonStyles;
 		display: inline-block;
-	}
-	select {
-		@include defaultButtonStyles;
-		color: initial;
-		background-color: revert;
-		text-shadow: none;
 	}
 	.invisible {
 		visibility: hidden;

@@ -3,6 +3,7 @@ import adapter from '@sveltejs/adapter-auto';
 import path, { dirname } from 'path';
 import mkcert from 'vite-plugin-mkcert';
 import { fileURLToPath } from 'url';
+import autoprefixer from 'autoprefixer';
 const filepath = dirname(fileURLToPath(import.meta.url)).replace(/\\/g, '/');
 const sassPath = `${filepath}/src/lib/styles`;
 
@@ -12,11 +13,20 @@ const config = {
 	// for more information about preprocessors
 	preprocess: [
 		preprocess({
+			typescript: true,
+			postcss: {
+				plugins: [autoprefixer()]
+			},
 			scss: {
-				prependData: `@import '${sassPath}/mixins.scss';`
+				prependData: `@import '${sassPath}/mixins.scss';`,
+				includePaths: [sassPath]
 			}
 		})
 	],
+	experimental: {
+		// useVitePreprocess: true,
+		prebundleSvelteLibraries: true
+	},
 	compilerOptions: {
 		css: false
 	},
@@ -40,11 +50,7 @@ const config = {
 					$classes: path.resolve('./src/lib/scripts/classes')
 				}
 			},
-			// build: {
-			// 	target: 'esnext'
-			// },
 			ssr: {
-				// external: ['@firebase/firestore']
 				external: ['whatwg-url']
 			},
 			server: {

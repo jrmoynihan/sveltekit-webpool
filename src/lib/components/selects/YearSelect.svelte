@@ -1,43 +1,45 @@
 <script lang="ts">
-	import { startingYear } from '$scripts/classes/constants';
+	import { seasonBoundsCollection } from '$scripts/collections';
+	import { seasonBoundConverter } from '$scripts/converters';
 
+	import {
+		all_seasons,
+		selected_season,
+		selected_season_type,
+		selected_year
+	} from '$scripts/store';
+	import { doc, getDoc } from '@firebase/firestore';
 	import { createEventDispatcher } from 'svelte';
 
-	export let years: number[] = [];
-	let currentYear = new Date().getFullYear();
-	export let selectedYear: number = currentYear;
-	export let gridArea = '';
-
-	for (let i = startingYear; i <= currentYear; i++) {
-		years = [...years, i];
-	}
-
+	export let grid_area = '';
 	const dispatch = createEventDispatcher();
+	// let all_years = [...new Set($all_seasons.map((season) => season.year))].sort();
+
+	const updateSelectedSeason = async () => {
+		const doc_season = $selected_season_type.toLocaleLowerCase().replace(' ', '').replace('-', '');
+		const doc_ref = doc(
+			seasonBoundsCollection.withConverter(seasonBoundConverter),
+			`${$selected_year}_${doc_season}`
+		);
+		const season_doc = await getDoc(doc_ref);
+		$selected_season = season_doc.data();
+		dispatch('change', { $selected_season, $selected_year });
+	};
 </script>
 
 <select
 	id="year-select"
-	bind:value={selectedYear}
-	on:change={() => dispatch('yearChanged', selectedYear)}
-	style={gridArea ? gridArea : ''}
+	bind:value={$selected_year}
+	on:change={updateSelectedSeason}
+	style:grid-area={grid_area}
 >
-	{#each years as year}
+	{#each [...new Set($all_seasons.map((season) => season.year))].sort() as year}
 		<option value={year}>{year}</option>
 	{/each}
 </select>
 
 <style lang="scss">
 	select {
-		@include frostedGlassHighContrast;
-		@include rounded;
-		display: inline-flex;
-		padding: 1rem;
-		font-weight: bold;
-		&:focus {
-			@include nightShadow;
-		}
-		&:hover {
-			@include dayShadow;
-		}
+		@include defaultSelect;
 	}
 </style>

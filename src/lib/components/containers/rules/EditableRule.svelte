@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { updateDoc } from 'firebase/firestore';
+	import { updateDoc } from '@firebase/firestore';
 	import type { Rule } from '$scripts/classes/rules';
-	import { myLog } from '$scripts/classes/constants';
+	import { myLog } from '$scripts/logging';
 	import { errorToast } from '$scripts/toasts';
 
 	export let rule: Rule;
@@ -13,7 +13,7 @@
 			myLog({ msg: 'after rule change: ', additional_params: rule });
 		} catch (err) {
 			console.error(err);
-			errorToast('Unable to make rule change.  See console log for details.');
+			errorToast({ msg: 'Unable to make rule change.  See console log for details.' });
 		}
 	};
 </script>

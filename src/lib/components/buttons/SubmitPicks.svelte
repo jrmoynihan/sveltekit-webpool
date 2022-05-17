@@ -2,12 +2,13 @@
 	import Fa from 'svelte-fa';
 	import { createEventDispatcher } from 'svelte';
 	import { fly } from 'svelte/transition';
-	import { useDarkTheme } from '$scripts/store';
-	import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+	import { use_dark_theme } from '$scripts/store';
+	import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/index.es';
 
 	export let invisible = false;
 	export let pulse = false;
 	export let ableToTab = 0;
+	export let disabled = false;
 
 	const dispatch = createEventDispatcher();
 	function buttonClicked(event: { detail: any }): void {
@@ -17,7 +18,8 @@
 
 <button
 	on:click={buttonClicked}
-	class="submit {$useDarkTheme ? 'dark-mode' : 'light-mode'}"
+	{disabled}
+	class="submit {$use_dark_theme ? 'dark-mode' : 'light-mode'}"
 	class:invisible
 	class:pulse
 	tabindex={ableToTab}

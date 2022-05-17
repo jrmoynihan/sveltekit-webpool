@@ -8,35 +8,35 @@
 
 	export let id = nanoid();
 	export let items: toggleItem[] = [];
-	export let selectedItem = items[0];
-	export let selectedValue = selectedItem.value;
-	export let gridArea = '';
-	export let titleText = '';
+	export let selected_item = items[0];
+	export let selected_value = selected_item.value;
+	export let grid_area = '';
+	export let title_text = '';
 	let defaultIcon: IconDefinition = faCheckCircle;
 	// Add override styles
 	export let faIcon: IconDefinition = defaultIcon;
-	export let showIcon: boolean = true;
-	export let showLabel: boolean = true;
-	export let showTooltip: boolean = false;
-	export let showSelectedValue: boolean = true;
-	export let iconTopPercentage: number = showIcon ? 55 : 43;
-	export let titleLabelStyles = '';
-	export let optionLabelStyles = '';
-	export let customContainerStyles = '';
-	export let adminOnly = false;
-	export let bgColorHue = 207;
-	export let bgColorSaturation = 90;
-	export let bgColorLuminosity = 54;
-	export let darkenHoverPercentage = 20;
-	export let toggleBgColorActive = `hsl(${bgColorHue},${bgColorSaturation}%,${bgColorLuminosity}%)`;
-	export let toggleBgColorActiveHovered = `hsl(${bgColorHue},${bgColorSaturation}%,${
-		bgColorLuminosity - darkenHoverPercentage
+	export let show_icon: boolean = true;
+	export let show_label: boolean = true;
+	export let show_tooltip: boolean = false;
+	export let show_selected_value: boolean = true;
+	export let icon_top_percentage: number = show_icon ? 55 : 43;
+	export let title_label_styles = '';
+	export let option_label_styles = '';
+	export let custom_container_styles = '';
+	export let is_admin_only = false;
+	export let background_color_hue = 207;
+	export let background_color_saturation = 90;
+	export let background_color_luminosity = 54;
+	export let darken_hover_percentage = 20;
+	export let active_background_color = `hsl(${background_color_hue},${background_color_saturation}%,${background_color_luminosity}%)`;
+	export let active_background_color_hovered = `hsl(${background_color_hue},${background_color_saturation}%,${
+		background_color_luminosity - darken_hover_percentage
 	}%)`;
-	let selectedLabel: HTMLLabelElement;
-	let spanWidth: number;
-	let spanLeft: number;
-	let toggleContainer: HTMLDivElement;
-	let divLeft: number;
+	let selected_label: HTMLLabelElement;
+	let span_width: number;
+	let span_left: number;
+	let toggle_container: HTMLDivElement;
+	let div_left: number;
 
 	// Create an event dispatcher object
 	const dispatch = createEventDispatcher();
@@ -51,7 +51,7 @@
 	) {
 		// Accessible selection with Spacebar or Enter key
 		if (e.key === ' ' || e.key === 'Enter') {
-			selectedItem = items[i];
+			selected_item = items[i];
 		}
 	}
 
@@ -65,86 +65,86 @@
 		}
 	};
 
-	const updateSelectedValue = (selectedItem: toggleItem) => (selectedValue = selectedItem.value);
+	const updateSelectedValue = (selectedItem: toggleItem) => (selected_value = selectedItem.value);
 
-	$: if (browser && document && selectedItem) {
-		selectedLabel = document.getElementById(
-			`${id}-${selectedItem.label}-label`
+	$: if (browser && document && selected_item) {
+		selected_label = document.getElementById(
+			`${id}-${selected_item.label}-label`
 		) as HTMLLabelElement;
 	}
-	$: if (browser && selectedLabel && toggleContainer) {
-		const labelBounds = selectedLabel.getBoundingClientRect();
-		const divBounds = toggleContainer.getBoundingClientRect();
-		const divStyles = window.getComputedStyle(toggleContainer);
-		divLeft = divBounds.left + parseInt(divStyles.paddingLeft.replace('px', ''));
-		spanWidth = labelBounds.width;
-		spanLeft = labelBounds.left - divLeft;
+	$: if (browser && selected_label && toggle_container) {
+		const labelBounds = selected_label.getBoundingClientRect();
+		const divBounds = toggle_container.getBoundingClientRect();
+		const divStyles = window.getComputedStyle(toggle_container);
+		div_left = divBounds.left + parseInt(divStyles.paddingLeft.replace('px', ''));
+		span_width = labelBounds.width;
+		span_left = labelBounds.left - div_left;
 	}
-	$: checkSelectedItemIcon(selectedItem);
-	$: updateSelectedValue(selectedItem);
+	$: checkSelectedItemIcon(selected_item);
+	$: updateSelectedValue(selected_item);
 
 	onMount(() => {
 		if (browser && document) {
-			selectedLabel = document.getElementById(
-				`${id}-${selectedItem.label}-label`
+			selected_label = document.getElementById(
+				`${id}-${selected_item.label}-label`
 			) as HTMLLabelElement;
 		}
-		checkSelectedItemIcon(selectedItem);
+		checkSelectedItemIcon(selected_item);
 	});
 	// @FIXME if two of these components are on the screen with the same item source, only the first is updated?
 </script>
 
 <div
-	bind:this={toggleContainer}
-	class:adminOnly
+	bind:this={toggle_container}
+	class:is_admin_only
 	class="switch"
-	style="--divLeft:{divLeft}; --count:{items.length}; grid-area: {gridArea};--toggleBgColorActive:{toggleBgColorActive}; --toggleBgColorActiveHovered:{toggleBgColorActiveHovered}; {customContainerStyles}"
+	style="--divLeft:{div_left}; --count:{items.length}; grid-area: {grid_area};--toggleBgColorActive:{active_background_color}; --toggleBgColorActiveHovered:{active_background_color_hovered}; {custom_container_styles}"
 >
-	{#if titleText}
-		<p style="font-weight: bold; {titleLabelStyles}">{titleText}</p>
+	{#if title_text}
+		<p style="font-weight: bold; {title_label_styles}">{title_text}</p>
 	{/if}
 	<span class="connector" />
 	{#each items as item, i}
 		<label
 			id="{id}-{item.label}-label"
 			for={item.label}
-			class:selected={selectedItem.value === item.value}
-			class:adminOnly
-			style={optionLabelStyles}>{item.label}</label
+			class:selected={selected_item.value === item.value}
+			class:is_admin_only
+			style={option_label_styles}>{item.label}</label
 		>
 		<input
 			type="radio"
 			id={item.label}
 			name="toggleGroup-{id}"
-			bind:group={selectedItem}
+			bind:group={selected_item}
 			on:change|stopPropagation={(e) => toggled(e, i)}
 			value={item}
 		/>
 	{/each}
-	{#if selectedLabel}
+	{#if selected_label}
 		<span
 			id="{id}-icon"
 			class="icon background"
-			class:adminOnly
-			class:showLabel
-			class:showTooltip
-			style="--option:{selectedItem};--spanWidth:{spanWidth}px;--spanLeft:{spanLeft}px;
-			--spanHeight:{showIcon ? null : '8%'};--spanBorderRadius:{showIcon
+			class:is_admin_only
+			class:show_label
+			class:show_tooltip
+			style="--option:{selected_item};--spanWidth:{span_width}px;--spanLeft:{span_left}px;
+			--spanHeight:{show_icon ? null : '8%'};--spanBorderRadius:{show_icon
 				? '0 0 1.5rem 1.5rem'
-				: '1.5rem'};--spanZ:{showIcon
+				: '1.5rem'};--spanZ:{show_icon
 				? 'var(--base)'
-				: 'var(--below)'};--iconTop:{iconTopPercentage}%;"
+				: 'var(--below)'};--iconTop:{icon_top_percentage}%;"
 		>
-			{#if showIcon}
+			{#if show_icon}
 				<!-- {#key faIcon} -->
 				<Fa icon={faIcon} />
 				<!-- {/key} -->
 			{/if}
 		</span>
 	{/if}
-	{#if showSelectedValue}
+	{#if show_selected_value}
 		<!-- <p>{selectedValue}</p> -->
-		<p style="font-weight:600;">{selectedItem.value}</p>
+		<p style="font-weight:600;">{selected_item.value}</p>
 	{/if}
 </div>
 
@@ -217,7 +217,7 @@
 		@include accentedContainer(100%);
 		color: var(--background);
 	}
-	.adminOnly {
+	.is_admin_only {
 		@include admin;
 		border: none;
 	}

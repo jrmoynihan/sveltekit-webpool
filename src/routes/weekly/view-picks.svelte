@@ -4,146 +4,71 @@
 	import PageTitle from '$components/misc/PageTitle.svelte';
 	import ErrorModal from '$components/modals/ErrorModal.svelte';
 	import WeekSelect from '$components/selects/WeekSelect.svelte';
-	import { ErrorAndToast, myError, myLog } from '$classes/constants';
+	import { ErrorAndToast, myLog } from '$scripts/logging';
 	import type { Game } from '$classes/game';
 	import type { WeeklyPickDoc } from '$scripts/classes/picks';
-	import type { Team } from '$classes/team';
-	import { scheduleCollection, weeklyPicksCollection } from '$scripts/collections';
+	// import type { Team } from '$classes/team';
+	import { scheduleCollection, teamsCollection, weeklyPicksCollection } from '$scripts/collections';
 	import { gameConverter, teamConverter, weeklyPickConverter } from '$scripts/converters';
 	import { isBeforeGameTime } from '$scripts/functions';
-	import { currentSeasonYear, selectedWeek, useDarkTheme } from '$scripts/store';
-	import { teamsCollection } from '$scripts/teams';
-	import { query, where, getDocs, orderBy } from 'firebase/firestore';
-	import { findCurrentWeekOfSchedule } from '$scripts/schedule';
-	import { onMount } from 'svelte';
+	import {
+		all_teams,
+		selected_week,
+		selected_year,
+		use_dark_theme,
+		weekly_players
+	} from '$scripts/store';
+	import { where, orderBy } from '@firebase/firestore';
 	import { fade, fly } from 'svelte/transition';
 	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
-	import type { Player } from '$classes/player';
-	import { getWeeklyPlayers } from '$scripts/weekly/weeklyPlayers';
 	import LoadingSpinner from '$lib/components/misc/LoadingSpinner.svelte';
+	import { getGameData, getPicksData } from '$lib/scripts/weekly/weeklyPlayers';
 
-	let selectedYear: number = $currentSeasonYear;
 	let hoverPlayer: string;
 	let hoverGame: string;
 
-	const getAllPicksForWeek = async (selectedWeek: number, selectedYear: number) => {
-		try {
-			const weeklyPicks: WeeklyPickDoc[] = [];
-			const q = query(
-				weeklyPicksCollection,
-				where('week', '==', selectedWeek),
-				where('year', '==', selectedYear),
-				orderBy('gameId')
-			);
-			const weeklyPickDocs = await getDocs(q.withConverter(weeklyPickConverter));
-			weeklyPickDocs.forEach((doc) => {
-				weeklyPicks.push(doc.data());
-			});
-			myLog({
-				msg: 'picks: ',
-				additional_params: weeklyPicks,
-				function_name: 'getAllPicksForWeek',
-				location: 'weekly/view-picks.svelte'
-			});
-			return weeklyPicks;
-		} catch (error) {
-			const msg = 'Error getting weekly picks. See console for details.';
-			ErrorAndToast({
-				msg,
-				error,
-				function_name: 'getAllPicksForWeek',
-				location: 'weekly/view-picks.svelte'
-			});
-		}
-	};
-	const getAllGamesForWeek = async (selectedWeek: number, selectedYear: number) => {
-		try {
-			const games: Game[] = [];
-			const q = query(
-				scheduleCollection,
-				where('week', '==', selectedWeek),
-				where('year', '==', selectedYear),
-				orderBy('id')
-			);
-			const gameDocs = await getDocs(q.withConverter(gameConverter));
-			gameDocs.forEach((doc) => {
-				games.push(doc.data());
-			});
-			myLog({
-				msg: 'games: ',
-				additional_params: games,
-				function_name: 'getAllGamesForWeek',
-				location: 'weekly/view-picks.svelte'
-			});
-			return games;
-		} catch (error) {
-			const msg = 'Error getting games. See console for details.';
-			ErrorAndToast({
-				msg,
-				error,
-				function_name: 'getAllGamesForWeek',
-				location: 'weekly/view-picks.svelte'
-			});
-		}
-	};
-	const getAllTeams = async () => {
-		try {
-			const teams: Team[] = [];
-			const q = query(teamsCollection);
-			const teamDocs = await getDocs(q.withConverter(teamConverter));
-			teamDocs.forEach((doc) => {
-				teams.push(doc.data());
-			});
-			return teams;
-		} catch (error) {
-			const msg = 'Error getting teams. See console for details.';
-			ErrorAndToast({
-				msg,
-				error,
-				function_name: 'getAllTeams',
-				location: 'weekly/view-picks.svelte'
-			});
-		}
-	};
-	const getData = async (selectedWeek: number, selectedYear: number) => {
-		picksPromise = getAllPicksForWeek(selectedWeek, selectedYear);
-		gamesPromise = getAllGamesForWeek(selectedWeek, selectedYear);
-		playersPromise = getWeeklyPlayers(false);
-		teamsPromise = getAllTeams();
-		const [picks, games, players, teams] = await Promise.all([
-			picksPromise,
-			gamesPromise,
-			playersPromise,
-			teamsPromise
-		]);
-		return { picks, games, players, teams };
+	const getData = async () => {
+		const picks_constraints = [
+			where('week', '==', $selected_week),
+			where('year', '==', $selected_year),
+			orderBy('game_id')
+		];
+		const games_constraints = [
+			where('week', '==', $selected_week),
+			where('year', '==', $selected_year),
+			orderBy('id')
+		];
+		picksPromise = getPicksData({ constraints: picks_constraints });
+		gamesPromise = getGameData({ constraints: games_constraints });
+		const [picks, games] = await Promise.all([picksPromise, gamesPromise]);
+		return { picks, games };
 	};
 
-	let weekPromise: Promise<number> = findCurrentWeekOfSchedule();
-	let playersPromise: Promise<Player[]>;
-	let teamsPromise: Promise<Team[]>;
 	let picksPromise: Promise<WeeklyPickDoc[]>;
 	let gamesPromise: Promise<Game[]>;
-	let data_promise: Promise<{
-		picks: WeeklyPickDoc[];
-		games: Game[];
-		players: Player[];
-		teams: Team[];
-	}> = getData($selectedWeek, selectedYear);
+	let data_promise: Promise<{ picks: WeeklyPickDoc[]; games: Game[] }> = getData();
 
-	onMount(async () => {
-		// selectedWeek = await weekPromise;  TODO:  this is fine during regular season, but not during playoffs
-	});
-	$: data_promise = getData($selectedWeek, selectedYear);
+	function changedWeek() {
+		data_promise = getData();
+	}
+	$: {
+		$selected_week;
+		data_promise = getData();
+	}
 </script>
 
 <PageTitle>View League Picks</PageTitle>
-<WeekSelect customStyles={'width:fit-content;margin:auto;'} />
+<WeekSelect
+	customStyles={'width:fit-content;margin:auto;'}
+	on:change={changedWeek}
+	on:incrementWeek={changedWeek}
+	on:decrementWeek={changedWeek}
+/>
 
 {#await data_promise}
 	<LoadingSpinner />
-{:then { picks, games, players, teams }}
-	{#if players && picks && games && teams}
+{:then { picks, games }}
+	{#if picks && games}
 		<TransitionWrapper refresh={picks}>
 			<Grid
 				repeatColumns={games.length + 2}
@@ -163,11 +88,11 @@
 						on:focus={() => (hoverGame = game.id)}
 						on:blur={() => (hoverGame = '')}
 					>
-						{game.shortName}
+						{game.short_name}
 					</div>
 				{/each}
 				<div>Wins</div>
-				{#each players as player}
+				{#each $weekly_players as player}
 					<div
 						transition:fly={{ x: -100, duration: 750 }}
 						class="nickname label"
@@ -181,15 +106,16 @@
 					</div>
 					{#each games as game}
 						{#await isBeforeGameTime(game.timestamp) then notAbleToSee}
-							{#each picks as pick}
-								{#if pick.uid === player.uid && pick.gameId === game.id}
-									{#if pick.pick === null || pick.pick === ''}
+							{#each picks as pickdoc}
+								{@const { pick, uid, game_id, is_correct } = pickdoc}
+								{#if uid === player.uid && game_id === game.id}
+									{#if pick === null || pick === ''}
 										<div transition:fly={{ x: -100, duration: 750 }} class="rounded placeholder">
 											-
 										</div>
 									{:else}
-										{#each teams as team}
-											{#if team.abbreviation === pick.pick}
+										{#each $all_teams as team}
+											{#if team.abbreviation === pick}
 												{#if notAbleToSee}
 													<div
 														transition:fly={{ x: -100, duration: 750 }}
@@ -201,8 +127,8 @@
 													<div
 														transition:fly={{ x: -100, duration: 750 }}
 														class="rounded image-holder"
-														class:winner={pick.isCorrect}
-														class:dark={$useDarkTheme}
+														class:winner={is_correct}
+														class:dark={$use_dark_theme}
 														class:hovered={hoverPlayer === player.uid || hoverGame === game.id}
 														on:mouseover={() => {
 															hoverPlayer = player.uid;
@@ -233,7 +159,7 @@
 							<ErrorModal {error} />
 						{/await}
 					{/each}
-					{player?.weeklyPickRecord[`week_${selectedWeek}`]?.wins}
+					<!-- TODO: add back player win record for the displayed week -->
 				{/each}
 			</Grid>
 		</TransitionWrapper>
@@ -281,6 +207,7 @@
 	}
 	.hovered {
 		outline: 2px solid hsla(var(--accent-value), 40%);
+		transition: background-color 350ms ease-in-out, outline 20ms ease-in-out;
 		&.winner {
 			background-color: hsla(120, 100%, 20%, 50%);
 			&.dark {

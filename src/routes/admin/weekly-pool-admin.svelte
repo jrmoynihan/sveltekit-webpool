@@ -1,9 +1,6 @@
 <script lang="ts">
 	import AccordionDetails from '$lib/components/containers/accordions/AccordionDetails.svelte';
-	import LoadingSpinner from '$lib/components/misc/LoadingSpinner.svelte';
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
-	import type { Game } from '$scripts/classes/game';
-	import type { Player } from '$classes/player';
 	import AdminSelectors from '$lib/components/containers/admin/adminSelectors.svelte';
 	import AdminSpreadFunctions from '$lib/components/containers/admin/adminSpreadFunctions.svelte';
 	import AdminPicksFunctions from '$lib/components/containers/admin/adminPicksFunctions.svelte';
@@ -12,58 +9,42 @@
 	import AdminTeamRecords from '$lib/components/containers/admin/adminTeamRecords.svelte';
 	import AdminUserRecords from '$lib/components/containers/admin/adminUserRecords.svelte';
 	import AdminScheduleFunctions from '$lib/components/containers/admin/adminScheduleFunctions.svelte';
-	import { largerThanMobile } from '$scripts/store';
+	import {
+		all_players,
+		current_season,
+		larger_than_mobile,
+		selected_season,
+		selected_season_year,
+		selected_year
+	} from '$scripts/store';
 	import Grid from '$lib/components/containers/Grid.svelte';
+	import { onMount } from 'svelte';
+	import { findCurrentSeason } from '$lib/scripts/schedule';
 
-	let selectedYear: number = new Date().getFullYear();
-	let selectedPlayer: Player;
-	let playersPromise: Promise<Player[]>;
-	let gamePromise: Promise<Game[]>;
+	let customContentStyles = 'padding-top: 1rem;';
+
+	onMount(async () => {
+		$selected_season = $current_season || (await findCurrentSeason());
+		$selected_year = $selected_season_year;
+	});
 </script>
 
 <PageTitle>Weekly Pool Admin</PageTitle>
-<Grid minColumns={$largerThanMobile ? '40%' : '100%'} customStyles={'align-items:start;'}>
-	<AdminSelectors bind:selectedPlayer bind:selectedYear bind:playersPromise bind:gamePromise />
-	<!-- <hr /> -->
-	<AdminSpreadFunctions bind:selectedYear />
-	<!-- <hr /> -->
-	<AdminPicksFunctions bind:selectedPlayer bind:selectedYear />
-	<!-- <hr /> -->
-	<AdminTiebreakerFunctions bind:selectedPlayer bind:selectedYear />
-	<!-- <hr /> -->
-	<AdminGamesFunctions bind:selectedYear />
-	<!-- <hr /> -->
-	<AdminTeamRecords bind:selectedYear />
-	<!-- <hr /> -->
-	<AdminUserRecords />
-	<!-- <hr /> -->
-	<AdminScheduleFunctions />
+<Grid minColumns={$larger_than_mobile ? '40%' : '100%'} customStyles={'align-items:start;'}>
+	<AdminSelectors player_pool={'weekly'} {customContentStyles} />
+	<AdminSpreadFunctions {customContentStyles} />
+	<AdminPicksFunctions {customContentStyles} />
+	<AdminTiebreakerFunctions {customContentStyles} />
+	<AdminGamesFunctions {customContentStyles} />
+	<AdminTeamRecords {customContentStyles} />
+	<AdminUserRecords {customContentStyles} />
+	<AdminScheduleFunctions {customContentStyles} />
 </Grid>
 
-{#if playersPromise}
-	{#await playersPromise}
-		<LoadingSpinner msg="Loading users..." />
-	{:then weeklyUsers}
-		<AccordionDetails expandTitle="Weekly Users">
-			<svelte:fragment slot="content">
-				{#each weeklyUsers as user}
-					<p>{user.name} -- weekly: {user.weekly}</p>
-				{/each}
-			</svelte:fragment>
-		</AccordionDetails>
-	{/await}
-{/if}
-
-{#if gamePromise}
-	{#await gamePromise}
-		<LoadingSpinner msg="Loading games..." />
-	{:then games}
-		<AccordionDetails expandTitle="Weekly Games">
-			<svelte:fragment slot="content">
-				{#each games as game}
-					<p>{game.name}</p>
-				{/each}
-			</svelte:fragment>
-		</AccordionDetails>
-	{/await}
-{/if}
+<AccordionDetails expandTitle="Weekly Users" {customContentStyles} expanderIconSide={'right'}>
+	<svelte:fragment slot="content">
+		{#each $all_players.filter((player) => player.weekly === true) as player}
+			<p>{player.name}</p>
+		{/each}
+	</svelte:fragment>
+</AccordionDetails>

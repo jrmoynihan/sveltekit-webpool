@@ -1,53 +1,53 @@
-import type { DocumentReference, Timestamp } from 'firebase/firestore';
+import type { DocumentReference, Timestamp } from '@firebase/firestore';
 import type { Team } from './team';
 
 export class Game {
-	docRef: DocumentReference;
+	doc_ref: DocumentReference;
 	$ref: string;
 	competitions: PrunedCompetition[];
 	date: string;
 	id: string;
 	loser: string;
 	name: string;
-	season: { $ref: string };
-	seasonType: { $ref: string };
-	shortName: string;
+	season_ref: { $ref: string };
+	season_type_ref: { $ref: string };
+	short_name: string;
 	spread: number;
 	timestamp: Timestamp;
 	year: number;
 	week: number;
-	type: string;
-	homeTeam: Team;
-	awayTeam: Team;
+	season_type: string;
+	home_team: Team;
+	away_team: Team;
 	winner: string;
-	ATSwinner: string;
-	totalScore: number;
-	isLastGameOfWeek: boolean;
-	isBeforeGameTime?: boolean;
+	ATS_winner: string;
+	total_score: number;
+	is_last_game_of_week: boolean;
+	is_before_game_time?: boolean;
 
 	constructor({ ...args }) {
-		// this.docRef = args.docRef;
+		this.doc_ref = args.doc_ref;
 		this.$ref = args.$ref;
 		this.competitions = args.competitions;
 		this.date = args.date;
 		this.id = args.id;
 		this.name = args.name;
-		this.season = args.season;
-		this.seasonType = args.seasonType;
-		this.shortName = args.shortName;
+		this.season_ref = args.season_ref;
+		this.season_type_ref = args.season_type_ref;
+		this.short_name = args.short_name;
 		this.spread = args.spread;
 		this.timestamp = args.timestamp;
 		this.year = args.year;
 		this.week = args.week;
-		this.type = args.type;
-		this.homeTeam = args.homeTeam;
-		this.awayTeam = args.awayTeam;
+		this.season_type = args.season_type;
+		this.home_team = args.home_team;
+		this.away_team = args.away_team;
 		this.winner = args.winner || '';
 		this.loser = args.loser || '';
-		this.ATSwinner = args.ATSwinner || '';
-		this.totalScore = args.totalScore || null;
-		this.isLastGameOfWeek = args.isLastGameOfWeek || false;
-		this.isBeforeGameTime = args.isBeforeGameTime || false;
+		this.ATS_winner = args.ATS_winner || '';
+		this.total_score = args.total_score || null;
+		this.is_last_game_of_week = args.is_last_game_of_week || false;
+		this.is_before_game_time = args.is_before_game_time || false;
 	}
 }
 export interface ESPNCompetition {
@@ -458,6 +458,9 @@ export interface ESPNDriveStartOrEnd {
 	yardLine: number;
 	text: string;
 }
+
+// ESPNSeason: used for finding season start and end timestamps, and can navigate to league (groups) and week (weeks) data
+// https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/2022/types/2/
 export interface ESPNSeason {
 	$ref: string;
 	id: string;
@@ -475,7 +478,9 @@ export interface ESPNSeason {
 	corrections: RefOnlyESPN;
 	slug: string;
 }
-export interface ESPNWeek {
+// ESPNWeek: used for finding week number, start and end timestamps, rankings, and can be used to get to week events (if they exist)
+// https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/2022/types/1/weeks/2?lang=en&region=us
+export interface ESPNSeasonWeek {
 	$ref: string;
 	number: number;
 	startDate: string;
@@ -483,4 +488,43 @@ export interface ESPNWeek {
 	text: string;
 	rankings: RefOnlyESPN;
 	events: RefOnlyESPN;
+}
+export interface ESPNSeasonYear {
+	$ref: string;
+	year: number;
+	startDate: string;
+	endDate: string;
+	displayName: string;
+	type: ESPNSeason;
+	rankings: RefOnlyESPN;
+	futures: RefOnlyESPN;
+	types: {
+		$ref: string;
+		count: number;
+		pageIndex: number;
+		pageSize: number;
+		pageCount: number;
+		items: ESPNSeason[];
+	};
+}
+export interface ESPNWeekEvent {
+	$meta?: {
+		parameters: {
+			week: string[]; // the week number
+			season: string[]; // the year
+			seasontypes: string[]; // the season type (1 = preseason, 2 = regular season, 3 = post season)
+		};
+	};
+	count: number;
+	pageIndex: number;
+	pageSize: number;
+	pageCount: number;
+	items: RefOnlyESPN[];
+}
+export interface ESPNSeasonCollection {
+	count: number;
+	pageIndex: number;
+	pageSize: number;
+	pageCount: number;
+	items: RefOnlyESPN[];
 }

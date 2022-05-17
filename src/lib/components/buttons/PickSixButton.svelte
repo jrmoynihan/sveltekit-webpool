@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { largerThanMobile } from '$scripts/store';
-
+	import { larger_than_mobile } from '$scripts/store';
 	import type { pickSixItem } from '$scripts/types/types';
-	import { faTrash } from '@fortawesome/free-solid-svg-icons';
+	import { faTrash } from '@fortawesome/free-solid-svg-icons/index.es';
 	import Fa from 'svelte-fa';
 	import TeamImage from '../containers/TeamImage.svelte';
 
@@ -24,7 +23,7 @@
 		{#if teamOption.selected}
 			<Fa
 				icon={faTrash}
-				style={$largerThanMobile ? 'position:absolute; right: 10%; top: 10%;' : ''}
+				style={$larger_than_mobile ? 'position:absolute; right: 10%; top: 10%;' : ''}
 			/>
 		{/if}
 		{teamOption.team.abbreviation}
@@ -38,6 +37,7 @@
 		display: grid;
 		gap: 0.5rem;
 		height: 100%;
+		grid-template-rows: minmax(0, auto) minmax(0, 1fr);
 		@include responsive_mobile-only {
 			grid-column: span 2;
 		}

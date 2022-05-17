@@ -1,60 +1,43 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
-	import { startSignOut, startSignIn } from '$scripts/auth/auth';
+	import { startSignOut, startSignIn } from '$lib/scripts/auth/login';
 	import Fa from 'svelte-fa';
 	import { faUserCircle } from '@fortawesome/free-solid-svg-icons/index.es';
 	import ToggleSwitch from '$lib/components/switches/ToggleSwitch.svelte';
-	import ModalButtonAndSlot from '$lib/components/modals/ModalWithButton.svelte';
+	import ModalWithButton from '$lib/components/modals/ModalWithButton.svelte';
 	import GoogleLoginButton from '$lib/components/buttons/GoogleLoginButton.svelte';
 	import FacebookLoginButton from '$lib/components/buttons/FacebookLoginButton.svelte';
 	import { dev } from '$app/env';
 	import OnlineStatusIndicator from '$lib/components/containers/micro/OnlineStatusIndicator.svelte';
-	import NewPlayerForm from '$lib/components/forms/NewPlayerForm.svelte';
-	import type ModalOnly from '$lib/components/modals/Modal.svelte';
-	import { myLog } from '$scripts/classes/constants';
-	import { firebase_user, player_not_found } from '$scripts/store';
+	import { firebase_user } from '$scripts/store';
 
 	export let useRedirect = true;
-	let newPlayerFormComponent: ModalOnly;
-	// let loginModalComponent: ModalButtonAndSlot
+	let closeLoginModal: () => Promise<void>;
 
-	const googleLogin = async () => {
-		await startSignIn('Google', useRedirect);
-		// if ($userNotFound) {
-		// 	newUserFormComponent.open()
-		// }
+	const login = async (provider_name: string) => {
+		await startSignIn(provider_name, useRedirect);
+		if ($firebase_user) {
+			closeLoginModal();
+		}
 	};
-	const facebookLogin = async () => {
-		await startSignIn('Facebook', useRedirect);
-		// if ($userNotFound) {
-		// 	newUserFormComponent.open()
-		// }
-	};
-
-	$: if ($player_not_found) {
-		newPlayerFormComponent.open();
-		myLog({ msg: `Player NOT found: ${$firebase_user?.displayName}` });
-	} else {
-		myLog({ msg: `Player found: ${$firebase_user?.displayName}` });
-	}
 </script>
 
-<ModalButtonAndSlot
-	displayModalButtonText={$firebase_user ? '' : 'Login'}
-	modalButtonStyles={$firebase_user
+<ModalWithButton
+	bind:close={closeLoginModal}
+	button_text={$firebase_user ? '' : 'Login'}
+	modal_button_styles={$firebase_user
 		? 'padding:0;border-radius:50%;'
 		: 'height: 100%; background:none; display:grid; align-content:center;'}
 >
 	<svelte:fragment slot="modal-content">
 		{#if $firebase_user !== undefined && $firebase_user !== null}
-			<button id="sign-out-button" on:click={startSignOut}>Sign Out</button>
+			<button class="sign-out-button" on:click={startSignOut}>Sign Out</button>
 		{:else}
-			<GoogleLoginButton on:click={googleLogin} />
-			<FacebookLoginButton on:click={facebookLogin} />
+			<GoogleLoginButton on:click={() => login('Google')} />
+			<FacebookLoginButton on:click={() => login('Facebook')} />
 			{#if dev}
 				<ToggleSwitch
 					bind:checked={useRedirect}
-					labelStyles={'color:white;'}
 					labelText={`Use ${useRedirect ? 'redirect' : 'popup'} login method`}
 				/>
 			{/if}
@@ -79,8 +62,7 @@
 			</picture>
 		{/if}
 	</svelte:fragment>
-</ModalButtonAndSlot>
-<NewPlayerForm bind:modalOnlyComponent={newPlayerFormComponent} />
+</ModalWithButton>
 
 <style lang="scss">
 	button {
@@ -111,7 +93,7 @@
 		display: grid;
 		position: relative;
 	}
-	#sign-out-button {
+	.sign-out-button {
 		@include frostedGlassHighContrast;
 		background-color: white;
 		font-size: 1.4rem;

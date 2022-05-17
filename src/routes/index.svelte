@@ -19,15 +19,15 @@
 	import NflLogo from '$images/nfl-logo.svelte';
 	import { getWindowSize } from '$scripts/functions';
 	import { browser } from '$app/env';
-	import { windowWidth } from '$scripts/store';
+	import { window_width } from '$scripts/store';
 
 	let drawing = true;
 	const widthContainment = '100%';
 	let width: number | string; // allow width to be a number for window resizing or a string for passing fixed CSS properties
 
 	if (browser) {
-		if ($windowWidth) {
-			width = $windowWidth.toString();
+		if ($window_width) {
+			width = $window_width.toString();
 			width = widthContainment;
 		}
 	}

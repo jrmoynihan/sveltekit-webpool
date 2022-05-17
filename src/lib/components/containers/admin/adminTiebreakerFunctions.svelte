@@ -1,46 +1,43 @@
 <script lang="ts">
 	import DeletionButton from '$lib/components/buttons/DeletionButton.svelte';
 	import StyledButton from '$lib/components/buttons/StyledButton.svelte';
-	import type { Player } from '$classes/player';
-	import { selectedWeek } from '$scripts/store';
+	import { selected_week, selected_year, selected_player, selected_season } from '$scripts/store';
 	import {
-		createTiebreakersForAllPlayers,
-		createTiebreakersForPlayer,
+		createWeeklyTiebreakersForAllPlayers,
+		createWeeklyTiebreakersForPlayer,
 		deleteTiebreakersForAllPlayers,
 		deleteTiebreakersForPlayer
 	} from '$scripts/weekly/weeklyAdmin';
 	import AdminExpandSection from './adminExpandSection.svelte';
 
-	export let selectedPlayer: Player;
-	export let selectedYear: number;
-
+	export let customContentStyles = null;
+	export let customSummaryStyles = null;
 	let minColumns: string | number = '40%';
 </script>
 
-<AdminExpandSection summaryText="Tiebreakers" bind:minColumns>
-	<StyledButton on:click={() => createTiebreakersForAllPlayers()}>
+<AdminExpandSection
+	summaryText="Tiebreakers"
+	bind:minColumns
+	{customContentStyles}
+	{customSummaryStyles}
+>
+	<StyledButton on:click={() => createWeeklyTiebreakersForAllPlayers($selected_season)}>
 		Create Tiebreakers for All Players
 	</StyledButton>
-	{#if selectedPlayer}
-		<StyledButton
-			on:click={() => createTiebreakersForPlayer(selectedPlayer, undefined, undefined, true)}
-		>
-			Create All Tiebreakers for {selectedPlayer.name}
-		</StyledButton>
-		<StyledButton
-			on:click={() => createTiebreakersForPlayer(selectedPlayer, $selectedWeek, selectedYear, true)}
-		>
-			Create Tiebreakers for {selectedPlayer.name} for Week {$selectedWeek}, {selectedYear}
-		</StyledButton>
-		<DeletionButton on:click={() => deleteTiebreakersForPlayer(selectedPlayer)}>
-			Delete All Tiebreakers for {selectedPlayer.name}
-		</DeletionButton>
-		<DeletionButton
-			on:click={() => deleteTiebreakersForPlayer(selectedPlayer, $selectedWeek, selectedYear)}
-		>
-			Delete Tiebreakers for {selectedPlayer.name} for Week {$selectedWeek}, {selectedYear}
-		</DeletionButton>
-	{/if}
+	<StyledButton
+		on:click={() =>
+			createWeeklyTiebreakersForPlayer({ player: $selected_player, season: $selected_season })}
+	>
+		Create All Tiebreakers for {$selected_player.name}
+	</StyledButton>
+	<DeletionButton on:click={() => deleteTiebreakersForPlayer($selected_player)}>
+		Delete All Tiebreakers for {$selected_player.name}
+	</DeletionButton>
+	<DeletionButton
+		on:click={() => deleteTiebreakersForPlayer($selected_player, $selected_week, $selected_year)}
+	>
+		Delete Tiebreakers for {$selected_player.name} for Week {$selected_week}, {$selected_year}
+	</DeletionButton>
 	<DeletionButton on:click={() => deleteTiebreakersForAllPlayers()}>
 		Delete Tiebreakers for All Players
 	</DeletionButton>

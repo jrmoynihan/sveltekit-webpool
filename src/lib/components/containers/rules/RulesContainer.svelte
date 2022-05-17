@@ -1,15 +1,15 @@
 <script lang="ts">
-	import { orderBy, query, CollectionReference, onSnapshot } from 'firebase/firestore';
+	import { orderBy, query, CollectionReference, onSnapshot } from '@firebase/firestore';
 	import ToggleSwitch from '$switches/ToggleSwitch.svelte';
 	import Fa from 'svelte-fa';
-	import { faLock, faUnlock } from '@fortawesome/free-solid-svg-icons';
+	import { faLock, faUnlock } from '@fortawesome/free-solid-svg-icons/index.es';
 	import { ruleCategoryConverter } from '$scripts/converters';
 	import PrizeCard from '$containers/rules/PrizeCard.svelte';
 	import RulesCategoryGrid from '$containers/rules/RulesCategoryGrid.svelte';
 	import Tabs from '$navigation/Tabs.svelte';
-	import { editing, playerData } from '$scripts/store';
+	import { editing, current_player } from '$scripts/store';
 	import { onDestroy } from 'svelte';
-	import { myLog } from '$classes/constants';
+	import { myLog } from '$scripts/logging';
 	import type { RuleCategory, RuleTab } from '$classes/rules';
 
 	// This container can receive different collection references for the various pools
@@ -19,7 +19,7 @@
 	let editable = false;
 
 	// But an admin will have the option to make it editable
-	$: editable = $playerData?.admin;
+	$: editable = $current_player?.admin;
 
 	let ruleCategories: RuleCategory[];
 	const ruleQuery = query(rulesCollection, orderBy('order'));

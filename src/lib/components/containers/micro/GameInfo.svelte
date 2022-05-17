@@ -3,14 +3,14 @@
 	import type { Team } from '$scripts/classes/team';
 	import { scorePicksForWeek, updateGamesAndATSWinners } from '$scripts/scorePicks';
 	import {
-		selectedWeek,
-		selectedSeasonYear,
-		showATSwinner,
-		showIDs,
-		showSpreads,
-		playerData
+		selected_week,
+		selected_season_year,
+		show_ATS_winner,
+		show_IDs,
+		show_spreads,
+		current_player
 	} from '$scripts/store';
-	import type { Timestamp } from 'firebase/firestore';
+	import type { Timestamp } from '@firebase/firestore';
 	import DateTimeOrDownDistance from './DateTimeOrDownDistance.svelte';
 	import SpreadOrPossession from './SpreadOrPossession.svelte';
 	import StatusInfo from './StatusInfo.svelte';
@@ -35,29 +35,22 @@
 	<!-- <WinLossAt {promiseScores} {promiseStatus} {homeTeam} {awayTeam} {selectedTeam} {spread} {isATSwinner} /> -->
 	<WinLossAt {isATSwinner} {gameIsOver} />
 	<StatusInfo {promiseStatus} {promiseScores} {spread} {ATSwinner} {homeTeam} {awayTeam} />
-	<SpreadOrPossession
-		{spread}
-		{disabled}
-		{awayTeam}
-		{homeTeam}
-		{promiseSituation}
-		selectedWeek={$selectedWeek}
-	/>
+	<SpreadOrPossession {spread} {disabled} {awayTeam} {homeTeam} {promiseSituation} />
 	<DateTimeOrDownDistance {timestamp} {promiseStatus} {promiseSituation} />
 	<input id="{id}-none" type="radio" bind:group={selectedTeam} value="" {disabled} />
-	{#if $showIDs}
+	{#if $show_IDs}
 		<div style="grid-area:IDs">{id}</div>
 	{/if}
-	{#if $showSpreads}
+	{#if $show_spreads}
 		<div style="grid-area:spreads">{spread > 0 ? `+${spread}` : spread}</div>
 	{/if}
 	<!-- @NOTE: Shows the ATS winner to admins if it hasn't been set AND the game is already over. i.e. the admin is able to score it now -->
-	{#if $showATSwinner || ($playerData.admin && gameIsOver && !ATSwinner)}
+	{#if $show_ATS_winner || ($current_player.admin && gameIsOver && !ATSwinner)}
 		<button
 			class="admin"
 			on:click={async () => {
-				await updateGamesAndATSWinners($selectedWeek, $selectedSeasonYear);
-				await scorePicksForWeek($selectedWeek, $selectedSeasonYear);
+				await updateGamesAndATSWinners($selected_week, $selected_season_year);
+				await scorePicksForWeek($selected_week, $selected_season_year);
 			}}
 		>
 			{ATSwinner ? ATSwinner : 'Score Games!'}

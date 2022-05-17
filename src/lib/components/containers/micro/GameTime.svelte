@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { windowWidth } from '$scripts/store';
-	import type { Timestamp } from 'firebase/firestore';
+	import { window_width } from '$scripts/store';
+	import type { Timestamp } from '@firebase/firestore';
 
 	export let timestamp: Timestamp;
 	let date = timestamp.toDate();
@@ -9,7 +9,7 @@
 	let dateLocaleTimeString = date.toLocaleTimeString([], { timeStyle: 'short' });
 	let useShortDate = false;
 	let container: HTMLDivElement;
-	$: useShortDate = $windowWidth < 500 || container?.getBoundingClientRect().width < 75;
+	$: useShortDate = $window_width < 500 || container?.getBoundingClientRect().width < 75;
 </script>
 
 <div bind:this={container}>

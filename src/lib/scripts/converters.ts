@@ -1,4 +1,4 @@
-import type { QueryDocumentSnapshot, SnapshotOptions } from 'firebase/firestore';
+import type { QueryDocumentSnapshot, SnapshotOptions } from '@firebase/firestore';
 import { Team } from '$lib/scripts/classes/team';
 import { Rule, RuleCategory } from '$lib/scripts/classes/rules';
 import { Game } from './classes/game';
@@ -6,6 +6,8 @@ import { WeeklyPickDoc } from './classes/picks';
 import { WeeklyTiebreaker } from './classes/tiebreaker';
 import { WeekBoundDoc } from './classes/weekBound';
 import { Player } from './classes/player';
+import { SeasonBoundDoc } from './classes/seasonBound';
+import { PlayerRecord, SeasonRecord } from './classes/playerRecord';
 
 export const playerConverter = {
 	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -54,9 +56,9 @@ export const gameConverter = {
 		return { ...game };
 	},
 	fromFirestore: (snapshot: QueryDocumentSnapshot): Game => {
-		const docRef = snapshot.ref;
+		const doc_ref = snapshot.ref;
 		const data = snapshot.data();
-		return new Game({ docRef, ...data });
+		return new Game({ doc_ref, ...data });
 	}
 };
 
@@ -65,9 +67,9 @@ export const weeklyPickConverter = {
 		return { ...pick };
 	},
 	fromFirestore: (snapshot: QueryDocumentSnapshot): WeeklyPickDoc => {
-		const docRef = snapshot.ref;
+		const doc_ref = snapshot.ref;
 		const data = snapshot.data();
-		return new WeeklyPickDoc({ docRef, ...data });
+		return new WeeklyPickDoc({ doc_ref, ...data });
 	}
 };
 export const weeklyTiebreakerConverter = {
@@ -75,9 +77,9 @@ export const weeklyTiebreakerConverter = {
 		return { ...tiebreaker };
 	},
 	fromFirestore: (snapshot: QueryDocumentSnapshot): WeeklyTiebreaker => {
-		const docRef = snapshot.ref;
+		const doc_ref = snapshot.ref;
 		const data = snapshot.data();
-		return new WeeklyTiebreaker({ docRef, ...data });
+		return new WeeklyTiebreaker({ doc_ref, ...data });
 	}
 };
 export const weekBoundConverter = {
@@ -87,6 +89,36 @@ export const weekBoundConverter = {
 	fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): WeekBoundDoc => {
 		const data = snapshot.data(options);
 		const { ref, id } = snapshot; // Destructure the ref and id props from snapshot object
-		return new WeekBoundDoc({ docRef: ref, docID: id, ...data });
+		return new WeekBoundDoc({ doc_ref: ref, doc_id: id, ...data });
+	}
+};
+export const seasonBoundConverter = {
+	toFirestore: (bound: SeasonBoundDoc): SeasonBoundDoc => {
+		return { ...bound };
+	},
+	fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): SeasonBoundDoc => {
+		const data = snapshot.data(options);
+		const { ref, id } = snapshot; // Destructure the ref and id props from snapshot object
+		return new SeasonBoundDoc({ doc_ref: ref, doc_id: id, ...data });
+	}
+};
+export const recordConverter = {
+	toFirestore: (record: PlayerRecord): PlayerRecord => {
+		return { ...record };
+	},
+	fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): PlayerRecord => {
+		const data = snapshot.data(options);
+		const { ref, id } = snapshot; // Destructure the ref and id props from snapshot object
+		return new PlayerRecord({ doc_ref: ref, doc_id: id, ...data });
+	}
+};
+export const seasonRecordConverter = {
+	toFirestore: (record: SeasonRecord): SeasonRecord => {
+		return { ...record };
+	},
+	fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): SeasonRecord => {
+		const data = snapshot.data(options);
+		const { ref, id } = snapshot; // Destructure the ref and id props from snapshot object
+		return new SeasonRecord({ doc_ref: ref, doc_id: id, ...data });
 	}
 };

@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { useDarkTheme } from '$scripts/store';
+	import { use_dark_theme } from '$scripts/store';
 
 	export let customStyles = '';
 </script>
 
-<h1 class={$useDarkTheme ? 'highlight' : ''} style={customStyles}>
+<h1 class={$use_dark_theme ? 'highlight' : ''} style={customStyles}>
 	<slot />
 </h1>
 

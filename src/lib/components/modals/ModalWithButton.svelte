@@ -1,37 +1,32 @@
 <script lang="ts">
-	// import dialogPolyfill from 'dialog-polyfill';
 	import Modal from './Modal.svelte';
-	export let displayModalButtonText = '';
-	export let defaultButton = true;
-	export let discreetButton = false;
-	export let styledButton = false;
-	export let adminButton = false;
-	export let modalButtonStyles = '';
-	export let modalButtonHoverStyles: { property: string; value: string }[] = [];
-	export let modalForegroundStyles = '';
-	export let dialogStyles = '';
-	export let dialogOpen = false;
-	let modal: { close: () => void; open: () => void };
+	export let button_text = '';
+	export let use_default_button = true;
+	export let use_discreet_button = false;
+	export let use_styled_button = false;
+	export let use_admin_button = false;
+	export let modal_button_styles = '';
+	export let modal_button_hover_styles: { property: string; value: string }[] = [];
+	export let modal_foreground_styles = '';
+	export let dialog_styles = '';
+	export let dialog_starts_open = false;
+	export let close: () => Promise<void> = null;
+	export let open: () => Promise<void> = null;
 	let button: HTMLButtonElement;
-	export const close = async (): Promise<void> => {
-		modal.close();
-	};
-	export const open = async () => {
-		modal.open();
-	};
+
 	function hovered() {
-		modalButtonHoverStyles.forEach((style) => {
+		modal_button_hover_styles.forEach((style) => {
 			button.style.setProperty(style.property, style.value);
 		});
 	}
 	function unhovered() {
-		modalButtonHoverStyles.forEach((style) => {
+		modal_button_hover_styles.forEach((style) => {
 			button.style.removeProperty(style.property);
 		});
 	}
 </script>
 
-<Modal bind:this={modal} {dialogOpen} {dialogStyles} {modalForegroundStyles}>
+<Modal bind:open bind:close {dialog_starts_open} {dialog_styles} {modal_foreground_styles}>
 	<svelte:fragment slot="modal-content">
 		<slot name="modal-content" />
 	</svelte:fragment>
@@ -42,13 +37,13 @@
 	on:mouseover={hovered}
 	on:mouseleave={unhovered}
 	on:focus={hovered}
-	class:discreetButton
-	class:defaultButton
-	class:styledButton
-	class:adminButton
-	style={modalButtonStyles}
+	class:use_discreet_button
+	class:use_default_button
+	class:use_styled_button
+	class:use_admin_button
+	style={modal_button_styles}
 >
-	{displayModalButtonText}
+	{button_text}
 	<slot name="button-icon" />
 </button>
 
@@ -57,16 +52,16 @@
 		display: flex;
 		align-items: center;
 		gap: 10px;
-		&.defaultButton {
+		&.use_default_button {
 			@include defaultButtonStyles;
 		}
-		&.discreetButton {
+		&.use_discreet_button {
 			@include discreetButtonStyles;
 		}
-		&.styledButton {
+		&.use_styled_button {
 			@include styledButton;
 		}
-		&.adminButton {
+		&.use_admin_button {
 			@include admin;
 		}
 	}

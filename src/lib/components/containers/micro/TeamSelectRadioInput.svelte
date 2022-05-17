@@ -2,7 +2,7 @@
 	import type { WeeklyPickDoc } from '$scripts/classes/picks';
 	import type { Team } from '$scripts/classes/team';
 	import { goToMissedPick } from '$scripts/scrollAndFocus';
-	import { overrideDisabled, useDarkTheme } from '$scripts/store';
+	import { overrideDisabled, use_dark_theme } from '$scripts/store';
 	import IntersectionObserver from 'svelte-intersection-observer';
 	import TeamImage from '../TeamImage.svelte';
 	import TeamNameImage from '../TeamNameImage.svelte';
@@ -22,7 +22,7 @@
 	for="{id}-{homeOrAwayTeam.abbreviation}"
 	class="dayShadow nightShadow"
 	class:selected={selectedTeam === homeOrAwayTeam.abbreviation}
-	class:dark-mode={$useDarkTheme}
+	class:dark-mode={$use_dark_theme}
 	class:disabled
 	tabindex="0"
 >

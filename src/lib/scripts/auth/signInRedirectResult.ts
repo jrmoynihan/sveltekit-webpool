@@ -1,25 +1,27 @@
 import { browser } from '$app/env';
-import { myLog } from '$scripts/classes/constants';
+import { myLog } from '$scripts/logging';
 import { playersCollection } from '$scripts/collections';
-import { firestoreAuth } from '$scripts/firebaseInit';
+import { firebaseAuth } from '$lib/scripts/firebase/firebase';
 import { defaultToast } from '$scripts/toasts';
 import {
 	browserPopupRedirectResolver,
 	fetchSignInMethodsForEmail,
-	getRedirectResult
-} from 'firebase/auth';
-import type { AuthError } from 'firebase/auth';
-import { getDoc, doc } from 'firebase/firestore';
+	getRedirectResult, GoogleAuthProvider, type AuthError
+} from '@firebase/auth';
+import { getDoc, doc } from '@firebase/firestore';
 import { get } from 'svelte/store';
 import { capitalizeWord } from '$scripts/functions';
-import { firebase_user, player_not_found } from '$scripts/store';
+import { firebase_user } from '$scripts/store';
+import { request } from '$lib/fetch';
 
-const obtainPlayerDocOnRedirect = async (): Promise<void> => {
+const doStuffOnRedirect = async (): Promise<void> => {
 	try {
-		const credential = await getRedirectResult(firestoreAuth, browserPopupRedirectResolver);
-		if (credential) {
-			console.log('got redirect result!', credential);
-
+		const result = await getRedirectResult(firebaseAuth, browserPopupRedirectResolver);
+		if (result) {
+			console.log('got redirect result!', result);
+			const credential = GoogleAuthProvider.credentialFromResult(result);
+			const id_token = credential.accessToken;
+			await request('/auth',"POST", {id_token})
 			getCurrentPlayerDoc();
 		}
 	} catch (error) {
@@ -33,7 +35,7 @@ const obtainPlayerDocOnRedirect = async (): Promise<void> => {
 			const email: string = typed_error.customData.email as string;
 			// console.log('customData:', errorTyped.customData);
 			if (email) {
-				const existingSignInMethods = await fetchSignInMethodsForEmail(firestoreAuth, email);
+				const existingSignInMethods = await fetchSignInMethodsForEmail(firebaseAuth, email);
 				myLog({ msg: 'existing sign ins: ', additional_params: existingSignInMethods });
 				const existingProvider = capitalizeWord(
 					existingSignInMethods[0].replace('.com', '').replace('"', '')
@@ -49,7 +51,8 @@ const obtainPlayerDocOnRedirect = async (): Promise<void> => {
 	}
 };
 
-browser ? obtainPlayerDocOnRedirect() : null;
+// This has to be placed after the function is declared to be lexically scoped
+browser ? doStuffOnRedirect() : null;
 
 /**
  * Looks up the current Auth user, then tries to query for their user document from Firebase.
@@ -64,7 +67,5 @@ async function getCurrentPlayerDoc(): Promise<void> {
 		console.info(`Player doc already exists`);
 	} else {
 		console.info('Player doc not found!');
-		// Set a global store that will indicate the user needs a New User prompt
-		player_not_found.set(true);
 	}
 }

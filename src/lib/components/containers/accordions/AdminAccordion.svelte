@@ -1,15 +1,15 @@
 <script lang="ts">
 	import AdminOnlyControl from '$lib/components/misc/AdminOnlyControl.svelte';
-	import { faToolbox } from '@fortawesome/free-solid-svg-icons';
+	import { faToolbox } from '@fortawesome/free-solid-svg-icons/index.es';
 	import Fa from 'svelte-fa';
 	import { fly } from 'svelte/transition';
-	import AccordionDetails from './AccordionDetails.svelte';
+	import AccordionDetails3 from './AccordionDetails.svelte';
 
 	export let open = false;
 </script>
 
 <AdminOnlyControl>
-	<AccordionDetails bind:open adminOnly={true}>
+	<AccordionDetails3 bind:open adminOnly={true}>
 		<svelte:fragment slot="summary">
 			<div transition:fly={{ x: 100 }}>
 				<Fa
@@ -22,7 +22,7 @@
 			</div>
 		</svelte:fragment>
 		<slot slot="content" name="content" />
-	</AccordionDetails>
+	</AccordionDetails3>
 </AdminOnlyControl>
 
 <style lang="scss">

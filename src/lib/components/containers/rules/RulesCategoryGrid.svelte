@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { editing } from '$scripts/store';
-	import { getDocs, query, collection, orderBy, CollectionReference } from 'firebase/firestore';
+	import { getDocs, query, collection, orderBy, CollectionReference } from '@firebase/firestore';
 	import EditableRule from '$containers/rules/EditableRule.svelte';
 	import ViewOnlyRule from '$containers/rules/ViewOnlyRule.svelte';
 	import { ruleConverter } from '$scripts/converters';
@@ -20,7 +20,7 @@
 	};
 </script>
 
-<div id="rules-grid" class:editing>
+<div class="rules-grid" class:editing>
 	{#await getRuleData()}
 		Loading rules...
 	{:then rules}
@@ -37,7 +37,7 @@
 </div>
 
 <style lang="scss">
-	#rules-grid {
+	.rules-grid {
 		@include gridCenter($gap: 10px);
 		&.editing {
 			grid-template-columns: 1fr;

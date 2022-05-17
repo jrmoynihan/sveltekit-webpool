@@ -1,69 +1,63 @@
 <script lang="ts">
-	import { type ESPNGame, type ESPNGamePruned, Game } from '$scripts/classes/game';
+	import { type ESPNGame, type ESPNGamePruned, Game, type ESPNWeekEvent, type RefOnlyESPN } from '$scripts/classes/game';
 	import { gameConverter } from '$scripts/converters';
-	import { firestoreDB } from '$scripts/firebaseInit';
+	import { firestoreDB } from '$lib/scripts/firebase/firebase';
 	import { scheduleCollection } from '$scripts/collections';
-	import { deleteDoc, doc, getDocs, query, setDoc, Timestamp, where } from 'firebase/firestore';
+	import { deleteDoc, doc, getDocs, query, setDoc, Timestamp, where } from '@firebase/firestore';
 	import WeekSelect from '$components/selects/WeekSelect.svelte';
 	import PageTitle from '$components/misc/PageTitle.svelte';
-	import { all_icons, ErrorAndToast, LogAndToast, myError, myLog, seasonTypes, stopSign } from '$scripts/classes/constants';
-	import SeasonTypeSelect from '$components/selects/SeasonTypeSelect.svelte';
-	import type { SeasonType } from '$scripts/classes/seasonType';
+	import { all_icons, stopSign } from '$scripts/classes/constants';
+	import {ErrorAndToast, LogAndToast, myError, myLog} from '$scripts/logging';
+	import SeasonTypeSelect from '$lib/components/selects/SeasonTypeSelect.svelte';
 	import YearSelect from '$components/selects/YearSelect.svelte';
-	import { onMount } from 'svelte';
 	import { defaultToast } from '$scripts/toasts';
-	import { getPreSeasonWeeks, getRegularSeasonWeeks } from '$scripts/functions';
 	import LoadingSpinner from '$components/misc/LoadingSpinner.svelte';
 	import Grid from '$components/containers/Grid.svelte';
 	import DeletionButton from '$components/buttons/DeletionButton.svelte';
 	import StyledButton from '$components/buttons/StyledButton.svelte';
 	import ErrorModal from '$components/modals/ErrorModal.svelte';
 	import { convertToHttps, getConsensusSpread } from '$scripts/dataFetching';
-	import { selectedWeek, allTeams } from '$scripts/store';
+	import { selected_week, all_teams, selected_season_type, selected_season_type_number, selected_year } from '$scripts/store';
 	import EspnGameData from '$components/misc/ESPNGameData.svelte';
 
 	// Are games being currently set by the function?  If so, we'll disable the Set Games button.
 	let currently_setting_games = false;
-
-	let promise: Promise<{ originalGames: ESPNGame[]; prunedGames: ESPNGamePruned[] }>;
-	let weeks: number[] = [];
-	let selectedYear = 2021;
-	let selectedSeasonType: SeasonType = seasonTypes[1];
+	let gamesPromise: Promise<{ originalGames: ESPNGame[]; prunedGames: ESPNGamePruned[] }>;
 	let selectedGames = 'pruned';
 	let maxGameHeight = 100;
 	let minGameHeight = 10;
 	let setGameHeight = 50;
 
-	const fetchWeek = async (
-		selectedYear: number,
-		selectedSeasonType: SeasonType,
-		selectedWeek: number
-	) => {
+	const fetchWeek = async () => {
 		try {
 			// types/1 = preseason;
 			// types/2 = regular season
+			console.log('fetching week...', $selected_year, $selected_season_type_number, $selected_week);
 			const response = await fetch(
-				`https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/${selectedYear}/types/${selectedSeasonType.id}/weeks/${selectedWeek}/events?lang=en&region=us`
+				`https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/${$selected_year}/types/${$selected_season_type_number}/weeks/${$selected_week}/events?lang=en&region=us`
 			);
-			const data = await response.json();
-
-			return data.items;
+			const data = await response.json() as ESPNWeekEvent;
+			if(data.items?.length > 0) {
+				return data.items;
+			} else {
+				throw new Error(`No games found for week ${$selected_week} of ${$selected_year} ${$selected_season_type}.`);
+			}
 		} catch (error) {
-			const msg = `Error fetching games for week ${selectedWeek}`;
-			ErrorAndToast({ msg, error });
+			// Bubble the error up to the parent getData() function.
+			throw error;
 		}
 	};
-	const unpackReferenceURLs = async (items: { $ref: string }[]): Promise<string[]> => {
+	const unpackReferenceURLs = async (items: RefOnlyESPN[]): Promise<string[]> => {
 		try {
-			if(items.length === 0) throw new Error(`No games listed for week ${selectedWeek} of ${selectedYear} ${selectedSeasonType.text}`);
+			if(items.length === 0) throw new Error(`No games listed for week ${$selected_week} of ${$selected_year} ${$selected_season_type}`);
 
 			const references: string[] = items.map((item): string => {
 				return item.$ref;
 			});
 			return references;
 		} catch (error) {
-			const msg = `Error unpacking reference URLs.`;
-			ErrorAndToast({ msg, error });
+			// Bubble the error up to the parent getData() function.
+			throw new Error(`Error unpacking reference URLs. ${error}`);
 		}
 	};
 	const fetchGameData = async (referenceURLs: string[]) => {
@@ -79,17 +73,14 @@
 			}
 			return gameData;
 		} catch (error) {
-			const msg = 'Error fetching game data';
-			ErrorAndToast({ msg, error });
+			// Bubble the error up to the parent getData() function.
+			throw new Error(`Error fetching game data: ${error}`);
 		}
 	};
 
-	export const getData = async (
-		selectedYear: number,
-		selectedSeasonType: SeasonType,
-		selectedWeek: number
-	) => {
-		const weekReferences = await fetchWeek(selectedYear, selectedSeasonType, selectedWeek);
+	export const getData = async () => {
+		try {
+		const weekReferences = await fetchWeek();
 		const gameUrls = await unpackReferenceURLs(weekReferences);
 
 		const originalGames = await fetchGameData(gameUrls);
@@ -101,6 +92,10 @@
 		// console.log('pruned games:', prunedGames, `memory: ${formatByteSize(reducedSize)}`);
 
 		return { originalGames, prunedGames };
+		} catch (error) {
+			const title = 'Unable to fetch game data. ';
+			ErrorAndToast({ title, msg: error, error });
+		}
 	};
 
 	/**
@@ -184,90 +179,74 @@
 	};
 
 	const queryChanged = async () => {
-		promise = getData(selectedYear, selectedSeasonType, $selectedWeek);
-	};
-	const changeWeeksAvailable = async () => {
-		if (selectedSeasonType.text === 'Regular Season') {
-			weeks = await getRegularSeasonWeeks();
-		} else if (selectedSeasonType.text === 'Pre-Season') {
-			weeks = await getPreSeasonWeeks();
-		}
+		gamesPromise = getData();
 	};
 
-	const setGames = async (
-		selectedWeek: number,
-		selectedYear: number,
-		selectedSeasonType: SeasonType
-	) => {
-		try {
-			if (promise) {
-				const allGames = await promise;
+	const setGames = async () => {
+		try {selected_week
+			if (gamesPromise) {
+				const allGames = await gamesPromise;
 				const gamesToSet = allGames.prunedGames;
 				currently_setting_games = true;
 				
-				LogAndToast({title: 'Setting Games', msg: `Creating/overriting game documents for ${selectedWeek}.`});
+				LogAndToast({title: 'Setting Games', msg: `Creating/overriting game documents for ${$selected_week}.`});
 
 				for await (const game of gamesToSet) {
-					setGame(game, selectedWeek, selectedYear, selectedSeasonType);
+					setGame(game);
 				}
-				LogAndToast({ title: 'Games Set', msg: `Created game documents for ${selectedWeek}!` })
+				LogAndToast({ title: 'Games Set', msg: `Created game documents for ${$selected_week}!` })
 			}
 			currently_setting_games = false;
 		} catch (error) {
-			myError({location: 'GameFetcher', function_name: 'setGames', error});
+			myError({ error});
 		}
 	};
-	const setGame = async (
-		game: ESPNGamePruned,
-		selectedWeek: number,
-		selectedYear: number,
-		selectedSeasonType: SeasonType
-	) => {
+	const setGame = async (game: ESPNGamePruned) => {
 		const gameDocRef = doc(firestoreDB, scheduleCollection.path, game.id);
 
 		// Load the game to a new object that will gain Firebase-friendly formatting changes
-		const gameFormatted = new Game({ ...game });
+		const formatted_game = new Game({ ...game });
 
-		// Start with adding that docRef to the document itself
-		gameFormatted.docRef = gameDocRef;
+		// Start with adding that renamed fields that don't match in the constructor to the formatted game document
+		// If we did this a lot, it might be worth making the constructor more flexible in handling this ESPN input data
+		formatted_game.doc_ref = gameDocRef;
+		formatted_game.season_ref = game.season
+		formatted_game.season_type_ref = game.seasonType
+		formatted_game.short_name = game.shortName
 
-		// Add the numeric year/week, instead of using ESPN's nested reference object
-		gameFormatted.week = selectedWeek;
-		gameFormatted.year = selectedYear;
-		gameFormatted.type = selectedSeasonType.text;
+		// Add the season_type, year, and week, instead of using ESPN's nested reference object
+		formatted_game.week = $selected_week;
+		formatted_game.year = $selected_year;
+		formatted_game.season_type = $selected_season_type;
 
 		// Get the spread by querying the game id on the spread API
 		const consensus = await getConsensusSpread(game.id);
-		gameFormatted.spread = consensus as number;
+		formatted_game.spread = consensus as number;
 
 		// Convert the date to the server format
-		const date = new Date(gameFormatted.date);
+		const date = new Date(formatted_game.date);
 		const timestamp = Timestamp.fromDate(date);
-		gameFormatted.timestamp = timestamp;
+		formatted_game.timestamp = timestamp;
 
 		// Get the home and away teams for easier access
-		const shortName = gameFormatted.shortName;
-		const homeAndAwayTeams = shortName.split('@');
-		const trimmedTeams = homeAndAwayTeams.map((team) => team.trim());
-		console.log(trimmedTeams);
-		const awayTeam = trimmedTeams[0];
-		const homeTeam = trimmedTeams[1];
+		const shortName = formatted_game.short_name;
+		const [away_team, home_team] = shortName.split(' @ ');
 
 		// Set their records on the game document
-		for (const team of $allTeams) {
+		for (const team of $all_teams) {
 			myLog({msg: 'adding team...'});
-			if (team.abbreviation === homeTeam) {
+			if (team.abbreviation === home_team) {
 				myLog({msg: 'home team:', additional_params: team.abbreviation, icon: all_icons.home});
-				gameFormatted.homeTeam = { ...team };
+				formatted_game.home_team = { ...team };
 			}
-			if (team.abbreviation === awayTeam) {
+			if (team.abbreviation === away_team) {
 				myLog({msg: 'away team:', additional_params: team.abbreviation, icon: all_icons.airplaneDeparture});
-				gameFormatted.awayTeam = { ...team };
+				formatted_game.away_team = { ...team };
 			}
 		}
 
 		// Set/update the game document with the formatted data
-		await setDoc(gameDocRef.withConverter(gameConverter), gameFormatted);
+		await setDoc(gameDocRef.withConverter(gameConverter), formatted_game);
 	};
 	const deleteAllGames = async () => {
 		const continueDelete = confirm(
@@ -286,16 +265,16 @@
 			});
 		}
 	};
-	const deleteGameWeek = async (week: number, year: number, seasonType: SeasonType) => {
+	const deleteGameWeek = async () => {
 		const continueDelete = confirm(
-			`Are you sure you want to delete all games from week ${week} of the ${seasonType.text}, ${year}`
+			`Are you sure you want to delete all games from week ${$selected_week} of the ${$selected_season_type}, ${$selected_year}`
 		);
 		if (continueDelete) {
 			const q = query(
 				scheduleCollection,
-				where('year', '==', year),
-				where('week', '==', week),
-				where('type', '==', seasonType.text)
+				where('year', '==', $selected_year),
+				where('week', '==', $selected_week),
+				where('type', '==', $selected_season_type)
 			);
 			const matchingDocs = await getDocs(q);
 			matchingDocs.forEach((game) => {
@@ -303,23 +282,18 @@
 			});
 			defaultToast({
 				title: `${stopSign} Week of Games Deleted!`,
-				msg: `${week} (${seasonType.text}, ${year}) games deleted!`,
+				msg: `${$selected_week} (${$selected_season_type}, ${$selected_year}) games deleted!`,
 				duration: 5000
 			});
 		}
 	};
-	onMount(async () => {
-		weeks = await getRegularSeasonWeeks();
-	});
 </script>
 
 <section>
 	<PageTitle>Fetch ESPN Game Data</PageTitle>
 	<Grid>
 		<DeletionButton on:click={deleteAllGames}>Delete All Games</DeletionButton>
-		<DeletionButton on:click={() => deleteGameWeek($selectedWeek, selectedYear, selectedSeasonType)}
-			>Delete Selected Week</DeletionButton
-		>
+		<DeletionButton on:click={deleteGameWeek}>Delete Selected Week</DeletionButton>
 		<!-- svelte-check ignore -->
 		<input
 			type="range"
@@ -330,17 +304,10 @@
 		/>
 	</Grid>
 	<div class="flex">
-		<SeasonTypeSelect
-			bind:selectedSeasonType
-			on:seasonTypeChanged={() => {
-				queryChanged();
-				changeWeeksAvailable();
-			}}
-		/>
-		<YearSelect bind:selectedYear on:yearChanged={queryChanged} />
+		<SeasonTypeSelect on:change={queryChanged} />
+		<YearSelect on:change={queryChanged} />
 		<WeekSelect
-			bind:weeks
-			on:weekChanged={queryChanged}
+			on:change={queryChanged}
 			on:decrementWeek={queryChanged}
 			on:incrementWeek={queryChanged}
 		/>
@@ -349,11 +316,8 @@
 			<option value="full">Full Games (ESPN API)</option>
 			<option value="both">Both</option>
 		</select>
-		{#await promise then games}
-			<StyledButton
-				on:click={() => setGames($selectedWeek, selectedYear, selectedSeasonType)}
-				disabled={currently_setting_games}>Set Games</StyledButton
-			>
+		{#await gamesPromise then}
+			<StyledButton on:click={setGames} disabled={currently_setting_games}>Set Games</StyledButton>
 		{:catch error}
 			<ErrorModal>
 				Unable to load games: {error}
@@ -364,7 +328,7 @@
 </section>
 
 <section>
-	{#await promise}
+	{#await gamesPromise}
 		<div class="padded">
 			<LoadingSpinner />
 		</div>

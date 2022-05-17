@@ -1,47 +1,26 @@
 <script lang="ts">
-	import { PageOptions } from '$scripts/site';
+	import { page_options } from '$lib/scripts/site';
 	import NavLink from '$navigation/NavLink.svelte';
-	import { firebase_user, playerData } from '$scripts/store';
+	import { firebase_user, current_player } from '$scripts/store';
 </script>
 
-{#each PageOptions as pageOption, index}
-	{#if pageOption.requiresAdmin === true}
-		{#if $playerData !== undefined && $firebase_user !== undefined}
-			{#if $playerData.admin === true}
-				<NavLink {index} {pageOption} />
-			{/if}
+{#each page_options as page, index}
+	{#if page.has_no_requirements}
+		<NavLink {index} page_option={page} />
+		<!-- If there's an active/authorized user... -->
+	{:else if $current_player !== undefined && $firebase_user !== undefined}
+		{#if page.requires_admin === true && $current_player.admin === true}
+			<NavLink {index} page_option={page} />
+		{:else if page.requires_weekly && $current_player.weekly === true}
+			<NavLink {index} page_option={page} />
+		{:else if page.requires_survivor && $current_player.survivor === true}
+			<NavLink {index} page_option={page} />
+		{:else if page.requires_pick6 && $current_player.pick6 === true}
+			<NavLink {index} page_option={page} />
+		{:else if page.requires_playoffs && $current_player.playoffs === true}
+			<NavLink {index} page_option={page} />
+		{:else if page.requires_college && $current_player.college === true}
+			<NavLink {index} page_option={page} />
 		{/if}
-	{:else if pageOption.requiresWeekly}
-		{#if $playerData !== undefined && $firebase_user !== undefined}
-			{#if $playerData.weekly === true}
-				<NavLink {index} {pageOption} />
-			{/if}
-		{/if}
-	{:else if pageOption.requiresSurvivor}
-		{#if $playerData !== undefined && $firebase_user !== undefined}
-			{#if $playerData.survivor === true}
-				<NavLink {index} {pageOption} />
-			{/if}
-		{/if}
-	{:else if pageOption.requiresPick6}
-		{#if $playerData !== undefined && $firebase_user !== undefined}
-			{#if $playerData.pick6 === true}
-				<NavLink {index} {pageOption} />
-			{/if}
-		{/if}
-	{:else if pageOption.requiresPlayoffs}
-		{#if $playerData !== undefined && $firebase_user !== undefined}
-			{#if $playerData.playoffs === true}
-				<NavLink {index} {pageOption} />
-			{/if}
-		{/if}
-	{:else if pageOption.requiresCollege}
-		{#if $playerData !== undefined && $firebase_user !== undefined}
-			{#if $playerData.college === true}
-				<NavLink {index} {pageOption} />
-			{/if}
-		{/if}
-	{:else}
-		<NavLink {index} {pageOption} />
 	{/if}
 {/each}

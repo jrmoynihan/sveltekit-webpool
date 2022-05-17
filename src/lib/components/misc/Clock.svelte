@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onDestroy, onMount } from 'svelte';
+	import { onDestroy } from 'svelte';
 	import { spring } from 'svelte/motion';
 
 	export let size = '2rem';
@@ -87,6 +87,7 @@
 	// }
 	.clock-grid {
 		display: grid;
+		box-sizing: border-box;
 		grid-template-columns: repeat(4, minmax(0px, 1fr));
 		width: calc(6.5 * var(--size));
 		grid-template-rows: 1fr;

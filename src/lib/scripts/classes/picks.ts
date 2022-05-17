@@ -1,28 +1,28 @@
-import type { DocumentReference, Timestamp } from 'firebase/firestore';
+import type { DocumentReference, Timestamp } from '@firebase/firestore';
 
 export class WeeklyPickDoc {
-	docRef: DocumentReference;
+	doc_ref: DocumentReference;
 	pick: string;
-	gameId: string;
+	game_id: string;
 	uid: string;
 	week: number;
 	year: number;
 	timestamp: Timestamp;
 	name: string;
-	type: string;
-	isCorrect: boolean;
-	isBeforeGameTime?: boolean;
+	season_type: string;
+	is_correct: boolean;
+	is_before_game_time?: boolean;
 	constructor({ ...args }) {
-		(this.docRef = args.docRef),
-			(this.gameId = args.gameId),
+		(this.doc_ref = args.doc_ref),
+			(this.game_id = args.game_id),
 			(this.pick = args.pick),
 			(this.uid = args.uid),
 			(this.week = args.week);
 		this.year = args.year;
 		this.timestamp = args.timestamp;
 		this.name = args.name;
-		this.type = args.type;
-		this.isCorrect = args.isCorrect;
-		this.isBeforeGameTime = args.isBeforeGameTime || false;
+		this.season_type = args.season_type;
+		this.is_correct = args.is_correct;
+		this.is_before_game_time = args.is_before_game_time || false;
 	}
 }

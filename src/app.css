@@ -1,9 +1,8 @@
 * {
 	margin: 0;
 	padding: 0;
-	/* box-sizing: border-box; */
 	font-display: swap;
-	font-family: Open Sans;
+	font-family: 'Open Sans';
 }
 html {
 	box-sizing: border-box;
@@ -13,29 +12,47 @@ html {
   }
 
 :root {
-	/* --heading-color: rgba(0 0 0 70%); */
-	/* --text-color: #444;
-	/* --background-without-opacity: rgba(255 255 255 70%); */ */
-	/* --pre-size: 1rem; */
-	--h1-size: 2.5rem;
-	--h2-size: 1rem;
+	--font: 'Open Sans', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+	font-family: var(--font);
+	font-display: swap;
+	color: var(--text, black);
+	scrollbar-width: thin;
+	scrollbar-color: var(--accent, hsl(37, 75%, 65%)) var(--background, hsl(120, 16%, 17%));
+
+	--h1-size:  clamp(2rem,5vw,3rem);
+	/* --h2-size: clamp(0.5rem,4vw,1rem); */
 	--padding-normal: 1rem;
 	--padding-double: calc(var(--padding-normal) * 2);
 	--padding-two-and-a-half: calc(var(--padding-normal) * 2.5);
 	--padding-half-normal: calc(var(--padding-normal) / 2);
 	--font-mono: 'Fira Mono', monospace;
+
+	/* Box-shadow */
+	--box-shadow-x-offset: 0.25rem;
+	--box-shadow-y-offset: calc(var(--box-shadow-x-offset) * 2);
+	--box-shadow-blur-radius: var(--box-shadow-y-offset);
+	--box-shadow-opacity: calc(40%);
 	
 	/* Z-indexes */
 	--below: -1;
 	--above: 1;
 	--base: 0;
 	--zFixed: calc(var(--above) + var(--base));
-	--zSticky: var(--zFixed);
+	--zSticky: calc(var(--above) + var(--base));
 	--zModal: calc(var(--above) + var(--zFixed))
 
 	/* Static Colors (won't change between light/dark mode)  */
 	--pick6-selection: hsla(120, 20%, 25%, 0.8);
 	--pick6-selection-value: 120, 20%, 25%;
+
+	/* Toast variables */
+		/* stylelint-disable custom-property-pattern */
+		--toastContainerTop: 15%;
+		--toastWidth: 100%;
+		--toastContainerLeft: 2%;
+		--toastContainerRight: 2%;
+		/* stylelint-enable custom-property-pattern */
+	
 }
 
 body {
@@ -64,9 +81,9 @@ h1 {
 	text-align: center;
 }
 
-h2 {
+/* h2 {
 	font-size: var(--h2-size, 1rem);
-}
+} */
 
 /* Pre-formatted text that won't be changed by the browser styles */
 pre {

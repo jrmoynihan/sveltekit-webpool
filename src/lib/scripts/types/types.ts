@@ -7,3 +7,4 @@ export type pickSixItem = {
 	team: Team;
 	selected: boolean;
 };
+export type PoolsToQuery = 'college' | 'pick6' | 'playoffs' | 'survivor' | 'weekly' | 'all';
