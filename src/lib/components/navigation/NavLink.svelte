@@ -33,7 +33,7 @@
 		class={$use_dark_theme ? 'dark-mode' : 'light-mode'}
 	>
 		<Fa icon={faFootballBall} size="lg" />
-		<h2>{page_option.navigation_text}</h2>
+		<h3>{page_option.navigation_text}</h3>
 	</a>
 </label>
 
