@@ -28,13 +28,13 @@
 		@include accelerate;
 		@include flexCenter;
 		box-shadow: none;
-		// z-index: var(--above);
+		aspect-ratio: 1 / 1;
+		max-width: 100%;
+		max-height: 100%;
 	}
 	img {
 		@include accelerate;
-		// padding: clamp(0.2rem, 5vw, 0.5rem) clamp(1rem, 5vw, 2rem);
 		max-width: 100%;
-		max-height: 6rem;
 	}
 	.grayscale {
 		filter: grayscale(100%);
