@@ -39,7 +39,7 @@ html {
 	--base: 0;
 	--zFixed: calc(var(--above) + var(--base));
 	--zSticky: calc(var(--above) + var(--base));
-	--zModal: calc(var(--above) + var(--zFixed))
+	--zModal: calc(var(--above) + var(--zFixed));
 
 	/* Static Colors (won't change between light/dark mode)  */
 	--pick6-selection: hsla(120, 20%, 25%, 0.8);
