@@ -20,6 +20,7 @@ import { getConsensusSpread } from '$lib/scripts/dataFetching';
 import { toast } from '@zerodevx/svelte-toast';
 import type { SeasonBoundDoc } from '../classes/seasonBound';
 import { makeNumericArrayOfDesiredLength } from '../functions';
+import { WeeklyTiebreaker } from '../classes/tiebreaker';
 
 export const getAllGames = async (showToast = false): Promise<Game[]> => {
 	try {
@@ -272,19 +273,22 @@ export const createTiebreaker = async (
 	season_type = 'Regular Season',
 	score_guess = null
 ) => {
-	const doc_ref = doc(weeklyTiebreakersCollection);
+	const doc_ref = doc(weeklyTiebreakersCollection.withConverter(weeklyTiebreakerConverter));
 	try {
-		await setDoc(doc_ref.withConverter(weeklyTiebreakerConverter), {
+		const data : WeeklyTiebreaker = new WeeklyTiebreaker({
 			score_guess,
-			doc_ref,
 			uid,
-			season_type,
 			week,
-			year
-		});
+			year,
+			season_type,
+			doc_ref
+		})
+		await setDoc(doc_ref, data);
 		myLog({
 			msg: `set tiebreaker doc (${doc_ref}); uid: ${uid}, week ${week}, ${year}`
 		});
+		// TODO: why does this need to return an array?
+		return [data];
 	} catch (error) {
 		ErrorAndToast({
 			msg: `Encountered an error while trying to set tiebreaker doc (${doc_ref})`,
