@@ -25,6 +25,7 @@ const config = {
 	],
 	experimental: {
 		// useVitePreprocess: true,
+		inspector: true,
 		prebundleSvelteLibraries: true
 	},
 	compilerOptions: {
