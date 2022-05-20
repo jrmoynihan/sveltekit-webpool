@@ -34,10 +34,13 @@
 <style lang="scss">
 	button {
 		@include styledButton;
+		box-sizing: border-box;
 		display: grid;
 		gap: 0.5rem;
 		height: 100%;
 		grid-template-rows: minmax(0, auto) minmax(0, 1fr);
+		justify-items: center;
+		padding: min(var(--padding-normal), 5%);
 		@include responsive_mobile-only {
 			grid-column: span 2;
 		}
