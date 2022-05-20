@@ -5,33 +5,33 @@
 	import AtSscore from './ATSscore.svelte';
 	import AtStooltip from './ATStooltip.svelte';
 
-	export let promiseStatus: Promise<ESPNStatus>;
-	export let promiseScores: Promise<{ homeScoreData: ESPNScore; awayScoreData: ESPNScore }>;
+	export let promise_status: Promise<ESPNStatus>;
+	export let promise_scores: Promise<{ homeScoreData: ESPNScore; awayScoreData: ESPNScore }>;
 	export let spread: number;
-	export let homeTeam: Team;
-	export let awayTeam: Team;
-	export let ATSwinner: string;
+	export let home_team: Team;
+	export let away_team: Team;
+	export let ATS_winner: string;
 </script>
 
-{#await promiseStatus then status}
+{#await promise_status then status}
 	{#if status.type.description === 'Final'}
-		{#await promiseScores then scores}
+		{#await promise_scores then scores}
 			<AtSscore
-				homeOrAway={HomeOrAway.Away}
-				team={awayTeam}
-				{ATSwinner}
+				home_or_away={HomeOrAway.Away}
+				team={away_team}
+				{ATS_winner}
 				score={scores.awayScoreData}
 				{spread}
-				gridArea={'awayATS'}
+				grid_area={'awayATS'}
 			/>
 			<AtStooltip />
 			<AtSscore
-				homeOrAway={HomeOrAway.Home}
-				team={homeTeam}
-				{ATSwinner}
+				home_or_away={HomeOrAway.Home}
+				team={home_team}
+				{ATS_winner}
 				score={scores.homeScoreData}
 				{spread}
-				gridArea={'homeATS'}
+				grid_area={'homeATS'}
 			/>
 		{/await}
 	{/if}

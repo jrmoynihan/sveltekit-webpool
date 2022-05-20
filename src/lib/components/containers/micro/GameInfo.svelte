@@ -16,28 +16,28 @@
 	import StatusInfo from './StatusInfo.svelte';
 	import WinLossAt from './WinLossAt.svelte';
 
-	export let promiseStatus: Promise<ESPNStatus>;
-	export let promiseScores: Promise<{ homeScoreData: ESPNScore; awayScoreData: ESPNScore }>;
-	export let promiseSituation: Promise<ESPNSituation>;
-	export let selectedTeam = '';
-	export let homeTeam: Team;
-	export let awayTeam: Team;
+	export let promise_status: Promise<ESPNStatus>;
+	export let promise_scores: Promise<{ homeScoreData: ESPNScore; awayScoreData: ESPNScore }>;
+	export let promise_situation: Promise<ESPNSituation>;
+	export let selected_team_abbreviation = '';
+	export let home_team: Team;
+	export let away_team: Team;
 	export let spread: number;
 	export let disabled = false;
 	export let id = '';
 	export let timestamp: Timestamp;
-	export let isATSwinner: boolean;
-	export let ATSwinner: string;
-	export let gameIsOver: boolean = false;
+	export let is_ATS_winner: boolean;
+	export let ATS_winner: string;
+	export let game_is_over: boolean = false;
 </script>
 
 <label class="game-info rounded" for="{id}-none">
 	<!-- <WinLossAt {promiseScores} {promiseStatus} {homeTeam} {awayTeam} {selectedTeam} {spread} {isATSwinner} /> -->
-	<WinLossAt {isATSwinner} {gameIsOver} />
-	<StatusInfo {promiseStatus} {promiseScores} {spread} {ATSwinner} {homeTeam} {awayTeam} />
-	<SpreadOrPossession {spread} {disabled} {awayTeam} {homeTeam} {promiseSituation} />
-	<DateTimeOrDownDistance {timestamp} {promiseStatus} {promiseSituation} />
-	<input id="{id}-none" type="radio" bind:group={selectedTeam} value="" {disabled} />
+	<WinLossAt {is_ATS_winner} {game_is_over} />
+	<StatusInfo {promise_status} {promise_scores} {spread} {ATS_winner} {home_team} {away_team} />
+	<SpreadOrPossession {spread} {disabled} {away_team} {home_team} {promise_situation} />
+	<DateTimeOrDownDistance {timestamp} {promise_status} {promise_situation} />
+	<input id="{id}-none" type="radio" bind:group={selected_team_abbreviation} value="" {disabled} />
 	{#if $show_IDs}
 		<div style="grid-area:IDs">{id}</div>
 	{/if}
@@ -45,7 +45,7 @@
 		<div style="grid-area:spreads">{spread > 0 ? `+${spread}` : spread}</div>
 	{/if}
 	<!-- @NOTE: Shows the ATS winner to admins if it hasn't been set AND the game is already over. i.e. the admin is able to score it now -->
-	{#if $show_ATS_winner || ($current_player.admin && gameIsOver && !ATSwinner)}
+	{#if $show_ATS_winner || ($current_player.admin && game_is_over && !ATS_winner)}
 		<button
 			class="admin"
 			on:click={async () => {
@@ -53,7 +53,7 @@
 				await scorePicksForWeek($selected_week, $selected_season_year);
 			}}
 		>
-			{ATSwinner ? ATSwinner : 'Score Games!'}
+			{ATS_winner ? ATS_winner : 'Score Games!'}
 		</button>
 	{/if}
 </label>

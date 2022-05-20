@@ -9,53 +9,53 @@
 	import TeamRecord from './TeamRecord.svelte';
 
 	export let id: string;
-	export let homeOrAwayTeam: Team;
-	export let selectedTeam: string;
+	export let team: Team;
+	export let selected_team_abbreviation: string;
 	export let disabled: boolean;
-	export let currentPicks: WeeklyPickDoc[] = [];
+	export let current_picks: WeeklyPickDoc[] = [];
 	export let element: HTMLElement;
-	export let showGameContainer: boolean;
-	export let showTeamNameImages: boolean;
+	export let show_game_container: boolean;
+	export let show_team_name_images: boolean;
 </script>
 
 <label
-	for="{id}-{homeOrAwayTeam.abbreviation}"
+	for="{id}-{team.abbreviation}"
 	class="dayShadow nightShadow"
-	class:selected={selectedTeam === homeOrAwayTeam.abbreviation}
+	class:selected={selected_team_abbreviation === team.abbreviation}
 	class:dark-mode={$use_dark_theme}
 	class:disabled
 	tabindex="0"
 >
 	<input
-		id="{id}-{homeOrAwayTeam.abbreviation}"
+		id="{id}-{team.abbreviation}"
 		type="radio"
-		bind:group={selectedTeam}
+		bind:group={selected_team_abbreviation}
 		on:change={() => {
 			if (!$overrideDisabled) {
-				goToMissedPick(currentPicks);
+				goToMissedPick(current_picks);
 			}
 		}}
-		value={homeOrAwayTeam.abbreviation}
+		value={team.abbreviation}
 		{disabled}
 	/>
 	<!--prettier-ignore-->
-	<IntersectionObserver once={true} {element}	on:intersect={() => {showGameContainer = true;}}>
-		{#if showGameContainer}
+	<IntersectionObserver once={true} {element}	on:intersect={() => {show_game_container = true;}}>
+		{#if show_game_container}
 			<TeamImage
-				team={homeOrAwayTeam}
-				grayscale={selectedTeam !== homeOrAwayTeam.abbreviation && selectedTeam !== ''}
+				{team}
+				grayscale={selected_team_abbreviation !== team.abbreviation && selected_team_abbreviation !== ''}
 			/>
-			{#if showTeamNameImages}
+			{#if show_team_name_images}
 				<TeamNameImage
-					team={homeOrAwayTeam}
+					{team}
 					rounded={true}
 					whiteBg={true}
 					width="300rem"
-					grayscale={selectedTeam !== homeOrAwayTeam.abbreviation && selectedTeam !== ''}
+					grayscale={selected_team_abbreviation !== team.abbreviation && selected_team_abbreviation !== ''}
 				/>
 			{/if}
 		{/if}
-		<TeamRecord showTeamAbbreviation={!showTeamNameImages} team={homeOrAwayTeam} />
+		<TeamRecord showTeamAbbreviation={!show_team_name_images} team={team} />
 	</IntersectionObserver>
 </label>
 

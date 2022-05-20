@@ -5,15 +5,15 @@
 	import GameTime from './GameTime.svelte';
 
 	export let timestamp: Timestamp;
-	export let promiseStatus: Promise<ESPNStatus>;
-	export let promiseSituation: Promise<ESPNSituation>;
+	export let promise_status: Promise<ESPNStatus>;
+	export let promise_situation: Promise<ESPNSituation>;
 </script>
 
 <div class="dateTime info">
 	{$show_timestamps
 		? `${timestamp.toDate().toLocaleDateString()} ${timestamp.toDate().toLocaleTimeString()}`
 		: ''}
-	{#await promiseStatus}
+	{#await promise_status}
 		{#if timestamp}
 			<GameTime {timestamp} />
 		{:else}
@@ -27,7 +27,7 @@
 				No timestamp field set.
 			{/if}
 		{:else if status.type.completed === false}
-			{#await promiseSituation then situation}
+			{#await promise_situation then situation}
 				{#if situation.downDistanceText !== undefined}
 					<div style="font-size: 0.8rem;">
 						<span

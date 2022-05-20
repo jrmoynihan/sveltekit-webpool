@@ -6,45 +6,22 @@
 	import ErrorModal from '$lib/components/modals/ErrorModal.svelte';
 	import { preferred_score_view } from '$scripts/store';
 
-	export let promiseStatus: Promise<ESPNStatus>;
-	export let promiseScores: Promise<{ homeScoreData: ESPNScore; awayScoreData: ESPNScore }>;
+	export let promise_status: Promise<ESPNStatus>;
+	export let promise_scores: Promise<{ homeScoreData: ESPNScore; awayScoreData: ESPNScore }>;
 	export let spread: number;
-	export let ATSwinner: string;
-	export let homeTeam: Team;
-	export let awayTeam: Team;
-
-	// let min = 30;
-	// let max = 60;
-	// let boxShadowMin = 0;
-	// let boxShadowMax = 4;
-	// let topLeft = Math.floor(Math.random() * (max - min) + min);
-	// let topLeftTwo = Math.floor(Math.random() * (max - min) + min);
-	// let topRight = Math.floor(Math.random() * (max - min) + min);
-	// let topRightTwo = Math.floor(Math.random() * (max - min) + min);
-	// let bottomLeft = Math.floor(Math.random() * (max - min) + min);
-	// let bottomLeftTwo = Math.floor(Math.random() * (max - min) + min);
-	// let bottomRight = Math.floor(Math.random() * (max - min) + min);
-	// let bottomRightTwo = Math.floor(Math.random() * (max - min) + min);
-	// let boxShadowOneX = Math.floor(Math.random() * (boxShadowMax - boxShadowMin) + boxShadowMin);
-	// let boxShadowOneY = Math.floor(Math.random() * (boxShadowMax - boxShadowMin) + boxShadowMin);
-	// let boxShadowTwoX = Math.floor(Math.random() * (boxShadowMax - boxShadowMin) + boxShadowMin);
-	// let boxShadowTwoY = Math.floor(Math.random() * (boxShadowMax - boxShadowMin) + boxShadowMin);
-	// let boxShadowOneSpread = Math.floor(
-	// 	Math.random() * (boxShadowMax - boxShadowMin) + boxShadowMin + 1
-	// );
-	// let boxShadowTwoSpread = Math.floor(
-	// 	Math.random() * (boxShadowMax - boxShadowMin) + boxShadowMin + 1
-	// );
+	export let ATS_winner: string;
+	export let home_team: Team;
+	export let away_team: Team;
 </script>
 
 <div class="grid status-info">
-	{#await promiseStatus}
+	{#await promise_status}
 		<div />
 		<div />
 		<div />
 	{:then status}
 		{#if status.type.description === 'Final'}
-			{#await promiseScores}
+			{#await promise_scores}
 				<div class="away">--</div>
 				<div class="finalOrTime">Final</div>
 				<div class="home">--</div>
@@ -70,7 +47,7 @@
 			<div class="final" />
 			<div class="home" /> -->
 		{:else if status.type.description !== 'Canceled'}
-			{#await promiseScores}
+			{#await promise_scores}
 				<div class="away score">--</div>
 				<div class="finalOrTime">--</div>
 				<div class="home score">--</div>
@@ -98,7 +75,7 @@
 		<ErrorModal {error} />
 	{/await}
 	{#if $preferred_score_view === 'Both' || $preferred_score_view === 'ATS'}
-		<ScoresAts {promiseStatus} {promiseScores} {spread} {ATSwinner} {homeTeam} {awayTeam} />
+		<ScoresAts {promise_status} {promise_scores} {spread} {ATS_winner} {home_team} {away_team} />
 	{/if}
 </div>
 
@@ -114,11 +91,7 @@
 		align-self: center;
 	}
 	div {
-		// padding: 0.3rem 1rem;
 		align-self: center;
-		// &.at-symbol {
-		// 	font-size: x-large;
-		// }
 	}
 	.status-info {
 		width: auto;

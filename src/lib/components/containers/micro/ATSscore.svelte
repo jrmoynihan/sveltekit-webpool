@@ -4,11 +4,11 @@
 	import type { Team } from '$scripts/classes/team';
 
 	export let team: Team;
-	export let ATSwinner: string;
+	export let ATS_winner: string;
 	export let score: ESPNScore;
 	export let spread: number;
-	export let gridArea: string;
-	export let homeOrAway: HomeOrAway;
+	export let grid_area: string;
+	export let home_or_away: HomeOrAway;
 
 	let min = 30;
 	let max = 60;
@@ -23,20 +23,20 @@
 </script>
 
 <div
-	style="grid-area:{gridArea};--topLeft:{topLeft}% {topLeftTwo}%; --topRight:{topRight}% {topRightTwo}%; --bottomLeft:{bottomLeft}% {bottomLeftTwo}%; --bottomRight:{bottomRight}% {bottomRightTwo}%"
+	style="grid-area:{grid_area};--topLeft:{topLeft}% {topLeftTwo}%; --topRight:{topRight}% {topRightTwo}%; --bottomLeft:{bottomLeft}% {bottomLeftTwo}%; --bottomRight:{bottomRight}% {bottomRightTwo}%"
 	class="ATSscore"
-	class:higherATSscore={ATSwinner === team.abbreviation}
+	class:higherATSscore={ATS_winner === team.abbreviation}
 >
 	{#if spread > 0}
-		{#if homeOrAway === 'Away'}
+		{#if home_or_away === 'Away'}
 			{score.value - spread}
-		{:else if homeOrAway === 'Home'}
+		{:else if home_or_away === 'Home'}
 			{score.value}
 		{/if}
 	{:else if spread < 0}
-		{#if homeOrAway === 'Away'}
+		{#if home_or_away === 'Away'}
 			{score.value}
-		{:else if homeOrAway === 'Home'}
+		{:else if home_or_away === 'Home'}
 			{score.value - spread * -1}
 		{/if}
 	{/if}

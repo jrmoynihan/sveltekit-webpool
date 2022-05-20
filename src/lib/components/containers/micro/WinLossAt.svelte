@@ -4,12 +4,12 @@
 	import Fa from 'svelte-fa';
 	import Tooltip from '../Tooltip.svelte';
 
-	export let gameIsOver: boolean;
-	export let isATSwinner: boolean;
+	export let game_is_over: boolean;
+	export let is_ATS_winner: boolean;
 </script>
 
 <div class="winLossAt">
-	{#if isATSwinner && gameIsOver}
+	{#if is_ATS_winner && game_is_over}
 		<Tooltip tooltipWidth="250%">
 			<p slot="text">You picked correctly!</p>
 			<Fa
@@ -20,7 +20,7 @@
 				style="background-color: white; border-radius:100%;"
 			/>
 		</Tooltip>
-	{:else if isATSwinner === false && gameIsOver}
+	{:else if is_ATS_winner === false && game_is_over}
 		<Tooltip tooltipWidth="350%" tooltipTop="-400%">
 			<p slot="text">You got this one wrong. Better luck next time!</p>
 			<Fa

@@ -16,22 +16,22 @@
 
 	export let spread: number;
 	export let disabled: boolean;
-	export let promiseSituation: Promise<ESPNSituation>;
-	export let awayTeam: Team;
-	export let homeTeam: Team;
+	export let promise_situation: Promise<ESPNSituation>;
+	export let away_team: Team;
+	export let home_team: Team;
 </script>
 
 {#if spread}
 	<div class="spreadOrPossession" class:active-game={disabled} style="line-height: 2;">
 		{#if disabled}
-			{#await promiseSituation then situation}
+			{#await promise_situation then situation}
 				{#if situation.possessionText && situation.team}
 					{#await getTeamWithPossession(situation.team.$ref) then teamWithPossession}
-						{#if teamWithPossession === awayTeam.abbreviation}
+						{#if teamWithPossession === away_team.abbreviation}
 							<Fa icon={faFootballBall} size="lg" rotate={45} />
 							<Fa icon={faLock} size="lg" />
 							<span />
-						{:else if teamWithPossession === homeTeam.abbreviation}
+						{:else if teamWithPossession === home_team.abbreviation}
 							<span />
 							<Fa icon={faLock} size="lg" />
 							<Fa icon={faFootballBall} size="lg" rotate={45} />
@@ -53,7 +53,7 @@
 					>
 						<Fa slot="content" icon={faArrowCircleLeft} size="lg" />
 						<span slot="text" class="tooltip"
-							>Away Team ({awayTeam.abbreviation}) is favored by {spread}.</span
+							>Away Team ({away_team.abbreviation}) is favored by {spread}.</span
 						>
 					</Tooltip>
 				</div>
@@ -68,7 +68,7 @@
 					>
 						<Fa slot="content" icon={faArrowCircleRight} size="lg" />
 						<span slot="text" class="tooltip"
-							>Home Team ({homeTeam.abbreviation}) is favored by {Math.abs(spread)}.</span
+							>Home Team ({home_team.abbreviation}) is favored by {Math.abs(spread)}.</span
 						>
 					</Tooltip>
 				</div>
