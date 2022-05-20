@@ -31,7 +31,7 @@
 			<span class="invalid" />
 		</svelte:fragment>
 		<span slot="text" transition:slide class="tooltip"
-			>Enter a tiebreaker score -- the total scores of both teams in the last game of the week.</span
+			>Enter a tiebreaker score -- the sum of both teams' scores in the last game of the week.</span
 		>
 	</Tooltip>
 </span>
