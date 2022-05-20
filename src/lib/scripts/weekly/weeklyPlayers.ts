@@ -105,7 +105,7 @@ export const getGames = async (input: getGamesOptions) => {
 		const q = query(scheduleCollection, ...constraints);
 		const querySnapshot = await getDocs(q.withConverter(gameConverter));
 		if (querySnapshot.empty) throw new Error('No games found.');
-		myLog({ msg: 'Got games!', icon: all_icons.checkmark, additional_params: querySnapshot });
+		myLog({ msg: 'Got games!', icon: all_icons.checkmark });
 		return querySnapshot;
 	} catch (error) {
 		const msg = 'Unable to get games. Check the console for more info.';
@@ -122,7 +122,7 @@ export const getGameData = async (input: getGamesOptions) => {
 		docs.forEach((doc) => {
 			games.push(doc.data());
 		});
-
+		myLog({ msg: 'Game data:', additional_params: games });
 		return games;
 	} catch (error) {
 		const msg = 'Error getting game data. Check the console for more info.';
@@ -177,7 +177,7 @@ export const getTiebreakerData = async (
 		});
 		return tiebreakers;
 	} catch (error) {
-		const msg = 'Unable to get tiebreaker. Check the console for more info.';
+		const msg = 'Error getting tiebreaker. Check the console for more info.';
 		show_toast
 			? ErrorAndToast({ msg, error, icon: all_icons.detective, additional_params: input })
 			: myError({ msg, error, icon: all_icons.detective, additional_params: input });
