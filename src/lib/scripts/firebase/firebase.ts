@@ -1,7 +1,7 @@
 import { dev } from '$app/env';
 import { getApps, getApp, initializeApp, type FirebaseApp } from '@firebase/app';
 import { getAuth, type Auth } from '@firebase/auth';
-import { Firestore, getFirestore } from '@firebase/firestore';
+import { enableIndexedDbPersistence, Firestore, getFirestore } from '@firebase/firestore';
 
 const API_KEY: string = dev ? import.meta.env.API_KEY as string : process.env.API_KEY as string;
 const firebaseConfig = {
@@ -28,5 +28,14 @@ const myApp : FirebaseApp = initializeFirebaseApp();
 export const firestoreDB : Firestore = getFirestore(myApp);
 export const firebaseAuth : Auth = getAuth(myApp);
 
-// Prevents persistence of Auth state in the CLIENT; the server will hold the cookie!
-// setPersistence(firebaseAuth, inMemoryPersistence);
+enableIndexedDbPersistence(firestoreDB).catch(err => {
+	if (err.code == 'failed-precondition') {
+		// Multiple tabs open, persistence can only be enabled
+		// in one tab at a a time.
+		// ...
+	} else if (err.code == 'unimplemented') {
+		// The current browser does not support all of the
+		// features required to enable persistence
+		// ...
+	}
+});
