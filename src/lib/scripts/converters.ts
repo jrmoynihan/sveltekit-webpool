@@ -2,7 +2,7 @@ import type { QueryDocumentSnapshot, SnapshotOptions } from '@firebase/firestore
 import { Team } from '$lib/scripts/classes/team';
 import { Rule, RuleCategory } from '$lib/scripts/classes/rules';
 import { Game } from './classes/game';
-import { WeeklyPickDoc } from './classes/picks';
+import { PickSixDoc, WeeklyPickDoc } from './classes/picks';
 import { WeeklyTiebreaker } from './classes/tiebreaker';
 import { WeekBoundDoc } from './classes/weekBound';
 import { Player } from './classes/player';
@@ -120,5 +120,15 @@ export const seasonRecordConverter = {
 		const data = snapshot.data(options);
 		const { ref, id } = snapshot; // Destructure the ref and id props from snapshot object
 		return new SeasonRecord({ doc_ref: ref, doc_id: id, ...data });
+	}
+};
+export const pickSixConverter = {
+	toFirestore: (pickSix: PickSixDoc): PickSixDoc => {
+		return { ...pickSix };
+	},
+	fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): PickSixDoc => {
+		const data = snapshot.data(options);
+		const { ref, id } = snapshot; // Destructure the ref and id props from snapshot object
+		return new PickSixDoc({ doc_ref: ref, doc_id: id, ...data });
 	}
 };

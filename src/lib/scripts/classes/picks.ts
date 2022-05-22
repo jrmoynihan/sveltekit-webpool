@@ -26,3 +26,17 @@ export class WeeklyPickDoc {
 		this.is_before_game_time = args.is_before_game_time || false;
 	}
 }
+export class PickSixDoc {
+	doc_ref: DocumentReference;
+	picks: string[];
+	uid: string;
+	year: number;
+	name: string;
+	constructor({ ...args }) {
+		(this.doc_ref = args.doc_ref),
+			(this.picks = args.picks),
+			(this.uid = args.uid),
+			(this.year = args.year);
+		this.name = args.name;
+	}
+}

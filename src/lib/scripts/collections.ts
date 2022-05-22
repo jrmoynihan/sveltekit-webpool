@@ -12,3 +12,4 @@ export const seasonBoundsCollection = collection(firestoreDB, 'SeasonScheduleBou
 export const teamsCollection = collection(firestoreDB, 'Teams');
 export const weeklyRecordsCollection = collection(firestoreDB, 'WeeklyRecords');
 export const seasonRecordsCollection = collection(firestoreDB, 'SeasonRecords');
+export const pickSixCollection = collection(firestoreDB, 'PickSix');
