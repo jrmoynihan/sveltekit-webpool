@@ -47,9 +47,9 @@ export const getPlayers = async (input: getPlayersOptions) => {
 		player_docs.forEach((player_doc) => {
 			players.push(new Player({ ...player_doc.data() }));
 		});
-		const msg = 'Retrieved all players who are Weekly Pool players.';
+		const msg = 'Retrieved all requested players.';
 		showToast
-			? LogAndToast({ title: 'Got Weekly Players!', msg })
+			? LogAndToast({ title: 'Got Players!', msg })
 			: myLog({ msg, additional_params: players });
 		return players;
 	} catch (error) {
@@ -132,7 +132,7 @@ export const getGameData = async (input: getGamesOptions) => {
 type getPicksOptions = {
 	constraints: QueryConstraint[];
 };
-export const getPicksData = async (input: getPicksOptions) => {
+export const getPicksData = async (input: getPicksOptions): Promise<WeeklyPickDoc[]> => {
 	try {
 		const { constraints = [] } = input;
 		const picks: WeeklyPickDoc[] = [];
