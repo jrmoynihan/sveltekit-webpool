@@ -8,7 +8,7 @@
 		current_picks,
 		games_promise,
 		larger_than_mobile,
-		overrideDisabled,
+		override_locked_picks,
 		picks_promise,
 		preferred_score_view,
 		tiebreaker_promise,
@@ -44,20 +44,19 @@
 	import { getLocalStorageItem } from '$scripts/localStorage';
 	import ErrorModal from '$components/modals/ErrorModal.svelte';
 	import { focusTiebreaker } from '$scripts/scrollAndFocus';
-	import { ErrorAndToast, myLog } from '$scripts/logging';
+	import { ErrorAndToast, myError, myLog } from '$scripts/logging';
 	import { getGameData, getPicksData, getTiebreakerData } from '$lib/scripts/weekly/weeklyPlayers';
 	import { createTiebreaker, createWeeklyPicksForPlayer } from '$lib/scripts/weekly/weeklyAdmin';
 	import type { Player } from '$lib/scripts/classes/player';
-	import { tick } from 'svelte';
 	import type { WeeklyTiebreaker } from '$lib/scripts/classes/tiebreaker';
 
-	let showTiebreakerInput = false;
-	let countedGameTimes: { upcomingGamesCount: any; playedGamesCount: any };
-	let currentPickCount = 0;
-	let upcomingGamesCount = 0;
-	let playedGamesCount = 0;
-	let isCorrectCount = 0;
-	let totalGameCount = 16;
+	let show_tiebreaker_input: boolean = false;
+	let counted_game_times: { upcomingGamesCount: any; playedGamesCount: any };
+	let current_pick_count: number;
+	let upcoming_games_count: number;
+	let number_of_played_games: number;
+	let number_of_correct_picks: number;
+	let number_of_games: number;
 	let toastSeenKey = 'toast_makeWeeklyPicks_NewTiebreakerAndSubmit';
 	let games: Game[];
 	let picks: WeeklyPickDoc[];
@@ -67,63 +66,76 @@
 	});
 
 	onMount(async () => {
-		getData($selected_player, $selected_week, $selected_season_year, $selected_season_type);
-		const toastSeen = await getLocalStorageItem(toastSeenKey);
 		$preferred_score_view = await getLocalStorageItem('scoreViewPreference');
+		const toastSeen = await getLocalStorageItem(toastSeenKey);
 		if (toastSeen !== 'true') {
 			const promisedToast = await getToast('Make Picks');
-			defaultToast({
-				title: promisedToast.title,
-				msg: promisedToast.msg,
-				duration: 15_000,
-				useSeenToastComponent: true,
-				localStorageKey: toastSeenKey
-			});
+			setTimeout(() => {
+				defaultToast({
+					title: promisedToast.title,
+					msg: promisedToast.msg,
+					duration: 15_000,
+					useSeenToastComponent: true,
+					localStorageKey: toastSeenKey
+				});
+			}, 2000);
 		}
 	});
+
 	const getData = async (
 		player: Player = $selected_player,
 		week: number = $selected_week,
 		year: number = $selected_year,
 		season_type: string = $selected_season_type
 	) => {
-		await tick();
-		console.log(player, week, year, season_type);
-		const game_constraints = [
-			where('year', '==', year),
-			where('week', '==', week),
-			where('season_type', '==', season_type)
-		];
-		const tiebreaker_constraints = [...game_constraints, where('uid', '==', player.uid)];
-		const picks_constraints = [...tiebreaker_constraints, orderBy('timestamp'), orderBy('game_id')];
-		console.log('picks_constraints', picks_constraints);
-		$games_promise = getGameData({ constraints: game_constraints });
-		$picks_promise = getPicksData({ constraints: picks_constraints });
-		$tiebreaker_promise = getTiebreakerData({ constraints: tiebreaker_constraints });
-		$current_picks = await $picks_promise;
-		// TODO: add a check to make sure only one tiebreaker came back from the query?
-		let tiebreaker = (await $tiebreaker_promise[0]) as WeeklyTiebreaker;
-		$tiebreaker_score_guess = tiebreaker?.score_guess;
-		games = await $games_promise;
-		picks = await $picks_promise;
-
-		// Resiliently fall back to making the pick documents if they don't exist; then re-query the picks
-		if (picks?.length === 0) {
-			await createWeeklyPicksForPlayer({
-				player,
-				games
-			});
+		try {
+			const game_constraints = [
+				where('year', '==', year),
+				where('week', '==', week),
+				where('season_type', '==', season_type)
+			];
+			const tiebreaker_constraints = [...game_constraints, where('uid', '==', player.uid)];
+			const picks_constraints = [
+				...tiebreaker_constraints,
+				orderBy('timestamp'),
+				orderBy('game_id')
+			];
+			$games_promise = getGameData({ constraints: game_constraints });
 			$picks_promise = getPicksData({ constraints: picks_constraints });
-			$current_picks = await $picks_promise;
-		}
-		if (tiebreaker === undefined || tiebreaker === null) {
-			await createTiebreaker(player.uid, week, year, season_type);
 			$tiebreaker_promise = getTiebreakerData({ constraints: tiebreaker_constraints });
-			tiebreaker = (await $tiebreaker_promise[0]) as WeeklyTiebreaker;
-			$tiebreaker_score_guess = tiebreaker?.score_guess;
+			games = await $games_promise;
+			picks = await $picks_promise;
+			$current_picks = await $picks_promise;
+			let tiebreakers: WeeklyTiebreaker[] = await $tiebreaker_promise;
+
+			// If tiebreaker doc found, create one and return it
+			if (!tiebreakers || tiebreakers?.length === 0) {
+				$tiebreaker_promise = createTiebreaker(player.uid, week, year, season_type);
+				tiebreakers = await $tiebreaker_promise;
+			}
+			// Multiple tiebreaker docs found, throw an error. Can't determine which one to use if the query returned multiple.
+			else if (tiebreakers.length > 1) {
+				throw new Error('There should only be one tiebreaker');
+			}
+
+			$tiebreaker_score_guess = tiebreakers[0].score_guess;
+
+			// Resiliently fall back to making the pick documents if they don't exist; then re-query the picks
+			if (!picks || picks?.length === 0) {
+				await createWeeklyPicksForPlayer({
+					player,
+					games
+				});
+				$picks_promise = getPicksData({ constraints: picks_constraints });
+				$current_picks = await $picks_promise;
+				picks = await $picks_promise;
+			}
+
+			await Promise.all([$games_promise, $picks_promise, $tiebreaker_promise]);
+			counted_game_times = await countPlayedOrUpcomingGames(games);
+		} catch (error) {
+			myError({ error });
 		}
-		await Promise.all([$games_promise, $picks_promise, $tiebreaker_promise]);
-		countedGameTimes = await countPlayedOrUpcomingGames(games);
 	};
 
 	const countPlayedOrUpcomingGames = async (games: Game[]) => {
@@ -241,10 +253,13 @@
 		homeOrAway?: HomeOrAway
 	): Promise<WeeklyPickDoc[]> => {
 		try {
+			const games_past_gametime = games
+				.filter((game) => !game.is_before_game_time)
+				.sort((a, b) => (a.timestamp > b.timestamp ? 1 : -1));
 			picks.forEach(async (pickDoc) => {
 				const matchingGame = games.find((game) => game.id === pickDoc.game_id);
 				const ableToPick = matchingGame.is_before_game_time;
-				if (ableToPick || $overrideDisabled) {
+				if (ableToPick || $override_locked_picks) {
 					if (homeOrAway === 'Home') {
 						const homeTeam = matchingGame.home_team;
 						pickDoc.pick = homeTeam.abbreviation;
@@ -256,6 +271,14 @@
 					}
 				}
 			});
+			if (games_past_gametime.length > 0 && !$override_locked_picks) {
+				defaultToast({
+					title: 'Some Games Already Started!',
+					msg: `Unable to update the following picks: <br> ${games_past_gametime
+						.map((g) => `<p>${g.short_name}</p>`)
+						.join('')}`
+				});
+			}
 			logAndToastMsg
 				? myLog({
 						msg: logAndToastMsg,
@@ -339,7 +362,7 @@
 			picks.forEach(async (pickDoc, i) => {
 				const ableToPick = await isBeforeGameTime(pickDoc.timestamp);
 				pickDoc.is_before_game_time = ableToPick;
-				if (ableToPick || $overrideDisabled) {
+				if (ableToPick || $override_locked_picks) {
 					if (favored[i] !== null && favored[i] !== undefined) {
 						pickDoc.pick = favored[i].abbreviation;
 					} else {
@@ -384,7 +407,7 @@
 			picks.forEach(async (pickDoc, i) => {
 				const ableToPick = await isBeforeGameTime(pickDoc.timestamp);
 				pickDoc.is_before_game_time = ableToPick;
-				if (ableToPick || $overrideDisabled) {
+				if (ableToPick || $override_locked_picks) {
 					if (underdogs[i] !== null && underdogs[i] !== undefined) {
 						pickDoc.pick = underdogs[i].abbreviation;
 					} else {
@@ -427,40 +450,42 @@
 	};
 
 	$: {
-		if (currentPickCount >= 0 && totalGameCount > 0) {
-			if (upcomingGamesCount + playedGamesCount === totalGameCount) {
-				$progress = currentPickCount / totalGameCount;
-			} else if (upcomingGamesCount > 0) {
-				$progress = currentPickCount / upcomingGamesCount;
+		if (current_pick_count >= 0 && number_of_games > 0) {
+			if (upcoming_games_count + number_of_played_games === number_of_games) {
+				$progress = current_pick_count / number_of_games;
+			} else if (upcoming_games_count > 0) {
+				$progress = current_pick_count / upcoming_games_count;
 			}
 		}
 	}
 
-	$: totalGameCount = $current_picks?.length;
-	$: currentPickCount = $current_picks?.filter((pick) => pick.pick !== '').length;
-	$: isCorrectCount = $current_picks?.filter((pick) => pick.is_correct === true).length;
-	$: upcomingGamesCount = countedGameTimes?.upcomingGamesCount;
-	$: playedGamesCount = countedGameTimes?.playedGamesCount;
-	$: showTiebreakerInput =
-		currentPickCount >= playedGamesCount + upcomingGamesCount && upcomingGamesCount !== 0;
+	$: if ($selected_player.uid && $selected_year && $selected_week && $selected_season_type)
+		getData();
+	$: number_of_games = $current_picks?.length;
+	$: current_pick_count = $current_picks?.filter((pick) => pick.pick !== '').length;
+	$: number_of_correct_picks = $current_picks?.filter((pick) => pick.is_correct === true).length;
+	$: upcoming_games_count = counted_game_times?.upcomingGamesCount;
+	$: number_of_played_games = counted_game_times?.playedGamesCount;
+	$: show_tiebreaker_input =
+		current_pick_count >= number_of_played_games + upcoming_games_count &&
+		upcoming_games_count !== 0;
 </script>
 
 <PageTitle>Make Weekly Picks</PageTitle>
 <section class="grid positioning">
 	<div class="pick-status fixed grid {$larger_than_mobile ? 'bottom-left' : 'bottom-right'}">
-		{#if currentPickCount >= 0 && totalGameCount > 0}
-			{#key currentPickCount}
+		{#if current_pick_count >= 0 && number_of_games > 0}
+			{#key current_pick_count}
 				<PickCounter
-					invisible={$tiebreaker_score_guess >= 10 && showTiebreakerInput}
-					bind:currentPicks={$current_picks}
-					bind:currentPickCount
-					bind:totalGameCount
-					bind:upcomingGamesCount
+					invisible={$tiebreaker_score_guess >= 10 && show_tiebreaker_input}
+					bind:currentPickCount={current_pick_count}
+					bind:totalGameCount={number_of_games}
+					bind:upcomingGamesCount={upcoming_games_count}
 				/>
 			{/key}
 			{#await $tiebreaker_promise then tiebreakers}
-				{@const tiebreaker = tiebreakers[0]}
-				{#if tiebreaker}
+				{#if tiebreakers}
+					{@const tiebreaker = tiebreakers[0]}
 					<SubmitPicks
 						on:click={() =>
 							submitPicksAndTiebreaker(
@@ -474,42 +499,38 @@
 						pulse={$tiebreaker_score_guess >= 10}
 						invisible={$tiebreaker_score_guess < 10 ||
 							$tiebreaker_score_guess === undefined ||
-							upcomingGamesCount === 0}
+							upcoming_games_count === 0}
 					/>
 				{/if}
 			{:catch error}
 				<ErrorModal {error} />
 			{/await}
-			{#if showTiebreakerInput}
+			{#if show_tiebreaker_input || $override_locked_picks}
 				<TiebreakerInput
 					scoreGuess={$tiebreaker_score_guess}
 					on:change={(e) => {
 						$tiebreaker_score_guess = parseInt(e.detail);
 					}}
 				/>
-			{:else if upcomingGamesCount !== 0}
+			{:else if upcoming_games_count !== 0}
 				<progress value={$progress || 0} />
 			{/if}
-			{#if playedGamesCount > 0}
-				<div class="correct-count">{isCorrectCount} of {totalGameCount} correct</div>
+			{#if number_of_played_games > 0}
+				<div class="correct-count">{number_of_correct_picks} of {number_of_games} correct</div>
 			{/if}
 		{/if}
 	</div>
 	<div class="first-row grid">
-		<WeekSelect
-			customStyles="grid-area: week;"
-			on:change={() => getData()}
-			on:incrementWeek={() => getData()}
-			on:decrementWeek={() => getData()}
-		/>
-
+		<WeekSelect customStyles="grid-area: week;" />
 		<button
 			disabled={!$current_picks || !games}
 			style="grid-area:reset;"
 			on:click={async () => ($current_picks = await resetPicks(games, $current_picks))}
 			class:dark-mode={$use_dark_theme}
-			class="hotkeys">Reset Picks</button
+			class="hotkeys"
 		>
+			Reset Picks
+		</button>
 	</div>
 
 	<!-- prettier-ignore -->
@@ -534,6 +555,7 @@
 								{#if pickDoc.game_id === game.id}
 									<div
 										class="game-container"
+										class:unselected={!pickDoc.pick}
 										class:showYard={$larger_than_mobile}
 										class:rightYard={i % 2 !== 0 && $larger_than_mobile}
 										class:leftYard={i % 2 === 0 && $larger_than_mobile}
@@ -547,17 +569,16 @@
 										class:dark={$use_dark_theme}
 									>
 										<MatchupContainer
-											bind:selectedTeam={pickDoc.pick}
-											bind:currentPicks={$current_picks}
-											bind:beforeGameTime={game.is_before_game_time}
+											bind:selected_team_abbreviation={pickDoc.pick}
+											bind:is_before_game_time={game.is_before_game_time}
 											id={game.id}
 											index={i}
 											spread={game.spread}
-											homeTeam={game.home_team}
-											awayTeam={game.away_team}
+											home_team={game.home_team}
+											away_team={game.away_team}
 											timestamp={game.timestamp}
 											competitions={game.competitions}
-											isATSwinner={isATSwinner(pickDoc, game)}
+											is_ATS_winner={isATSwinner(pickDoc, game)}
 											ATS_winner={game.ATS_winner}
 										/>
 									</div>
