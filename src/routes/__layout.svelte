@@ -43,6 +43,8 @@
 	import { get } from 'svelte/store';
 	import { findCurrentSeason } from '$lib/scripts/schedule';
 	import { myLog } from '$lib/scripts/logging';
+	import { enableMultiTabIndexedDbPersistence } from '@firebase/firestore';
+	import { firestoreDB } from '$lib/scripts/firebase/firebase';
 
 	export let refresh: any;
 	let openNewPlayerForm: () => Promise<void>;
@@ -84,6 +86,17 @@
 	onMount(async () => {
 		checkWindowWidth();
 		lookupUserThemePreference();
+		enableMultiTabIndexedDbPersistence(firestoreDB).catch((err) => {
+			if (err.code == 'failed-precondition') {
+				// Multiple tabs open, persistence can only be enabled
+				// in one tab at a a time.
+				// ...
+			} else if (err.code == 'unimplemented') {
+				// The current browser does not support all of the
+				// features required to enable persistence
+				// ...
+			}
+		});
 	});
 </script>
 

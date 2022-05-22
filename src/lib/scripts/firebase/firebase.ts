@@ -27,15 +27,3 @@ export function initializeFirebaseApp(): FirebaseApp {
 const myApp : FirebaseApp = initializeFirebaseApp();
 export const firestoreDB : Firestore = getFirestore(myApp);
 export const firebaseAuth : Auth = getAuth(myApp);
-
-enableIndexedDbPersistence(firestoreDB).catch(err => {
-	if (err.code == 'failed-precondition') {
-		// Multiple tabs open, persistence can only be enabled
-		// in one tab at a a time.
-		// ...
-	} else if (err.code == 'unimplemented') {
-		// The current browser does not support all of the
-		// features required to enable persistence
-		// ...
-	}
-});
