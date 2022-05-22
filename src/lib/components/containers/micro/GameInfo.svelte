@@ -32,7 +32,6 @@
 </script>
 
 <label class="game-info rounded" for="{id}-none">
-	<!-- <WinLossAt {promiseScores} {promiseStatus} {homeTeam} {awayTeam} {selectedTeam} {spread} {isATSwinner} /> -->
 	<WinLossAt {is_ATS_winner} {game_is_over} />
 	<StatusInfo {promise_status} {promise_scores} {spread} {ATS_winner} {home_team} {away_team} />
 	<SpreadOrPossession {spread} {disabled} {away_team} {home_team} {promise_situation} />
