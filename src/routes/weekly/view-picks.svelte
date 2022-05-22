@@ -4,12 +4,8 @@
 	import PageTitle from '$components/misc/PageTitle.svelte';
 	import ErrorModal from '$components/modals/ErrorModal.svelte';
 	import WeekSelect from '$components/selects/WeekSelect.svelte';
-	import { ErrorAndToast, myLog } from '$scripts/logging';
 	import type { Game } from '$classes/game';
 	import type { WeeklyPickDoc } from '$scripts/classes/picks';
-	// import type { Team } from '$classes/team';
-	import { scheduleCollection, teamsCollection, weeklyPicksCollection } from '$scripts/collections';
-	import { gameConverter, teamConverter, weeklyPickConverter } from '$scripts/converters';
 	import { isBeforeGameTime } from '$scripts/functions';
 	import {
 		all_teams,
@@ -23,47 +19,57 @@
 	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
 	import LoadingSpinner from '$lib/components/misc/LoadingSpinner.svelte';
 	import { getGameData, getPicksData } from '$lib/scripts/weekly/weeklyPlayers';
+	import { createWeeklyPicksForPlayer } from '$lib/scripts/weekly/weeklyAdmin';
 
-	let hoverPlayer: string;
-	let hoverGame: string;
+	let hover_player: string;
+	let hover_game: string;
+	let picksPromise: Promise<WeeklyPickDoc[]>;
+	let gamesPromise: Promise<Game[]>;
+	let data_promise: Promise<{ picks: WeeklyPickDoc[]; games: Game[] }>;
+	const picks_constraints = [
+		where('week', '==', $selected_week),
+		where('year', '==', $selected_year),
+		orderBy('game_id')
+	];
+	const games_constraints = [
+		where('week', '==', $selected_week),
+		where('year', '==', $selected_year),
+		orderBy('id')
+	];
 
+	const createMissingPicks = async (picks: WeeklyPickDoc[], games: Game[]) => {
+		$weekly_players.forEach((player) => {
+			const player_pick_docs = picks.filter((pick) => pick.uid === player.uid);
+			const player_has_all_pick_docs = player_pick_docs.length === games.length;
+			if (!player_has_all_pick_docs) {
+				createWeeklyPicksForPlayer({ player, games });
+			}
+		});
+	};
+	const confirmAllPicksArePresent = async (picks: WeeklyPickDoc[], games: Game[]) => {
+		// If the number of pick docs returned doesn't equal the number of players times the number of games, there are missing docs.
+		if (picks.length !== $weekly_players.length * games.length) {
+			// A fallback to create missing picks on the fly
+			await createMissingPicks(picks, games);
+			// Get the full set of picks, now that the missing ones have been created
+			picksPromise = getPicksData({ constraints: picks_constraints });
+			picks = await picksPromise;
+		}
+		return picks;
+	};
 	const getData = async () => {
-		const picks_constraints = [
-			where('week', '==', $selected_week),
-			where('year', '==', $selected_year),
-			orderBy('game_id')
-		];
-		const games_constraints = [
-			where('week', '==', $selected_week),
-			where('year', '==', $selected_year),
-			orderBy('id')
-		];
 		picksPromise = getPicksData({ constraints: picks_constraints });
 		gamesPromise = getGameData({ constraints: games_constraints });
-		const [picks, games] = await Promise.all([picksPromise, gamesPromise]);
+		let [picks, games] = await Promise.all([picksPromise, gamesPromise]);
+		picks = await confirmAllPicksArePresent(picks, games);
 		return { picks, games };
 	};
 
-	let picksPromise: Promise<WeeklyPickDoc[]>;
-	let gamesPromise: Promise<Game[]>;
-	let data_promise: Promise<{ picks: WeeklyPickDoc[]; games: Game[] }> = getData();
-
-	function changedWeek() {
-		data_promise = getData();
-	}
-	$: {
-		$selected_week;
-		data_promise = getData();
-	}
+	$: if ($selected_week && $selected_year) data_promise = getData();
 </script>
 
 <PageTitle>View League Picks</PageTitle>
-<WeekSelect
-	customStyles={'width:fit-content;margin:auto;'}
-	on:change={changedWeek}
-	on:incrementWeek={changedWeek}
-	on:decrementWeek={changedWeek}
-/>
+<WeekSelect customStyles={'width:fit-content;margin:auto;'} />
 
 {#await data_promise}
 	<LoadingSpinner />
@@ -82,76 +88,73 @@
 					<div
 						transition:fade={{ duration: 750 }}
 						class="game label"
-						class:hovered={hoverGame === game.id}
-						on:mouseover={() => (hoverGame = game.id)}
-						on:mouseleave={() => (hoverGame = '')}
-						on:focus={() => (hoverGame = game.id)}
-						on:blur={() => (hoverGame = '')}
+						class:hovered={hover_game === game.id}
+						on:mouseover={() => (hover_game = game.id)}
+						on:mouseleave={() => (hover_game = '')}
+						on:focus={() => (hover_game = game.id)}
+						on:blur={() => (hover_game = '')}
 					>
 						{game.short_name}
 					</div>
 				{/each}
 				<div>Wins</div>
 				{#each $weekly_players as player}
+					{@const player_picks = picks.filter((pick) => pick.uid === player.uid)}
 					<div
 						transition:fly={{ x: -100, duration: 750 }}
 						class="nickname label"
-						class:hovered={hoverPlayer === player.uid}
-						on:mouseover={() => (hoverPlayer = player.uid)}
-						on:mouseleave={() => (hoverPlayer = '')}
-						on:focus={() => (hoverPlayer = player.uid)}
-						on:blur={() => (hoverPlayer = '')}
+						class:hovered={hover_player === player.uid}
+						on:mouseover={() => (hover_player = player.uid)}
+						on:mouseleave={() => (hover_player = '')}
+						on:focus={() => (hover_player = player.uid)}
+						on:blur={() => (hover_player = '')}
 					>
 						{player.nickname}
 					</div>
 					{#each games as game}
 						{#await isBeforeGameTime(game.timestamp) then notAbleToSee}
-							{#each picks as pickdoc}
-								{@const { pick, uid, game_id, is_correct } = pickdoc}
-								{#if uid === player.uid && game_id === game.id}
+							{#each player_picks as pickdoc}
+								{@const { pick, game_id, is_correct } = pickdoc}
+								<!-- Match the pick document to the game -->
+								{#if game_id === game.id}
+									<!-- If there's no pick, display a placeholder dash -->
 									{#if pick === null || pick === ''}
 										<div transition:fly={{ x: -100, duration: 750 }} class="rounded placeholder">
 											-
 										</div>
 									{:else}
-										{#each $all_teams as team}
-											{#if team.abbreviation === pick}
-												{#if notAbleToSee}
-													<div
-														transition:fly={{ x: -100, duration: 750 }}
-														class="rounded placeholder"
-													>
-														-
-													</div>
-												{:else}
-													<div
-														transition:fly={{ x: -100, duration: 750 }}
-														class="rounded image-holder"
-														class:winner={is_correct}
-														class:dark={$use_dark_theme}
-														class:hovered={hoverPlayer === player.uid || hoverGame === game.id}
-														on:mouseover={() => {
-															hoverPlayer = player.uid;
-															hoverGame = game.id;
-														}}
-														on:mouseleave={() => {
-															hoverPlayer = '';
-															hoverGame = '';
-														}}
-														on:focus={() => {
-															hoverPlayer = player.uid;
-															hoverGame = game.id;
-														}}
-														on:blur={() => {
-															hoverPlayer = '';
-															hoverGame = '';
-														}}
-													>
-														<TeamImage {team} width={'60'} />
-													</div>
-												{/if}
-											{/if}
-										{/each}
+										{@const picked_team = $all_teams.find((team) => team.abbreviation === pick)}
+										{#if notAbleToSee}
+											<div transition:fly={{ x: -100, duration: 750 }} class="rounded placeholder">
+												-
+											</div>
+										{:else}
+											<div
+												transition:fly={{ x: -100, duration: 750 }}
+												class="rounded image-holder"
+												class:winner={is_correct}
+												class:dark={$use_dark_theme}
+												class:hovered={hover_player === player.uid || hover_game === game.id}
+												on:mouseover={() => {
+													hover_player = player.uid;
+													hover_game = game.id;
+												}}
+												on:mouseleave={() => {
+													hover_player = '';
+													hover_game = '';
+												}}
+												on:focus={() => {
+													hover_player = player.uid;
+													hover_game = game.id;
+												}}
+												on:blur={() => {
+													hover_player = '';
+													hover_game = '';
+												}}
+											>
+												<TeamImage team={picked_team} width={'60'} />
+											</div>
+										{/if}
 									{/if}
 								{/if}
 							{/each}
@@ -159,7 +162,7 @@
 							<ErrorModal {error} />
 						{/await}
 					{/each}
-					<!-- TODO: add back player win record for the displayed week -->
+					{player_picks.filter((pick) => pick.is_correct).length}
 				{/each}
 			</Grid>
 		</TransitionWrapper>
