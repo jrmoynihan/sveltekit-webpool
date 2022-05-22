@@ -13,7 +13,7 @@ import {
 	weeklyTiebreakerConverter
 } from '$lib/scripts/converters';
 import { defaultToast, errorToast } from '$lib/scripts/toasts';
-import { getWeeklyPlayers } from './weeklyPlayers';
+import { getPicksData, getWeeklyPlayers } from './weeklyPlayers';
 import { updateDoc, deleteDoc, doc, getDocs, query, setDoc, where, type QueryConstraint, Timestamp } from '@firebase/firestore';
 import { findCurrentWeekOfSchedule } from '$lib/scripts/schedule';
 import { getConsensusSpread } from '$lib/scripts/dataFetching';
@@ -77,10 +77,10 @@ export const getSpecificGames = async (input : getSpecificGameOptions) => {
 
 export const getFutureGames = async(): Promise<Game[]> => {
 	const now_timestamp = Timestamp.now();
+	const future_games_constraints = [where('timestamp', '>=', now_timestamp)];
+	
 	// Get all games that will be played in the future
-	const games = await getSpecificGames({
-	constraints: [where('timestamp', '>=', now_timestamp)]
-			});
+	const games = await getSpecificGames({ constraints: future_games_constraints, showToast: false });
 	return games;
 }
 
@@ -123,21 +123,26 @@ export const createWeeklyPicksForPlayer = async (
 			for await (const game of games) {
 				const { id: game_id, week, timestamp, season_type} = game
 				const year = timestamp.toDate().getFullYear();
-				const newWeeklyPickRef = doc(weeklyPicksCollection);  // auto-generates a new doc ref/id
-				const pickDoc = new WeeklyPickDoc({
-					doc_ref: newWeeklyPickRef,
-					game_id,
-					pick: '',
-					uid,
-					week,
-					year,
-					timestamp,
-					name,
-					nickname,
-					season_type,
-					is_correct: null
-				});
-				await setDoc(newWeeklyPickRef.withConverter(weeklyPickConverter), pickDoc);
+				// Check to make sure a doc doesn't already exist for this game, player, season, year, and week combination.
+				const existing_doc_constraints = [where('game_id', '==', game_id), where('uid', '==', uid), where('season_type', '==', season_type), where('year', '==', year), where('week', '==', week)];
+				const existing_doc = await getPicksData({ constraints: existing_doc_constraints });
+				if(existing_doc.length === 0){
+					const newWeeklyPickRef = doc(weeklyPicksCollection);  // auto-generates a new doc ref/id
+					const pickDoc = new WeeklyPickDoc({
+						doc_ref: newWeeklyPickRef,
+						game_id,
+						pick: '',
+						uid,
+						week,
+						year,
+						timestamp,
+						name,
+						nickname,
+						season_type,
+						is_correct: null
+					});
+					await setDoc(newWeeklyPickRef.withConverter(weeklyPickConverter), pickDoc);
+				}
 			}
 			const title = 'Created Weekly Picks!';
 			const msg = `Pick documents were created for every game for ${player.name} (${player.nickname})`;
