@@ -45,7 +45,7 @@
 	import { myLog } from '$lib/scripts/logging';
 
 	export let refresh: any;
-	let openNewPlayerForm: () => Promise<void> = async () => {};
+	let openNewPlayerForm: () => Promise<void>;
 	const checkWindowWidth = () => {
 		if ($window_width > mobile_breakpoint) {
 			$larger_than_mobile = true;
@@ -61,10 +61,9 @@
 	};
 	const setStores = async () => {
 		if ($firebase_user) {
-			$current_player = $all_players.find((player) => player.uid === $firebase_user.uid);
-			$selected_player = $current_player;
+			await updateCurrentPlayer();
 
-			if ($current_player) {
+			if ($current_player?.uid) {
 				myLog({ msg: `Player found: ${$current_player.name} (${$current_player.nickname})` });
 			} else {
 				openNewPlayerForm();
@@ -74,11 +73,13 @@
 			$selected_season = $current_season;
 		}
 	};
-	// Update the current player whenever their document has changes
-	$: $current_player = $all_players.find((player) => player.uid === $firebase_user.uid);
+	const updateCurrentPlayer = async () => {
+		$current_player = $all_players.find((player) => player.uid === $firebase_user?.uid);
+		$selected_player = $current_player;
+	};
 
 	// After the players are loaded in the onSnapshot listener, we can set the current/selected player
-	$: if ($all_players) setStores();
+	$: if ($all_players.length > 0 && $firebase_user) setStores();
 
 	onMount(async () => {
 		checkWindowWidth();

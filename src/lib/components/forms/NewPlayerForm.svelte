@@ -3,7 +3,13 @@
 	import { all_icons } from '$scripts/classes/constants';
 	import { ErrorAndToast, myLog } from '$scripts/logging';
 	import { savePlayerData } from '$scripts/localStorage';
-	import { firebase_user, current_player, current_season, selected_player } from '$scripts/store';
+	import {
+		firebase_user,
+		current_player,
+		current_season,
+		selected_player,
+		show_new_player_form
+	} from '$scripts/store';
 	import { defaultToast } from '$scripts/toasts';
 	import {
 		createWeeklyTiebreakersForPlayer,
@@ -24,10 +30,14 @@
 	import { cubicInOut } from 'svelte/easing';
 	import AccordionDetails from '$components/containers/accordions/AccordionDetails.svelte';
 	import { findCurrentSeason } from '$lib/scripts/schedule';
+	import { getPlayers } from '$lib/scripts/weekly/weeklyPlayers';
+	import { where } from '@firebase/firestore';
 
-	export let openNewPlayerForm: () => Promise<void> = null;
-	export let closeNewPlayerForm: () => Promise<void> = null;
+	export let openNewPlayerForm: () => Promise<void> = async () => {};
+	export let closeNewPlayerForm: () => Promise<void> = async () => {};
+	let nickname_input: HTMLInputElement = null;
 	let nickname = '';
+	let sanitizedNickname = '';
 	let creatingNewAccount = false;
 	let buttonHidden = true;
 	let nicknameEntered = false;
@@ -35,6 +45,7 @@
 	let totalPriceToEnter = 0;
 	const alphaNumericRegex = /[^\w\s]/g;
 	const nicknameLimit = 20;
+	let nickname_already_exists = false;
 	let illegalCharacters: RegExpMatchArray;
 	let illegalCharacterMsg: string | string[];
 	let nicknameTooLong = false;
@@ -48,7 +59,7 @@
 		description: string[];
 	}[];
 
-	// TODO: this data should be queried from the database
+	// TODO: this data should probably be queried from the database
 	let poolsToJoin = [
 		{
 			name: 'Weekly ATS',
@@ -108,16 +119,13 @@
 	let slideParameters = { easing: cubicInOut, duration: 500 };
 	const createAccount = async () => {
 		try {
-			const sanitizedNickname = nickname.trimStart().trimEnd().replace(alphaNumericRegex, '');
+			// Remove non-alphanumeric characters and trailing/preceding whitespace
 			const toggledPools = await confirmToggledPools();
 			myLog({
 				msg: `Creating account for ${$firebase_user.displayName} (${sanitizedNickname})...`,
 				icon: all_icons.football,
 				additional_params: toggledPools
 			});
-
-			// defaultToast({title: 'Still under construction!', msg: 'Incomplete feature! Go add pool-specific doc creation functions!'});
-			// return
 
 			const { college, pick6, playoffs, survivor, weekly } = toggledPools;
 			$current_player = await createNewPlayerDocument(
@@ -141,8 +149,7 @@
 				createWeeklyPicksForPlayer({
 					player: $current_player,
 					games,
-					logAll: true,
-					showToast: true
+					logAll: true
 				});
 				const season = $current_season || (await findCurrentSeason());
 				createWeeklyTiebreakersForPlayer({ player: $current_player, season });
@@ -202,6 +209,11 @@
 		}
 		buttonHidden = true;
 	};
+	const isNicknameAlreadyInUse = async (nickname: string) => {
+		const player_constraints = [where('nickname', '==', nickname)];
+		const player_doc = await getPlayers({ constraints: player_constraints });
+		return player_doc.length > 0 ? true : false;
+	};
 
 	$: totalPriceToEnter = poolsToJoin.reduce((previousValue, currentItem) => {
 		if (currentItem.toggled) {
@@ -225,45 +237,34 @@
 	$: nickname.length === 0 ? (nicknameEntered = false) : null;
 	$: nickname.length > nicknameLimit ? (nicknameTooLong = true) : (nicknameTooLong = false);
 
-	// $: {
-	// 	if (typing) {
-	// 		setTimeout(() => {
-	// 			typing = false;
-	// 		}, 1250);
-	// 	}
-	// }
-	// $: setTimeout(() => {
-	// 	if (nickname.length >= 3 && !typing) {
-	// 		//TODO add a check to see if the user nickname is already in use?  Could try here or on submission.
-	// 		nicknameEntered = true;
-	// 	} else {
-	// 		nicknameEntered = false;
-	// 	}
-	// }, 1250);
-
-	//possible TODO
-	// const getWeeklyCutoffDate = async (currentYear: number) => {
-	// 	const boundDoc = doc(weekBoundsCollection, currentYear.toString());
-	// };
-
-	// possible TODO
-	// const currentYear = new Date().getFullYear();
-	// weeklyCutoffDate = await getWeeklyCutoffDate(currentYear)
+	async function checkForExistingNickname() {
+		nicknameEntered = true;
+		sanitizedNickname = nickname.trimStart().trimEnd().replace(alphaNumericRegex, '');
+		nickname_already_exists = await isNicknameAlreadyInUse(sanitizedNickname);
+		if (nickname_already_exists) {
+			nickname_input.setCustomValidity(
+				'Nickname already in use.  Please choose a different nickname'
+			);
+			nicknameEntered = false;
+			nickname_input.focus();
+		}
+	}
 
 	export const checkForEnter = (
 		e: KeyboardEvent & { currentTarget: EventTarget & HTMLInputElement }
 	) => {
 		if (e.code === 'Enter') {
-			console.log('pressed Enter');
-			nicknameEntered = true;
+			checkForExistingNickname();
 		}
 	};
+	$: $show_new_player_form && openNewPlayerForm() ? openNewPlayerForm() : null;
 </script>
 
 <Modal
 	bind:open={openNewPlayerForm}
 	bind:close={closeNewPlayerForm}
 	dialog_styles={'width: min(100vw, 600px);'}
+	on:close={() => ($show_new_player_form = false)}
 >
 	<input type="text" placeholder="test" />
 	<Grid
@@ -280,13 +281,17 @@
 					<h5 transition:slide={slideParameters}>Nickname</h5>
 				{/if}
 				<input
+					bind:this={nickname_input}
 					id="nickname"
 					type="text"
 					tabindex="0"
 					class:nicknameEntered
 					disabled={nicknameEntered}
+					required
+					pattern={alphaNumericRegex.source}
 					bind:value={nickname}
 					on:keypress={(e) => checkForEnter(e)}
+					on:input={() => (nickname_already_exists = false)}
 				/>
 
 				<!--TODO: could check for already used nickname here too-->
@@ -299,7 +304,7 @@
 					<button
 						class="continue-button"
 						transition:fly={{ duration: 500, x: 100 }}
-						on:click={() => (nicknameEntered = true)}
+						on:click={checkForExistingNickname}
 						><Fa icon={faArrowAltCircleRight} size="lg" /></button
 					>
 				{:else if nicknameEntered}
@@ -313,6 +318,9 @@
 
 			{#if illegalCharacters}
 				<span class="error two-column">{illegalCharacterMsg}</span>
+			{/if}
+			{#if nickname_already_exists}
+				<span class="error two-column">Nickname already exists.</span>
 			{/if}
 			{#if nicknameTooLong}
 				<span class="error two-column"

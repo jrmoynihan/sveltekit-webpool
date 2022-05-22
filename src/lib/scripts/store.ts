@@ -19,6 +19,7 @@ export const window_width = writable(browser ? window.innerWidth : null);
 export const larger_than_mobile = writable(true);
 export const editing = writable(false);
 export const show_missing_pick_warning = writable(false);
+export const show_new_player_form = writable(false);
 export const show_IDs = writable(false);
 export const show_net_tiebreakers = writable(false);
 export const show_spreads = writable(false);
@@ -44,7 +45,7 @@ export const picks_promise = writable<Promise<WeeklyPickDoc[]>>();
 export const current_picks = writable<WeeklyPickDoc[]>([]);
 export const tiebreaker_promise = writable<Promise<WeeklyTiebreaker[]>>();
 export const players_promise = writable<Promise<Player[]>>(new Promise<Player[]>(() => {}));
-export const overrideDisabled = writable(false);
+export const override_locked_picks = writable(false);
 export const firebase_user = writable<User>(firebaseAuth.currentUser); // The firebase user. Not necessarily a player yet, and without web pool-specific data
 export const current_player = writable<Player>(new Player({}));  // Who is logged into the app; their player data
 export const tiebreaker_score_guess = writable(0);

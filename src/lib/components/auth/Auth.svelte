@@ -9,7 +9,7 @@
 	import FacebookLoginButton from '$lib/components/buttons/FacebookLoginButton.svelte';
 	import { dev } from '$app/env';
 	import OnlineStatusIndicator from '$lib/components/containers/micro/OnlineStatusIndicator.svelte';
-	import { firebase_user } from '$scripts/store';
+	import { current_player, firebase_user, show_new_player_form } from '$scripts/store';
 
 	export let useRedirect = true;
 	let closeLoginModal: () => Promise<void>;
@@ -19,6 +19,10 @@
 		if ($firebase_user) {
 			closeLoginModal();
 		}
+	};
+	const signUp = async () => {
+		$show_new_player_form = true;
+		closeLoginModal();
 	};
 </script>
 
@@ -32,6 +36,9 @@
 	<svelte:fragment slot="modal-content">
 		{#if $firebase_user !== undefined && $firebase_user !== null}
 			<button class="sign-out-button" on:click={startSignOut}>Sign Out</button>
+			{#if !$current_player}
+				<button on:click={signUp}>Sign Up</button>
+			{/if}
 		{:else}
 			<GoogleLoginButton on:click={() => login('Google')} />
 			<FacebookLoginButton on:click={() => login('Facebook')} />
@@ -66,9 +73,14 @@
 
 <style lang="scss">
 	button {
-		@include defaultButtonStyles;
-		text-shadow: 1px 1px 5px var(--background, hsl(120, 16%, 17%));
-		font-size: inherit;
+		@include styledButtonDark;
+		// @include frostedGlassHighContrast;
+		// text-shadow: 1px 1px 5px var(--background, hsl(120, 16%, 17%));
+		// background-color: white;
+		color: var(--text);
+		font-size: 1.4rem;
+		font-weight: 500;
+		font-family: inherit;
 	}
 	img {
 		border-radius: 50%;
@@ -92,13 +104,5 @@
 	picture {
 		display: grid;
 		position: relative;
-	}
-	.sign-out-button {
-		@include frostedGlassHighContrast;
-		background-color: white;
-		font-size: 1.4rem;
-		font-weight: 500;
-		font-family: inherit;
-		text-shadow: none;
 	}
 </style>
