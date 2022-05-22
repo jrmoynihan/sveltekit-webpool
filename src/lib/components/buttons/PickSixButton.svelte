@@ -7,13 +7,14 @@
 
 	export let team: Team;
 	export let selected: boolean;
-	export let group_selected_count: number;
+	export let group_selected_count: number = 0;
+	export let only_unselect: boolean = false;
 </script>
 
 <button
 	class:selected
 	on:click={() => {
-		if (group_selected_count < 2) {
+		if (!only_unselect && group_selected_count < 2) {
 			selected = !selected;
 		} else {
 			selected = false;
