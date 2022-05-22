@@ -1,34 +1,37 @@
 <script lang="ts">
-	import { larger_than_mobile } from '$scripts/store';
-	import type { pickSixItem } from '$scripts/types/types';
+	import type { Team } from '$lib/scripts/classes/team';
+	import { larger_than_mobile, use_dark_theme } from '$scripts/store';
 	import { faTrash } from '@fortawesome/free-solid-svg-icons/index.es';
 	import Fa from 'svelte-fa';
 	import TeamImage from '../containers/TeamImage.svelte';
 
-	export let teamOption: pickSixItem;
-	export let selectedCount: number;
+	export let team: Team;
+	export let selected: boolean;
+	export let group_selected_count: number;
 </script>
 
 <button
-	class:selected={teamOption.selected}
+	class:selected
 	on:click={() => {
-		if (selectedCount < 2) {
-			teamOption.selected = !teamOption.selected;
+		if (group_selected_count < 2) {
+			selected = !selected;
 		} else {
-			teamOption.selected = false;
+			selected = false;
 		}
 	}}
 >
 	<span>
-		{#if teamOption.selected}
+		{#if selected}
 			<Fa
 				icon={faTrash}
-				style={$larger_than_mobile ? 'position:absolute; right: 10%; top: 10%;' : ''}
+				style={`${
+					$larger_than_mobile ? 'position:absolute; right: -1.5rem; top: 45%;' : ''
+				} color: ${$use_dark_theme ? 'inherit' : 'var(--text)'}`}
 			/>
 		{/if}
-		{teamOption.team.abbreviation}
+		{team.abbreviation}
 	</span>
-	<TeamImage team={teamOption.team} width="100px" />
+	<TeamImage {team} width="100px" />
 </button>
 
 <style lang="scss">

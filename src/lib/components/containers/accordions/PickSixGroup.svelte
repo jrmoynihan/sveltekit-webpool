@@ -44,14 +44,14 @@
 		<p>({group_selected_count}/2 picks made)</p>
 	</div>
 	<div slot="content" class="pick6 grid condensed expansive">
-		{#each group.filter((item) => !item.selected) as teamOption (teamOption.team.abbreviation)}
+		{#each group.filter((item) => !item.selected) as { team, selected } (team.abbreviation)}
 			<div
 				class="animation-container"
 				animate:flip={{ duration: 300 }}
-				in:receive={{ key: teamOption.team.abbreviation }}
-				out:send={{ key: teamOption.team.abbreviation }}
+				in:receive={{ key: team.abbreviation }}
+				out:send={{ key: team.abbreviation }}
 			>
-				<PickSixButton bind:teamOption bind:selectedCount={group_selected_count} />
+				<PickSixButton bind:team bind:selected bind:group_selected_count />
 			</div>
 		{/each}
 	</div>
