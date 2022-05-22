@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { isBeforeGameTime } from '$scripts/functions';
-	import { overrideDisabled, window_width } from '$scripts/store';
+	import { override_locked_picks, window_width } from '$scripts/store';
 	import type { Timestamp } from '@firebase/firestore';
 	import type { Team } from '$scripts/classes/team';
-	import type { WeeklyPickDoc } from '$scripts/classes/picks';
 	import { onDestroy, onMount } from 'svelte';
 	import GameInfo from './micro/GameInfo.svelte';
 	import TeamSelectRadioInput from './micro/TeamSelectRadioInput.svelte';
@@ -18,7 +17,6 @@
 	export let timestamp: Timestamp;
 	export let selected_team_abbreviation = '';
 	export let competitions = [];
-	export let current_picks: WeeklyPickDoc[] = [];
 	export let grid_columns = 1;
 	export let is_ATS_winner: null | boolean = null;
 	export let ATS_winner: string;
@@ -30,7 +28,7 @@
 	let element: HTMLElement;
 	let show_game_container = false;
 
-	$: disabled = $overrideDisabled || !is_before_game_time;
+	$: disabled = !(is_before_game_time || $override_locked_picks);
 
 	const checkGameTime = async () => {
 		if (await isBeforeGameTime(timestamp)) {
@@ -101,7 +99,6 @@
 		bind:team={away_team}
 		bind:id
 		bind:selected_team_abbreviation
-		bind:current_picks
 		bind:element
 		bind:show_game_container
 		bind:show_team_name_images
@@ -126,7 +123,6 @@
 		bind:team={home_team}
 		bind:id
 		bind:selected_team_abbreviation
-		bind:current_picks
 		bind:element
 		bind:show_game_container
 		bind:show_team_name_images
