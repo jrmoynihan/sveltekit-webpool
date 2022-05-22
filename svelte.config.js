@@ -34,10 +34,8 @@ const config = {
 	},
 	kit: {
 		// adapter: firebase(),
-		// adapter: adapter(),
-		adapter: vercel({
-			external: ['firebase-admin']
-		}),
+		adapter: adapter(),
+		// adapter: vercel({}),
 		vite: {
 			resolve: {
 				alias: {
