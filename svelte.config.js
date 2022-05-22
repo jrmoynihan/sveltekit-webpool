@@ -1,5 +1,6 @@
 import preprocess from 'svelte-preprocess';
-import adapter from '@sveltejs/adapter-auto';
+// import adapter from '@sveltejs/adapter-auto';
+import vercel from '@sveltejs/adapter-vercel';
 import path, { dirname } from 'path';
 import mkcert from 'vite-plugin-mkcert';
 import { fileURLToPath } from 'url';
@@ -33,7 +34,10 @@ const config = {
 	},
 	kit: {
 		// adapter: firebase(),
-		adapter: adapter(),
+		// adapter: adapter(),
+		adapter: vercel({
+			external: ['firebase-admin']
+		}),
 		vite: {
 			resolve: {
 				alias: {
