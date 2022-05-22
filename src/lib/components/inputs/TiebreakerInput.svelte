@@ -47,6 +47,7 @@
 	}
 	input {
 		@include defaultInput;
+		box-sizing: border-box;
 		display: flex;
 		background-color: white;
 		padding: 2%;
