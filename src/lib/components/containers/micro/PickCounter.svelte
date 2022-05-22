@@ -1,5 +1,4 @@
 <script lang="ts">
-	import type { WeeklyPickDoc } from '$scripts/classes/picks';
 	import { fly } from 'svelte/transition';
 	import MissedPickIndicator from './MissedPickIndicator.svelte';
 
@@ -7,7 +6,6 @@
 	export let currentPickCount = 0;
 	export let totalGameCount = 0;
 	export let upcomingGamesCount = 0;
-	export let currentPicks: WeeklyPickDoc[] = [];
 </script>
 
 <div
@@ -18,11 +16,11 @@
 >
 	{#if upcomingGamesCount === totalGameCount}
 		<p>{currentPickCount} / {totalGameCount} Picks Made</p>
-		<MissedPickIndicator {currentPicks} />
+		<MissedPickIndicator />
 	{:else}
 		<p>{currentPickCount} / {totalGameCount} Picks Made</p>
 		<p>({upcomingGamesCount} Left to Play)</p>
-		<MissedPickIndicator {currentPicks} />
+		<MissedPickIndicator />
 	{/if}
 </div>
 
