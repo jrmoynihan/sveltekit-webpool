@@ -60,6 +60,7 @@
 	}
 	.football {
 		@include accelerate;
+		box-sizing: border-box;
 		display: grid;
 		position: relative;
 		background: radial-gradient(hsl(25, 33%, 46%), hsl(25, 76%, 31%));
@@ -129,6 +130,7 @@
 		}
 	}
 	.short-lace {
+		box-sizing: border-box;
 		display: inline-grid;
 		position: relative;
 		background-color: white;
