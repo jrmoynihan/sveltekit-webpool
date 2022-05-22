@@ -1,6 +1,6 @@
 <script lang="ts">
 	import StyledButton from '$lib/components/buttons/StyledButton.svelte';
-	import { selected_week, selected_year } from '$lib/scripts/store';
+	import { current_player, selected_week, selected_year } from '$lib/scripts/store';
 	import type { ESPNSituation } from '$scripts/classes/game';
 	import type { Team } from '$scripts/classes/team';
 	import { getTeamWithPossession } from '$scripts/dataFetching';
@@ -75,7 +75,7 @@
 			{/if}
 		{/if}
 	</div>
-{:else}
+{:else if $current_player.admin}
 	<div class="spreadOrPossession">
 		<StyledButton
 			on:click={() => {
