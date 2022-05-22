@@ -1,8 +1,7 @@
 <script lang="ts">
-	import type { WeeklyPickDoc } from '$scripts/classes/picks';
 	import type { Team } from '$scripts/classes/team';
-	import { goToMissedPick } from '$scripts/scrollAndFocus';
-	import { overrideDisabled, use_dark_theme } from '$scripts/store';
+	import { scrollToNextGame } from '$scripts/scrollAndFocus';
+	import { override_locked_picks, use_dark_theme } from '$scripts/store';
 	import IntersectionObserver from 'svelte-intersection-observer';
 	import TeamImage from '../TeamImage.svelte';
 	import TeamNameImage from '../TeamNameImage.svelte';
@@ -12,7 +11,6 @@
 	export let team: Team;
 	export let selected_team_abbreviation: string;
 	export let disabled: boolean;
-	export let current_picks: WeeklyPickDoc[] = [];
 	export let element: HTMLElement;
 	export let show_game_container: boolean;
 	export let show_team_name_images: boolean;
@@ -31,9 +29,7 @@
 		type="radio"
 		bind:group={selected_team_abbreviation}
 		on:change={() => {
-			if (!$overrideDisabled) {
-				goToMissedPick(current_picks);
-			}
+			if (!$override_locked_picks) scrollToNextGame();
 		}}
 		value={team.abbreviation}
 		{disabled}
@@ -69,6 +65,7 @@
 	label {
 		@include defaultTransition;
 		@include rounded;
+		box-sizing: border-box;
 		cursor: pointer;
 		place-items: center;
 		display: grid;

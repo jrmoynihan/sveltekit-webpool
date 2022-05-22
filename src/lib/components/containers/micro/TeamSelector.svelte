@@ -11,9 +11,6 @@
 	export let selectedTeam: string;
 	export let homeOrAwayTeam: Team;
 	export let disabled: boolean;
-	export let index: number;
-	export let currentPickCount: number;
-	export let totalGameCount: number;
 	export let showTeamNameImages: boolean;
 	// let element: HTMLElement;
 	// let showGameContainer = false;
@@ -32,7 +29,7 @@
 		id="{id}-{homeOrAwayTeam}"
 		type="radio"
 		bind:group={selectedTeam}
-		on:input={() => scrollToNextGame(index, currentPickCount, totalGameCount)}
+		on:input={scrollToNextGame}
 		value={homeOrAwayTeam.abbreviation}
 		{disabled}
 	/>
