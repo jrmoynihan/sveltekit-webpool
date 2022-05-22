@@ -4,7 +4,7 @@
 		games_promise,
 		larger_than_mobile,
 		nav_toggled,
-		overrideDisabled,
+		override_locked_picks,
 		picks_promise,
 		preferred_score_view,
 		selected_season_type,
@@ -119,9 +119,12 @@
 							<p>Show ATS Winner</p>
 							<ToggleSwitch bind:checked={$show_ATS_winner} />
 
-							<p>Override Locked Games <Fa icon={$overrideDisabled ? faUnlock : faLock} /></p>
-							<ToggleSwitch bind:checked={$overrideDisabled} />
+							<p>Override Locked Games <Fa icon={$override_locked_picks ? faUnlock : faLock} /></p>
+							<ToggleSwitch bind:checked={$override_locked_picks} />
 						{/if}
+					{:else if $page.url.pathname.includes('/pick6')}
+						<p>Select Year</p>
+						<YearSelect />
 					{/if}
 				</Grid>
 			</AdminControlsModal>
