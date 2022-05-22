@@ -29,5 +29,6 @@ export const admin_tabs: PageOption[] = [
 export const admin_controls_pages: string[] = [
 	'/weekly/make-picks',
 	'/weekly/view-picks',
-	'/weekly/standings'
+	'/weekly/standings',
+	'/pick6'
 ];
