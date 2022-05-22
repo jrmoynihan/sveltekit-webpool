@@ -11,7 +11,7 @@
 			<h4 slot="summary">Dev Notes (not visible in production)</h4>
 			<section class="dev-notes" slot="content">
 				<p>
-					<slot />
+					<slot name="content" />
 				</p>
 			</section>
 		</AccordionDetails>
