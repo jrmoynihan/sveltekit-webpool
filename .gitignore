@@ -11,3 +11,4 @@ public/**
 .env
 .env.*
 .vercel
+*.log
