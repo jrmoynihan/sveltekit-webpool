@@ -1,7 +1,7 @@
 import { dev } from '$app/env';
 import { getApps, getApp, initializeApp, type FirebaseApp } from '@firebase/app';
-import { getAuth, type Auth } from '@firebase/auth';
-import { enableIndexedDbPersistence, Firestore, getFirestore } from '@firebase/firestore';
+import { connectAuthEmulator, getAuth, type Auth } from '@firebase/auth';
+import { connectFirestoreEmulator, enableIndexedDbPersistence, enableMultiTabIndexedDbPersistence, Firestore, getFirestore } from '@firebase/firestore';
 
 const API_KEY: string = dev ? import.meta.env.API_KEY as string : process.env.API_KEY as string;
 const firebaseConfig = {
@@ -26,4 +26,22 @@ export function initializeFirebaseApp(): FirebaseApp {
 }
 const myApp : FirebaseApp = initializeFirebaseApp();
 export const firestoreDB : Firestore = getFirestore(myApp);
+
+// Use emulators during dev and persist data on client during production
+if(dev){
+	connectFirestoreEmulator(firestoreDB,'localhost',8080)
+}else{
+	enableMultiTabIndexedDbPersistence(firestoreDB).catch((err) => {
+	if (err.code == 'failed-precondition') {
+		// Multiple tabs open, persistence can only be enabled
+		// in one tab at a a time.
+		// ...
+	} else if (err.code == 'unimplemented') {
+		// The current browser does not support all of the
+		// features required to enable persistence
+		// ...
+	}
+});
+}
 export const firebaseAuth : Auth = getAuth(myApp);
+if(dev) connectAuthEmulator(firebaseAuth,'http://localhost:9099')
