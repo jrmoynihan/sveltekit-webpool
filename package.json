@@ -9,6 +9,7 @@
 		"build": "npx rimraf public && svelte-kit build --verbose",
 		"preview-build-locally": "svelte-kit preview --port 5000 --https",
 		"deploy": "firebase deploy",
+		"emulate-with-data": "firebase emulators:start --import /data-export",
 		"check": "svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --check --plugin-search-dir=. . && eslint --fix --ignore-path .gitignore . && stylelint 'src/**/*.{css,scss,svelte}' ",
