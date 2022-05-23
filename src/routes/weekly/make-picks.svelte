@@ -92,9 +92,16 @@
 			const game_constraints = [
 				where('year', '==', year),
 				where('week', '==', week),
-				where('season_type', '==', season_type)
+				where('season_type', '==', season_type),
+				orderBy('timestamp'),
+				orderBy('id')
 			];
-			const tiebreaker_constraints = [...game_constraints, where('uid', '==', player.uid)];
+			const tiebreaker_constraints = [
+				where('year', '==', year),
+				where('week', '==', week),
+				where('season_type', '==', season_type),
+				where('uid', '==', player.uid)
+			];
 			const picks_constraints = [
 				...tiebreaker_constraints,
 				orderBy('timestamp'),
