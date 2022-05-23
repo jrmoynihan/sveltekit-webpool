@@ -68,17 +68,10 @@
 	}
 	.expansive {
 		@include responsive_desktop_only {
-			grid-template-columns: repeat(4, 1fr);
+			grid-template-columns: repeat(6, 1fr);
 		}
 	}
 	.animation-container {
 		height: 100%;
 	}
-	// .placeholder {
-	// 	@include rounded;
-	// 	display: grid;
-	// 	place-content: center;
-	// 	outline: 2px var(--accent) solid;
-	// 	height: 10rem;
-	// }
 </style>
