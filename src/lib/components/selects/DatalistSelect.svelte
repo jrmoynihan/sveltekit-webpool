@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte/internal';
-	import { nanoid } from 'nanoid';
 	// An id for the input element
-	export let inputID = nanoid();
+	export let inputID = crypto.randomUUID();
 	// An array of objects to use as the datasource
 	export let items: ArrayLike<unknown>;
 	// Which of the object's keynames will be displayed in the dropdown

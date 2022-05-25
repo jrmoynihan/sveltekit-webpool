@@ -1,14 +1,12 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
-	import { nanoid } from 'nanoid';
-
 	// Expose a property to the bind:checked event and disabled states of the toggle
 	export let checked = false;
 	export let disabled = false;
 	// A property to target a grid-area
 	export let area = '';
 	// An id property for a label to target
-	export let id = nanoid();
+	export let id = crypto.randomUUID();
 	export let labelText = '';
 	// Add override styles
 	export let sliderStyles = '';
