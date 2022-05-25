@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { HomeOrAway } from '$scripts/classes/constants';
 	import type { ESPNScore, ESPNStatus } from '$scripts/classes/game';
 	import type { Team } from '$scripts/classes/team';
 	import AtSscore from './ATSscore.svelte';
@@ -17,7 +16,7 @@
 	{#if status.type.description === 'Final'}
 		{#await promise_scores then scores}
 			<AtSscore
-				home_or_away={HomeOrAway.Away}
+				home_or_away={'Away'}
 				team={away_team}
 				{ATS_winner}
 				score={scores.awayScoreData}
@@ -26,7 +25,7 @@
 			/>
 			<AtStooltip />
 			<AtSscore
-				home_or_away={HomeOrAway.Home}
+				home_or_away={'Home'}
 				team={home_team}
 				{ATS_winner}
 				score={scores.homeScoreData}

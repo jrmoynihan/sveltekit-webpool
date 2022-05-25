@@ -1,5 +1,4 @@
 <script lang="ts">
-	import type { HomeOrAway } from '$scripts/classes/constants';
 	import type { ESPNScore } from '$scripts/classes/game';
 	import type { Team } from '$scripts/classes/team';
 
@@ -8,7 +7,7 @@
 	export let score: ESPNScore;
 	export let spread: number;
 	export let grid_area: string;
-	export let home_or_away: HomeOrAway;
+	export let home_or_away: 'Home' | 'Away';
 
 	let min = 30;
 	let max = 60;

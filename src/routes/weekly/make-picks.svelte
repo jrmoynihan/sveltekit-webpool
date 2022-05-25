@@ -30,7 +30,6 @@
 		bomb,
 		checkmark,
 		home,
-		HomeOrAway,
 		policeCarLight
 	} from '$scripts/classes/constants';
 	import { onMount } from 'svelte';
@@ -257,7 +256,7 @@
 		logIcon: string = '',
 		logAndToastMsg: string = '',
 		focusTiebreakerAfterwards: boolean = false,
-		homeOrAway?: HomeOrAway
+		homeOrAway?: 'Home' | 'Away'
 	): Promise<WeeklyPickDoc[]> => {
 		try {
 			const games_past_gametime = games
@@ -320,15 +319,7 @@
 	};
 
 	const pickAllHome = async (games: Game[], picks: WeeklyPickDoc[]) => {
-		picks = await updatePicks(
-			games,
-			picks,
-			false,
-			home,
-			'Picked all home teams!',
-			true,
-			HomeOrAway.Home
-		);
+		picks = await updatePicks(games, picks, false, home, 'Picked all home teams!', true, 'Home');
 		return picks;
 	};
 	const pickAllAway = async (games: Game[], picks: WeeklyPickDoc[]) => {
@@ -339,7 +330,7 @@
 			airplaneDeparture,
 			'Picked all away teams!',
 			true,
-			HomeOrAway.Away
+			'Away'
 		);
 		return picks;
 	};
@@ -476,6 +467,10 @@
 	$: show_tiebreaker_input =
 		current_pick_count >= number_of_played_games + upcoming_games_count &&
 		upcoming_games_count !== 0;
+	$: console.log('show_tiebreaker_input', show_tiebreaker_input);
+	$: console.log('current_pick_count', current_pick_count);
+	$: console.log('number_of_played_games', number_of_played_games);
+	$: console.log('upcoming_games_count', upcoming_games_count);
 </script>
 
 <PageTitle>Make Weekly Picks</PageTitle>
