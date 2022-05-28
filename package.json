@@ -58,7 +58,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@firebase/app": "^0.7.24",
+		"@firebase/app": "^0.7.23",
 		"@firebase/app-compat": "^0.1.25",
 		"@firebase/app-types": "^0.7.0",
 		"@firebase/auth": "^0.20.1",
