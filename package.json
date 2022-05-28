@@ -61,7 +61,7 @@
 		"@firebase/app": "^0.7.24",
 		"@firebase/app-compat": "^0.1.25",
 		"@firebase/app-types": "^0.7.0",
-		"@firebase/auth": "^0.20.1",
+		"@firebase/auth": "^0.20.0",
 		"@firebase/firestore": "^3.4.9",
 		"@fortawesome/fontawesome-common-types": "^6.1.1",
 		"@fortawesome/free-brands-svg-icons": "^6.1.1",
