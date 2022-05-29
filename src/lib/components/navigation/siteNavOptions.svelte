@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { dev } from '$app/env';
 	import { page_options } from '$lib/scripts/site';
 	import NavLink from '$navigation/NavLink.svelte';
 	import { firebase_user, current_player } from '$scripts/store';
@@ -9,7 +10,7 @@
 		<NavLink {index} page_option={page} />
 		<!-- If there's an active/authorized user... -->
 	{:else if $current_player !== undefined && $firebase_user !== undefined}
-		{#if page.requires_admin === true && $current_player.admin === true}
+		{#if dev || (page.requires_admin === true && $current_player.admin === true)}
 			<NavLink {index} page_option={page} />
 		{:else if page.requires_weekly && $current_player.weekly === true}
 			<NavLink {index} page_option={page} />
