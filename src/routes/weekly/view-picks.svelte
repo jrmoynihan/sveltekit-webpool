@@ -152,7 +152,7 @@
 													hover_game = '';
 												}}
 											>
-												<TeamImage team={picked_team} width={'60'} />
+												<TeamImage team={picked_team} />
 											</div>
 										{/if}
 									{/if}

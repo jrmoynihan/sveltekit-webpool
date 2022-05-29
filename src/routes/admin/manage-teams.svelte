@@ -7,8 +7,10 @@
 	import { defaultToast } from '$scripts/toasts';
 	import { all_teams } from '$scripts/store';
 	import { teamsCollection } from '$lib/scripts/collections';
+	import TeamImage from '$lib/components/containers/TeamImage.svelte';
+	import TeamNameImage from '$lib/components/containers/TeamNameImage.svelte';
 
-	let selectedTeam = $all_teams[0];
+	let selected_team = $all_teams[0];
 
 	function writeTeamDoc(team: Team): void {
 		try {
@@ -45,35 +47,35 @@
 
 <PageTitle>Manage Teams</PageTitle>
 
-<select bind:value={selectedTeam} class="team-select">
+<select bind:value={selected_team} class="team-select">
 	{#each $all_teams as team (team)}
 		<option value={team}>{team.city} {team.name}</option>
 	{/each}
 </select>
-{#if selectedTeam}
+{#if selected_team}
 	<div class="info-grid">
 		<div class="images" style="grid-area:image;">
-			<img src={selectedTeam.logoPath} alt={selectedTeam.name} width="200px" />
-			<img src={selectedTeam.fontPath} alt={selectedTeam.name} width="200px" />
+			<TeamImage team={selected_team} />
+			<TeamNameImage team={selected_team} />
 		</div>
-		{#each Object.keys(selectedTeam) as key}
+		{#each Object.keys(selected_team) as key}
 			{#if key !== 'docRef'}
-				<label for={`${selectedTeam.abbreviation}-${key}`} style="grid-area:{key}">
+				<label for={`${selected_team.abbreviation}-${key}`} style="grid-area:{key}">
 					{key}
 					{#if key === 'conference'}
 						<select
-							id={`${selectedTeam.abbreviation}-${key}`}
-							bind:value={selectedTeam[key]}
-							style="font-style:{selectedTeam[key] ? '' : 'italic'}"
+							id={`${selected_team.abbreviation}-${key}`}
+							bind:value={selected_team[key]}
+							style="font-style:{selected_team[key] ? '' : 'italic'}"
 							>{#each conferences as conf}
 								<option value={conf}>{conf}</option>
 							{/each}
 						</select>
 					{:else if key === 'division'}
 						<select
-							id={`${selectedTeam.abbreviation}-${key}`}
-							bind:value={selectedTeam[key]}
-							style="font-style:{selectedTeam[key] ? '' : 'italic'}"
+							id={`${selected_team.abbreviation}-${key}`}
+							bind:value={selected_team[key]}
+							style="font-style:{selected_team[key] ? '' : 'italic'}"
 							>{#each divisions as div}
 								<option value={div}>{div}</option>
 							{/each}
@@ -81,19 +83,20 @@
 					{:else if key === 'wins' || key === 'losses' || key === 'ties'}
 						<input
 							type="number"
-							id={`${selectedTeam.abbreviation}-${key}`}
-							bind:value={selectedTeam[key]}
-							style="font-style:{selectedTeam[key] ? '' : 'italic'};  width:min(calc({selectedTeam[
-								key
-							].toString().length}ch + 5rem),100%);"
+							id={`${selected_team.abbreviation}-${key}`}
+							bind:value={selected_team[key]}
+							style="font-style:{selected_team[key]
+								? ''
+								: 'italic'};  width:min(calc({selected_team[key].toString()
+								.length}ch + 5rem),100%);"
 							placeholder={key}
 						/>
 					{:else}
 						<input
 							type="text"
-							id={`${selectedTeam.abbreviation}-${key}`}
-							bind:value={selectedTeam[key]}
-							style="font-style:{selectedTeam[key] ? '' : 'bold'} ; width:min(calc({selectedTeam[
+							id={`${selected_team.abbreviation}-${key}`}
+							bind:value={selected_team[key]}
+							style="font-style:{selected_team[key] ? '' : 'bold'} ; width:min(calc({selected_team[
 								key
 							].toString().length}ch + 5rem),100%);"
 							placeholder={key}
@@ -102,7 +105,7 @@
 				</label>
 			{/if}
 		{/each}
-		<button on:click={() => writeTeamDoc(selectedTeam)}>Update Doc</button>
+		<button on:click={() => writeTeamDoc(selected_team)}>Update Doc</button>
 	</div>
 {/if}
 

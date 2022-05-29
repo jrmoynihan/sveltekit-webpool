@@ -51,7 +51,6 @@
 			rounded={true}
 			whiteBg={true}
 			grayscale={selectedTeam === homeOrAwayTeam.abbreviation && selectedTeam !== ''}
-			width="300rem"
 		/>
 	{/if}
 	<!-- {/if}

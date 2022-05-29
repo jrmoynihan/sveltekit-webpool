@@ -32,7 +32,7 @@
 		{/if}
 		{team.abbreviation}
 	</span>
-	<TeamImage {team} width="100px" />
+	<TeamImage {team} />
 </button>
 
 <style lang="scss">
