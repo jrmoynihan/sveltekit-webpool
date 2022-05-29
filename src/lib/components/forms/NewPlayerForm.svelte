@@ -8,13 +8,15 @@
 		current_player,
 		current_season,
 		selected_player,
-		show_new_player_form
+		show_new_player_form,
+		current_season_year
 	} from '$scripts/store';
 	import { defaultToast } from '$scripts/toasts';
 	import {
 		createWeeklyTiebreakersForPlayer,
 		createWeeklyPicksForPlayer,
-		getFutureGames
+		getFutureGames,
+		createSeasonRecordForPlayer
 	} from '$scripts/weekly/weeklyAdmin';
 	import {
 		faArrowAltCircleRight,
@@ -146,17 +148,23 @@
 			// Get all games that will be played in the future and make picks for the player
 			if (weekly) {
 				const games = await getFutureGames();
-				createWeeklyPicksForPlayer({
-					player: $current_player,
-					games,
-					logAll: true
-				});
+				if (games.length > 0) {
+					createWeeklyPicksForPlayer({
+						player: $current_player,
+						games,
+						logAll: true
+					});
+				}
 				const season = $current_season || (await findCurrentSeason());
 				createWeeklyTiebreakersForPlayer({ player: $current_player, season });
 				// TODO: createWeeklyRecords;
 			}
 
-			// TODO: createSeasonRecords;  should occur for any player, since all pools will likely have seasonal record data
+			// Create season record for any type of player, since all pools will likely have seasonal record data
+			await createSeasonRecordForPlayer({
+				player: $current_player,
+				season_year: $current_season_year
+			});
 
 			//prettier-ignore
 			defaultToast({
