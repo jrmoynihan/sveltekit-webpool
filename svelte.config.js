@@ -60,6 +60,7 @@ const config = {
 				'TEN',
 				'WSH'
 			],
+			componentExtensions: ['webp', 'avif'],
 			processFoldersRecursively: true,
 			processFoldersExtensions: ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'avif'],
 			processFoldersSizes: [50, 100, 200, 400, 800, 1200, 1600],
