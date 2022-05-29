@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { image_sizes, responsive_sizes } from '$lib/scripts/classes/constants';
 	import type { Team } from '$scripts/classes/team';
 	import { fade } from 'svelte/transition';
 
@@ -9,12 +10,12 @@
 	export let bottomRounded = false;
 	export let frosted = false;
 	export let whiteBg = false;
-	export let width = 'auto';
+	// export let width = 'auto';
 	export let height = 'auto';
 </script>
 
 <picture style="height: {height};" transition:fade={{ duration: 400 }}>
-	<!-- <source srcset={team.logoPath} type="image/webp" /> -->
+	<!-- <source media="" srcset={team.logoPath} type="image/webp" /> -->
 	<img
 		class="logo"
 		class:grayscale
@@ -23,12 +24,13 @@
 		class:whiteBg
 		class:topRounded
 		class:bottomRounded
-		src={team.fontPath}
-		alt="{team.city}-{team.name}"
-		{width}
-		{height}
 		loading="lazy"
 		decoding="async"
+		sizes={responsive_sizes.join(', ')}
+		alt="{team.city}-{team.name}"
+		srcset={`${image_sizes.map(
+			(size) => `/g${team.logoPath.split('.')[0]}-${size}.webp ${size}w`
+		)}, `}
 	/>
 </picture>
 
@@ -40,6 +42,7 @@
 	}
 	img {
 		@include accelerate;
+		transition: all 300ms ease-in-out;
 		padding: 1rem;
 		max-height: 6rem;
 		max-width: 100%;

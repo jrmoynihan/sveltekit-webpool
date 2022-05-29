@@ -26,6 +26,13 @@ export const firstPlaceWeeklyAmount = 50;
 export const secondPlaceWeeklyAmount = 25;
 export const thirdPlaceWeeklyAmount = 15;
 export const everyoneWinsResult = 'push';
+export const image_sizes = [50, 100, 200, 400, 800, 1200, 1600];
+export const screen_sizes = [320, 375, 425, 768, 1024, 1440, 1920];
+export const screen_size_queries = screen_sizes.map((size) => `(max-width: ${size}px)`);
+export const responsive_sizes = screen_sizes.map((screen_size, index) => {
+	const image_size = image_sizes[index];
+	return `${screen_size_queries[index]} ${image_size}px`;
+});
 
 // CSS emoji for console logging (https://unicode.org/emoji/charts/full-emoji-list.html)
 export const okHand = String.fromCodePoint(0x1f44c);
