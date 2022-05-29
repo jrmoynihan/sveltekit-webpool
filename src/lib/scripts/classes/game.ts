@@ -14,8 +14,8 @@ export class Game {
 	short_name: string;
 	spread: number;
 	timestamp: Timestamp;
-	year: number;
 	week: number;
+	season_year: number;
 	season_type: string;
 	home_team: Team;
 	away_team: Team;
@@ -37,8 +37,8 @@ export class Game {
 		this.short_name = args.short_name;
 		this.spread = args.spread;
 		this.timestamp = args.timestamp;
-		this.year = args.year;
 		this.week = args.week;
+		this.season_year = args.season_year;
 		this.season_type = args.season_type;
 		this.home_team = args.home_team;
 		this.away_team = args.away_team;
