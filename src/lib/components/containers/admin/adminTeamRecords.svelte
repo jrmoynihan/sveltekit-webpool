@@ -38,7 +38,7 @@
 	<StyledButton
 		on:click={() => {
 			updateTeamRecordsFromESPN($selected_year);
-		}}>Update Team Records</StyledButton
+		}}>Update Team Records for {$selected_year}</StyledButton
 	>
 	<DeletionButton on:click={() => resetTeamRecords()}>Reset Team Records</DeletionButton>
 </AdminExpandSection>
