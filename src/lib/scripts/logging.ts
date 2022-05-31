@@ -38,6 +38,7 @@ export const myLog = (input: myLogType): void => {
 		console.trace(...args);
 	} else if (additional_params) {
 		console.group(...args);
+		console.groupEnd();
 	} else {
 		console.log(...args);
 	}
