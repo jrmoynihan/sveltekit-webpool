@@ -21,7 +21,6 @@ export class Player {
 	paid_survivor: boolean;
 	paid_college: boolean;
 	paid_pick6: boolean;
-	// TODO: add a method to migrate seasonal data to an array of objects at the end of the year
 	constructor({ ...args }) {
 		(this.uid = args.uid),
 			(this.ref = args.ref),
