@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
-	export async function load({ url }: LoadInput): Promise<LoadOutput> {
+	export async function load({ url }: LoadEvent): Promise<LoadOutput> {
 		// Check if the user is logged in
 		if (get(firebase_user)) {
 			console.log('User is logged in');
@@ -19,6 +19,7 @@
 	import '../app.css';
 	import {
 		all_players,
+		all_seasons,
 		current_player,
 		current_season,
 		firebase_user,
@@ -39,10 +40,11 @@
 	import { onMount } from 'svelte';
 	import { getLocalStorageItem } from '$scripts/localStorage';
 	import NewPlayerForm from '$lib/components/forms/NewPlayerForm.svelte';
-	import type { LoadInput, LoadOutput } from '@sveltejs/kit';
+	import type { LoadEvent, LoadOutput } from '@sveltejs/kit';
 	import { get } from 'svelte/store';
 	import { findCurrentSeason } from '$lib/scripts/schedule';
 	import { myLog } from '$lib/scripts/logging';
+	import { dev } from '$app/env';
 
 	export let refresh: any;
 	let openNewPlayerForm: () => Promise<void>;
@@ -70,7 +72,12 @@
 				myLog({ msg: `Player NOT found for user: ${$firebase_user?.displayName}` });
 			}
 			$current_season = await findCurrentSeason();
-			$selected_season = $current_season;
+			$selected_season = dev
+				? $all_seasons.find(
+						(season) =>
+							season.year === new Date().getFullYear() && season.type_name === 'Regular Season'
+				  )
+				: $current_season;
 		}
 	};
 	const updateCurrentPlayer = async () => {

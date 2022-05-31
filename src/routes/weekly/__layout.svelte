@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
-	export const load = async ({ url }: LoadInput): Promise<LoadOutput> => ({
+	export const load = async ({ url }: LoadEvent): Promise<LoadOutput> => ({
 		props: {
 			refresh: url.pathname.split('/')[2]
 		}
@@ -11,7 +11,7 @@
 	import Navigator from '$navigation/Navigator.svelte';
 	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
 	import { nav_toggled } from '$scripts/store';
-	import type { LoadInput, LoadOutput } from '@sveltejs/kit';
+	import type { LoadEvent, LoadOutput } from '@sveltejs/kit';
 	import { weekly_tabs } from '$scripts/site';
 
 	export let refresh: unknown;
