@@ -4,8 +4,11 @@
 	import { createEventDispatcher } from 'svelte';
 	import Fa from 'svelte-fa';
 	import { makeNumericArrayOfDesiredLength } from '$lib/scripts/functions';
+	import { dev } from '$app/env';
 
-	export let weeks: number[] = makeNumericArrayOfDesiredLength($selected_season?.number_of_weeks);
+	export let weeks: number[] = makeNumericArrayOfDesiredLength(
+		dev ? 18 : $selected_season?.number_of_weeks
+	);
 	export let showButtons = true;
 	export let customStyles = '';
 	export let customSelectStyles = '';
@@ -22,7 +25,7 @@
 		dispatch('decrementWeek');
 	};
 
-	$: weeks = makeNumericArrayOfDesiredLength($selected_season?.number_of_weeks);
+	$: weeks = makeNumericArrayOfDesiredLength(dev ? 18 : $selected_season?.number_of_weeks);
 </script>
 
 <div class="weekSelectors" style={customStyles}>
