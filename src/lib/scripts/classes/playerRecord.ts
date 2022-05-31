@@ -6,7 +6,7 @@ export class PlayerRecord {
 	net_tiebreaker_absolute: number;
 	season_type: string;
 	week: number;
-	year: number;
+	season_year: number;
 	prize_amount: number;
 	constructor({ ...args }) {
 		this.uid = args.uid;
@@ -16,19 +16,19 @@ export class PlayerRecord {
 		this.net_tiebreaker_absolute = args.net_tiebreaker_absolute || 0;
 		this.season_type = args.season_type;
 		this.week = args.week;
-		this.year = args.year;
+		this.season_year = args.season_year;
 		this.prize_amount = args.prize_amount || 0;
 	}
 }
 export class SeasonRecord {
 	uid: string;
-	year: number;
+	season_year: number;
 	total_weekly_wins: number;
 	total_weekly_losses: number;
 	constructor({ ...args }) {
 		this.uid = args.uid;
-		this.year = args.year;
-		this.total_weekly_wins = args.total_wins || 0;
-		this.total_weekly_losses = args.total_losses || 0;
+		this.season_year = args.season_year;
+		this.total_weekly_wins = args.total_weekly_wins || 0;
+		this.total_weekly_losses = args.total_weekly_losses || 0;
 	}
 }
