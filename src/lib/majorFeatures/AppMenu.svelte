@@ -53,7 +53,7 @@
 	}
 	export async function adminSelectorsUpdated() {
 		const game_constraints = [
-			where('year', '==', $selected_year),
+			where('season_year', '==', $selected_year),
 			where('week', '==', $selected_week),
 			where('season_type', '==', $selected_season_type)
 		];

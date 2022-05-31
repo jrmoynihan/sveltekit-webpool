@@ -30,7 +30,7 @@
 		try {
 			const last_game_constraints = [
 				where('week', '==', selected_week),
-				where('year', '==', selected_year),
+				where('season_year', '==', selected_year),
 				where('isLastGameOfWeek', '==', true)
 			];
 			const last_game = await getGameData({ constraints: last_game_constraints });
@@ -51,9 +51,9 @@
 		last_game: Game;
 		weekly_records: PlayerRecord[];
 	}> => {
-		const player_record_constraints = [
+		const weekly_player_record_constraints = [
 			where('week', '==', week),
-			where('year', '==', year),
+			where('season_year', '==', year),
 			orderBy('wins', 'desc'),
 			orderBy('net_tiebreaker_absolute')
 		];
@@ -66,7 +66,7 @@
 		});
 		let last_game_promise: Promise<Game> = getLastGame(week, year);
 		let weekly_records_promise: Promise<PlayerRecord[]> = getWeeklyRecordData({
-			constraints: player_record_constraints
+			constraints: weekly_player_record_constraints
 		});
 
 		// Wait for all the data to come in before resolving the getData() promise with the results

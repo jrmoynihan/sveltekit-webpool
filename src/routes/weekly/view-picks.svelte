@@ -28,12 +28,12 @@
 	let data_promise: Promise<{ picks: WeeklyPickDoc[]; games: Game[] }>;
 	const picks_constraints = [
 		where('week', '==', $selected_week),
-		where('year', '==', $selected_year),
+		where('season_year', '==', $selected_year),
 		orderBy('game_id')
 	];
 	const games_constraints = [
 		where('week', '==', $selected_week),
-		where('year', '==', $selected_year),
+		where('season_year', '==', $selected_year),
 		orderBy('id')
 	];
 

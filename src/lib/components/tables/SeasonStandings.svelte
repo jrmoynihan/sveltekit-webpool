@@ -6,8 +6,7 @@
 	import { getSeasonRecordsData } from '$lib/scripts/scorePicks';
 
 	const season_record_constraints = [
-		where('weekly', '==', true),
-		where('year', '==', $selected_year),
+		where('season_year', '==', $selected_year),
 		orderBy('total_weekly_wins', 'desc')
 	];
 
