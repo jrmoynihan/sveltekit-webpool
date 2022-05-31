@@ -8,10 +8,7 @@ export class Team {
 	division: string;
 	logoPath: string;
 	fontPath: string;
-	wins: number;
-	losses: number;
-	ties: number;
-	records: Record<string, unknown>[];
+	records: TeamRecord[];
 	docRef?: DocumentReference;
 	docID?: string;
 	constructor({ ...args }) {
@@ -22,11 +19,14 @@ export class Team {
 		this.division = args.division;
 		this.logoPath = args.logoPath;
 		this.fontPath = args.fontPath;
-		this.wins = args.wins;
-		this.losses = args.losses;
-		this.ties = args.ties;
 		this.records = args.records;
 		this.docRef = args.docRef;
 		this.docID = args.docID;
 	}
+}
+export class TeamRecord {
+	year: number;
+	wins: number;
+	losses: number;
+	ties: number;
 }
