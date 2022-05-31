@@ -2,56 +2,57 @@
 	import type { Team } from '$scripts/classes/team';
 	import { scrollToNextGame } from '$scripts/scrollAndFocus';
 	import { override_locked_picks, use_dark_theme } from '$scripts/store';
+	import { getContext } from 'svelte';
 	import IntersectionObserver from 'svelte-intersection-observer';
+	import type { Writable } from 'svelte/store';
 	import TeamImage from '../TeamImage.svelte';
 	import TeamNameImage from '../TeamNameImage.svelte';
 	import TeamRecord from './TeamRecord.svelte';
 
 	export let id: string;
 	export let team: Team;
-	export let selected_team_abbreviation: string;
-	export let disabled: boolean;
+	export let pick: string;
 	export let element: HTMLElement;
 	export let show_game_container: boolean;
 	export let show_team_name_images: boolean;
+	let disabled: Writable<boolean> = getContext('disabled');
 </script>
 
 <label
 	for="{id}-{team.abbreviation}"
 	class="dayShadow nightShadow"
-	class:selected={selected_team_abbreviation === team.abbreviation}
+	class:selected={pick === team.abbreviation}
 	class:dark-mode={$use_dark_theme}
-	class:disabled
+	class:disabled={$disabled}
 	tabindex="0"
 >
 	<input
 		id="{id}-{team.abbreviation}"
 		type="radio"
-		bind:group={selected_team_abbreviation}
+		bind:group={pick}
 		on:change={() => {
 			if (!$override_locked_picks) scrollToNextGame();
 		}}
 		value={team.abbreviation}
-		{disabled}
+		disabled={$disabled}
 	/>
 	<!--prettier-ignore-->
 	<IntersectionObserver once={true} {element}	on:intersect={() => {show_game_container = true;}}>
 		{#if show_game_container}
 			<TeamImage
 				{team}
-				grayscale={selected_team_abbreviation !== team.abbreviation && selected_team_abbreviation !== ''}
+				grayscale={pick !== team.abbreviation && pick !== ''}
 			/>
 			{#if show_team_name_images}
 				<TeamNameImage
 					{team}
 					rounded={true}
 					whiteBg={true}
-					width="300rem"
-					grayscale={selected_team_abbreviation !== team.abbreviation && selected_team_abbreviation !== ''}
+					grayscale={pick !== team.abbreviation && pick !== ''}
 				/>
 			{/if}
 		{/if}
-		<TeamRecord showTeamAbbreviation={!show_team_name_images} team={team} />
+		<TeamRecord showTeamAbbreviation={!show_team_name_images} {team} />
 	</IntersectionObserver>
 </label>
 

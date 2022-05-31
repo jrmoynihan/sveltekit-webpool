@@ -1,18 +1,33 @@
 <script lang="ts">
-	import type { Team } from '$scripts/classes/team';
-	import { use_dark_theme } from '$scripts/store';
+	import type { Team, TeamRecord } from '$scripts/classes/team';
+	import { selected_year, use_dark_theme } from '$scripts/store';
+	import { getContext } from 'svelte';
+	import type { Writable } from 'svelte/store';
 
 	export let showTeamAbbreviation = false;
-	export let disabled = false;
 	export let team: Team;
+	export let year = $selected_year;
+	let disabled: Writable<boolean> = getContext('disabled');
+	let record: TeamRecord;
+	let wins: number;
+	let losses: number;
+	let ties: number;
+	$: record = team?.records.find((r) => r.year === year);
+	$: wins = record?.wins;
+	$: losses = record?.losses;
+	$: ties = record?.ties;
 </script>
 
-<span class="rounded team-abbreviation" class:dark-mode={$use_dark_theme} class:disabled>
+<span
+	class="rounded team-abbreviation"
+	class:dark-mode={$use_dark_theme}
+	class:disabled={$disabled}
+>
 	{#if showTeamAbbreviation}
 		{team.abbreviation}
 	{/if}
 	<p>
-		({team.wins}-{team.losses}{#if team.ties > 0}-{team.ties}{/if})
+		({wins}-{losses}{#if ties > 0}-{ties}{/if})
 	</p>
 </span>
 
@@ -26,5 +41,8 @@
 	}
 	.team-abbreviation {
 		font-weight: bold;
+	}
+	.disabled {
+		opacity: 0.5;
 	}
 </style>

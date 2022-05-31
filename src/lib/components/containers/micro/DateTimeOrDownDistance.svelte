@@ -3,17 +3,19 @@
 	import type { Timestamp } from '@firebase/firestore';
 	import { show_timestamps } from '$scripts/store';
 	import GameTime from './GameTime.svelte';
+	import { getContext } from 'svelte';
+	import type { Writable } from 'svelte/store';
 
-	export let timestamp: Timestamp;
-	export let promise_status: Promise<ESPNStatus>;
-	export let promise_situation: Promise<ESPNSituation>;
+	let timestamp: Timestamp = getContext('timestamp');
+	let promise_status: Writable<Promise<ESPNStatus>> = getContext('promise_status');
+	let promise_situation: Writable<Promise<ESPNSituation>> = getContext('promise_situation');
 </script>
 
 <div class="dateTime info">
 	{$show_timestamps
 		? `${timestamp.toDate().toLocaleDateString()} ${timestamp.toDate().toLocaleTimeString()}`
 		: ''}
-	{#await promise_status}
+	{#await $promise_status}
 		{#if timestamp}
 			<GameTime {timestamp} />
 		{:else}
@@ -27,7 +29,7 @@
 				No timestamp field set.
 			{/if}
 		{:else if status.type.completed === false}
-			{#await promise_situation then situation}
+			{#await $promise_situation then situation}
 				{#if situation.downDistanceText !== undefined}
 					<div style="font-size: 0.8rem;">
 						<span

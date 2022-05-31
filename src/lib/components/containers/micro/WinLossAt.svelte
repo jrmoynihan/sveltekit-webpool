@@ -1,15 +1,17 @@
 <script lang="ts">
 	import { use_dark_theme } from '$scripts/store';
 	import { faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons/index.es';
+	import { getContext } from 'svelte';
 	import Fa from 'svelte-fa';
 	import Tooltip from '../Tooltip.svelte';
+	import type { Writable } from 'svelte/store';
 
-	export let game_is_over: boolean;
-	export let is_ATS_winner: boolean;
+	let is_ATS_winner: Writable<boolean> = getContext('is_ATS_winner');
+	let game_is_over: Writable<boolean> = getContext('game_is_over');
 </script>
 
 <div class="winLossAt">
-	{#if is_ATS_winner && game_is_over}
+	{#if $is_ATS_winner && $game_is_over}
 		<Tooltip tooltipWidth="250%">
 			<p slot="text">You picked correctly!</p>
 			<Fa
@@ -20,7 +22,7 @@
 				style="background-color: white; border-radius:100%;"
 			/>
 		</Tooltip>
-	{:else if is_ATS_winner === false && game_is_over}
+	{:else if $is_ATS_winner === false && $game_is_over}
 		<Tooltip tooltipWidth="350%" tooltipTop="-400%">
 			<p slot="text">You got this one wrong. Better luck next time!</p>
 			<Fa

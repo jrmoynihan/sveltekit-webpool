@@ -11,20 +11,22 @@
 		faFootballBall,
 		faLock
 	} from '@fortawesome/free-solid-svg-icons/index.es';
+	import { getContext } from 'svelte';
 	import Fa from 'svelte-fa';
 	import Tooltip from '../Tooltip.svelte';
+	import type { Writable } from 'svelte/store';
 
-	export let spread: number;
-	export let disabled: boolean;
-	export let promise_situation: Promise<ESPNSituation>;
-	export let away_team: Team;
-	export let home_team: Team;
+	let spread: number = getContext('spread');
+	let disabled: Writable<boolean> = getContext('disabled');
+	let promise_situation: Writable<Promise<ESPNSituation>> = getContext('promise_situation');
+	let away_team: Team = getContext('away_team');
+	let home_team: Team = getContext('home_team');
 </script>
 
 {#if spread}
-	<div class="spreadOrPossession" class:active-game={disabled} style="line-height: 2;">
-		{#if disabled}
-			{#await promise_situation then situation}
+	<div class="spreadOrPossession" class:active-game={$disabled} style="line-height: 2;">
+		{#if $disabled}
+			{#await $promise_situation then situation}
 				{#if situation.possessionText && situation.team}
 					{#await getTeamWithPossession(situation.team.$ref) then teamWithPossession}
 						{#if teamWithPossession === away_team.abbreviation}
