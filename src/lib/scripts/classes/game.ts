@@ -1,5 +1,5 @@
 import type { DocumentReference, Timestamp } from '@firebase/firestore';
-import type { Team } from './team';
+import type { Team } from '$classes/team';
 
 export class Game {
 	doc_ref: DocumentReference;
@@ -17,13 +17,15 @@ export class Game {
 	week: number;
 	season_year: number;
 	season_type: string;
-	home_team: Team;
-	away_team: Team;
+	home_team_abbreviation: string;
+	away_team_abbreviation: string;
 	winner: string;
 	ATS_winner: string;
 	total_score: number;
 	is_last_game_of_week: boolean;
 	is_before_game_time?: boolean;
+	home_team?: Team;
+	away_team?: Team;
 
 	constructor({ ...args }) {
 		this.doc_ref = args.doc_ref;
@@ -40,8 +42,8 @@ export class Game {
 		this.week = args.week;
 		this.season_year = args.season_year;
 		this.season_type = args.season_type;
-		this.home_team = args.home_team;
-		this.away_team = args.away_team;
+		this.home_team_abbreviation = args.home_team_abbreviation;
+		this.away_team_abbreviation = args.away_team_abbreviation;
 		this.winner = args.winner || '';
 		this.loser = args.loser || '';
 		this.ATS_winner = args.ATS_winner || '';
