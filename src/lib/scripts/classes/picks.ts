@@ -6,7 +6,7 @@ export class WeeklyPickDoc {
 	game_id: string;
 	uid: string;
 	week: number;
-	year: number;
+	season_year: number;
 	timestamp: Timestamp;
 	name: string;
 	season_type: string;
@@ -18,7 +18,7 @@ export class WeeklyPickDoc {
 			(this.pick = args.pick),
 			(this.uid = args.uid),
 			(this.week = args.week);
-		this.year = args.year;
+		this.season_year = args.season_year;
 		this.timestamp = args.timestamp;
 		this.name = args.name;
 		this.season_type = args.season_type;
@@ -30,13 +30,15 @@ export class PickSixDoc {
 	doc_ref: DocumentReference;
 	picks: string[];
 	uid: string;
-	year: number;
+	season_year: number;
 	name: string;
+	nickname: string;
 	constructor({ ...args }) {
 		(this.doc_ref = args.doc_ref),
 			(this.picks = args.picks),
 			(this.uid = args.uid),
-			(this.year = args.year);
+			(this.season_year = args.season_year);
 		this.name = args.name;
+		this.nickname = args.nickname;
 	}
 }
