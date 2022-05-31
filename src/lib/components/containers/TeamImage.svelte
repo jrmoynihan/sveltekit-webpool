@@ -11,7 +11,13 @@
 </script>
 
 <picture transition:fade={{ duration: 400 }}>
-	<!-- <source srcset={team.logoPath} type="image/webp" /> -->
+	<source
+		sizes={responsive_sizes.join(', ')}
+		srcset={`${image_sizes.map(
+			(size) => `/g${team.logoPath.split('.')[0]}-${size}.webp ${size}w`
+		)}, `}
+		type="image/webp"
+	/>
 	<img
 		sizes={responsive_sizes.join(',')}
 		alt="{team.city}-{team.name}"
@@ -22,6 +28,7 @@
 		srcset={`${image_sizes.map(
 			(size) => `/g${team.logoPath.split('.')[0]}-${size}.webp ${size}w`
 		)}, `}
+		src={`/g${team.logoPath.split('.')[0]}-400.webp`}
 	/>
 	<!-- <img
 		src={`g/${team.logoPath}`}

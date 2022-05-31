@@ -14,8 +14,14 @@
 	export let height = 'auto';
 </script>
 
-<picture style="height: {height};" transition:fade={{ duration: 400 }}>
-	<!-- <source media="" srcset={team.logoPath} type="image/webp" /> -->
+<picture class="picture" style="height: {height};" transition:fade={{ duration: 400 }}>
+	<source
+		sizes={responsive_sizes.join(', ')}
+		srcset={`${image_sizes.map(
+			(size) => `/g${team.fontPath.split('.')[0]}-${size}.webp ${size}w`
+		)}, `}
+		type="image/webp"
+	/>
 	<img
 		class="logo"
 		class:grayscale
@@ -26,21 +32,22 @@
 		class:bottomRounded
 		loading="lazy"
 		decoding="async"
-		sizes={responsive_sizes.join(', ')}
+		sizes={'50vw'}
 		alt="{team.city}-{team.name}"
 		srcset={`${image_sizes.map(
-			(size) => `/g${team.logoPath.split('.')[0]}-${size}.webp ${size}w`
+			(size) => `/g${team.fontPath.split('.')[0]}-${size}.webp ${size}w`
 		)}, `}
+		src={`/g${team.fontPath.split('.')[0]}-400.webp`}
 	/>
 </picture>
 
 <style lang="scss">
-	picture {
+	.picture {
 		@include accelerate;
 		@include flexCenter;
 		box-shadow: none;
 	}
-	img {
+	.logo {
 		@include accelerate;
 		transition: all 300ms ease-in-out;
 		padding: 1rem;
