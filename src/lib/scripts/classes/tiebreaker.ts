@@ -6,13 +6,13 @@ export class WeeklyTiebreaker {
 	uid: string;
 	season_type: string;
 	week: number;
-	year: number;
+	season_year: number;
 	constructor({ ...args }) {
 		(this.doc_ref = args.doc_ref),
 			(this.score_guess = args.score_guess),
 			(this.uid = args.uid),
 			(this.season_type = args.season_type),
 			(this.week = args.week),
-			(this.year = args.year);
+			(this.season_year = args.season_year);
 	}
 }
