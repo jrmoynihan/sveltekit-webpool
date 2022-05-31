@@ -51,12 +51,12 @@ export const getSituation = async (
 	return situationData;
 };
 
-export const getScores = async (
+export const getScoreData = async (
 	competitions: { competitors: { score: RefOnlyESPN }[] }[]
-): Promise<{ homeScoreData: ESPNScore; awayScoreData: ESPNScore }> => {
+): Promise<{ home_score_data: ESPNScore; away_score_data: ESPNScore }> => {
 	try {
-		let homeScoreData: ESPNScore;
-		let awayScoreData: ESPNScore;
+		let home_score_data: ESPNScore;
+		let away_score_data: ESPNScore;
 		const httpHomeEndpoint = competitions[0].competitors[0].score.$ref;
 		const httpAwayEndpoint = competitions[0].competitors[1].score.$ref;
 		const httpsHomeEndpoint = await convertToHttps(httpHomeEndpoint);
@@ -65,13 +65,13 @@ export const getScores = async (
 		const awayScoreResponse = await fetch(httpsAwayEndpoint);
 
 		if (homeScoreResponse.ok) {
-			homeScoreData = await homeScoreResponse.json();
+			home_score_data = await homeScoreResponse.json();
 		}
 		if (awayScoreResponse.ok) {
-			awayScoreData = await awayScoreResponse.json();
+			away_score_data = await awayScoreResponse.json();
 		}
-		if (homeScoreData !== undefined && awayScoreData !== undefined) {
-			return { homeScoreData, awayScoreData };
+		if (home_score_data !== undefined && away_score_data !== undefined) {
+			return { home_score_data, away_score_data };
 		} else {
 			throw `error getting scores`;
 		}
@@ -93,6 +93,7 @@ export const getConsensusSpread = async (gameID: string): Promise<number> => {
 				consensus = spreadProvider.spread;
 			}
 		}
+		// FIXME: Should this actually return null intentionally?
 		if (consensus === undefined) {
 			consensus = null;
 		}
