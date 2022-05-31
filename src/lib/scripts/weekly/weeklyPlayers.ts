@@ -6,7 +6,7 @@ import { query, where, getDocs, QueryConstraint, doc, getDoc } from '@firebase/f
 import { all_icons } from '$classes/constants';
 import { ErrorAndToast, LogAndToast, myError, myLog } from '$scripts/logging';
 import {
-	scheduleCollection,
+	gamesCollection,
 	playersCollection,
 	weeklyPicksCollection,
 	weeklyTiebreakersCollection,
@@ -91,7 +91,7 @@ export const getWeeklyRecords = async (input: getRecordsOptions) => {
 };
 export const getWeeklyRecordData = async (input: getRecordsOptions) => {
 	const records = await getWeeklyRecords(input);
-	if (records.empty) throw new Error('No records found.');
+	if (records?.empty) throw new Error('No records found.');
 	const record_data = records.docs.map((record) => record.data());
 	return record_data;
 };
@@ -102,9 +102,9 @@ type getGamesOptions = {
 export const getGames = async (input: getGamesOptions) => {
 	const { constraints = [] } = input;
 	try {
-		const q = query(scheduleCollection, ...constraints);
+		const q = query(gamesCollection, ...constraints);
 		const querySnapshot = await getDocs(q.withConverter(gameConverter));
-		if (querySnapshot.empty) throw new Error('No games found.');
+		if (querySnapshot?.empty) throw new Error('No games found.');
 		myLog({ msg: 'Got games!', icon: all_icons.checkmark });
 		return querySnapshot;
 	} catch (error) {
@@ -162,7 +162,7 @@ export const getTiebreakerData = async (
 		let tiebreakers: WeeklyTiebreaker[] = [];
 		const q = query(weeklyTiebreakersCollection, ...constraints);
 		const querySnapshot = await getDocs(q.withConverter(weeklyTiebreakerConverter));
-		if (querySnapshot.empty) {
+		if (querySnapshot?.empty) {
 			throw new Error('No tiebreaker found.');
 		}
 		querySnapshot.forEach((doc) => {
