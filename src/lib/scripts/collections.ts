@@ -1,7 +1,7 @@
 import { collection } from '@firebase/firestore';
 import { firestoreDB } from '$lib/scripts/firebase/firebase';
 
-export const scheduleCollection = collection(firestoreDB, 'Schedule');
+export const gamesCollection = collection(firestoreDB, 'Games');
 export const toastsCollection = collection(firestoreDB, 'Toasts');
 export const playersCollection = collection(firestoreDB, 'Players');
 export const weeklyRulesCollection = collection(firestoreDB, 'WeeklyRules');
