@@ -3,67 +3,84 @@ import { Game } from '$lib/scripts/classes/game';
 import { WeeklyPickDoc } from '$lib/scripts/classes/picks';
 import type { Player } from '$lib/scripts/classes/player';
 import {
-	scheduleCollection,
+	gamesCollection,
+	seasonRecordsCollection,
 	weeklyPicksCollection,
 	weeklyTiebreakersCollection
 } from '$lib/scripts/collections';
 import {
 	gameConverter,
+	seasonRecordConverter,
 	weeklyPickConverter,
 	weeklyTiebreakerConverter
 } from '$lib/scripts/converters';
 import { defaultToast, errorToast } from '$lib/scripts/toasts';
 import { getPicksData, getWeeklyPlayers } from './weeklyPlayers';
-import { updateDoc, deleteDoc, doc, getDocs, query, setDoc, where, type QueryConstraint, Timestamp } from '@firebase/firestore';
+import {
+	updateDoc,
+	deleteDoc,
+	doc,
+	getDocs,
+	query,
+	setDoc,
+	where,
+	type QueryConstraint,
+	Timestamp
+} from '@firebase/firestore';
 import { findCurrentWeekOfSchedule } from '$lib/scripts/schedule';
 import { getConsensusSpread } from '$lib/scripts/dataFetching';
 import { toast } from '@zerodevx/svelte-toast';
 import type { SeasonBoundDoc } from '../classes/seasonBound';
 import { makeNumericArrayOfDesiredLength } from '../functions';
 import { WeeklyTiebreaker } from '../classes/tiebreaker';
+import { SeasonRecord } from '../classes/playerRecord';
+import { weekly_players } from '../store';
+import { get } from 'svelte/store';
 
 export const getAllGames = async (showToast = false): Promise<Game[]> => {
 	try {
 		const games: Game[] = [];
-		const q = query(scheduleCollection);
+		const q = query(gamesCollection);
 		const querySnapshot = await getDocs(q.withConverter(gameConverter));
-		
+
 		querySnapshot.forEach((doc) => {
 			const docRef = doc.ref;
 			const id = doc.id;
 			const game = new Game({ id, docRef, ...doc.data() });
 			games.push(game);
 		});
-		
+
 		const title = 'Got All Games!';
 		const msg = 'Retrieved all game documents from the Schedule collection.';
 		showToast ? LogAndToast({ title, msg }) : myLog({ msg, traceLocation: true });
-		
+
 		return games;
 	} catch (error) {
 		const msg = `Encountered an error while trying to get all game documents.  Check the console for more info. ${error}`;
-		errorToast({msg});
+		errorToast({ msg });
 		myError({ error, msg });
 	}
 };
+
 type getSpecificGameOptions = {
 	constraints: QueryConstraint[];
 	showToast?: boolean;
-}
-export const getSpecificGames = async (input : getSpecificGameOptions) => {
+};
+
+export const getSpecificGames = async (input: getSpecificGameOptions) => {
 	try {
 		const { constraints, showToast } = input;
 		const games: Game[] = [];
-		const q = query(scheduleCollection, ...constraints);
+		const q = query(gamesCollection, ...constraints);
 		const querySnapshot = await getDocs(q.withConverter(gameConverter));
-		
+
 		querySnapshot.forEach((doc) => {
 			const docRef = doc.ref;
 			const id = doc.id;
 			const game = new Game({ id, docRef, ...doc.data() });
 			games.push(game);
 		});
-		
+
 		const title = `Got Games!`;
 		const msg = 'Retrieved all specified game documents from the Schedule collection.';
 		showToast ? LogAndToast({ title, msg }) : myLog({ msg, traceLocation: true });
@@ -71,25 +88,25 @@ export const getSpecificGames = async (input : getSpecificGameOptions) => {
 		return games;
 	} catch (error) {
 		const msg = `Encountered an error while trying to get a specific week/year of game documents.  Check the console for more info. ${error}`;
-		ErrorAndToast({ msg, error});
+		ErrorAndToast({ msg, error });
 	}
 };
 
-export const getFutureGames = async(): Promise<Game[]> => {
+export const getFutureGames = async (): Promise<Game[]> => {
 	const now_timestamp = Timestamp.now();
 	const future_games_constraints = [where('timestamp', '>=', now_timestamp)];
-	
+
 	// Get all games that will be played in the future
 	const games = await getSpecificGames({ constraints: future_games_constraints, showToast: false });
 	return games;
-}
+};
 
 export const createWeeklyPicksForAllPlayers = async () => {
 	try {
-		const weeklyPlayers = await getWeeklyPlayers();
+		const weeklyPlayers = get(weekly_players) || (await getWeeklyPlayers());
 		const games = await getAllGames();
 		for await (const player of weeklyPlayers) {
-			await createWeeklyPicksForPlayer({player, games});
+			await createWeeklyPicksForPlayer({ player, games });
 		}
 		const title = 'Created Weekly Picks!';
 		const msg = 'Pick documents were created for every game, for every Weekly pool player.';
@@ -111,30 +128,35 @@ type createWeeklyPicksForPlayerOptions = {
 	games: Game[];
 	showToast?: boolean;
 	logAll?: boolean;
-}
+};
 //TODO: Move to a triggered Cloud Function when a player joins the Weekly pool
-export const createWeeklyPicksForPlayer = async (
-	input: createWeeklyPicksForPlayerOptions
-) => {
+export const createWeeklyPicksForPlayer = async (input: createWeeklyPicksForPlayerOptions) => {
 	const { player, games, showToast, logAll } = input;
-	const { uid, name, nickname} = player;
+	const { uid, name, nickname } = player;
 	try {
-		if(player && games.length > 0 ){
+		if (player && games.length > 0) {
 			for await (const game of games) {
-				const { id: game_id, week, timestamp, season_type} = game
-				const year = timestamp.toDate().getFullYear();
+				const { id: game_id, week, timestamp, season_type } = game;
+				// FIXME: Should this take a function argument?
+				const season_year = timestamp.toDate().getFullYear();
 				// Check to make sure a doc doesn't already exist for this game, player, season, year, and week combination.
-				const existing_doc_constraints = [where('game_id', '==', game_id), where('uid', '==', uid), where('season_type', '==', season_type), where('year', '==', year), where('week', '==', week)];
+				const existing_doc_constraints = [
+					where('game_id', '==', game_id),
+					where('uid', '==', uid),
+					where('season_type', '==', season_type),
+					where('season_year', '==', season_year),
+					where('week', '==', week)
+				];
 				const existing_doc = await getPicksData({ constraints: existing_doc_constraints });
-				if(existing_doc.length === 0){
-					const newWeeklyPickRef = doc(weeklyPicksCollection);  // auto-generates a new doc ref/id
+				if (existing_doc.length === 0) {
+					const newWeeklyPickRef = doc(weeklyPicksCollection); // auto-generates a new doc ref/id
 					const pickDoc = new WeeklyPickDoc({
 						doc_ref: newWeeklyPickRef,
 						game_id,
 						pick: '',
 						uid,
 						week,
-						year,
+						season_year,
 						timestamp,
 						name,
 						nickname,
@@ -146,19 +168,18 @@ export const createWeeklyPicksForPlayer = async (
 			}
 			const title = 'Created Weekly Picks!';
 			const msg = `Pick documents were created for every game for ${player.name} (${player.nickname})`;
-			
-			if (logAll) myLog({ msg, traceLocation: true });
-			if (showToast)	defaultToast({ title, msg });
-		}else{
-			throw new Error("No games or player to create picks for");
-		}
 
+			if (logAll) myLog({ msg, traceLocation: true });
+			if (showToast) defaultToast({ title, msg });
+		} else {
+			throw new Error('No games or player to create picks for');
+		}
 	} catch (error) {
 		const msg = `Encountered an error while trying to create ${player.name}'s picks.  Check the console for more info. ${error}`;
-			ErrorAndToast({
-				msg,
-				error
-			});
+		ErrorAndToast({
+			msg,
+			error
+		});
 	}
 };
 
@@ -222,11 +243,11 @@ export const deleteWeeklyPicksForPlayer = async (
 		});
 	}
 };
-export const createWeeklyTiebreakersForAllPlayers = async (season : SeasonBoundDoc) => {
+export const createWeeklyTiebreakersForAllPlayers = async (season: SeasonBoundDoc) => {
 	try {
 		const weeklyPlayers = await getWeeklyPlayers();
 		weeklyPlayers.forEach((player) => {
-			createWeeklyTiebreakersForPlayer({player, season});
+			createWeeklyTiebreakersForPlayer({ player, season });
 		});
 		const title = 'Created Tiebreakers!';
 		const msg = 'Tiebreaker documents were created for every game, for every Weekly pool player.';
@@ -247,56 +268,58 @@ type createWeeklyTiebreakersForPlayerOptions = {
 	player: Player;
 	season: SeasonBoundDoc;
 	show_toast?: boolean;
-}
+};
 // TODO: Move to cloud function performed when player joins the pool
 export const createWeeklyTiebreakersForPlayer = async (
 	input: createWeeklyTiebreakersForPlayerOptions
 ) => {
 	const { player, season, show_toast } = input;
 	try {
-		const {uid} = player;
-		const {year, number_of_weeks, type_name} = season;
+		const { uid } = player;
+		const { year, number_of_weeks, type_name } = season;
 		// Make an array from the number of weeks, starting with 1
 		const weeks = makeNumericArrayOfDesiredLength(number_of_weeks);
 		// Create a tiebreaker doc for each week
 		weeks.forEach(async (week) => {
 			await createTiebreaker(uid, week, year, type_name);
-		})
+		});
 		myLog({ msg: `set tiebreakers for ${player.name} (${player.nickname})` });
 	} catch (error) {
 		const msg = `Encountered an error while trying to create tiebreaker documents for ${player.name} (${player.nickname})`;
-		show_toast ? ErrorAndToast({
-			msg,
-			error
-		}) : myError({ msg, error });
+		show_toast
+			? ErrorAndToast({
+					msg,
+					error
+			  })
+			: myError({ msg, error });
 	}
 };
 export const createTiebreaker = async (
 	uid: string,
 	week: number,
-	year: number,
+	season_year: number,
 	season_type = 'Regular Season',
 	score_guess = null
 ) => {
 	const doc_ref = doc(weeklyTiebreakersCollection.withConverter(weeklyTiebreakerConverter));
 	try {
-		const data : WeeklyTiebreaker = new WeeklyTiebreaker({
+		const data: WeeklyTiebreaker = new WeeklyTiebreaker({
 			score_guess,
 			uid,
 			week,
-			year,
+			season_year,
 			season_type,
 			doc_ref
-		})
+		});
 		await setDoc(doc_ref, data);
 		myLog({
-			msg: `set tiebreaker doc (${doc_ref}); uid: ${uid}, week ${week}, ${year}`
+			msg: `set tiebreaker doc (${doc_ref.path}); uid: ${uid}, week ${week}, ${season_year}`
 		});
 		// TODO: why does this need to return an array?
 		return [data];
 	} catch (error) {
 		ErrorAndToast({
-			msg: `Encountered an error while trying to set tiebreaker doc (${doc_ref})`,
+			msg: `Encountered an error while trying to set tiebreaker doc (${doc_ref.path})`,
 			error,
 			additional_params: `unable to update tiebreaker ${doc_ref.path} for player ${uid}`
 		});
@@ -379,7 +402,7 @@ export const updateGameSpreads = async (week: number, year: number) => {
 			msg: `Getting consensus spreads from ESPN...`
 		});
 		// Update the pick game objects on the pick documents?
-		const q = query(scheduleCollection, where('week', '==', week), where('year', '==', year));
+		const q = query(gamesCollection, where('week', '==', week), where('season_year', '==', year));
 		const games = await getDocs(q.withConverter(gameConverter));
 		for await (const gameDoc of games.docs) {
 			const gameData = gameDoc.data();
@@ -398,6 +421,33 @@ export const updateGameSpreads = async (week: number, year: number) => {
 		});
 	} catch (error) {
 		const msg = `Encountered an error while trying to update spreads for week ${week}.  Check the console for more info.`;
-		ErrorAndToast({ msg, error});
+		ErrorAndToast({ msg, error });
+	}
+};
+type createSeasonRecordForPlayerOptions = {
+	player: Player;
+	season_year: number;
+};
+export const createSeasonRecordForPlayer = async (input: createSeasonRecordForPlayerOptions) => {
+	const { player, season_year } = input;
+	const doc_ref = doc(seasonRecordsCollection.withConverter(seasonRecordConverter));
+	try {
+		const data: SeasonRecord = new SeasonRecord({
+			uid: player.uid,
+			season_year,
+			doc_ref,
+			total_weekly_losses: 0,
+			total_weekly_wins: 0
+		});
+		await setDoc(doc_ref, data);
+		myLog({
+			msg: `set season record doc (${doc_ref.path}) for player: ${player.name} for ${season_year} season`
+		});
+	} catch (error) {
+		ErrorAndToast({
+			msg: `Encountered an error while trying to set season record doc (${doc_ref.path}) for player: ${player.name} for ${season_year} season`,
+			error,
+			additional_params: `unable to update season record ${doc_ref.path} for player ${player.name}`
+		});
 	}
 };
