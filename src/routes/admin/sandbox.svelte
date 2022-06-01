@@ -3,10 +3,10 @@
 	import MultiToggleSwitch from '$lib/components/switches/MultiToggleSwitch.svelte';
 	import DriveChart from '$lib/images/DriveChart.svelte';
 	import type { CompetitorESPN, ESPNGame, ESPNTeamData, Game } from '$scripts/classes/game';
-	import { scheduleCollection } from '$scripts/collections';
-	import { gameConverter, } from '$scripts/converters';
+	import { gamesCollection } from '$scripts/collections';
+	import { gameConverter } from '$scripts/converters';
 	import { fetchHttpsToJson } from '$scripts/dataFetching';
-	import { preferred_score_view } from '$scripts/store';
+	import { all_teams, preferred_score_view } from '$scripts/store';
 	import type { ScoreViewPreference } from '$scripts/types/types';
 	import {
 		faCalculator,
@@ -28,7 +28,7 @@
 		{ label: 'ATS Only', value: 'ATS', icon: faCalculator },
 		{ label: 'Both', value: 'Both', icon: faCheckDouble }
 	];
-	let q = query(scheduleCollection.withConverter(gameConverter), where('id', '==', '401326493'));
+	let q = query(gamesCollection.withConverter(gameConverter), where('id', '==', '401326493'));
 	const getGame = async (): Promise<Game> => {
 		const doc = await getDocs(q.withConverter(gameConverter));
 		return doc.docs[0].data();
@@ -49,14 +49,23 @@
 
 	const getData = async () => {
 		const game: Game = await getGame();
-		const { away_team, home_team } = game;
+		const home_team = $all_teams.find((t) => t.abbreviation === game.home_team_abbreviation);
+		const away_team = $all_teams.find((t) => t.abbreviation === game.away_team_abbreviation);
 		const ESPN_game_data = await getESPNGameData(game);
 		const home_competitor: CompetitorESPN = ESPN_game_data.home_team;
 		const away_competitor: CompetitorESPN = ESPN_game_data.away_team;
 		const drives_ref: string = ESPN_game_data.drives_ref;
 		const home_colors: { color: string; altColor: string } = await getTeamColors(home_competitor);
 		const away_colors: { color: string; altColor: string } = await getTeamColors(away_competitor);
-		return { game, away_team, home_team, home_colors, away_colors, drives_ref, game_data: ESPN_game_data.data };
+		return {
+			game,
+			away_team,
+			home_team,
+			home_colors,
+			away_colors,
+			drives_ref,
+			game_data: ESPN_game_data.data
+		};
 	};
 </script>
 
