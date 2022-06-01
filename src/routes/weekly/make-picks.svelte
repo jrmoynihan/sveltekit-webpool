@@ -18,7 +18,8 @@
 		selected_season_year,
 		selected_season_type,
 		tiebreaker_score_guess,
-		selected_year
+		selected_year,
+		all_teams
 	} from '$scripts/store';
 	import { DocumentReference, orderBy, updateDoc, where } from '@firebase/firestore';
 	import { tweened } from 'svelte/motion';
@@ -89,14 +90,14 @@
 	) => {
 		try {
 			const game_constraints = [
-				where('year', '==', year),
+				where('season_year', '==', year),
 				where('week', '==', week),
 				where('season_type', '==', season_type),
 				orderBy('timestamp'),
 				orderBy('id')
 			];
 			const tiebreaker_constraints = [
-				where('year', '==', year),
+				where('season_year', '==', year),
 				where('week', '==', week),
 				where('season_type', '==', season_type),
 				where('uid', '==', player.uid)
@@ -110,6 +111,7 @@
 			$picks_promise = getPicksData({ constraints: picks_constraints });
 			$tiebreaker_promise = getTiebreakerData({ constraints: tiebreaker_constraints });
 			games = await $games_promise;
+			await addTeamsToGames(games);
 			picks = await $picks_promise;
 			$current_picks = await $picks_promise;
 			let tiebreakers: WeeklyTiebreaker[] = await $tiebreaker_promise;
@@ -139,6 +141,19 @@
 
 			await Promise.all([$games_promise, $picks_promise, $tiebreaker_promise]);
 			counted_game_times = await countPlayedOrUpcomingGames(games);
+		} catch (error) {
+			myError({ error });
+		}
+	};
+	const addTeamsToGames = async (games: Game[]) => {
+		try {
+			games.forEach((game) => {
+				const { home_team_abbreviation, away_team_abbreviation } = game;
+				const home_team = $all_teams.find((team) => team.abbreviation === home_team_abbreviation);
+				const away_team = $all_teams.find((team) => team.abbreviation === away_team_abbreviation);
+				game.home_team = home_team;
+				game.away_team = away_team;
+			});
 		} catch (error) {
 			myError({ error });
 		}
@@ -199,14 +214,10 @@
 				additional_params: currentPicks
 			});
 
-			// Refresh the picks on page after submit -- NOTE: Is this needed? 5/12/2022
-			// const picks_constraints = [where('uid', '==', uid), where('week', '==', $selected_week), where('year', '==', $selected_year), where('season_type', '==', $selected_season_type)];
-			// $picks_promise = getPicksData({constraints: picks_constraints});
-
 			await updateTiebreakerDoc(docRef, uid, scoreGuess, $selected_week, $selected_season_year);
 
 			defaultToast({
-				title: `${checkmark} Picks submitted!`,
+				title: `${checkmark} Picks Submitted!`,
 				msg: `You can change any game's pick prior to that game's start time.`,
 				duration: 10000
 			});
@@ -224,7 +235,7 @@
 		uid: string,
 		score_guess: number,
 		week: number,
-		year: number
+		season_year: number
 	): Promise<void> => {
 		try {
 			await updateDoc(doc_ref.withConverter(weeklyTiebreakerConverter), {
@@ -233,7 +244,7 @@
 				uid: uid,
 				season_type: 'Regular Season',
 				week,
-				year
+				season_year
 			});
 			myLog({
 				msg: 'Updated/submitted tiebreaker!',
@@ -259,28 +270,26 @@
 		homeOrAway?: 'Home' | 'Away'
 	): Promise<WeeklyPickDoc[]> => {
 		try {
-			const games_past_gametime = games
+			const games_already_started = games
 				.filter((game) => !game.is_before_game_time)
 				.sort((a, b) => (a.timestamp > b.timestamp ? 1 : -1));
 			picks.forEach(async (pickDoc) => {
-				const matchingGame = games.find((game) => game.id === pickDoc.game_id);
-				const ableToPick = matchingGame.is_before_game_time;
-				if (ableToPick || $override_locked_picks) {
+				const game_that_matches_pick = games.find((game) => game.id === pickDoc.game_id);
+				const is_able_to_pick = game_that_matches_pick.is_before_game_time;
+				if (is_able_to_pick || $override_locked_picks) {
 					if (homeOrAway === 'Home') {
-						const homeTeam = matchingGame.home_team;
-						pickDoc.pick = homeTeam.abbreviation;
+						pickDoc.pick = game_that_matches_pick.home_team_abbreviation;
 					} else if (homeOrAway === 'Away') {
-						const awayTeam = matchingGame.away_team;
-						pickDoc.pick = awayTeam.abbreviation;
+						pickDoc.pick = game_that_matches_pick.away_team_abbreviation;
 					} else {
 						pickDoc.pick = '';
 					}
 				}
 			});
-			if (games_past_gametime.length > 0 && !$override_locked_picks) {
+			if (games_already_started.length > 0 && !$override_locked_picks) {
 				defaultToast({
 					title: 'Some Games Already Started!',
-					msg: `Unable to update the following picks: <br> ${games_past_gametime
+					msg: `Unable to update the following picks: <br> ${games_already_started
 						.map((g) => `<p>${g.short_name}</p>`)
 						.join('')}`
 				});
@@ -339,10 +348,11 @@
 		try {
 			let spreadsMissing = false;
 			const favored = games.map((game) => {
+				const { home_team_abbreviation, away_team_abbreviation } = game;
 				if (game.spread < 0) {
-					return game.home_team;
+					return home_team_abbreviation;
 				} else if (game.spread > 0) {
-					return game.away_team;
+					return away_team_abbreviation;
 				} else if (game.spread === 0) {
 					return null;
 				} else {
@@ -362,7 +372,7 @@
 				pickDoc.is_before_game_time = ableToPick;
 				if (ableToPick || $override_locked_picks) {
 					if (favored[i] !== null && favored[i] !== undefined) {
-						pickDoc.pick = favored[i].abbreviation;
+						pickDoc.pick = favored[i];
 					} else {
 						pickDoc.pick = '';
 					}
@@ -384,10 +394,11 @@
 		try {
 			let spreadsMissing = false;
 			const underdogs = games.map((game) => {
+				const { home_team_abbreviation, away_team_abbreviation } = game;
 				if (game.spread < 0) {
-					return game.away_team;
+					return away_team_abbreviation;
 				} else if (game.spread > 0) {
-					return game.home_team;
+					return home_team_abbreviation;
 				} else if (game.spread === 0) {
 					return null;
 				} else {
@@ -407,7 +418,7 @@
 				pickDoc.is_before_game_time = ableToPick;
 				if (ableToPick || $override_locked_picks) {
 					if (underdogs[i] !== null && underdogs[i] !== undefined) {
-						pickDoc.pick = underdogs[i].abbreviation;
+						pickDoc.pick = underdogs[i];
 					} else {
 						pickDoc.pick = '';
 					}
@@ -426,34 +437,15 @@
 		}
 	};
 
-	const isATSwinner = (pickDoc: WeeklyPickDoc, game: Game): boolean => {
-		// console.log(`game: ${game.name} (${game.id})`);
-		if (pickDoc.pick === '') {
-			// console.log(`pick is empty`);
-			return false;
-		} else if (game.ATS_winner === 'push') {
-			// console.log(`game is a push`);
-			return true;
-		} else if (game.ATS_winner === pickDoc.pick) {
-			// console.log(`pick is correct`);
-			return true;
-		} else {
-			// console.log(`Game is either unscored/incomplete or pick is incorrect`, pickDoc.pick, game.ATSwinner);
-			return false;
-		}
-	};
-
 	const getYardLine = (index: number) => {
 		return Math.floor((index + 2) / 2) * 10;
 	};
 
-	$: {
-		if (current_pick_count >= 0 && number_of_games > 0) {
-			if (upcoming_games_count + number_of_played_games === number_of_games) {
-				$progress = current_pick_count / number_of_games;
-			} else if (upcoming_games_count > 0) {
-				$progress = current_pick_count / upcoming_games_count;
-			}
+	$: if (current_pick_count >= 0 && number_of_games > 0) {
+		if (upcoming_games_count + number_of_played_games === number_of_games) {
+			$progress = current_pick_count / number_of_games;
+		} else if (upcoming_games_count > 0) {
+			$progress = current_pick_count / upcoming_games_count;
 		}
 	}
 
@@ -467,10 +459,10 @@
 	$: show_tiebreaker_input =
 		current_pick_count >= number_of_played_games + upcoming_games_count &&
 		upcoming_games_count !== 0;
-	$: console.log('show_tiebreaker_input', show_tiebreaker_input);
-	$: console.log('current_pick_count', current_pick_count);
-	$: console.log('number_of_played_games', number_of_played_games);
-	$: console.log('upcoming_games_count', upcoming_games_count);
+	// $: console.log('show_tiebreaker_input', show_tiebreaker_input);
+	// $: console.log('current_pick_count', current_pick_count);
+	// $: console.log('number_of_played_games', number_of_played_games);
+	// $: console.log('upcoming_games_count', upcoming_games_count);
 </script>
 
 <PageTitle>Make Weekly Picks</PageTitle>
@@ -485,8 +477,21 @@
 					bind:upcomingGamesCount={upcoming_games_count}
 				/>
 			{/key}
+			{#if show_tiebreaker_input || $override_locked_picks}
+				<TiebreakerInput
+					scoreGuess={$tiebreaker_score_guess}
+					on:change={(e) => {
+						$tiebreaker_score_guess = parseInt(e.detail);
+					}}
+				/>
+			{:else if upcoming_games_count !== 0}
+				<progress value={$progress || 0} />
+			{/if}
+			{#if number_of_played_games > 0}
+				<div class="correct-count">{number_of_correct_picks} of {number_of_games} correct</div>
+			{/if}
 			{#await $tiebreaker_promise then tiebreakers}
-				{#if tiebreakers}
+				{#if tiebreakers && $tiebreaker_score_guess}
 					{@const tiebreaker = tiebreakers[0]}
 					<SubmitPicks
 						on:click={() =>
@@ -501,25 +506,13 @@
 						pulse={$tiebreaker_score_guess >= 10}
 						invisible={$tiebreaker_score_guess < 10 ||
 							$tiebreaker_score_guess === undefined ||
+							$tiebreaker_score_guess === null ||
 							upcoming_games_count === 0}
 					/>
 				{/if}
 			{:catch error}
 				<ErrorModal {error} />
 			{/await}
-			{#if show_tiebreaker_input || $override_locked_picks}
-				<TiebreakerInput
-					scoreGuess={$tiebreaker_score_guess}
-					on:change={(e) => {
-						$tiebreaker_score_guess = parseInt(e.detail);
-					}}
-				/>
-			{:else if upcoming_games_count !== 0}
-				<progress value={$progress || 0} />
-			{/if}
-			{#if number_of_played_games > 0}
-				<div class="correct-count">{number_of_correct_picks} of {number_of_games} correct</div>
-			{/if}
 		{/if}
 	</div>
 	<div class="first-row grid">
@@ -571,17 +564,11 @@
 										class:dark={$use_dark_theme}
 									>
 										<MatchupContainer
-											bind:selected_team_abbreviation={pickDoc.pick}
-											bind:is_before_game_time={game.is_before_game_time}
-											id={game.id}
-											index={i}
-											spread={game.spread}
+											bind:game
+											bind:pickDoc
 											home_team={game.home_team}
 											away_team={game.away_team}
-											timestamp={game.timestamp}
-											competitions={game.competitions}
-											is_ATS_winner={isATSwinner(pickDoc, game)}
-											ATS_winner={game.ATS_winner}
+											index={i}
 										/>
 									</div>
 								{/if}
