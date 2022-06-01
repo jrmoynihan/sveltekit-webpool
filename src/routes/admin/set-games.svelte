@@ -1,13 +1,19 @@
 <script lang="ts">
-	import { type ESPNGame, type ESPNGamePruned, Game, type ESPNWeekEvent, type RefOnlyESPN } from '$scripts/classes/game';
+	import {
+		type ESPNGame,
+		type ESPNGamePruned,
+		Game,
+		type ESPNWeekEvent,
+		type RefOnlyESPN
+	} from '$scripts/classes/game';
 	import { gameConverter } from '$scripts/converters';
 	import { firestoreDB } from '$lib/scripts/firebase/firebase';
-	import { scheduleCollection } from '$scripts/collections';
+	import { gamesCollection } from '$scripts/collections';
 	import { deleteDoc, doc, getDocs, query, setDoc, Timestamp, where } from '@firebase/firestore';
 	import WeekSelect from '$components/selects/WeekSelect.svelte';
 	import PageTitle from '$components/misc/PageTitle.svelte';
 	import { all_icons, stopSign } from '$scripts/classes/constants';
-	import {ErrorAndToast, LogAndToast, myError, myLog} from '$scripts/logging';
+	import { ErrorAndToast, LogAndToast, myError, myLog } from '$scripts/logging';
 	import SeasonTypeSelect from '$lib/components/selects/SeasonTypeSelect.svelte';
 	import YearSelect from '$components/selects/YearSelect.svelte';
 	import { defaultToast } from '$scripts/toasts';
@@ -17,7 +23,12 @@
 	import StyledButton from '$components/buttons/StyledButton.svelte';
 	import ErrorModal from '$components/modals/ErrorModal.svelte';
 	import { convertToHttps, getConsensusSpread } from '$scripts/dataFetching';
-	import { selected_week, all_teams, selected_season_type, selected_season_type_number, selected_year } from '$scripts/store';
+	import {
+		selected_week,
+		selected_season_type,
+		selected_season_type_number,
+		selected_year
+	} from '$scripts/store';
 	import EspnGameData from '$components/misc/ESPNGameData.svelte';
 
 	// Are games being currently set by the function?  If so, we'll disable the Set Games button.
@@ -36,11 +47,13 @@
 			const response = await fetch(
 				`https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/${$selected_year}/types/${$selected_season_type_number}/weeks/${$selected_week}/events?lang=en&region=us`
 			);
-			const data = await response.json() as ESPNWeekEvent;
-			if(data.items?.length > 0) {
+			const data = (await response.json()) as ESPNWeekEvent;
+			if (data.items?.length > 0) {
 				return data.items;
 			} else {
-				throw new Error(`No games found for week ${$selected_week} of ${$selected_year} ${$selected_season_type}.`);
+				throw new Error(
+					`No games found for week ${$selected_week} of ${$selected_year} ${$selected_season_type}.`
+				);
 			}
 		} catch (error) {
 			// Bubble the error up to the parent getData() function.
@@ -49,7 +62,10 @@
 	};
 	const unpackReferenceURLs = async (items: RefOnlyESPN[]): Promise<string[]> => {
 		try {
-			if(items.length === 0) throw new Error(`No games listed for week ${$selected_week} of ${$selected_year} ${$selected_season_type}`);
+			if (items.length === 0)
+				throw new Error(
+					`No games listed for week ${$selected_week} of ${$selected_year} ${$selected_season_type}`
+				);
 
 			const references: string[] = items.map((item): string => {
 				return item.$ref;
@@ -80,18 +96,18 @@
 
 	export const getData = async () => {
 		try {
-		const weekReferences = await fetchWeek();
-		const gameUrls = await unpackReferenceURLs(weekReferences);
+			const weekReferences = await fetchWeek();
+			const gameUrls = await unpackReferenceURLs(weekReferences);
 
-		const originalGames = await fetchGameData(gameUrls);
-		// const originalSize = originalGames.reduce(aggregateObjectSizes, 0);
-		// console.log('fetched games:', originalGames, `memory: ${formatByteSize(originalSize)}`);
+			const originalGames = await fetchGameData(gameUrls);
+			// const originalSize = originalGames.reduce(aggregateObjectSizes, 0);
+			// console.log('fetched games:', originalGames, `memory: ${formatByteSize(originalSize)}`);
 
-		const prunedGames = await pruneESPNGames(originalGames);
-		// const reducedSize = prunedGames.reduce(aggregateObjectSizes, 0);
-		// console.log('pruned games:', prunedGames, `memory: ${formatByteSize(reducedSize)}`);
+			const prunedGames = await pruneESPNGames(originalGames);
+			// const reducedSize = prunedGames.reduce(aggregateObjectSizes, 0);
+			// console.log('pruned games:', prunedGames, `memory: ${formatByteSize(reducedSize)}`);
 
-		return { originalGames, prunedGames };
+			return { originalGames, prunedGames };
 		} catch (error) {
 			const title = 'Unable to fetch game data. ';
 			ErrorAndToast({ title, msg: error, error });
@@ -183,77 +199,76 @@
 	};
 
 	const setGames = async () => {
-		try {selected_week
+		try {
+			selected_week;
 			if (gamesPromise) {
 				const allGames = await gamesPromise;
 				const gamesToSet = allGames.prunedGames;
 				currently_setting_games = true;
-				
-				LogAndToast({title: 'Setting Games', msg: `Creating/overriting game documents for ${$selected_week}.`});
+
+				LogAndToast({
+					title: 'Setting Games',
+					msg: `Creating/overriting game documents for ${$selected_week}.`
+				});
 
 				for await (const game of gamesToSet) {
 					setGame(game);
 				}
-				LogAndToast({ title: 'Games Set', msg: `Created game documents for ${$selected_week}!` })
+				LogAndToast({ title: 'Games Set', msg: `Created game documents for ${$selected_week}!` });
 			}
 			currently_setting_games = false;
 		} catch (error) {
-			myError({ error});
+			ErrorAndToast({ error });
 		}
 	};
 	const setGame = async (game: ESPNGamePruned) => {
-		const gameDocRef = doc(firestoreDB, scheduleCollection.path, game.id);
+		try {
+			const doc_ref = doc(firestoreDB, gamesCollection.path, game.id);
 
-		// Load the game to a new object that will gain Firebase-friendly formatting changes
-		const formatted_game = new Game({ ...game });
+			// Get the spread by querying the game id on the ESPN spreads/betting API
+			const spread = await getConsensusSpread(game.id);
 
-		// Start with adding that renamed fields that don't match in the constructor to the formatted game document
-		// If we did this a lot, it might be worth making the constructor more flexible in handling this ESPN input data
-		formatted_game.doc_ref = gameDocRef;
-		formatted_game.season_ref = game.season
-		formatted_game.season_type_ref = game.seasonType
-		formatted_game.short_name = game.shortName
+			// Convert the game date to the server timestamp format
+			const date = new Date(game.date);
+			const timestamp = Timestamp.fromDate(date);
 
-		// Add the season_type, year, and week, instead of using ESPN's nested reference object
-		formatted_game.week = $selected_week;
-		formatted_game.year = $selected_year;
-		formatted_game.season_type = $selected_season_type;
+			// Split out the home and away team abbreviations from the shortName field
+			const { shortName } = game;
+			const [away_team_abbreviation, home_team_abbreviation] = shortName.split(' @ ');
+			myLog({ msg: `home team: ${home_team_abbreviation}`, icon: all_icons.home });
+			myLog({ msg: `away team: ${away_team_abbreviation}`, icon: all_icons.airplaneDeparture });
 
-		// Get the spread by querying the game id on the spread API
-		const consensus = await getConsensusSpread(game.id);
-		formatted_game.spread = consensus as number;
+			// Add the season_type, year, and week, instead of using ESPN's nested reference object
+			// Load the game to a new object that will gain Firebase-friendly formatting changes
+			const formatted_game = new Game({
+				...game,
+				doc_ref,
+				season_ref: game.season,
+				season_type_ref: game.seasonType,
+				short_name: game.shortName,
+				week: $selected_week,
+				season_year: $selected_year,
+				season_type: $selected_season_type,
+				timestamp,
+				home_team_abbreviation,
+				away_team_abbreviation,
+				spread: spread
+			});
 
-		// Convert the date to the server format
-		const date = new Date(formatted_game.date);
-		const timestamp = Timestamp.fromDate(date);
-		formatted_game.timestamp = timestamp;
-
-		// Get the home and away teams for easier access
-		const shortName = formatted_game.short_name;
-		const [away_team, home_team] = shortName.split(' @ ');
-
-		// Set their records on the game document
-		for (const team of $all_teams) {
-			myLog({msg: 'adding team...'});
-			if (team.abbreviation === home_team) {
-				myLog({msg: 'home team:', additional_params: team.abbreviation, icon: all_icons.home});
-				formatted_game.home_team = { ...team };
-			}
-			if (team.abbreviation === away_team) {
-				myLog({msg: 'away team:', additional_params: team.abbreviation, icon: all_icons.airplaneDeparture});
-				formatted_game.away_team = { ...team };
-			}
+			// Set/update the game document with the formatted data
+			await setDoc(doc_ref.withConverter(gameConverter), formatted_game);
+		} catch (error) {
+			myError({ error });
+			throw new Error(error);
 		}
-
-		// Set/update the game document with the formatted data
-		await setDoc(gameDocRef.withConverter(gameConverter), formatted_game);
 	};
+
 	const deleteAllGames = async () => {
 		const continueDelete = confirm(
 			'Are you sure you want to delete all games from the Schedule collection?'
 		);
 		if (continueDelete) {
-			const q = query(scheduleCollection);
+			const q = query(gamesCollection);
 			const allScheduleDocs = await getDocs(q);
 			allScheduleDocs.forEach((game) => {
 				deleteDoc(game.ref);
@@ -271,7 +286,7 @@
 		);
 		if (continueDelete) {
 			const q = query(
-				scheduleCollection,
+				gamesCollection,
 				where('year', '==', $selected_year),
 				where('week', '==', $selected_week),
 				where('type', '==', $selected_season_type)
