@@ -6,7 +6,8 @@
 		larger_than_mobile,
 		all_teams,
 		current_season_year,
-		selected_year
+		selected_year,
+		current_player
 	} from '$scripts/store';
 	import type { pickSixItem } from '$scripts/types/types';
 	import { quintOut } from 'svelte/easing';
@@ -14,8 +15,12 @@
 	import { flip } from 'svelte/animate';
 	import PickSixButton from '$lib/components/buttons/PickSixButton.svelte';
 	import { dev } from '$app/env';
-	import { myError } from '$lib/scripts/logging';
+	import { LogAndToast, myError } from '$lib/scripts/logging';
 	import { makeNumericArrayOfDesiredLength } from '$lib/scripts/functions';
+	import { doc, setDoc } from '@firebase/firestore';
+	import { pickSixCollection } from '$lib/scripts/collections';
+	import { pickSixConverter } from '$lib/scripts/converters';
+	import { PickSixDoc } from '$lib/scripts/classes/picks';
 
 	let pick_dock_visible: boolean = $larger_than_mobile;
 	let previous_year: number;
@@ -65,6 +70,30 @@
 		group.forEach((t) => {
 			t.selected = false;
 		});
+		return group;
+	}
+	async function submitSixPicks() {
+		const picks = all_selected_teams.map((t) => t.team.abbreviation);
+		const new_doc = doc(pickSixCollection);
+		const { uid, name, nickname } = $current_player;
+		const season_year = dev ? $selected_year : $current_season_year;
+		const confirmed = dev
+			? confirm(`Are you sure you want to enter picks for ${$selected_year}?`)
+			: true;
+		const pick_doc_data = new PickSixDoc({
+			doc_ref: new_doc,
+			picks,
+			season_year,
+			uid,
+			name,
+			nickname
+		});
+		if (confirmed) {
+			await setDoc(new_doc.withConverter(pickSixConverter), pick_doc_data);
+			const title = `${$selected_year} Pick Six Submitted`;
+			const msg = `Your picks have been submitted for ${$selected_year}`;
+			LogAndToast({ title, msg });
+		}
 	}
 
 	const [send, receive] = crossfade({
@@ -117,12 +146,9 @@
 	<button
 		class="reset"
 		on:click={() => {
-			resetGroup(group_one_teams);
-			resetGroup(group_two_teams);
-			resetGroup(group_three_teams);
-			group_one_teams = group_one_teams;
-			group_two_teams = group_two_teams;
-			group_three_teams = group_three_teams;
+			group_one_teams = resetGroup(group_one_teams);
+			group_two_teams = resetGroup(group_two_teams);
+			group_three_teams = resetGroup(group_three_teams);
 		}}>Reset All</button
 	>
 	<div class="grid groups-container">
@@ -148,12 +174,11 @@
 			group_letter={'C'}
 		/>
 	</div>
-	<!-- TODO: Add Pick6 doc submission -->
 	{#if group_one_selected_count === 2 && group_two_selected_count === 2 && group_three_selected_count === 2}
 		<button
 			transition:fly={{ y: 300, duration: 500, easing: quintOut }}
 			class="submit"
-			on:click={() => alert('add the CRUD!')}>Submit Picks</button
+			on:click={submitSixPicks}>Submit Picks</button
 		>
 	{/if}
 </div>
