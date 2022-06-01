@@ -158,9 +158,6 @@
 		place-items: center;
 		padding: 0.5rem;
 	}
-	img {
-		max-width: 100%;
-	}
 	.info-grid {
 		width: 100%;
 		grid-template-columns: repeat(auto-fit, minmax(0, 1fr));

@@ -23,7 +23,7 @@
 
 	let drawing = true;
 	const widthContainment = '100%';
-	let width: number | string; // allow width to be a number for window resizing or a string for passing fixed CSS properties
+	let width: number | string = null; // allow width to be a number for window resizing or a string for passing fixed CSS properties
 
 	if (browser) {
 		if ($window_width) {
