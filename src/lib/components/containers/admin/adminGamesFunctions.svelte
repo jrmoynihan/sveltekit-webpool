@@ -12,7 +12,7 @@
 </script>
 
 <AdminExpandSection summaryText="Games" bind:minColumns {customContentStyles} {customSummaryStyles}>
-	<StyledButton on:click={() => updateGamesAndATSWinners($selected_week)}
+	<StyledButton on:click={() => updateGamesAndATSWinners($selected_week, $selected_year)}
 		><span>Find Winners of <b>Week {$selected_week}</b> NFL Games</span></StyledButton
 	>
 	<DeletionButton on:click={() => removeWinnersFromGames($selected_week, $selected_year)}>
