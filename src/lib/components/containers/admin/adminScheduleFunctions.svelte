@@ -1,5 +1,5 @@
 <script lang="ts">
-	import AdminButton from '$lib/components/buttons/StyledButton.svelte';
+	import StyledButton from '$lib/components/buttons/StyledButton.svelte';
 	import { findCurrentSeason } from '$lib/scripts/schedule';
 	import { defaultToast } from '$lib/scripts/toasts';
 
@@ -36,13 +36,13 @@
 	{customContentStyles}
 	{customSummaryStyles}
 >
-	<AdminButton text="Find Bounds for Each Week" on:click={findWeekDateTimeBounds} />
+	<StyledButton text="Find Bounds for Each Week" on:click={findWeekDateTimeBounds} />
 	<input
 		type="date"
 		bind:value={dateString}
 		on:change={() => (now = new Date(dateString.replaceAll('-', '/')))}
 	/>
-	<AdminButton
+	<StyledButton
 		text="Find Season Bounds for Selected Date: ({now.toLocaleDateString()})"
 		on:click={findSeason}
 	/>
