@@ -13,10 +13,10 @@
 
 	export let index: number;
 	export let game: Game;
-	export let pickDoc: WeeklyPickDoc;
-	export let grid_columns = 1;
 	export let home_team: Team;
 	export let away_team: Team;
+	export let pickDoc: WeeklyPickDoc;
+	export let grid_columns = 1;
 	let { id, competitions, spread, timestamp, ATS_winner } = game;
 
 	let layout_breakpoint = 620;

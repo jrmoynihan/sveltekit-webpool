@@ -3,7 +3,6 @@
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
 	import WeekSelect from '$lib/components/selects/WeekSelect.svelte';
 	import type { WeeklyPickDoc } from '$scripts/classes/picks';
-	import { weeklyPickConverter, weeklyTiebreakerConverter } from '$scripts/converters';
 	import {
 		current_picks,
 		games_promise,
@@ -15,13 +14,12 @@
 		use_dark_theme,
 		selected_week,
 		selected_player,
-		selected_season_year,
 		selected_season_type,
 		tiebreaker_score_guess,
 		selected_year,
 		all_teams
 	} from '$scripts/store';
-	import { DocumentReference, orderBy, updateDoc, where } from '@firebase/firestore';
+	import { orderBy, where } from '@firebase/firestore';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
 	import { isBeforeGameTime } from '$scripts/functions';
@@ -29,7 +27,6 @@
 		airplaneDeparture,
 		all_icons,
 		bomb,
-		checkmark,
 		home,
 		policeCarLight
 	} from '$scripts/classes/constants';
@@ -111,12 +108,11 @@
 			$picks_promise = getPicksData({ constraints: picks_constraints });
 			$tiebreaker_promise = getTiebreakerData({ constraints: tiebreaker_constraints });
 			games = await $games_promise;
-			await addTeamsToGames(games);
 			picks = await $picks_promise;
 			$current_picks = await $picks_promise;
 			let tiebreakers: WeeklyTiebreaker[] = await $tiebreaker_promise;
 
-			// If tiebreaker doc found, create one and return it
+			// If tiebreaker doc isn't found, create one and return it
 			if (!tiebreakers || tiebreakers?.length === 0) {
 				$tiebreaker_promise = createTiebreaker(player.uid, week, year, season_type);
 				tiebreakers = await $tiebreaker_promise;
@@ -141,19 +137,6 @@
 
 			await Promise.all([$games_promise, $picks_promise, $tiebreaker_promise]);
 			counted_game_times = await countPlayedOrUpcomingGames(games);
-		} catch (error) {
-			myError({ error });
-		}
-	};
-	const addTeamsToGames = async (games: Game[]) => {
-		try {
-			games.forEach((game) => {
-				const { home_team_abbreviation, away_team_abbreviation } = game;
-				const home_team = $all_teams.find((team) => team.abbreviation === home_team_abbreviation);
-				const away_team = $all_teams.find((team) => team.abbreviation === away_team_abbreviation);
-				game.home_team = home_team;
-				game.away_team = away_team;
-			});
 		} catch (error) {
 			myError({ error });
 		}
@@ -187,79 +170,6 @@
 		}
 	};
 
-	const submitPicksAndTiebreaker = async (
-		uid: string,
-		docRef: DocumentReference,
-		scoreGuess: number,
-		currentPicks: WeeklyPickDoc[]
-	): Promise<void> => {
-		try {
-			currentPicks.forEach(async (currentPick) => {
-				const { doc_ref, pick } = currentPick;
-
-				try {
-					await updateDoc(doc_ref.withConverter(weeklyPickConverter), { pick });
-				} catch (error) {
-					const msg = 'Unable to update pick. Please see the console for more details.';
-					ErrorAndToast({
-						msg,
-						error,
-						additional_params: currentPick
-					});
-				}
-			});
-			myLog({
-				msg: 'Updated/submitted picks!',
-				icon: all_icons.okHand,
-				additional_params: currentPicks
-			});
-
-			await updateTiebreakerDoc(docRef, uid, scoreGuess, $selected_week, $selected_season_year);
-
-			defaultToast({
-				title: `${checkmark} Picks Submitted!`,
-				msg: `You can change any game's pick prior to that game's start time.`,
-				duration: 10000
-			});
-		} catch (error) {
-			const msg = 'Unable to submit picks. Please see the console for more details.';
-			ErrorAndToast({
-				msg,
-				error,
-				additional_params: currentPicks
-			});
-		}
-	};
-	const updateTiebreakerDoc = async (
-		doc_ref: DocumentReference,
-		uid: string,
-		score_guess: number,
-		week: number,
-		season_year: number
-	): Promise<void> => {
-		try {
-			await updateDoc(doc_ref.withConverter(weeklyTiebreakerConverter), {
-				doc_ref,
-				score_guess,
-				uid: uid,
-				season_type: 'Regular Season',
-				week,
-				season_year
-			});
-			myLog({
-				msg: 'Updated/submitted tiebreaker!',
-				icon: all_icons.okHand,
-				additional_params: score_guess
-			});
-		} catch (error) {
-			const msg = 'Unable to update tiebreaker. Please see the console for more details.';
-			ErrorAndToast({
-				msg,
-				error,
-				additional_params: { score_guess, uid, doc_ref }
-			});
-		}
-	};
 	const updatePicks = async (
 		games: Game[],
 		picks: WeeklyPickDoc[],
@@ -471,7 +381,7 @@
 		{#if current_pick_count >= 0 && number_of_games > 0}
 			{#key current_pick_count}
 				<PickCounter
-					invisible={$tiebreaker_score_guess >= 10 && show_tiebreaker_input}
+					invisible={$tiebreaker_score_guess >= 10}
 					bind:currentPickCount={current_pick_count}
 					bind:totalGameCount={number_of_games}
 					bind:upcomingGamesCount={upcoming_games_count}
@@ -493,22 +403,7 @@
 			{#await $tiebreaker_promise then tiebreakers}
 				{#if tiebreakers && $tiebreaker_score_guess}
 					{@const tiebreaker = tiebreakers[0]}
-					<SubmitPicks
-						on:click={() =>
-							submitPicksAndTiebreaker(
-								$selected_player.uid,
-								tiebreaker.doc_ref,
-								$tiebreaker_score_guess,
-								$current_picks
-							)}
-						disabled={!tiebreaker}
-						ableToTab={$tiebreaker_score_guess >= 10 ? 0 : -1}
-						pulse={$tiebreaker_score_guess >= 10}
-						invisible={$tiebreaker_score_guess < 10 ||
-							$tiebreaker_score_guess === undefined ||
-							$tiebreaker_score_guess === null ||
-							upcoming_games_count === 0}
-					/>
+					<SubmitPicks {tiebreaker} bind:upcoming_games_count />
 				{/if}
 			{:catch error}
 				<ErrorModal {error} />
@@ -548,6 +443,12 @@
 						{#if games.length !== 0}
 							{#each games as game, i (game.id)}
 								{#if pickDoc.game_id === game.id}
+									{@const home_team = $all_teams.find(
+										(team) => team.abbreviation === game.home_team_abbreviation
+									)}
+									{@const away_team = $all_teams.find(
+										(team) => team.abbreviation === game.away_team_abbreviation
+									)}
 									<div
 										class="game-container"
 										class:unselected={!pickDoc.pick}
@@ -563,13 +464,7 @@
 										class:loser={game.ATS_winner ? game.ATS_winner !== pickDoc.pick : null}
 										class:dark={$use_dark_theme}
 									>
-										<MatchupContainer
-											bind:game
-											bind:pickDoc
-											home_team={game.home_team}
-											away_team={game.away_team}
-											index={i}
-										/>
+										<MatchupContainer bind:game bind:pickDoc index={i} {home_team} {away_team} />
 									</div>
 								{/if}
 							{/each}
