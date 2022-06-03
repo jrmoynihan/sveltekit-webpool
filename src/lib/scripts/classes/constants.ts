@@ -53,6 +53,8 @@ export const bread = String.fromCodePoint(0x1f35e);
 export const bomb = String.fromCodePoint(0x1f4a3);
 export const detective = String.fromCodePoint(0x1f575);
 export const necktie = String.fromCodePoint(0x1f454);
+export const checkeredFlag = String.fromCodePoint(0x1f3c1);
+export const hourglass = String.fromCodePoint(0x231b);
 export const all_icons = {
 	okHand: okHand,
 	policeCarLight: policeCarLight,
@@ -63,10 +65,12 @@ export const all_icons = {
 	pick: pick,
 	football: football,
 	checkmark: checkmark,
+	checkeredFlag: checkeredFlag,
 	dog: dog,
 	dogFace: dogFace,
 	airplaneDeparture: airplaneDeparture,
 	home: home,
+	hourglass: hourglass,
 	stopSign: stopSign,
 	bread: bread,
 	bomb: bomb,
