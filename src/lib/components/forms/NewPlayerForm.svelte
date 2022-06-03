@@ -13,11 +13,12 @@
 	} from '$scripts/store';
 	import { defaultToast } from '$scripts/toasts';
 	import {
-		createWeeklyTiebreakersForPlayer,
-		createWeeklyPicksForPlayer,
-		getFutureGames,
 		createSeasonRecordForPlayer,
-		createWeeklyRecordsForPlayer
+		joinWeeklyPool,
+		joinSurvivorPool,
+		joinPick6Pool,
+		joinPlayoffsPool,
+		joinCollegePool
 	} from '$scripts/weekly/weeklyAdmin';
 	import {
 		faArrowAltCircleRight,
@@ -143,22 +144,26 @@
 			);
 			$selected_player = $current_player;
 			await savePlayerData($firebase_user);
-			// TODO: create the necessary docs for each pool they've joined...
+			// Find the current season if it hasn't already been set in the store
+			const season = $current_season || (await findCurrentSeason());
+
+			// Create the necessary docs for each pool they've joined...
 			// TODO: Move these to Cloud Functions triggered on new player doc creation...
 
-			// Get all games that will be played in the future and make picks for the player
 			if (weekly) {
-				const games = await getFutureGames();
-				if (games.length > 0) {
-					createWeeklyPicksForPlayer({
-						player: $current_player,
-						games,
-						logAll: true
-					});
-				}
-				const season = $current_season || (await findCurrentSeason());
-				createWeeklyTiebreakersForPlayer({ player: $current_player, season });
-				createWeeklyRecordsForPlayer({ player: $current_player, season });
+				joinWeeklyPool($selected_player, season);
+			}
+			if (survivor) {
+				joinSurvivorPool($selected_player, season);
+			}
+			if (pick6) {
+				joinPick6Pool($selected_player, season);
+			}
+			if (playoffs) {
+				joinPlayoffsPool($selected_player, season);
+			}
+			if (college) {
+				joinCollegePool($selected_player, season);
 			}
 
 			// Create season record for any type of player, since all pools will likely have seasonal record data

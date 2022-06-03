@@ -6,10 +6,12 @@ import {
 	gamesCollection,
 	seasonRecordsCollection,
 	weeklyPicksCollection,
+	weeklyRecordsCollection,
 	weeklyTiebreakersCollection
 } from '$lib/scripts/collections';
 import {
 	gameConverter,
+	recordConverter,
 	seasonRecordConverter,
 	weeklyPickConverter,
 	weeklyTiebreakerConverter
@@ -33,8 +35,8 @@ import { toast } from '@zerodevx/svelte-toast';
 import type { SeasonBoundDoc } from '../classes/seasonBound';
 import { makeNumericArrayOfDesiredLength } from '../functions';
 import { WeeklyTiebreaker } from '../classes/tiebreaker';
-import { SeasonRecord } from '../classes/playerRecord';
-import { weekly_players } from '../store';
+import { PlayerRecord, SeasonRecord } from '../classes/playerRecord';
+import { all_seasons, weekly_players } from '../store';
 import { get } from 'svelte/store';
 
 export const getAllGames = async (showToast = false): Promise<Game[]> => {
@@ -450,4 +452,86 @@ export const createSeasonRecordForPlayer = async (input: createSeasonRecordForPl
 			additional_params: `unable to update season record ${doc_ref.path} for player ${player.name}`
 		});
 	}
+};
+type createWeeklyRecordsForPlayerOptions = {
+	player: Player;
+	season: SeasonBoundDoc;
+};
+export const createWeeklyRecordsForPlayer = async (input: createWeeklyRecordsForPlayerOptions) => {
+	const { player, season } = input;
+	try {
+		const { year, type_name } = season;
+		const number_of_weeks = get(all_seasons).find(
+			(s) => s.year === year && s.type_name === type_name
+		).number_of_weeks;
+		const weeks = makeNumericArrayOfDesiredLength(number_of_weeks);
+		for (const week of weeks) {
+			const q = query(
+				weeklyRecordsCollection,
+				where('uid', '==', player.uid),
+				where('season_year', '==', year),
+				where('week', '==', week)
+			);
+			const docs = await getDocs(q.withConverter(recordConverter));
+			if (docs.empty) {
+				myLog({
+					msg: `no weekly records found for player: ${player.name} for ${year} season, week ${week}`
+				});
+				const doc_ref = doc(weeklyRecordsCollection.withConverter(recordConverter));
+				const data: PlayerRecord = new PlayerRecord({
+					doc_ref,
+					uid: player.uid,
+					season_year: year,
+					season_type: type_name,
+					week
+				});
+				await setDoc(doc_ref, data);
+				myLog({
+					msg: `set weekly record doc (${doc_ref.path}) for player: ${player.name} for ${year} season, week ${week}`
+				});
+			} else {
+				myLog({
+					msg: `weekly records found for player: ${player.name} for ${year} season, week ${week}`
+				});
+			}
+		}
+	} catch (error) {
+		ErrorAndToast({
+			msg: `Encountered an error while trying to set weekly record doc for player: ${player.name} for ${season.year} season`,
+			error,
+			additional_params: `unable to update weekly record for player ${player.name}`
+		});
+	}
+};
+export const joinWeeklyPool = async (player: Player, season: SeasonBoundDoc) => {
+	// Get all games that will be played in the future and make picks for the player
+	const games = await getFutureGames();
+	if (games.length > 0) {
+		createWeeklyPicksForPlayer({
+			player,
+			games,
+			logAll: true
+		});
+	}
+	createWeeklyTiebreakersForPlayer({ player, season });
+	createWeeklyRecordsForPlayer({ player, season });
+};
+export const joinSurvivorPool = async (player: Player, season: SeasonBoundDoc) => {
+	LogAndToast({ msg: `Joining Survivor pool is not yet implemented.` });
+};
+export const joinPick6Pool = async (player: Player, season: SeasonBoundDoc) => {
+	LogAndToast({ msg: `Joining Pick6 pool is not yet implemented.` });
+};
+export const joinPlayoffsPool = async (player: Player, season: SeasonBoundDoc) => {
+	LogAndToast({ msg: `Joining Playoffs pool is not yet implemented.` });
+};
+export const joinCollegePool = async (player: Player, season: SeasonBoundDoc) => {
+	LogAndToast({ msg: `Joining College pool is not yet implemented.` });
+};
+export const joinAllPools = async (player: Player, season: SeasonBoundDoc) => {
+	joinWeeklyPool(player, season);
+	joinSurvivorPool(player, season);
+	joinPick6Pool(player, season);
+	joinPlayoffsPool(player, season);
+	joinCollegePool(player, season);
 };
