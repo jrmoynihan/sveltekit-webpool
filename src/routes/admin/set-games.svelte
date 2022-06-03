@@ -206,22 +206,22 @@
 				const gamesToSet = allGames.prunedGames;
 				currently_setting_games = true;
 
-				LogAndToast({
-					title: 'Setting Games',
-					msg: `Creating/overriting game documents for ${$selected_week}.`
+				gamesToSet.forEach(async (game, i) => {
+					const is_last_game_of_week = i === gamesToSet.length - 1;
+					await setGame(game, is_last_game_of_week);
 				});
 
-				for await (const game of gamesToSet) {
-					setGame(game);
-				}
-				LogAndToast({ title: 'Games Set', msg: `Created game documents for ${$selected_week}!` });
+				LogAndToast({
+					title: 'Games Set',
+					msg: `Created game documents for week ${$selected_week}!`
+				});
 			}
 			currently_setting_games = false;
 		} catch (error) {
 			ErrorAndToast({ error });
 		}
 	};
-	const setGame = async (game: ESPNGamePruned) => {
+	const setGame = async (game: ESPNGamePruned, is_last_game_of_week: boolean) => {
 		try {
 			const doc_ref = doc(firestoreDB, gamesCollection.path, game.id);
 
@@ -235,8 +235,9 @@
 			// Split out the home and away team abbreviations from the shortName field
 			const { shortName } = game;
 			const [away_team_abbreviation, home_team_abbreviation] = shortName.split(' @ ');
-			myLog({ msg: `home team: ${home_team_abbreviation}`, icon: all_icons.home });
-			myLog({ msg: `away team: ${away_team_abbreviation}`, icon: all_icons.airplaneDeparture });
+			myLog({
+				msg: `game-id: ${game.id} ${all_icons.home} home: ${home_team_abbreviation} || ${all_icons.airplaneDeparture} away: ${away_team_abbreviation}`
+			});
 
 			// Add the season_type, year, and week, instead of using ESPN's nested reference object
 			// Load the game to a new object that will gain Firebase-friendly formatting changes
@@ -252,7 +253,8 @@
 				timestamp,
 				home_team_abbreviation,
 				away_team_abbreviation,
-				spread: spread
+				is_last_game_of_week,
+				spread
 			});
 
 			// Set/update the game document with the formatted data
