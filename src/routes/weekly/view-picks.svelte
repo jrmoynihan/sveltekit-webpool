@@ -14,7 +14,7 @@
 		use_dark_theme,
 		weekly_players
 	} from '$scripts/store';
-	import { where, orderBy } from '@firebase/firestore';
+	import { where, orderBy, QueryConstraint } from '@firebase/firestore';
 	import { fade, fly } from 'svelte/transition';
 	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
 	import LoadingSpinner from '$lib/components/misc/LoadingSpinner.svelte';
@@ -26,16 +26,6 @@
 	let picksPromise: Promise<WeeklyPickDoc[]>;
 	let gamesPromise: Promise<Game[]>;
 	let data_promise: Promise<{ picks: WeeklyPickDoc[]; games: Game[] }>;
-	const picks_constraints = [
-		where('week', '==', $selected_week),
-		where('season_year', '==', $selected_year),
-		orderBy('game_id')
-	];
-	const games_constraints = [
-		where('week', '==', $selected_week),
-		where('season_year', '==', $selected_year),
-		orderBy('id')
-	];
 
 	const createMissingPicks = async (picks: WeeklyPickDoc[], games: Game[]) => {
 		$weekly_players.forEach((player) => {
@@ -46,22 +36,41 @@
 			}
 		});
 	};
-	const confirmAllPicksArePresent = async (picks: WeeklyPickDoc[], games: Game[]) => {
+	const confirmAllPicksArePresent = async (
+		picks: WeeklyPickDoc[],
+		games: Game[],
+		picks_constraints: QueryConstraint[]
+	) => {
 		// If the number of pick docs returned doesn't equal the number of players times the number of games, there are missing docs.
 		if (picks.length !== $weekly_players.length * games.length) {
+			console.log('not all picks are present!');
 			// A fallback to create missing picks on the fly
 			await createMissingPicks(picks, games);
+			console.log('created missing picks...');
 			// Get the full set of picks, now that the missing ones have been created
-			picksPromise = getPicksData({ constraints: picks_constraints });
-			picks = await picksPromise;
+			picks = await getPicksData({ constraints: picks_constraints });
+			console.log('all picks are now present!');
+			return picks;
+		} else {
+			return picks;
 		}
-		return picks;
 	};
 	const getData = async () => {
+		const picks_constraints = [
+			where('week', '==', $selected_week),
+			where('season_year', '==', $selected_year),
+			orderBy('uid'),
+			orderBy('timestamp')
+		];
+		const games_constraints = [
+			where('week', '==', $selected_week),
+			where('season_year', '==', $selected_year),
+			orderBy('timestamp')
+		];
 		picksPromise = getPicksData({ constraints: picks_constraints });
 		gamesPromise = getGameData({ constraints: games_constraints });
 		let [picks, games] = await Promise.all([picksPromise, gamesPromise]);
-		picks = await confirmAllPicksArePresent(picks, games);
+		picks = await confirmAllPicksArePresent(picks, games, picks_constraints);
 		return { picks, games };
 	};
 
@@ -113,8 +122,8 @@
 					</div>
 					{#each games as game}
 						{#await isBeforeGameTime(game.timestamp) then notAbleToSee}
-							{#each player_picks as pickdoc}
-								{@const { pick, game_id, is_correct } = pickdoc}
+							{#each player_picks as pick_doc}
+								{@const { pick, game_id, is_correct } = pick_doc}
 								<!-- Match the pick document to the game -->
 								{#if game_id === game.id}
 									<!-- If there's no pick, display a placeholder dash -->
