@@ -35,14 +35,13 @@ import {
 	thirdPlaceWeeklySeasonPercent,
 	firstPlaceWeeklyAmount,
 	secondPlaceWeeklyAmount,
-	thirdPlaceWeeklyAmount
+	thirdPlaceWeeklyAmount,
+	checkeredFlag
 } from './classes/constants';
 import { ErrorAndToast, myError, myLog } from '$scripts/logging';
 import {
 	gamesCollection,
-	playersCollection,
 	weeklyPicksCollection,
-	weeklyTiebreakersCollection,
 	teamsCollection,
 	seasonRecordsCollection
 } from './collections';
@@ -51,12 +50,10 @@ import {
 	teamConverter,
 	playerConverter,
 	weeklyPickConverter,
-	weeklyTiebreakerConverter,
 	recordConverter,
 	seasonRecordConverter
 } from './converters';
 import { defaultToast } from './toasts';
-import type { Team } from './classes/team';
 import type { WeeklyTiebreaker } from './classes/tiebreaker';
 import type { WeeklyPickDoc } from './classes/picks';
 import { toast } from '@zerodevx/svelte-toast';
@@ -64,14 +61,21 @@ import type { Player } from './classes/player';
 import type { PlayerRecord, SeasonRecord } from './classes/playerRecord';
 import { getStatus, getScoreData, convertToHttps } from './dataFetching';
 import { isBeforeGameTime } from './functions';
-import { getWeeklyPlayers, getWeeklyRecords } from './weekly/weeklyPlayers';
+import {
+	getGameData,
+	getPicksData,
+	getTiebreakerData,
+	getWeeklyPlayers,
+	getWeeklyRecordData,
+	getWeeklyRecords
+} from './weekly/weeklyPlayers';
 import { weekly_players } from './store';
 import { get } from 'svelte/store';
 
 // Score all picks for a given week
 export const scorePicksForWeek = async (
 	selected_week: number,
-	selected_year = new Date().getFullYear(),
+	selected_year: number,
 	season_type = 'Regular Season'
 ): Promise<void> => {
 	try {
@@ -80,31 +84,27 @@ export const scorePicksForWeek = async (
 			msg: `Updating game winners, scoring (net) tiebreakers, and updating player records...`,
 			duration: 60000
 		});
-		const wheres: QueryConstraint[] = [
+		const constraints: QueryConstraint[] = [
 			where('week', '==', selected_week),
 			where('season_year', '==', selected_year),
-			where('type', '==', season_type)
+			where('season_type', '==', season_type)
 		];
-		const gameQuery = query(gamesCollection, ...wheres);
-		const pickQuery = query(weeklyPicksCollection, ...wheres);
-		const tiebreakerQuery = query(weeklyTiebreakersCollection, ...wheres);
-		const games = await getDocs(gameQuery.withConverter(gameConverter));
-		const picks = await getDocs(pickQuery.withConverter(weeklyPickConverter));
-		const tiebreakers = await getDocs(tiebreakerQuery.withConverter(weeklyTiebreakerConverter));
+		const games = await getGameData({ constraints });
+		const picks = await getPicksData({ constraints });
+		const tiebreakers = await getTiebreakerData({ constraints });
 		const weeklyPlayers = get(weekly_players) || (await getWeeklyPlayers());
+		const weekly_records = await getWeeklyRecordData({ constraints });
 
-		games.forEach((game) => {
-			const gameData = game.data();
-			const gameRef = game.ref;
+		for await (const game of games) {
 			toast.set(starting_toast_id, { msg: `Updating ATS game winners...` });
-			updateGameandATSWinner(gameData, gameRef);
+			await updateGameandATSWinner(game, game.doc_ref);
 			toast.set(starting_toast_id, { msg: `Scoring net tiebreakers...` });
-			scoreNetTiebreakers(gameData, tiebreakers, selected_week);
+			await scoreNetTiebreakers(game, tiebreakers, weekly_records);
 			toast.set(starting_toast_id, { msg: `Marking correct picks...` });
-			markIfPickIsCorrect(picks, gameData);
-		});
+			await markIfPickIsCorrect(picks, game);
+		}
 
-		// Initialize variables to perform winner/tiebreaker comparisons
+		// // Initialize variables to perform winner/tiebreaker comparisons
 		let most_wins: number = 0;
 		let second_most_wins: number = 0;
 		let third_most_wins: number = 0;
@@ -116,7 +116,7 @@ export const scorePicksForWeek = async (
 			const pick_doc_constraints: QueryConstraint[] = [
 				where('week', '==', selected_week),
 				where('season_year', '==', selected_year),
-				where('type', '==', season_type),
+				where('season_type', '==', season_type),
 				where('uid', '==', player.uid)
 			];
 			const pick_query = query(weeklyPicksCollection, ...pick_doc_constraints);
@@ -513,7 +513,13 @@ export const updateWeeklyPlayerSeasonRecord = async (
 			// If no docs are returned (unexpected), create a new doc
 		} else if (season_record_snapshot.size === 0) {
 			const new_doc = doc(seasonRecordsCollection.withConverter(seasonRecordConverter));
-			await setDoc(new_doc, { uid, season_year, total_weekly_wins, total_weekly_losses });
+			await setDoc(new_doc, {
+				doc_ref: new_doc,
+				uid,
+				season_year,
+				total_weekly_wins,
+				total_weekly_losses
+			});
 			return total_weekly_wins; // Return wins to compare who has the best record
 
 			// If more than one doc is returned (unexpected), throw an error
@@ -586,28 +592,16 @@ export const updatePlayerRecordForWeek = async (
 		ErrorAndToast({ title: 'Unable to update player record', error });
 	}
 };
-export const markIfPickIsCorrect = async (
-	picks: QuerySnapshot<WeeklyPickDoc>,
-	gameData: Game
-	// selectedWeek: number
-) => {
+export const markIfPickIsCorrect = async (picks: WeeklyPickDoc[], gameData: Game) => {
 	try {
 		picks.forEach(async (pick) => {
-			const pickData = pick.data();
-			const pickRef = pick.ref;
-			// const uid = pickData.uid;
-			// const playerRef = doc(playersCollection, uid);
-			// if (pickData.isCorrect === null || pickData.isCorrect === undefined) {
-			if (pickData.game_id === gameData.id) {
-				if (
-					(gameData.ATS_winner && gameData.ATS_winner === pickData.pick) ||
-					gameData.ATS_winner === everyoneWinsResult
-				) {
-					updateDoc(pickRef, { is_correct: true });
+			if (pick.game_id === gameData.id) {
+				if (gameData.ATS_winner === pick.pick || gameData.ATS_winner === everyoneWinsResult) {
+					updateDoc(pick.doc_ref, { is_correct: true });
 				} else if (await isBeforeGameTime(gameData.timestamp)) {
-					updateDoc(pickRef, { is_correct: null });
+					updateDoc(pick.doc_ref, { is_correct: null });
 				} else {
-					updateDoc(pickRef, { is_correct: false });
+					updateDoc(pick.doc_ref, { is_correct: false });
 				}
 			}
 		});
@@ -616,29 +610,34 @@ export const markIfPickIsCorrect = async (
 	}
 };
 export const scoreNetTiebreakers = async (
-	game_data: Game,
-	tiebreakers: QuerySnapshot<WeeklyTiebreaker>,
-	selected_week: number
+	game: Game,
+	tiebreakers: WeeklyTiebreaker[],
+	records: PlayerRecord[]
 ) => {
 	try {
-		if (game_data.is_last_game_of_week && game_data.winner) {
+		const { is_last_game_of_week, winner, total_score } = game;
+		if (is_last_game_of_week && winner) {
 			myLog({
-				msg: `last game of the week: ${game_data.short_name}, totalScore: ${game_data.total_score}`
+				msg: `${checkeredFlag} Last Game of the Week: ${game.short_name}, Total Score: ${total_score}`
 			});
+			// Iterate through each player's tiebreaker for that week
 			tiebreakers.forEach((tiebreaker) => {
-				const tiebreakerData = tiebreaker.data();
-				const uid = tiebreakerData.uid;
-				if (tiebreakerData.score_guess) {
-					const net_tiebreaker = game_data.total_score - tiebreakerData.score_guess;
+				const { uid, score_guess, week, season_year, season_type } = tiebreaker;
+				if (score_guess) {
+					const net_tiebreaker = total_score - score_guess;
 					const net_tiebreaker_absolute = Math.abs(net_tiebreaker);
-					const player_doc_ref = doc(playersCollection, uid);
-					// store netTiebreakers on the Player document; easier for scoreboard
-					// updateDoc(player_doc_ref, {
-					// 	[`weeklyPickRecord.week_${selected_week}.netTiebreaker`]: net_tiebreaker,
-					// 	[`weeklyPickRecord.week_${selected_week}.netTiebreakerAbsolute`]:
-					// 		net_tiebreaker_absolute
-					// });
-					throw new Error('Not yet implemented');
+
+					// Filter to the player's record
+					const player_record = records.find(
+						(record) =>
+							record.uid === uid &&
+							record.week === week &&
+							record.season_year === season_year &&
+							record.season_type === season_type
+					);
+
+					// Store the net tiebreaker in the weekly record doc
+					updateDoc(player_record.doc_ref, { net_tiebreaker, net_tiebreaker_absolute });
 				} else {
 					myLog({ msg: 'no tiebreaker posted' });
 				}
@@ -692,19 +691,16 @@ export const updateGamesAndATSWinners = async (
 			title: `Starting to Find Winners`,
 			msg: `Finding straight up and ATS winners on each game doc.`
 		});
-		const wheres: QueryConstraint[] = [
+		const game_constraints: QueryConstraint[] = [
 			where('week', '==', week),
 			where('season_year', '==', year),
-			where('type', '==', season_type)
+			where('season_type', '==', season_type)
 		];
-		const gameQuery = query(gamesCollection, ...wheres);
-		const games = await getDocs(gameQuery.withConverter(gameConverter));
-		games.forEach(async (game) => {
-			const gameData = game.data();
-			const gameRef = game.ref;
-			myLog({ msg: `updating game ${gameData.id}...` });
-			await updateGameandATSWinner(gameData, gameRef);
-		});
+		const games = await getGameData({ constraints: game_constraints });
+		for (const game of games) {
+			myLog({ msg: `updating game ${game.id}...` });
+			await updateGameandATSWinner(game, game.doc_ref);
+		}
 		defaultToast({
 			title: `Completed!`,
 			msg: `Winners have been added/updated to each game document.`
@@ -719,7 +715,6 @@ export const updateGameandATSWinner = async (
 	game_ref: DocumentReference
 ): Promise<{ winnerAndLoser: { winner: string; loser: string }; ATSwinner: string }> => {
 	try {
-		// if (!gameData.winner) {
 		const competitions: PrunedCompetition[] = game_data.competitions;
 		const status_data = await getStatus(competitions);
 		if (status_data?.type?.completed) {
