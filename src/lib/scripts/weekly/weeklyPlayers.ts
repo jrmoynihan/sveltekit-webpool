@@ -66,7 +66,7 @@ type getRecordsOptions = {
 	showToast?: boolean;
 	returnDocs?: boolean;
 };
-export const getRecords = async (input: getRecordsOptions) => {
+export const getWeeklyRecords = async (input: getRecordsOptions) => {
 	const { constraints = [], showToast } = input;
 	try {
 		const record_query = query(
@@ -74,26 +74,27 @@ export const getRecords = async (input: getRecordsOptions) => {
 			...constraints
 		);
 		const record_docs = await getDocs(record_query);
+		const msg = 'Retrieved all requested weekly records.';
+		showToast
+			? LogAndToast({ title: 'Got Weekly Records', msg })
+			: myLog({ msg, additional_params: record_docs });
 		return record_docs;
 	} catch (error) {
 		ErrorAndToast({ title: 'Error Retrieving Records', error });
 	}
 };
-export const getWeeklyRecords = async (input: getRecordsOptions) => {
-	const { showToast } = input;
-	input.constraints.push(where('season_type', '==', 'weekly'));
-	const records = await getRecords(input);
-	const msg = 'Retrieved all requested weekly records.';
-	showToast
-		? LogAndToast({ title: 'Got Weekly Records', msg, additional_params: records })
-		: myLog({ msg, additional_params: records });
-	return records;
-};
+
 export const getWeeklyRecordData = async (input: getRecordsOptions) => {
-	const records = await getWeeklyRecords(input);
-	if (records?.empty) throw new Error('No records found.');
-	const record_data = records.docs.map((record) => record.data());
-	return record_data;
+	try {
+		const records = await getWeeklyRecords(input);
+		if (records?.empty) throw new Error('No records found.');
+		const record_data = records.docs.map((record) => record.data());
+		myLog({ msg: 'Weekly records: ', additional_params: record_data });
+		return record_data;
+	} catch (error) {
+		myError({ msg: error, error });
+		return [];
+	}
 };
 
 type getGamesOptions = {
@@ -117,7 +118,11 @@ export const getGameData = async (input: getGamesOptions) => {
 		const games: Game[] = [];
 		const docs = await getGames(input);
 
-		if (docs?.empty) throw new Error('No games found.');
+		if (docs?.empty) {
+			throw new Error(
+				'No games found. Check that the query constraints are correct and the selected game docs have been created.'
+			);
+		}
 
 		docs.forEach((doc) => {
 			games.push(doc.data());
@@ -181,5 +186,6 @@ export const getTiebreakerData = async (
 		show_toast
 			? ErrorAndToast({ msg, error, icon: all_icons.detective, additional_params: input })
 			: myError({ msg, error, icon: all_icons.detective, additional_params: input });
+		return [];
 	}
 };
