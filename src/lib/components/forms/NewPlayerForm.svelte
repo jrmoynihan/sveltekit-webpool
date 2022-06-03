@@ -16,7 +16,8 @@
 		createWeeklyTiebreakersForPlayer,
 		createWeeklyPicksForPlayer,
 		getFutureGames,
-		createSeasonRecordForPlayer
+		createSeasonRecordForPlayer,
+		createWeeklyRecordsForPlayer
 	} from '$scripts/weekly/weeklyAdmin';
 	import {
 		faArrowAltCircleRight,
@@ -157,7 +158,7 @@
 				}
 				const season = $current_season || (await findCurrentSeason());
 				createWeeklyTiebreakersForPlayer({ player: $current_player, season });
-				// TODO: createWeeklyRecords;
+				createWeeklyRecordsForPlayer({ player: $current_player, season });
 			}
 
 			// Create season record for any type of player, since all pools will likely have seasonal record data
