@@ -6,9 +6,7 @@
 	import { makeNumericArrayOfDesiredLength } from '$lib/scripts/functions';
 	import { dev } from '$app/env';
 
-	export let weeks: number[] = makeNumericArrayOfDesiredLength(
-		dev ? 18 : $selected_season?.number_of_weeks
-	);
+	export let weeks: number[] = makeNumericArrayOfDesiredLength($selected_season?.number_of_weeks);
 	export let showButtons = true;
 	export let customStyles = '';
 	export let customSelectStyles = '';
