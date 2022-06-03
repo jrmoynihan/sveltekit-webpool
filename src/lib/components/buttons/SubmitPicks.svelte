@@ -20,6 +20,7 @@
 
 	export let tiebreaker: WeeklyTiebreaker;
 	export let upcoming_games_count = 0;
+	export let already_made_picks_for_upcoming_games = false;
 
 	const updateTiebreakerDoc = async (
 		doc_ref: DocumentReference,
@@ -69,7 +70,7 @@
 				}
 			});
 			myLog({
-				msg: 'Updated/submitted picks!',
+				msg: `${already_made_picks_for_upcoming_games ? 'Updated' : 'Submitted'} picks!`,
 				icon: all_icons.okHand,
 				additional_params: $current_picks
 			});
@@ -83,7 +84,9 @@
 			);
 
 			defaultToast({
-				title: `${checkmark} Picks Submitted!`,
+				title: `${checkmark} Picks ${
+					already_made_picks_for_upcoming_games ? 'Updated' : 'Submitted'
+				}!`,
 				msg: `You can change any game's pick prior to that game's start time.`,
 				duration: 10000
 			});
@@ -111,7 +114,10 @@
 	in:fly={{ delay: 250, duration: 200, x: 100 }}
 	out:fly={{ x: 100, duration: 200 }}
 >
-	Submit Picks <Fa icon={faCheckCircle} size="lg" />
+	{already_made_picks_for_upcoming_games ? 'Update' : 'Submit'} Picks <Fa
+		icon={faCheckCircle}
+		size="lg"
+	/>
 </button>
 
 <style lang="scss">
