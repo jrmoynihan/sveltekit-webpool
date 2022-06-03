@@ -1,4 +1,7 @@
+import type { DocumentReference } from '@firebase/firestore';
+
 export class PlayerRecord {
+	doc_ref: DocumentReference;
 	uid: string;
 	wins: number;
 	losses: number;
@@ -9,6 +12,7 @@ export class PlayerRecord {
 	season_year: number;
 	prize_amount: number;
 	constructor({ ...args }) {
+		this.doc_ref = args.doc_ref;
 		this.uid = args.uid;
 		this.wins = args.wins || 0;
 		this.losses = args.losses || 0;
@@ -21,11 +25,13 @@ export class PlayerRecord {
 	}
 }
 export class SeasonRecord {
+	doc_ref: DocumentReference;
 	uid: string;
 	season_year: number;
 	total_weekly_wins: number;
 	total_weekly_losses: number;
 	constructor({ ...args }) {
+		this.doc_ref = args.doc_ref;
 		this.uid = args.uid;
 		this.season_year = args.season_year;
 		this.total_weekly_wins = args.total_weekly_wins || 0;
