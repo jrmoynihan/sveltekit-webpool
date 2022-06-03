@@ -7,7 +7,7 @@
 	};
 </script>
 
-<label class="switch" tabindex="0">
+<label class="switch" tabindex="0" on:selectionchange|preventDefault>
 	<input type="checkbox" bind:checked={$use_dark_theme} on:change={storeDarkThemePreference} />
 	<div>
 		<span />
