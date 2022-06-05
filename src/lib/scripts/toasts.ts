@@ -6,6 +6,7 @@ import { toastsCollection } from '$scripts/collections';
 import { myError, myLog } from '$scripts/logging';
 
 export type myToastOptions = {
+	id?: number;
 	title?: string;
 	msg?: string;
 	duration?: number;
@@ -27,6 +28,7 @@ export type myToastOptions = {
 };
 
 export const defaultToast = ({
+	id = null,
 	title = '',
 	msg = '',
 	duration = 5000,
@@ -67,13 +69,33 @@ export const defaultToast = ({
 		'--toastBarHeight': `${toastBarHeight}`,
 		'--toastProgressBorderRadius': `${toastProgressBorderRadius}`
 	};
-	let id: number;
+
 	if (useSeenToastComponent) {
-		id = toast.push(msg, {
-			component: {
-				src: SeenToast,
-				props: { msgMarkup: msgBuilder, localStorageKey: localStorageKey }
-			},
+		if (id) {
+			toast.set(id, {
+				msg,
+				component: {
+					src: SeenToast,
+					props: { msgMarkup: msgBuilder, localStorageKey: localStorageKey }
+				},
+				duration: duration,
+				pausable: true,
+				theme: theme
+			});
+		} else {
+			id = toast.push(msg, {
+				component: {
+					src: SeenToast,
+					props: { msgMarkup: msgBuilder, localStorageKey: localStorageKey }
+				},
+				duration: duration,
+				pausable: true,
+				theme: theme
+			});
+		}
+	} else if (id) {
+		toast.set(id, {
+			msg: msgBuilder,
 			duration: duration,
 			pausable: true,
 			theme: theme
