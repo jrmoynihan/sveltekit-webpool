@@ -7,7 +7,7 @@ import type {
 	ESPNDrive,
 	ESPNDriveRef
 } from '$classes/game';
-import { myError } from '$scripts/logging';
+import { myError, myLog } from '$scripts/logging';
 import { all_icons } from '$classes/constants';
 
 export const fetchWithTimeout = async (resourceUrl: string, options: { timeout: number }) => {
@@ -88,20 +88,33 @@ export const getConsensusSpread = async (gameID: string): Promise<number> => {
 		const data = await response.json();
 		const spreadProviders = data.items;
 		let consensus: number;
-		for (const spreadProvider of spreadProviders) {
+		let totalSpread = 0;
+		for await (const spreadProvider of spreadProviders) {
 			if (spreadProvider.provider.name === 'consensus') {
 				consensus = spreadProvider.spread;
+				// Return early if the consensus spread is found
+				return consensus;
+			} else if (spreadProvider.spread) {
+				// Otherwise, total the spreads up
+				totalSpread += spreadProvider.spread;
 			}
 		}
-		// FIXME: Should this actually return null intentionally?
-		if (consensus === undefined) {
-			consensus = null;
-		}
+		// Take the average of spread providers if the consensus wasn't found
+		consensus = roundToNearestHalf(totalSpread / spreadProviders.length);
+		myLog({
+			msg: `found consensus: ${consensus}, total spread: ${totalSpread}, spreadProviders: ${spreadProviders.length}`,
+			icon: all_icons.butter
+		});
 		return consensus;
 	} catch (error) {
 		console.error(error);
 	}
 };
+// A function to round to increments of .5
+export const roundToNearestHalf = (num: number): number => {
+	return Math.round(num * 2) / 2;
+};
+
 export const getTeamWithPossession = async (teamRef: string) => {
 	const httpsAddress = await convertToHttps(teamRef);
 	const response = await fetch(httpsAddress);
