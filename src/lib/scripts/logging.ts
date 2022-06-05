@@ -6,6 +6,7 @@ export interface myLogType {
 	icon?: string | null;
 	additional_params?: any;
 	traceLocation?: boolean;
+	use_warning?: boolean;
 }
 export interface myErrorType {
 	error: Error;
@@ -27,7 +28,7 @@ export const myError = (input: myErrorType): void => {
 	console.error(...args);
 };
 export const myLog = (input: myLogType): void => {
-	const { msg, icon, traceLocation, additional_params } = input;
+	const { msg, icon, traceLocation, additional_params, use_warning } = input;
 	let str = icon ? `%c${icon} ` : '%c';
 	str += `\n ${msg}\ `;
 	let args = [str, defaultConsoleLogStyle];
@@ -39,9 +40,15 @@ export const myLog = (input: myLogType): void => {
 	} else if (additional_params) {
 		console.group(...args);
 		console.groupEnd();
+	} else if (use_warning) {
+		console.warn(...args);
 	} else {
 		console.log(...args);
 	}
+};
+export const myWarning = (input: myLogType): void => {
+	input.use_warning = true;
+	myLog(input);
 };
 
 export const LogAndToast = (options: LogAndToastType): number => {
