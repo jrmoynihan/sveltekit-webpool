@@ -55,6 +55,7 @@ export const detective = String.fromCodePoint(0x1f575);
 export const necktie = String.fromCodePoint(0x1f454);
 export const checkeredFlag = String.fromCodePoint(0x1f3c1);
 export const hourglass = String.fromCodePoint(0x231b);
+export const butter = String.fromCodePoint(0x1f9c8);
 export const all_icons = {
 	okHand: okHand,
 	policeCarLight: policeCarLight,
@@ -75,7 +76,8 @@ export const all_icons = {
 	bread: bread,
 	bomb: bomb,
 	detective: detective,
-	necktie: necktie
+	necktie: necktie,
+	butter: butter
 };
 
 export const defaultConsoleLogStyle = [
