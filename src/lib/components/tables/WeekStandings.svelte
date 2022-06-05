@@ -12,7 +12,7 @@
 		getTiebreakerData,
 		getWeeklyRecordData
 	} from '$scripts/weekly/weeklyPlayers';
-	import { ErrorAndToast, LogAndToast } from '$scripts/logging';
+	import { ErrorAndToast, LogAndToast, myWarning } from '$scripts/logging';
 	import type { Game } from '$classes/game';
 	import ErrorModal from '../modals/ErrorModal.svelte';
 	import { WeeklyTiebreaker } from '$classes/tiebreaker';
@@ -83,10 +83,15 @@
 			return;
 		}
 
-		// Make sure a record doc exists for each player. If not, create one.
+		// Make sure a record doc exists for each player.
 		$weekly_players.forEach((player) => {
 			const found_player_record = weekly_records?.find((record) => record.uid === player.uid);
-			if (!found_player_record) {
+			// If no doc was found, create one.
+			if (found_player_record === undefined) {
+				myWarning({
+					msg: `A record for ${player.name} was not found.`,
+					additional_params: [found_player_record, weekly_records, weekly_player_record_constraints]
+				});
 				const new_record_doc_ref = doc(weeklyRecordsCollection);
 				const new_record = new PlayerRecord({
 					doc_ref: new_record_doc_ref,
@@ -158,7 +163,11 @@
 	/>
 	{#if dev}
 		<AdminOnlyControl>
-			<YearSelect on:change={changeData} grid_area={'year-selector'} />
+			<YearSelect
+				on:change={changeData}
+				grid_area={'year-selector'}
+				custom_styles={' background: hsla(var(--admin-hue), var(--admin-saturation), 75%); color: var(--admin);'}
+			/>
 		</AdminOnlyControl>
 	{/if}
 	<div class="table grid" class:dev>
