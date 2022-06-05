@@ -17,7 +17,7 @@ import {
 	weeklyTiebreakerConverter
 } from '$lib/scripts/converters';
 import { defaultToast, errorToast } from '$lib/scripts/toasts';
-import { getPicksData, getWeeklyPlayers } from './weeklyPlayers';
+import { getGameData, getPicksData, getWeeklyPlayers } from './weeklyPlayers';
 import {
 	updateDoc,
 	deleteDoc,
@@ -404,16 +404,19 @@ export const updateGameSpreads = async (week: number, year: number) => {
 			msg: `Getting consensus spreads from ESPN...`
 		});
 		// Update the pick game objects on the pick documents?
-		const q = query(gamesCollection, where('week', '==', week), where('season_year', '==', year));
-		const games = await getDocs(q.withConverter(gameConverter));
-		for await (const gameDoc of games.docs) {
-			const gameData = gameDoc.data();
-			if (gameData.spread === null || gameData.spread === undefined) {
-				myLog({ msg: `no spread found for game id:${gameData.id}` });
-				const updatedSpread = await getConsensusSpread(gameData.id);
-				updateDoc(gameDoc.ref, { spread: updatedSpread });
+		const constraints = [where('week', '==', week), where('season_year', '==', year)];
+		const games = await getGameData({ constraints });
+		for await (const game of games) {
+			if (game.spread === null || game.spread === undefined || isNaN(game.spread)) {
+				myLog({ msg: `no spread found on game doc (game id: ${game.id})` });
+				const updatedSpread = await getConsensusSpread(game.id);
+				myLog({ msg: `updated spread: ${updatedSpread}` });
+				updateDoc(game.doc_ref, { spread: updatedSpread });
 			} else {
-				myLog({ msg: `existing spread found for game (${gameData.id}) was: ${gameData.spread}` });
+				myLog({ msg: `existing spread found for game (${game.id}) was: ${game.spread}` });
+				const updatedSpread = await getConsensusSpread(game.id);
+				myLog({ msg: `updated spread: ${updatedSpread}` });
+				updateDoc(game.doc_ref, { spread: updatedSpread });
 			}
 		}
 		toast.pop(startToast);
@@ -460,40 +463,10 @@ type createWeeklyRecordsForPlayerOptions = {
 export const createWeeklyRecordsForPlayer = async (input: createWeeklyRecordsForPlayerOptions) => {
 	const { player, season } = input;
 	try {
-		const { year, type_name } = season;
-		const number_of_weeks = get(all_seasons).find(
-			(s) => s.year === year && s.type_name === type_name
-		).number_of_weeks;
+		const { year, type_name, number_of_weeks } = season;
 		const weeks = makeNumericArrayOfDesiredLength(number_of_weeks);
 		for (const week of weeks) {
-			const q = query(
-				weeklyRecordsCollection,
-				where('uid', '==', player.uid),
-				where('season_year', '==', year),
-				where('week', '==', week)
-			);
-			const docs = await getDocs(q.withConverter(recordConverter));
-			if (docs.empty) {
-				myLog({
-					msg: `no weekly records found for player: ${player.name} for ${year} season, week ${week}`
-				});
-				const doc_ref = doc(weeklyRecordsCollection.withConverter(recordConverter));
-				const data: PlayerRecord = new PlayerRecord({
-					doc_ref,
-					uid: player.uid,
-					season_year: year,
-					season_type: type_name,
-					week
-				});
-				await setDoc(doc_ref, data);
-				myLog({
-					msg: `set weekly record doc (${doc_ref.path}) for player: ${player.name} for ${year} season, week ${week}`
-				});
-			} else {
-				myLog({
-					msg: `weekly records found for player: ${player.name} for ${year} season, week ${week}`
-				});
-			}
+			createWeeklyRecordForPlayer(player, year, week, type_name);
 		}
 	} catch (error) {
 		ErrorAndToast({
@@ -503,6 +476,50 @@ export const createWeeklyRecordsForPlayer = async (input: createWeeklyRecordsFor
 		});
 	}
 };
+export const createWeeklyRecordForPlayer = async (
+	player: Player,
+	year: number,
+	week: number,
+	season_type: string
+) => {
+	try {
+		const q = query(
+			weeklyRecordsCollection,
+			where('uid', '==', player.uid),
+			where('season_year', '==', year),
+			where('week', '==', week)
+		);
+		const docs = await getDocs(q.withConverter(recordConverter));
+		if (docs.empty) {
+			myLog({
+				msg: `no weekly records found for player: ${player.name} for ${year} season, week ${week}`
+			});
+			const doc_ref = doc(weeklyRecordsCollection.withConverter(recordConverter));
+			const data: PlayerRecord = new PlayerRecord({
+				doc_ref,
+				uid: player.uid,
+				season_year: year,
+				season_type,
+				week
+			});
+			await setDoc(doc_ref, data);
+			myLog({
+				msg: `set weekly record doc (${doc_ref.path}) for player: ${player.name} for ${year} season, week ${week}`
+			});
+		} else {
+			myLog({
+				msg: `weekly records found for player: ${player.name} for ${year} season, week ${week}`
+			});
+		}
+	} catch (error) {
+		ErrorAndToast({
+			msg: `Encountered an error while trying to set weekly record doc for player: ${player.name} for ${year} season, week ${week}`,
+			error,
+			additional_params: `unable to update weekly record for player ${player.name}`
+		});
+	}
+};
+
 export const joinWeeklyPool = async (player: Player, season: SeasonBoundDoc) => {
 	// Get all games that will be played in the future and make picks for the player
 	const games = await getFutureGames();
