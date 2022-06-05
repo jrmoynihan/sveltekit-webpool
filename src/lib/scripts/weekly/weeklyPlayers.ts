@@ -77,7 +77,10 @@ export const getWeeklyRecords = async (input: getRecordsOptions) => {
 		const msg = 'Retrieved all requested weekly records.';
 		showToast
 			? LogAndToast({ title: 'Got Weekly Records', msg })
-			: myLog({ msg, additional_params: record_docs });
+			: myLog({
+					msg,
+					additional_params: { constraints, data: [...record_docs.docs.map((d) => d.data())] }
+			  });
 		return record_docs;
 	} catch (error) {
 		ErrorAndToast({ title: 'Error Retrieving Records', error });
