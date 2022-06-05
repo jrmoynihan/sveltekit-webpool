@@ -15,6 +15,7 @@
 	import Fa from 'svelte-fa';
 	import Tooltip from '../Tooltip.svelte';
 	import type { Writable } from 'svelte/store';
+	import AdminOnlyControl from '$lib/components/misc/AdminOnlyControl.svelte';
 
 	let spread: number = getContext('spread');
 	let disabled: Writable<boolean> = getContext('disabled');
@@ -77,15 +78,17 @@
 			{/if}
 		{/if}
 	</div>
-{:else if $current_player.admin}
-	<div class="spreadOrPossession">
-		<StyledButton
+{:else}
+	<AdminOnlyControl>
+		<button
+			class="spreadOrPossession admin"
 			on:click={() => {
 				updateGameSpreads($selected_week, $selected_year);
 			}}
-			text="No spread set. Click to set spreads."
-		/>
-	</div>
+		>
+			No spread set. Click to set spreads.
+		</button>
+	</AdminOnlyControl>
 {/if}
 
 <style lang="scss">
@@ -102,5 +105,10 @@
 	}
 	.arrow-container {
 		position: relative;
+	}
+	.admin {
+		@include styledButton;
+		@include admin;
+		text-shadow: none;
 	}
 </style>
