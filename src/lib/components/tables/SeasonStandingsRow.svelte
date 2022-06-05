@@ -7,6 +7,7 @@
 	export let player: Player;
 	export let player_season_data: SeasonRecord;
 	export let i: number;
+	export let prizes_awarded: boolean;
 	const isEvenRow = (index: number) => {
 		if ((index + 1) % 2 === 0) {
 			return true;
@@ -52,9 +53,11 @@
 		{/if}
 	</div>
 </RowData>
-<RowData {even_row} {in_the_money}>
-	${player.weekly_pool_season_winnings}
-</RowData>
+{#if prizes_awarded}
+	<RowData {even_row} {in_the_money}>
+		${player.weekly_pool_season_winnings}
+	</RowData>
+{/if}
 
 <style lang="scss">
 	$radii: var(--win-radii);
