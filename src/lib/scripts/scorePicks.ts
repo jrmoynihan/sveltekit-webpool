@@ -20,7 +20,8 @@ import {
 	type DocumentData,
 	setDoc,
 	QueryDocumentSnapshot,
-	getDoc
+	getDoc,
+	deleteDoc
 } from '@firebase/firestore';
 import {
 	everyoneWinsResult,
@@ -38,12 +39,13 @@ import {
 	thirdPlaceWeeklyAmount,
 	checkeredFlag
 } from './classes/constants';
-import { ErrorAndToast, myError, myLog } from '$scripts/logging';
+import { ErrorAndToast, LogAndToast, myError, myLog, myWarning } from '$scripts/logging';
 import {
 	gamesCollection,
 	weeklyPicksCollection,
 	teamsCollection,
-	seasonRecordsCollection
+	seasonRecordsCollection,
+	weeklyRecordsCollection
 } from './collections';
 import {
 	gameConverter,
@@ -58,7 +60,7 @@ import type { WeeklyTiebreaker } from './classes/tiebreaker';
 import type { WeeklyPickDoc } from './classes/picks';
 import { toast } from '@zerodevx/svelte-toast';
 import type { Player } from './classes/player';
-import type { PlayerRecord, SeasonRecord } from './classes/playerRecord';
+import { SeasonRecord, type PlayerRecord } from './classes/playerRecord';
 import { getStatus, getScoreData, convertToHttps } from './dataFetching';
 import { isBeforeGameTime } from './functions';
 import {
@@ -69,8 +71,9 @@ import {
 	getWeeklyRecordData,
 	getWeeklyRecords
 } from './weekly/weeklyPlayers';
-import { weekly_players } from './store';
+import { all_players, all_seasons, weekly_players } from './store';
 import { get } from 'svelte/store';
+import { createWeeklyRecordsForPlayer } from './weekly/weeklyAdmin';
 
 // Score all picks for a given week
 export const scorePicksForWeek = async (
@@ -96,11 +99,14 @@ export const scorePicksForWeek = async (
 		const weekly_records = await getWeeklyRecordData({ constraints });
 
 		for await (const game of games) {
-			toast.set(starting_toast_id, { msg: `Updating ATS game winners...` });
+			LogAndToast({
+				id: starting_toast_id,
+				msg: `Updating ATS games winners...${game.short_name}`
+			});
 			await updateGameandATSWinner(game, game.doc_ref);
-			toast.set(starting_toast_id, { msg: `Scoring net tiebreakers...` });
+			LogAndToast({ id: starting_toast_id, msg: `Scoring net tiebreakers...` });
 			await scoreNetTiebreakers(game, tiebreakers, weekly_records);
-			toast.set(starting_toast_id, { msg: `Marking correct picks...` });
+			LogAndToast({ id: starting_toast_id, msg: `Marking correct picks...` });
 			await markIfPickIsCorrect(picks, game);
 		}
 
@@ -110,8 +116,7 @@ export const scorePicksForWeek = async (
 		let third_most_wins: number = 0;
 		const record_constraints = [where('season_year', '==', selected_year)];
 
-		weeklyPlayers.forEach(async (player) => {
-			const player_ref = player.ref;
+		for await (const player of weeklyPlayers) {
 			// Get a fresh copy of the updated pick docs NOTE: (reads = # of games * # of players)
 			const pick_doc_constraints: QueryConstraint[] = [
 				where('week', '==', selected_week),
@@ -120,14 +125,17 @@ export const scorePicksForWeek = async (
 				where('uid', '==', player.uid)
 			];
 			const pick_query = query(weeklyPicksCollection, ...pick_doc_constraints);
-			const player_picks = await getDocs(pick_query.withConverter(weeklyPickConverter));
-			toast.set(starting_toast_id, {
+			const player_picks = await getDocsFromServer(pick_query.withConverter(weeklyPickConverter));
+			LogAndToast({
+				id: starting_toast_id,
 				msg: `Updating week ${selected_week} record for ${player.name}`
 			});
 			const total_wins = await updatePlayerRecordForWeek(
-				player_ref,
+				player.ref,
 				player_picks,
-				record_constraints
+				record_constraints,
+				selected_year,
+				season_type
 			);
 
 			// While we iterate through updating player records, also store what the 1st, 2nd, and 3rd most win totals are
@@ -138,10 +146,10 @@ export const scorePicksForWeek = async (
 			} else if (total_wins > third_most_wins) {
 				third_most_wins = total_wins;
 			}
-		});
-		console.log('most wins:', most_wins);
-		console.log('second most wins: ', second_most_wins);
-		console.log('third most wins: ', third_most_wins);
+		}
+		myLog({ msg: 'most wins:', additional_params: most_wins });
+		myLog({ msg: 'second most wins: ', additional_params: second_most_wins });
+		myLog({ msg: 'third most wins: ', additional_params: third_most_wins });
 
 		// Now that records have been updated, query them all to compare wins
 		const weeklyPickRecordsForWholeYear = await getWeeklyRecords({
@@ -152,7 +160,7 @@ export const scorePicksForWeek = async (
 			(doc) => doc.data().week === selected_week
 		);
 
-		toast.set(starting_toast_id, { msg: `Finding week ${selected_week} leaders...` });
+		LogAndToast({ id: starting_toast_id, msg: `Finding week ${selected_week} leaders...` });
 		const firstPlacersForWeek = await findWeeklyLeaders(
 			weeklyPickRecordDocsForSelectedWeek,
 			most_wins
@@ -166,7 +174,7 @@ export const scorePicksForWeek = async (
 			third_most_wins
 		);
 
-		toast.set(starting_toast_id, { msg: `Calculating weekly prize splits...` });
+		LogAndToast({ id: starting_toast_id, msg: `Calculating weekly prize splits...` });
 		// Find out how the week's prize pool should be split
 		const { firstPlaceWeeklyPrize, secondPlaceWeeklyPrize, thirdPlaceWeeklyPrize } =
 			await calculateWeekPrizeSplits(
@@ -174,11 +182,11 @@ export const scorePicksForWeek = async (
 				secondPlacersForWeek,
 				thirdPlacersForWeek
 			);
-		console.log('1st Placers: ', firstPlacersForWeek);
-		console.log('2nd Placers: ', secondPlacersForWeek);
-		console.log('3rd Placers: ', thirdPlacersForWeek);
+		myLog({ msg: '1st Placers: ', additional_params: firstPlacersForWeek });
+		myLog({ msg: '2nd Placers: ', additional_params: secondPlacersForWeek });
+		myLog({ msg: '3rd Placers: ', additional_params: thirdPlacersForWeek });
 
-		toast.set(starting_toast_id, { msg: `Awarding weekly prizes...` });
+		LogAndToast({ id: starting_toast_id, msg: `Awarding weekly prizes...` });
 
 		weeklyPlayers.forEach(async (player) => {
 			const record_to_update = weeklyPickRecordDocs.find((doc) => doc.data().uid === player.uid);
@@ -220,7 +228,8 @@ export const scorePicksForWeek = async (
 				(data) => data.uid === player.uid
 			);
 
-			toast.set(starting_toast_id, {
+			LogAndToast({
+				id: starting_toast_id,
 				msg: `Updating season record for ${player.name} (${player.nickname})...`
 			});
 			// TODO: Turn this into a cloud function trigger
@@ -288,8 +297,9 @@ export const assignWeeklyPrize = async (
 	prize_amount: number
 ) => {
 	try {
-		const { data, ref } = prize_winner_record;
-		setDoc(ref.withConverter(recordConverter), { ...data(), prize_amount });
+		const { ref } = prize_winner_record;
+		const data = prize_winner_record.data();
+		setDoc(ref.withConverter(recordConverter), { ...data, prize_amount });
 	} catch (error) {
 		myError({ msg: 'Error assigning weekly prize', error });
 	}
@@ -511,15 +521,16 @@ export const updateWeeklyPlayerSeasonRecord = async (
 			return total_weekly_wins; // Return wins to compare who has the best record
 
 			// If no docs are returned (unexpected), create a new doc
-		} else if (season_record_snapshot.size === 0) {
+		} else if (season_record_snapshot.empty) {
 			const new_doc = doc(seasonRecordsCollection.withConverter(seasonRecordConverter));
-			await setDoc(new_doc, {
-				doc_ref: new_doc,
+			const new_season_record_data = new SeasonRecord({
 				uid,
+				doc_ref: new_doc,
 				season_year,
 				total_weekly_wins,
 				total_weekly_losses
 			});
+			await setDoc(new_doc, new_season_record_data);
 			return total_weekly_wins; // Return wins to compare who has the best record
 
 			// If more than one doc is returned (unexpected), throw an error
@@ -569,7 +580,9 @@ export const getSeasonRecordsData = async (input: SeasonRecordOptions) => {
 export const updatePlayerRecordForWeek = async (
 	player_ref: DocumentReference,
 	player_picks: QuerySnapshot<WeeklyPickDoc>,
-	constraints: QueryConstraint[]
+	constraints: QueryConstraint[],
+	year?: number,
+	season_type?: string
 ): Promise<number> => {
 	try {
 		const correct_picks = player_picks.docs.filter((doc) => doc.data().is_correct === true);
@@ -584,12 +597,26 @@ export const updatePlayerRecordForWeek = async (
 			// Return the number of wins the player had in the week for tiebreaker purposes
 			return correct_picks.length;
 		} else if (record_docs.size > 1) {
-			throw new Error(`More than one record found for uid: ${player_ref.id} for specified week.`);
+			// Delete the extra docs (self-healing)
+			record_docs.docs.forEach((doc, i) => {
+				if (i > 0) {
+					deleteDoc(doc.ref);
+				}
+				myWarning({
+					msg: `More than one record found for uid: ${player_ref.id} for specified week. Extra records were deleted.`
+				});
+			});
 		} else if (record_docs.size === 0) {
-			throw new Error(`No record found for uid: ${player_ref.id} for specified week.`);
+			// Create records since none exist (self-healing)
+			const player = get(all_players).find((player) => player.uid === player_ref.id);
+			const season = get(all_seasons).find((s) => s.year === year && s.type_name === season_type);
+			createWeeklyRecordsForPlayer({ player, season });
+			myWarning({
+				msg: `No record found for uid: ${player_ref.id} for specified week.  Created a new record.`
+			});
 		}
 	} catch (error) {
-		ErrorAndToast({ title: 'Unable to update player record', error });
+		ErrorAndToast({ title: 'Error encountered while updating player record', error });
 	}
 };
 export const markIfPickIsCorrect = async (picks: WeeklyPickDoc[], gameData: Game) => {
