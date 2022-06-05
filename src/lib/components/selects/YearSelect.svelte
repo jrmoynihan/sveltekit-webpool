@@ -12,6 +12,7 @@
 	import { createEventDispatcher } from 'svelte';
 
 	export let grid_area = '';
+	export let custom_styles = '';
 	const dispatch = createEventDispatcher();
 	// let all_years = [...new Set($all_seasons.map((season) => season.year))].sort();
 
@@ -32,6 +33,7 @@
 	bind:value={$selected_year}
 	on:change={updateSelectedSeason}
 	style:grid-area={grid_area}
+	style={custom_styles}
 >
 	{#each [...new Set($all_seasons.map((season) => season.year))].sort() as year}
 		<option value={year}>{year}</option>
