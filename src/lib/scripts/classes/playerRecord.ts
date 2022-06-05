@@ -30,11 +30,13 @@ export class SeasonRecord {
 	season_year: number;
 	total_weekly_wins: number;
 	total_weekly_losses: number;
+	grand_prize_winnings: number;
 	constructor({ ...args }) {
 		this.doc_ref = args.doc_ref;
 		this.uid = args.uid;
 		this.season_year = args.season_year;
 		this.total_weekly_wins = args.total_weekly_wins || 0;
 		this.total_weekly_losses = args.total_weekly_losses || 0;
+		this.grand_prize_winnings = args.grand_prize_winnings || 0;
 	}
 }
