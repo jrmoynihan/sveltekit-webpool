@@ -52,7 +52,5 @@
 	.higherATSscore {
 		border-radius: 100%;
 		border: 2px solid hsla(var(--accent-value, black), 50%);
-		// border-radius: var(--topLeft) var(--topRight) / var(--bottomRight) var(--bottomLeft);
-		// border: dashed;
 	}
 </style>

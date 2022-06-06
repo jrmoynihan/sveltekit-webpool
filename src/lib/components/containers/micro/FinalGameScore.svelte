@@ -7,8 +7,6 @@
 
 	let min = 30;
 	let max = 60;
-	// let boxShadowMin = 0;
-	// let boxShadowMax = 4;
 	let topLeft = Math.floor(Math.random() * (max - min) + min);
 	let topLeftTwo = Math.floor(Math.random() * (max - min) + min);
 	let topRight = Math.floor(Math.random() * (max - min) + min);
@@ -17,16 +15,6 @@
 	let bottomLeftTwo = Math.floor(Math.random() * (max - min) + min);
 	let bottomRight = Math.floor(Math.random() * (max - min) + min);
 	let bottomRightTwo = Math.floor(Math.random() * (max - min) + min);
-	// let boxShadowOneX = Math.floor(Math.random() * (boxShadowMax - boxShadowMin) + boxShadowMin);
-	// let boxShadowOneY = Math.floor(Math.random() * (boxShadowMax - boxShadowMin) + boxShadowMin);
-	// let boxShadowTwoX = Math.floor(Math.random() * (boxShadowMax - boxShadowMin) + boxShadowMin);
-	// let boxShadowTwoY = Math.floor(Math.random() * (boxShadowMax - boxShadowMin) + boxShadowMin);
-	// let boxShadowOneSpread = Math.floor(
-	// 	Math.random() * (boxShadowMax - boxShadowMin) + boxShadowMin + 1
-	// );
-	// let boxShadowTwoSpread = Math.floor(
-	// 	Math.random() * (boxShadowMax - boxShadowMin) + boxShadowMin + 1
-	// );
 </script>
 
 <div
@@ -50,9 +38,6 @@
 	}
 	.isHigherScore {
 		border-radius: 100%;
-		// box-shadow: var(--boxOneX) var(--boxOneY) var(--boxOneSpread) 2px currentColor, // var(--boxTwoX) var(--boxTwoY) var(--boxTwoSpread) 2px currentColor;
-		// border-radius: var(--topLeft) var(--topRight) / var(--bottomRight) var(--bottomLeft);
 		border: 2px solid hsla(var(--accent-value, black), 50%);
-		// outline: dashed;
 	}
 </style>
