@@ -114,7 +114,10 @@ export const scorePicksForWeek = async (
 		let most_wins: number = 0;
 		let second_most_wins: number = 0;
 		let third_most_wins: number = 0;
-		const record_constraints = [where('season_year', '==', selected_year)];
+		const record_constraints = [
+			where('season_year', '==', selected_year),
+			where('week', '==', selected_week)
+		];
 
 		for await (const player of weeklyPlayers) {
 			// Get a fresh copy of the updated pick docs NOTE: (reads = # of games * # of players)
@@ -588,14 +591,13 @@ export const updatePlayerRecordForWeek = async (
 		const correct_picks = player_picks.docs.filter((doc) => doc.data().is_correct === true);
 		const incorrect_picks = player_picks.docs.filter((doc) => doc.data().is_correct === false);
 		const record_constraints = [...constraints, where('uid', '==', player_ref.id)];
+		console.log('record_constraints', record_constraints);
 		const record_docs = await getWeeklyRecords({ constraints: record_constraints });
 		if (record_docs.size === 1) {
 			await updateDoc(record_docs.docs[0].ref, {
 				wins: correct_picks.length,
 				losses: incorrect_picks.length
 			});
-			// Return the number of wins the player had in the week for tiebreaker purposes
-			return correct_picks.length;
 		} else if (record_docs.size > 1) {
 			// Delete the extra docs (self-healing)
 			record_docs.docs.forEach((doc, i) => {
@@ -615,6 +617,8 @@ export const updatePlayerRecordForWeek = async (
 				msg: `No record found for uid: ${player_ref.id} for specified week.  Created a new record.`
 			});
 		}
+		// Return the number of wins the player had in the week for tiebreaker purposes
+		return correct_picks.length;
 	} catch (error) {
 		ErrorAndToast({ title: 'Error encountered while updating player record', error });
 	}
