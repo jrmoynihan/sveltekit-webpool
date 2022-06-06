@@ -23,7 +23,6 @@
 
 <style lang="scss">
 	.transition-wrapper {
-		padding: 0 0.5rem;
 		box-sizing: border-box;
 		position: relative;
 		max-width: 100%;
