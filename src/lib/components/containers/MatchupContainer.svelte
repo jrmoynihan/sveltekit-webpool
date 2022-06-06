@@ -94,6 +94,7 @@
 	setContext('disabled', disabled);
 	setContext('game_is_over', game_is_over);
 	setContext('is_ATS_winner', is_ATS_winner);
+	setContext('ATS_winner', ATS_winner);
 
 	onMount(async () => {
 		checkGameTime();
