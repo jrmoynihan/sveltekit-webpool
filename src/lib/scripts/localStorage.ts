@@ -4,6 +4,7 @@ import { all_icons } from '$classes/constants';
 import { myError, myLog } from '$scripts/logging';
 import type { User } from '@firebase/auth';
 import { getPlayer } from './weekly/weeklyPlayers';
+import type { ScoreViewPreference } from './types/types';
 
 export const getLocalStorageItem = async <T>(key: string): Promise<T | null> => {
 	if (browser) {
@@ -37,5 +38,14 @@ export const savePlayerData = async (firebase_user: User) => {
 		});
 	} catch (error) {
 		myError({ msg: 'Unable to save player data to local storage!', error });
+	}
+};
+export const getLocalScoreViewPreference = async () => {
+	const preference = (await getLocalStorageItem('scoreViewPreference')) as ScoreViewPreference;
+	if (!preference) {
+		setLocalStorageItem('scoreViewPreference', 'Both');
+		return 'Both';
+	} else {
+		return preference;
 	}
 };
