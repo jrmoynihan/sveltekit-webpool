@@ -78,6 +78,7 @@ export const selected_season_year = derived(selected_season, ($selectedSeason) =
 export const selected_player = writable<Player>(new Player({}));
 export const selected_week = writable(get(current_season_week) || 1);
 export const selected_year = writable(get(current_season_year) || new Date().getFullYear());
+export const selected_team = writable<Team>();
 export const games_promise = writable<Promise<Game[]>>();
 export const picks_promise = writable<Promise<WeeklyPickDoc[]>>();
 export const current_picks = writable<WeeklyPickDoc[]>([]);
