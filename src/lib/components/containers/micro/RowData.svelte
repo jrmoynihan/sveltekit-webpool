@@ -44,7 +44,7 @@
 	.even_row {
 		// opacity: 0.1;
 		background-color: hsla(var(--accent-value, hsl(37, 75%, 65%)), 50%);
-		color: var(--background, hsl(120, 16%, 17%));
+		color: hsl(0, 0%, 100%);
 		&.dark {
 			color: var(--text, hsl(0, 0%, 100%));
 		}
