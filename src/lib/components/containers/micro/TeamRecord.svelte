@@ -24,7 +24,7 @@
 	class:disabled={$disabled}
 >
 	{#if showTeamAbbreviation}
-		{team.abbreviation}
+		<p>{team.abbreviation}</p>
 	{/if}
 	<p>
 		({wins}-{losses}{#if ties > 0}-{ties}{/if})
