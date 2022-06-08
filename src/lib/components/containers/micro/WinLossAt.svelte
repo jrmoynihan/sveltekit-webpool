@@ -1,38 +1,15 @@
 <script lang="ts">
-	import { use_dark_theme } from '$scripts/store';
-	import { faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons/index.es';
 	import { getContext } from 'svelte';
-	import Fa from 'svelte-fa';
-	import Tooltip from '../Tooltip.svelte';
 	import type { Writable } from 'svelte/store';
+	import PickCorrectnessIndicator from './PickCorrectnessIndicator.svelte';
 
 	let is_ATS_winner: Writable<boolean> = getContext('is_ATS_winner');
 	let game_is_over: Writable<boolean> = getContext('game_is_over');
 </script>
 
 <div class="winLossAt">
-	{#if $is_ATS_winner && $game_is_over}
-		<Tooltip tooltipWidth="250%">
-			<p slot="text">You picked correctly!</p>
-			<Fa
-				slot="content"
-				icon={faCheckCircle}
-				size="2x"
-				color="green"
-				style="background-color: white; border-radius:100%;"
-			/>
-		</Tooltip>
-	{:else if $is_ATS_winner === false && $game_is_over}
-		<Tooltip tooltipWidth="350%" tooltipTop="-400%">
-			<p slot="text">You got this one wrong. Better luck next time!</p>
-			<Fa
-				slot="content"
-				icon={faTimesCircle}
-				size="2x"
-				color={$use_dark_theme ? 'tomato' : 'darkred'}
-				style="background-color: white; border-radius:100%;"
-			/>
-		</Tooltip>
+	{#if $is_ATS_winner !== undefined && $game_is_over}
+		<PickCorrectnessIndicator is_correct={$is_ATS_winner} />
 	{:else}
 		<span class="at-symbol"> AT </span>
 	{/if}
