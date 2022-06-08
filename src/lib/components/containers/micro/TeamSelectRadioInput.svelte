@@ -2,12 +2,13 @@
 	import type { Team } from '$scripts/classes/team';
 	import { scrollToNextGame } from '$scripts/scrollAndFocus';
 	import { override_locked_picks, use_dark_theme } from '$scripts/store';
-	import { getContext } from 'svelte';
+	import { faCancel } from '@fortawesome/free-solid-svg-icons';
+	import Fa from 'svelte-fa';
 	import IntersectionObserver from 'svelte-intersection-observer';
-	import type { Writable } from 'svelte/store';
 	import TeamImage from '../TeamImage.svelte';
 	import TeamNameImage from '../TeamNameImage.svelte';
 	import TeamRecord from './TeamRecord.svelte';
+	import { useTooltip } from '@untemps/svelte-use-tooltip';
 
 	export let id: string;
 	export let team: Team;
@@ -15,7 +16,10 @@
 	export let element: HTMLElement;
 	export let show_game_container: boolean;
 	export let show_team_name_images: boolean;
-	let disabled: Writable<boolean> = getContext('disabled');
+	export let custom_label_styles = '';
+	export let disabled: boolean;
+	export let show_disabled_icons: boolean = false;
+	export let survivor_player_is_dead: boolean = false;
 </script>
 
 <label
@@ -23,8 +27,9 @@
 	class="dayShadow nightShadow"
 	class:selected={pick === team.abbreviation}
 	class:dark-mode={$use_dark_theme}
-	class:disabled={$disabled}
+	class:disabled
 	tabindex="0"
+	style={custom_label_styles}
 >
 	<input
 		id="{id}-{team.abbreviation}"
@@ -34,25 +39,35 @@
 			if (!$override_locked_picks) scrollToNextGame();
 		}}
 		value={team.abbreviation}
-		disabled={$disabled}
+		{disabled}
 	/>
 	<!--prettier-ignore-->
 	<IntersectionObserver once={true} {element}	on:intersect={() => {show_game_container = true;}}>
 		{#if show_game_container}
 			<TeamImage
 				{team}
-				grayscale={pick !== team.abbreviation && pick !== ''}
+				grayscale={disabled || (pick !== team.abbreviation && pick !== '')}
 			/>
 			{#if show_team_name_images}
 				<TeamNameImage
 					{team}
 					rounded={true}
 					whiteBg={true}
-					grayscale={pick !== team.abbreviation && pick !== ''}
+					grayscale={disabled || (pick !== team.abbreviation && pick !== '')}
 				/>
 			{/if}
 		{/if}
+		{#if show_disabled_icons}
+		<span class="already-used-tooltip" use:useTooltip={{
+			animated: true,
+			content: survivor_player_is_dead ? `You're dead!` : 'This pick has already been used!',
+			containerClassName: `custom-tooltip __tooltip __tooltip-top ${use_dark_theme ? '__tooltip-dark' : ''}`,
+		}}>
+		<Fa icon={faCancel} size='3x' color={$use_dark_theme ? 'tomato' : 'darkred'} />
+		</span>
+		{:else}
 		<TeamRecord showTeamAbbreviation={!show_team_name_images} {team} />
+		{/if}
 	</IntersectionObserver>
 </label>
 
@@ -101,5 +116,10 @@
 		@include nightShadow;
 		transition: all 300ms ease-in-out;
 		transform: scale(1.03);
+	}
+	.already-used-tooltip {
+		padding-top: 0.5rem;
+		width: 100%;
+		place-self: center;
 	}
 </style>
