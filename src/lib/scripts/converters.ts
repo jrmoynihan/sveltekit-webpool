@@ -8,6 +8,7 @@ import { WeekBoundDoc } from './classes/weekBound';
 import { Player } from './classes/player';
 import { SeasonBoundDoc } from './classes/seasonBound';
 import { PlayerRecord, SeasonRecord } from './classes/playerRecord';
+import { Survivor } from './classes/survivor';
 
 export const playerConverter = {
 	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -130,5 +131,15 @@ export const pickSixConverter = {
 		const data = snapshot.data(options);
 		const { ref, id } = snapshot; // Destructure the ref and id props from snapshot object
 		return new PickSixDoc({ doc_ref: ref, doc_id: id, ...data });
+	}
+};
+export const survivorConverter = {
+	toFirestore: (survivor: Survivor): Survivor => {
+		return { ...survivor };
+	},
+	fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): Survivor => {
+		const data = snapshot.data(options);
+		const { ref } = snapshot; // Destructure the ref and id props from snapshot object
+		return new Survivor({ doc_ref: ref, ...data });
 	}
 };
