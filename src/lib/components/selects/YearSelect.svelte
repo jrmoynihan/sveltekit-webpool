@@ -13,6 +13,7 @@
 
 	export let grid_area = '';
 	export let custom_styles = '';
+	export let is_admin_control = false;
 	const dispatch = createEventDispatcher();
 	// let all_years = [...new Set($all_seasons.map((season) => season.year))].sort();
 
@@ -32,6 +33,7 @@
 	id="year-select"
 	bind:value={$selected_year}
 	on:change={updateSelectedSeason}
+	class:admin={is_admin_control}
 	style:grid-area={grid_area}
 	style={custom_styles}
 >
@@ -43,5 +45,8 @@
 <style lang="scss">
 	select {
 		@include defaultSelect;
+	}
+	.admin {
+		@include admin;
 	}
 </style>
