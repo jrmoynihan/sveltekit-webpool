@@ -48,7 +48,7 @@
 <Tooltip>
 	<svelte:fragment slot="text">
 		{#if last_game.total_score}
-			The total score of the last game of week {selected_week} was {last_game.total_score}
+			The total score of the last game of Week {$selected_week} was {last_game.total_score}
 		{:else}
 			Last game of the week hasn't been played yet.
 		{/if}
