@@ -27,7 +27,6 @@
 	import Navigator from '$lib/components/navigation/Navigator.svelte';
 	import SiteNavOptions from '$lib/components/navigation/siteNavOptions.svelte';
 	import { page } from '$app/stores';
-	import MultiToggleSwitch from '$lib/components/switches/MultiToggleSwitch.svelte';
 	import { getLocalStorageItem, setLocalStorageItem } from '$scripts/localStorage';
 	import type { ScoreViewPreference } from '$scripts/types/types';
 	import { onMount } from 'svelte';
@@ -40,6 +39,7 @@
 	import { admin_controls_pages } from '$lib/scripts/site';
 	import { getGameData, getPicksData, getTiebreakerData } from '$lib/scripts/weekly/weeklyPlayers';
 	import { orderBy, where } from '@firebase/firestore';
+	import TeamSelector from '$lib/components/containers/micro/TeamSelector.svelte';
 
 	let storedScoreViewPreference: ScoreViewPreference;
 	let viewPreferences: { label: string; value: ScoreViewPreference }[] = [
@@ -125,6 +125,13 @@
 					{:else if $page.url.pathname.includes('/pick6')}
 						<p>Select Year</p>
 						<YearSelect />
+					{:else if $page.url.pathname.includes('/survivor')}
+						<p>Select Year</p>
+						<YearSelect />
+						<p>Select Team</p>
+						<TeamSelector />
+						<p>Override Locked Games <Fa icon={$override_locked_picks ? faUnlock : faLock} /></p>
+						<ToggleSwitch bind:checked={$override_locked_picks} />
 					{/if}
 				</Grid>
 			</AdminControlsModal>
@@ -138,20 +145,14 @@
 			</svelte:fragment>
 
 			<svelte:fragment slot="modal-content">
-				{#if $page.url.pathname === '/weekly/makePicks'}
-					<MultiToggleSwitch
-						title_text="View Scores"
-						show_selected_value={false}
-						items={viewPreferences}
-						selected_item={storedScoreViewPreference
-							? viewPreferences.find((preference) => preference.value === storedScoreViewPreference)
-							: viewPreferences[1]}
-						bind:selected_value={$preferred_score_view}
-						on:toggle={() => setLocalStorageItem('scoreViewPreference', $preferred_score_view)}
-					/>
+				{#if $page.url.pathname === '/weekly/make-picks'}
 					<label class="score-view-selector-label"
 						>View Scores
-						<select class="score-view-selector" bind:value={$preferred_score_view}>
+						<select
+							class="score-view-selector"
+							bind:value={$preferred_score_view}
+							on:change={() => setLocalStorageItem('scoreViewPreference', $preferred_score_view)}
+						>
 							{#each viewPreferences as preference}
 								<option
 									selected={preference.value === $preferred_score_view}
@@ -183,7 +184,7 @@
 		text-rendering: optimizeSpeed;
 		box-sizing: border-box;
 		display: grid;
-		gap: 0.75em;
+		gap: 1rem;
 		right: 0;
 		z-index: var(--zSticky);
 		transition: all 200ms ease-in-out;
@@ -196,7 +197,7 @@
 		position: sticky;
 		top: 0;
 		max-height: 100vh;
-		grid-template-columns: repeat(2, min-content) 1fr;
+		grid-template-columns: repeat(2, minmax(3rem, auto)) 1fr;
 		background: linear-gradient(
 			hsla(var(--background-value, hsl(120, 16%, 17%)), 90%) 90%,
 			hsla(var(--background-value, hsl(120, 16%, 17%)), 50%) 95%,
@@ -218,6 +219,7 @@
 	button {
 		@include defaultButtonStyles;
 		@include discreetButtonStyles;
+		margin: unset;
 		width: 100%;
 		color: var(--text);
 		&:hover,
@@ -234,7 +236,7 @@
 		gap: 0.5em;
 		place-items: center;
 		@include responsive_mobile_only {
-			grid-template-columns: 1fr 1fr 1fr;
+			grid-template-columns: repeat(3, minmax(min-content, 1fr));
 			justify-self: end;
 		}
 		@include responsive_desktop_only {
