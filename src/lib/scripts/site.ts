@@ -17,6 +17,10 @@ export const weekly_tabs: PageOption[] = [
 	new PageOption({ navigation_text: 'Standings', path: '/weekly/standings' }),
 	new PageOption({ navigation_text: 'Rules', path: '/weekly/rules' })
 ];
+export const survivor_tabs: PageOption[] = [
+	new PageOption({ navigation_text: 'Make Picks', path: '/survivor/make-picks' }),
+	new PageOption({ navigation_text: 'View League Picks', path: '/survivor/view-picks' })
+];
 export const admin_tabs: PageOption[] = [
 	new PageOption({ navigation_text: 'Manage Players', path: '/admin/manage-players' }),
 	new PageOption({ navigation_text: 'Manage Teams', path: '/admin/manage-teams' }),
@@ -27,8 +31,12 @@ export const admin_tabs: PageOption[] = [
 
 // Set which pages should have an admin control button appear in the app-menu bar
 export const admin_controls_pages: string[] = [
+	'/weekly',
 	'/weekly/make-picks',
 	'/weekly/view-picks',
 	'/weekly/standings',
-	'/pick6'
+	'/pick6',
+	'/survivor',
+	'/survivor/make-picks',
+	'/survivor/make-picks'
 ];
