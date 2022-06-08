@@ -60,6 +60,6 @@
 	}
 	.weekSelectors {
 		@include gridAndGap;
-		grid-template-columns: max-content 1fr max-content;
+		grid-template-columns: repeat(3, minmax(0, max-content));
 	}
 </style>

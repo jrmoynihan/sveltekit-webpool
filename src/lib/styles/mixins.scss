@@ -191,6 +191,7 @@
 	font-size: 1rem;
 	color: var(--text);
 	padding: var(--padding-normal);
+	max-width: max-content;
 
 	&:focus {
 		@include nightShadow;
