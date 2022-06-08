@@ -2,7 +2,7 @@
 	export let arrowhorizontalPosition = '50%';
 	export let tooltipHorizontalPosition = '-50%';
 	export let tooltipWidth = '100%';
-	export let tooltipTop = '-300%';
+	export let tooltipTop = 'min(-300%,-6.5rem)';
 	export let customStyleTooltipParent = '';
 	export let customStyleTooltipSpan = '';
 	export let showArrow = true;
