@@ -132,6 +132,7 @@
 		bind:element
 		bind:show_game_container
 		bind:show_team_name_images
+		bind:disabled={$disabled}
 	/>
 	<GameInfo bind:id bind:pick={pickDoc.pick} bind:ATS_winner />
 	<TeamSelectRadioInput
@@ -141,6 +142,7 @@
 		bind:element
 		bind:show_game_container
 		bind:show_team_name_images
+		bind:disabled={$disabled}
 	/>
 </div>
 
