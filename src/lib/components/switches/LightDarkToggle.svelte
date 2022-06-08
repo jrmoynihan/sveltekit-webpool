@@ -7,7 +7,7 @@
 	};
 </script>
 
-<label class="switch" tabindex="0" on:selectionchange|preventDefault>
+<label class="switch" tabindex="0">
 	<input type="checkbox" bind:checked={$use_dark_theme} on:change={storeDarkThemePreference} />
 	<div>
 		<span />
@@ -24,6 +24,7 @@
 		cursor: pointer;
 		outline: none;
 		padding: 0.5rem;
+		user-select: none;
 		@include rounded;
 		&:focus {
 			@include nightShadow;
