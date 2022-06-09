@@ -21,6 +21,8 @@
 	import { pickSixCollection } from '$lib/scripts/collections';
 	import { pickSixConverter } from '$lib/scripts/converters';
 	import { PickSixDoc } from '$lib/scripts/classes/picks';
+	import { faCaretUp } from '@fortawesome/free-solid-svg-icons';
+	import Fa from 'svelte-fa';
 
 	let pick_dock_visible: boolean = $larger_than_mobile;
 	let previous_year: number;
@@ -39,10 +41,12 @@
 		if (previous_year < 2020) return;
 		try {
 			let arrays: Team[][] = [];
+			// Sort the teams by their wins from the previous season
 			sortedByWins = $all_teams.sort(
 				(teamOne, teamTwo) =>
 					// TODO: Need to fix this method of storing Team records in the database eventually.  The records map will get bigger every year.
-					teamOne.records[`${previous_year}`].wins - teamTwo.records[`${previous_year}`].wins
+					teamOne.records.filter((record) => record.year === previous_year)[0].wins -
+					teamTwo.records.filter((record) => record.year === previous_year)[0].wins
 			);
 			// Split the 32 teams into two groups of 11 and one group of 10
 			const size = 11;
@@ -184,7 +188,15 @@
 </div>
 
 <!-- The dock showing the player's picks -->
-<div class="grid fixed controls-container to-bottom to-left">
+<div class="grid fixed controls-container to-bottom to-left" class:hidden={!pick_dock_visible}>
+	{#if !$larger_than_mobile}
+		<button
+			class="toggle-pick-dock"
+			class:hidden={!pick_dock_visible}
+			on:click={() => (pick_dock_visible = !pick_dock_visible)}
+			><span class:rotated={pick_dock_visible}><Fa icon={faCaretUp} /></span></button
+		>
+	{/if}
 	{#each all_selected_teams as { team, selected } (team.abbreviation)}
 		<div
 			class="animation-container"
@@ -201,12 +213,6 @@
 </div>
 
 <style lang="scss">
-	.layout-container {
-		@include responsive_desktop_only {
-			max-width: 80%;
-			// grid-template-columns: 1fr;
-		}
-	}
 	.groups-container {
 		width: 100%;
 		@include responsive_desktop_only {
@@ -222,6 +228,14 @@
 		@include gridAndGap;
 		padding: 1rem;
 		margin: 0 auto;
+	}
+	.layout-container {
+		@include responsive_desktop_only {
+			max-width: 75%;
+		}
+		@include responsive_mobile_only {
+			margin-bottom: 25vh;
+		}
 	}
 	.fixed {
 		display: grid;
@@ -240,7 +254,9 @@
 				margin: auto;
 				flex-direction: column;
 				margin-bottom: 0;
-				overflow-y: scroll;
+				// overflow-y: scroll;
+				transition: transform 0.4s ease-in-out;
+				transform: translate3d(0, 0, 0);
 				& > div,
 				& > placeholder {
 					flex-grow: 1;
@@ -248,6 +264,9 @@
 					width: 6rem;
 					height: 8rem;
 				}
+			}
+			&.hidden {
+				transform: translate3d(0, 100%, 0);
 			}
 		}
 		@include responsive_desktop_only {
@@ -272,5 +291,25 @@
 		place-content: center;
 		outline: 2px hsla(var(--accent-value), 50%) solid;
 		height: max(8.5rem, 100%);
+	}
+	.toggle-pick-dock {
+		@include styledButton;
+		@include pulse($pulseDistance: 1.5rem);
+		background-color: hsla(var(--accent-hue), 10%, 10%, 100%);
+		max-width: max-content;
+		position: absolute;
+		z-index: var(--above);
+		top: -2rem;
+		right: 0;
+		transition: transform 0.4s ease-in-out 1s;
+		transform: translate3d(0, 0, 0);
+		&.hidden {
+			transition: transform 0.4s ease-in-out 0s;
+			transform: translate3d(0, -50%, 0);
+		}
+	}
+	.rotated {
+		transition: transform 0.4s ease-in-out;
+		transform: rotate(180deg);
 	}
 </style>
