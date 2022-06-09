@@ -2,7 +2,7 @@
 	import type { Team } from '$scripts/classes/team';
 	import { scrollToNextGame } from '$scripts/scrollAndFocus';
 	import { override_locked_picks, use_dark_theme } from '$scripts/store';
-	import { faCancel } from '@fortawesome/free-solid-svg-icons';
+	import { faCancel } from '@fortawesome/free-solid-svg-icons/index.es';
 	import Fa from 'svelte-fa';
 	import IntersectionObserver from 'svelte-intersection-observer';
 	import TeamImage from '../TeamImage.svelte';

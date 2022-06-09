@@ -1,6 +1,4 @@
 <script lang="ts">
-	// import { faExclamationCircle, faLightbulb } from '@fortawesome/free-solid-svg-icons';
-	// import Fa from 'svelte-fa';
 	import Tooltip from '../Tooltip.svelte';
 
 	let isOnline = false;
@@ -23,7 +21,6 @@
 		bottom: -10%;
 		width: 100%;
 		height: 1rem;
-		// padding-right: 85%;
 	}
 	.online-icon-wrapper {
 		box-sizing: border-box;
