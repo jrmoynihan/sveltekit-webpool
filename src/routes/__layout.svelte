@@ -136,6 +136,55 @@
 			--toastWidth: clamp(45ch, 25%, 75ch);
 		}
 	}
+	:global(.__tooltip.custom-tooltip) {
+		// background-color: hsla(var(--accent-hue), 16.3%, 16.9%);
+		min-width: 150px;
+		max-width: 25vw;
+		font-weight: 500;
+		font-size: 0.9rem;
+		background: var(--background, hsl(120, 16%, 17%));
+		box-shadow: 0 0 10px 0px var(--accent, hsl(37, 75%, 65%));
+		border-radius: 0.75rem;
+		padding: 1rem;
+		pointer-events: none;
+		&::after {
+			// CSS triangle
+			border-color: var(--background, hsl(120, 16%, 17%)) transparent transparent transparent;
+		}
+	}
+	:global(.__tooltip.__tooltip-top) {
+		transform: translate3d(-50%, -100%, 0);
+		transform-origin: top left;
+	}
+	:global(.__tooltip.__tooltip-enter) {
+		animation: scaleIn 0.2s linear forwards;
+	}
+	:global(.tooltip.__tooltip-leave) {
+		animation: scaleOut 0.2s linear forwards;
+	}
+	@keyframes scaleIn {
+		from {
+			scale: 0;
+			opacity: 0;
+		}
+		to {
+			scale: 1;
+			opacity: 1;
+		}
+	}
+	@keyframes scaleOut {
+		from {
+			scale: 1;
+			opacity: 1;
+		}
+		to {
+			scale: 0;
+			opacity: 0;
+		}
+	}
+	// :global(.__tooltip.custom-tooltip.__tooltip-dark) {
+	// 	background-color: hsla(var(--accent-hue), 35.3%, 43.1%);
+	// }
 	.app-wrapper {
 		box-sizing: border-box;
 		padding: 0 5px 5px;
