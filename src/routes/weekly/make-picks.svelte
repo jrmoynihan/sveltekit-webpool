@@ -1,3 +1,14 @@
+<script lang="ts" context="module">
+	export const load = async ({ params, url }) => {
+		return {
+			props: {
+				query_year: (params.year as number) || url.searchParams.get('year') || '',
+				query_week: params.week || url.searchParams.get('week') || ''
+			}
+		};
+	};
+</script>
+
 <script lang="ts">
 	import MatchupContainer from '$lib/components/containers/MatchupContainer.svelte';
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
@@ -38,7 +49,7 @@
 	import { fly } from 'svelte/transition';
 	import LoadingSpinner from '$components/misc/LoadingSpinner.svelte';
 	import type { Game } from '$scripts/classes/game';
-	import { getLocalStorageItem } from '$scripts/localStorage';
+	import { getLocalScoreViewPreference, getLocalStorageItem } from '$scripts/localStorage';
 	import ErrorModal from '$components/modals/ErrorModal.svelte';
 	import { focusTiebreaker } from '$scripts/scrollAndFocus';
 	import { ErrorAndToast, myError, myLog } from '$scripts/logging';
@@ -47,12 +58,15 @@
 	import type { Player } from '$lib/scripts/classes/player';
 	import type { WeeklyTiebreaker } from '$lib/scripts/classes/tiebreaker';
 
+	export let query_year: string = null;
+	export let query_week: string = null;
 	let show_tiebreaker_input: boolean = false;
 	let counted_game_times: { upcomingGamesCount: any; playedGamesCount: any };
 	let current_pick_count: number;
 	let upcoming_games_count: number;
 	let number_of_played_games: number;
 	let number_of_correct_picks: number;
+	let already_made_picks_for_upcoming_games: boolean;
 	let number_of_games: number;
 	let toastSeenKey = 'toast_makeWeeklyPicks_NewTiebreakerAndSubmit';
 	let games: Game[];
@@ -63,7 +77,7 @@
 	});
 
 	onMount(async () => {
-		$preferred_score_view = await getLocalStorageItem('scoreViewPreference');
+		$preferred_score_view = await getLocalScoreViewPreference();
 		const toastSeen = await getLocalStorageItem(toastSeenKey);
 		if (toastSeen !== 'true') {
 			const promisedToast = await getToast('Make Picks');
@@ -77,6 +91,8 @@
 				});
 			}, 2000);
 		}
+		$selected_week = query_week ? parseInt(query_week) : $selected_week;
+		$selected_year = query_year ? parseInt(query_year) : $selected_year;
 	});
 
 	const getData = async (
@@ -137,6 +153,8 @@
 
 			await Promise.all([$games_promise, $picks_promise, $tiebreaker_promise]);
 			counted_game_times = await countPlayedOrUpcomingGames(games);
+			already_made_picks_for_upcoming_games =
+				picks.filter((p) => p.pick !== '').length >= counted_game_times.upcomingGamesCount;
 		} catch (error) {
 			myError({ error });
 		}
@@ -366,6 +384,7 @@
 	$: number_of_correct_picks = $current_picks?.filter((pick) => pick.is_correct === true).length;
 	$: upcoming_games_count = counted_game_times?.upcomingGamesCount;
 	$: number_of_played_games = counted_game_times?.playedGamesCount;
+	$: show_submit_picks = $tiebreaker_score_guess && current_pick_count >= upcoming_games_count;
 	$: show_tiebreaker_input =
 		current_pick_count >= number_of_played_games + upcoming_games_count &&
 		upcoming_games_count !== 0;
@@ -381,7 +400,7 @@
 		{#if current_pick_count >= 0 && number_of_games > 0}
 			{#key current_pick_count}
 				<PickCounter
-					invisible={$tiebreaker_score_guess >= 10}
+					invisible={$tiebreaker_score_guess >= 10 && show_submit_picks}
 					bind:currentPickCount={current_pick_count}
 					bind:totalGameCount={number_of_games}
 					bind:upcomingGamesCount={upcoming_games_count}
@@ -401,9 +420,13 @@
 				<div class="correct-count">{number_of_correct_picks} of {number_of_games} correct</div>
 			{/if}
 			{#await $tiebreaker_promise then tiebreakers}
-				{#if tiebreakers && $tiebreaker_score_guess}
+				{#if show_submit_picks}
 					{@const tiebreaker = tiebreakers[0]}
-					<SubmitPicks {tiebreaker} bind:upcoming_games_count />
+					<SubmitPicks
+						{tiebreaker}
+						bind:upcoming_games_count
+						bind:already_made_picks_for_upcoming_games
+					/>
 				{/if}
 			{:catch error}
 				<ErrorModal {error} />
@@ -431,7 +454,7 @@
 		<button disabled={!games || !picks} on:click={async ()=> $current_picks = await pickAllHome(games,picks)} class:dark-mode={$use_dark_theme} class="hotkeys">All Home</button>
 	</div>
 
-	<div class="grid weekGames">
+	<div class="week-games grid">
 		{#await $picks_promise}
 			<LoadingSpinner msg="Loading picks..." width="100%" />
 		{:then}
@@ -564,7 +587,7 @@
 			}
 		}
 	}
-	.weekGames {
+	.week-games {
 		box-sizing: border-box;
 		padding: 1rem;
 		padding-bottom: 3rem;
@@ -636,8 +659,10 @@
 
 	.hotkeys {
 		@include styledButton;
+		max-width: 100%;
 		&.dark-mode {
 			@include styledButtonDark;
+			max-width: 100%;
 		}
 	}
 	.winner {
