@@ -1,22 +1,14 @@
 <script lang="ts">
 	import {
-		current_picks,
-		games_promise,
 		larger_than_mobile,
 		nav_toggled,
 		override_locked_picks,
-		picks_promise,
 		preferred_score_view,
-		selected_season_type,
-		selected_player,
-		selected_week,
 		show_ATS_winner,
 		show_IDs,
 		show_net_tiebreakers,
 		show_spreads,
-		show_timestamps,
-		tiebreaker_promise,
-		selected_year
+		show_timestamps
 	} from '$scripts/store';
 	import { faBars, faCog, faLock, faUnlock } from '@fortawesome/free-solid-svg-icons/index.es';
 	import Fa from 'svelte-fa';
@@ -27,9 +19,8 @@
 	import Navigator from '$lib/components/navigation/Navigator.svelte';
 	import SiteNavOptions from '$lib/components/navigation/siteNavOptions.svelte';
 	import { page } from '$app/stores';
-	import { getLocalStorageItem, setLocalStorageItem } from '$scripts/localStorage';
+	import { setLocalStorageItem } from '$scripts/localStorage';
 	import type { ScoreViewPreference } from '$scripts/types/types';
-	import { onMount } from 'svelte';
 	import Grid from '$lib/components/containers/Grid.svelte';
 	import ToggleSwitch from '$lib/components/switches/ToggleSwitch.svelte';
 	import AdminControlsModal from '$lib/components/modals/AdminControlsModal.svelte';
@@ -37,11 +28,8 @@
 	import YearSelect from '$lib/components/selects/YearSelect.svelte';
 	import PlayerSelect from '$lib/components/selects/PlayerSelect.svelte';
 	import { admin_controls_pages } from '$lib/scripts/site';
-	import { getGameData, getPicksData, getTiebreakerData } from '$lib/scripts/weekly/weeklyPlayers';
-	import { orderBy, where } from '@firebase/firestore';
 	import TeamSelector from '$lib/components/containers/micro/TeamSelector.svelte';
 
-	let storedScoreViewPreference: ScoreViewPreference;
 	let viewPreferences: { label: string; value: ScoreViewPreference }[] = [
 		{ label: 'Actual', value: 'Actual' },
 		{ label: 'ATS', value: 'ATS' },
@@ -51,30 +39,6 @@
 	function toggleNav(): void {
 		$nav_toggled = !$nav_toggled;
 	}
-	export async function adminSelectorsUpdated() {
-		const game_constraints = [
-			where('season_year', '==', $selected_year),
-			where('week', '==', $selected_week),
-			where('season_type', '==', $selected_season_type)
-		];
-		const tiebreaker_constraints = [
-			...game_constraints.slice(0, game_constraints.length - 1),
-			where('uid', '==', $selected_player.uid)
-		];
-		const picks_constraints = [
-			...game_constraints,
-			where('uid', '==', $selected_player.uid),
-			orderBy('timestamp'),
-			orderBy('game_id')
-		];
-		$games_promise = getGameData({ constraints: game_constraints });
-		$picks_promise = getPicksData({ constraints: picks_constraints });
-		$tiebreaker_promise = getTiebreakerData({ constraints: tiebreaker_constraints });
-		$current_picks = await $picks_promise;
-	}
-	onMount(async () => {
-		storedScoreViewPreference = await getLocalStorageItem('scoreViewPreference');
-	});
 </script>
 
 <menu />
@@ -104,11 +68,11 @@
 				<Grid slot="modal-content" repeatColumns={2}>
 					{#if $page.url.pathname.includes('/weekly')}
 						<p>Select Season Type</p>
-						<SeasonTypeSelect on:change={adminSelectorsUpdated} />
+						<SeasonTypeSelect />
 						<p>Select Year</p>
-						<YearSelect on:change={adminSelectorsUpdated} />
+						<YearSelect />
 						<p>Select Player</p>
-						<PlayerSelect player_pool="weekly" on:change={adminSelectorsUpdated} />
+						<PlayerSelect player_pool="weekly" />
 						{#if $page.url.pathname === '/weekly/make-picks'}
 							<p>Show Game IDs</p>
 							<ToggleSwitch bind:checked={$show_IDs} />
@@ -126,6 +90,8 @@
 						<p>Select Year</p>
 						<YearSelect />
 					{:else if $page.url.pathname.includes('/survivor')}
+						<p>Select Player</p>
+						<PlayerSelect player_pool="survivor" />
 						<p>Select Year</p>
 						<YearSelect />
 						<p>Select Team</p>
