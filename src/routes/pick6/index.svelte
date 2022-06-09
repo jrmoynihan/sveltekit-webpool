@@ -21,7 +21,7 @@
 	import { pickSixCollection } from '$lib/scripts/collections';
 	import { pickSixConverter } from '$lib/scripts/converters';
 	import { PickSixDoc } from '$lib/scripts/classes/picks';
-	import { faCaretUp } from '@fortawesome/free-solid-svg-icons';
+	import { faCaretUp } from '@fortawesome/free-solid-svg-icons/index.es';
 	import Fa from 'svelte-fa';
 
 	let pick_dock_visible: boolean = $larger_than_mobile;

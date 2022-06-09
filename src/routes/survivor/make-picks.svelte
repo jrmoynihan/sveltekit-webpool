@@ -25,7 +25,7 @@
 		window_width
 	} from '$scripts/store';
 	import { arrayUnion, deleteDoc, orderBy, updateDoc, where } from '@firebase/firestore';
-	import { faCaretLeft, faCaretRight } from '@fortawesome/free-solid-svg-icons';
+	import { faCaretLeft, faCaretRight } from '@fortawesome/free-solid-svg-icons/index.es';
 	import Fa from 'svelte-fa';
 	import Tooltip from '$lib/components/containers/Tooltip.svelte';
 
