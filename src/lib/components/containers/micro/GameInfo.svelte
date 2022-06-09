@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { scorePicksForWeek, updateGamesAndATSWinners } from '$scripts/scorePicks';
+	import { scorePicksForWeek } from '$scripts/scorePicks';
 	import {
 		selected_week,
 		selected_season_year,
@@ -40,7 +40,6 @@
 		<button
 			class="admin"
 			on:click={async () => {
-				await updateGamesAndATSWinners($selected_week, $selected_season_year);
 				await scorePicksForWeek($selected_week, $selected_season_year);
 			}}
 		>
