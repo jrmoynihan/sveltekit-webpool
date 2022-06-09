@@ -19,7 +19,6 @@ import {
 	doc,
 	type DocumentData,
 	setDoc,
-	QueryDocumentSnapshot,
 	getDoc,
 	deleteDoc
 } from '@firebase/firestore';
@@ -44,8 +43,7 @@ import {
 	gamesCollection,
 	weeklyPicksCollection,
 	teamsCollection,
-	seasonRecordsCollection,
-	weeklyRecordsCollection
+	seasonRecordsCollection
 } from './collections';
 import {
 	gameConverter,
@@ -74,6 +72,7 @@ import {
 import { all_players, all_seasons, weekly_players } from './store';
 import { get } from 'svelte/store';
 import { createWeeklyRecordsForPlayer } from './weekly/weeklyAdmin';
+import { scoreSurvivorPick } from './survivor/survivorAdmin';
 
 // Score all picks for a given week
 export const scorePicksForWeek = async (
@@ -103,7 +102,9 @@ export const scorePicksForWeek = async (
 				id: starting_toast_id,
 				msg: `Updating ATS games winners...${game.short_name}`
 			});
-			await updateGameandATSWinner(game, game.doc_ref);
+			const { winnerAndLoser } = await updateGameandATSWinner(game, game.doc_ref);
+			const { winner, loser } = winnerAndLoser;
+			await scoreSurvivorPick(game.week, game.season_year, winner, loser);
 			LogAndToast({ id: starting_toast_id, msg: `Scoring net tiebreakers...` });
 			await scoreNetTiebreakers(game, tiebreakers, weekly_records);
 			LogAndToast({ id: starting_toast_id, msg: `Marking correct picks...` });
@@ -155,25 +156,24 @@ export const scorePicksForWeek = async (
 		myLog({ msg: 'third most wins: ', additional_params: third_most_wins });
 
 		// Now that records have been updated, query them all to compare wins
-		const weeklyPickRecordsForWholeYear = await getWeeklyRecords({
-			constraints: record_constraints
+		const weeklyPickRecordsForWholeYear = await getWeeklyRecordData({
+			constraints: [where('season_year', '==', selected_year)]
 		});
-		const weeklyPickRecordDocs = weeklyPickRecordsForWholeYear.docs;
-		const weeklyPickRecordDocsForSelectedWeek = weeklyPickRecordDocs.filter(
-			(doc) => doc.data().week === selected_week
-		);
+		const weeklyPickRecordsForSelectedWeek = weeklyPickRecordsForWholeYear.filter((record) => {
+			return record.week === selected_week;
+		});
 
 		LogAndToast({ id: starting_toast_id, msg: `Finding week ${selected_week} leaders...` });
 		const firstPlacersForWeek = await findWeeklyLeaders(
-			weeklyPickRecordDocsForSelectedWeek,
+			weeklyPickRecordsForSelectedWeek,
 			most_wins
 		);
 		const secondPlacersForWeek = await findWeeklyLeaders(
-			weeklyPickRecordDocsForSelectedWeek,
+			weeklyPickRecordsForSelectedWeek,
 			second_most_wins
 		);
 		const thirdPlacersForWeek = await findWeeklyLeaders(
-			weeklyPickRecordDocsForSelectedWeek,
+			weeklyPickRecordsForSelectedWeek,
 			third_most_wins
 		);
 
@@ -192,7 +192,9 @@ export const scorePicksForWeek = async (
 		LogAndToast({ id: starting_toast_id, msg: `Awarding weekly prizes...` });
 
 		weeklyPlayers.forEach(async (player) => {
-			const record_to_update = weeklyPickRecordDocs.find((doc) => doc.data().uid === player.uid);
+			const record_to_update = weeklyPickRecordsForSelectedWeek.find(
+				(record) => record.uid === player.uid
+			);
 			if (record_to_update) {
 				if (firstPlacersForWeek.includes(player.uid)) {
 					myLog({
@@ -224,19 +226,17 @@ export const scorePicksForWeek = async (
 
 		// Update weekly player season records
 		weeklyPlayers.forEach(async (player) => {
-			const all_players_weekly_record_data = weeklyPickRecordsForWholeYear.docs.map((doc) =>
-				doc.data()
-			);
-			const player_weekly_record_data = all_players_weekly_record_data.filter(
+			const player_weekly_records = weeklyPickRecordsForWholeYear.filter(
 				(data) => data.uid === player.uid
 			);
 
 			LogAndToast({
 				id: starting_toast_id,
-				msg: `Updating season record for ${player.name} (${player.nickname})...`
+				msg: `Updating season record for ${player.name} (${player.nickname})...`,
+				additional_params: player_weekly_records
 			});
 			// TODO: Turn this into a cloud function trigger
-			await updateWeeklyPlayerSeasonRecord(player, player_weekly_record_data, selected_year);
+			await updateWeeklyPlayerSeasonRecord(player, player_weekly_records, selected_year);
 		});
 
 		toast.pop(starting_toast_id);
@@ -296,13 +296,12 @@ export const getWeeklyPoolSeasonLeaders = async (
 };
 
 export const assignWeeklyPrize = async (
-	prize_winner_record: QueryDocumentSnapshot<PlayerRecord>,
+	prize_winner_record: PlayerRecord,
 	prize_amount: number
 ) => {
 	try {
-		const { ref } = prize_winner_record;
-		const data = prize_winner_record.data();
-		setDoc(ref.withConverter(recordConverter), { ...data, prize_amount });
+		const { doc_ref } = prize_winner_record;
+		setDoc(doc_ref.withConverter(recordConverter), { ...prize_winner_record, prize_amount });
 	} catch (error) {
 		myError({ msg: 'Error assigning weekly prize', error });
 	}
@@ -467,14 +466,11 @@ export const filterWeeklySeasonLeaders = async (
  * @param comparison_win_count - The number of wins a player must have (exactly) to be added to the return array
  * @returns An array of player uid's of players who meet the win criteria
  */
-export const findWeeklyLeaders = async (
-	records: QueryDocumentSnapshot<PlayerRecord>[],
-	comparison_win_count: number
-) => {
+export const findWeeklyLeaders = async (records: PlayerRecord[], comparison_win_count: number) => {
 	try {
 		let leaders: string[] = [];
 		records.forEach((record) => {
-			const { wins, uid } = record.data();
+			const { wins, uid } = record;
 			if (wins === comparison_win_count) {
 				leaders.push(uid);
 			}
@@ -507,7 +503,7 @@ export const updateWeeklyPlayerSeasonRecord = async (
 		let total_weekly_losses: number = 0;
 
 		// Sum all weekly wins/losses
-		for (const record of players_records) {
+		for await (const record of players_records) {
 			const { wins, losses } = record;
 			total_weekly_wins += wins;
 			total_weekly_losses += losses;
@@ -760,6 +756,7 @@ export const updateGameandATSWinner = async (
 				away_score_data,
 				game_data
 			);
+
 			const ATS_winner = await findATSWinner(game_data, home_score, away_score, spread);
 			const total_score = home_score + away_score;
 
