@@ -1,5 +1,4 @@
 import type { DocumentReference, Timestamp } from '@firebase/firestore';
-import type { Team } from '$classes/team';
 
 export class Game {
 	doc_ref: DocumentReference;
@@ -24,8 +23,6 @@ export class Game {
 	total_score: number;
 	is_last_game_of_week: boolean;
 	is_before_game_time?: boolean;
-	home_team?: Team;
-	away_team?: Team;
 
 	constructor({ ...args }) {
 		this.doc_ref = args.doc_ref;
