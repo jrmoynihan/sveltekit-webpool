@@ -10,13 +10,22 @@
 	export let customContentStyles = null;
 	export let customSummaryStyles = null;
 
-	const resetTeamRecords = async (skipConfirmation = false) => {
+	const resetTeamRecordsForASpecificYear = async (year: number, skipConfirmation = false) => {
 		let proceed: boolean;
 		skipConfirmation ? (proceed = true) : (proceed = false);
 		proceed = confirm('Are you sure you want to reset the team records?');
 		if (proceed) {
 			$all_teams.forEach((team) => {
-				updateDoc(team.docRef, { wins: 0, losses: 0, ties: 0 });
+				const current_records = team.records;
+				// NOTE: This *will* mutate the found record within the records array
+				// https://stackoverflow.com/a/62497208/11080659
+				const record_for_selected_year = current_records.find((record) => record.year === year);
+				if (record_for_selected_year) {
+					record_for_selected_year.wins = 0;
+					record_for_selected_year.losses = 0;
+					record_for_selected_year.ties = 0;
+				}
+				updateDoc(team.docRef, { records: current_records });
 			});
 			defaultToast({
 				title: 'Records Reset!',
@@ -40,5 +49,7 @@
 			updateTeamRecordsFromESPN($selected_year);
 		}}>Update Team Records for {$selected_year}</StyledButton
 	>
-	<DeletionButton on:click={() => resetTeamRecords()}>Reset Team Records</DeletionButton>
+	<DeletionButton on:click={() => resetTeamRecordsForASpecificYear($selected_year)}
+		>Reset Team Records for {$selected_year}</DeletionButton
+	>
 </AdminExpandSection>
