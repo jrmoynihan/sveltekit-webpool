@@ -50,7 +50,7 @@ export const defaultToast = ({
 }: myToastOptions) => {
 	const msgBuilder = `<div style="display:grid;grid-template-columns:minmax(0,auto);text-align:center;font-weight:${textFontWeight}">
 						<h3>
-							${icon ?? ''}${title}
+							${icon ?? ''} ${title}
 						</h3>
 						<section style="overflow:auto;word-wrap:anywhere;">
 							${msg}
