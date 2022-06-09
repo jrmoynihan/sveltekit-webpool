@@ -1,4 +1,5 @@
 <script context="module" lang="ts">
+	// TODO: replace this eventually with a handle function that runs on every request
 	export const load = async ({ url }: LoadEvent): Promise<LoadOutput> => ({
 		props: {
 			refresh: url.pathname.split('/')[2]
