@@ -41,13 +41,30 @@
 		if (previous_year < 2020) return;
 		try {
 			let arrays: Team[][] = [];
-			console.log('pick6 => all_teams', $all_teams);
+			console.log('pick6 => all_teams', $all_teams, previous_year);
 			// Sort the teams by their wins from the previous season
-			sortedByWins = $all_teams.sort(
-				(teamOne, teamTwo) =>
-					// TODO: Need to fix this method of storing Team records in the database eventually.  The records map will get bigger every year.
-					teamOne.records.filter((record) => record.year === previous_year)[0].wins -
-					teamTwo.records.filter((record) => record.year === previous_year)[0].wins
+			sortedByWins = $all_teams.sort((teamOne, teamTwo) =>
+				// TODO: Need to fix this method of storing Team records in the database eventually.  The records map will get bigger every year.
+				{
+					const team_one_records_from_previous_year = teamOne.records.find(
+						(record) => record.year === previous_year
+					);
+					const team_two_records_from_previous_year = teamTwo.records.find(
+						(record) => record.year === previous_year
+					);
+					console.log(
+						`${teamOne.abbreviation} records_from_previous_year`,
+						team_one_records_from_previous_year
+					);
+					console.log(
+						`${teamTwo.abbreviation} records_from_previous_year`,
+						team_two_records_from_previous_year
+					);
+
+					return (
+						team_one_records_from_previous_year?.wins - team_two_records_from_previous_year?.wins
+					);
+				}
 			);
 			// Split the 32 teams into two groups of 11 and one group of 10
 			const size = 11;
