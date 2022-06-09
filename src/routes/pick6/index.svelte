@@ -41,6 +41,7 @@
 		if (previous_year < 2020) return;
 		try {
 			let arrays: Team[][] = [];
+			console.log('pick6 => all_teams', $all_teams);
 			// Sort the teams by their wins from the previous season
 			sortedByWins = $all_teams.sort(
 				(teamOne, teamTwo) =>
