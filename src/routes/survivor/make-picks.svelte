@@ -21,6 +21,7 @@
 		selected_player,
 		selected_week,
 		selected_year,
+		show_spreads,
 		use_dark_theme,
 		window_width
 	} from '$scripts/store';
@@ -141,7 +142,7 @@
 			{#await survivor_promise}
 				<LoadingSpinner />
 			{:then survivor_data}
-				{#each games as { timestamp, away_team_abbreviation, home_team_abbreviation, id }}
+				{#each games as { timestamp, away_team_abbreviation, home_team_abbreviation, id, spread }}
 					{@const away_team = $all_teams.find((t) => t.abbreviation === away_team_abbreviation)}
 					{@const home_team = $all_teams.find((t) => t.abbreviation === home_team_abbreviation)}
 					{@const team_picks = survivor_data[0]?.picks.map((p) => p.pick)}
@@ -172,13 +173,18 @@
 								bind:show_game_container
 								bind:show_team_name_images
 							/>
-							{#if pick_is_home_or_away && mark_correct !== undefined}
-								<PickCorrectnessIndicator is_correct={mark_correct} />
-							{:else if is_before_game_time}
-								<GameTime {timestamp} />
-							{:else}
-								<span />
-							{/if}
+							<span>
+								{#if pick_is_home_or_away && mark_correct !== undefined}
+									<PickCorrectnessIndicator is_correct={mark_correct} />
+								{:else if is_before_game_time}
+									<GameTime {timestamp} />
+								{:else}
+									<span />
+								{/if}
+								{#if $show_spreads && spread}
+									{spread}
+								{/if}
+							</span>
 							<TeamSelectRadioInput
 								{id}
 								{element}

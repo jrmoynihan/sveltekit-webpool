@@ -96,6 +96,8 @@
 						<YearSelect />
 						<p>Select Team</p>
 						<TeamSelector />
+						<p>Show Spreads</p>
+						<ToggleSwitch bind:checked={$show_spreads} />
 						<p>Override Locked Games <Fa icon={$override_locked_picks ? faUnlock : faLock} /></p>
 						<ToggleSwitch bind:checked={$override_locked_picks} />
 					{/if}
