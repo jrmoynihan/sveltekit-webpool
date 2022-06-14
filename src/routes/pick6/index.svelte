@@ -25,7 +25,6 @@
 	import Fa from 'svelte-fa';
 
 	let pick_dock_visible: boolean = $larger_than_mobile;
-	let previous_year: number;
 	let group_one_teams: pickSixItem[] = [];
 	let group_two_teams: pickSixItem[] = [];
 	let group_three_teams: pickSixItem[] = [];
@@ -37,11 +36,11 @@
 	let toggle_group_two: () => boolean;
 	let toggle_group_three: () => boolean;
 
-	function getPickSixArrays() {
+	function getPickSixArrays(year: number = $current_season_year) {
+		const previous_year = year - 1;
 		if (previous_year < 2020) return;
 		try {
 			let arrays: Team[][] = [];
-			console.log('pick6 => all_teams', $all_teams, previous_year);
 			// Sort the teams by their wins from the previous season
 			sortedByWins = $all_teams.sort((teamOne, teamTwo) =>
 				// TODO: Need to fix this method of storing Team records in the database eventually.  The records map will get bigger every year.
@@ -51,14 +50,6 @@
 					);
 					const team_two_records_from_previous_year = teamTwo.records.find(
 						(record) => record.year === previous_year
-					);
-					console.log(
-						`${teamOne.abbreviation} records_from_previous_year`,
-						team_one_records_from_previous_year
-					);
-					console.log(
-						`${teamTwo.abbreviation} records_from_previous_year`,
-						team_two_records_from_previous_year
 					);
 
 					return (
@@ -99,9 +90,6 @@
 		const new_doc = doc(pickSixCollection);
 		const { uid, name, nickname } = $current_player;
 		const season_year = dev ? $selected_year : $current_season_year;
-		const confirmed = dev
-			? confirm(`Are you sure you want to enter picks for ${$selected_year}?`)
-			: true;
 		const pick_doc_data = new PickSixDoc({
 			doc_ref: new_doc,
 			picks,
@@ -110,12 +98,10 @@
 			name,
 			nickname
 		});
-		if (confirmed) {
-			await setDoc(new_doc.withConverter(pickSixConverter), pick_doc_data);
-			const title = `${$selected_year} Pick Six Submitted`;
-			const msg = `Your picks have been submitted for ${$selected_year}`;
-			LogAndToast({ title, msg });
-		}
+		await setDoc(new_doc.withConverter(pickSixConverter), pick_doc_data);
+		const title = `${$selected_year} Pick Six Submitted`;
+		const msg = `Your picks have been submitted for ${$selected_year}`;
+		LogAndToast({ title, msg });
 	}
 
 	const [send, receive] = crossfade({
@@ -141,8 +127,7 @@
 		group_one_selected_count !== 2 ? (group_one_open = true) : null;
 	}, 500);
 
-	$: previous_year = dev ? $selected_year : $current_season_year - 1;
-	$: if ($all_teams.length > 0 && previous_year) getPickSixArrays();
+	$: if ($all_teams.length > 0 && $selected_year) getPickSixArrays($selected_year);
 	$: group_one_selected_count = group_one_teams.filter((item) => item.selected === true).length;
 	$: group_two_selected_count = group_two_teams.filter((item) => item.selected === true).length;
 	$: group_three_selected_count = group_three_teams.filter((item) => item.selected === true).length;

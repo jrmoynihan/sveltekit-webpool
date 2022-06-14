@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Team } from '$lib/scripts/classes/team';
-	import { current_season_year, larger_than_mobile, use_dark_theme } from '$scripts/store';
+	import { larger_than_mobile, selected_year, use_dark_theme } from '$scripts/store';
 	import { faTrash } from '@fortawesome/free-solid-svg-icons/index.es';
 	import Fa from 'svelte-fa';
 	import TeamImage from '../containers/TeamImage.svelte';
@@ -11,7 +11,7 @@
 	export let only_unselect: boolean = false;
 	export let show_record: boolean = false;
 
-	$: record = team.records.find((r) => r.year === $current_season_year - 1);
+	$: record = team.records.find((r) => r.year === $selected_year - 1);
 </script>
 
 <button
@@ -38,8 +38,8 @@
 	<TeamImage {team} />
 	{#if show_record}
 		<span>
-			{record.wins}-{record.losses}{#if record.ties}-{record.ties}{/if}
-			<p>({record.year})</p>
+			{record?.wins}-{record?.losses}{#if record?.ties}-{record?.ties}{/if}
+			<p>({record?.year})</p>
 		</span>
 	{/if}
 </button>
