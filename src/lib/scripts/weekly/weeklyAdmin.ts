@@ -36,7 +36,7 @@ import type { SeasonBoundDoc } from '../classes/seasonBound';
 import { makeNumericArrayOfDesiredLength } from '../functions';
 import { WeeklyTiebreaker } from '../classes/tiebreaker';
 import { PlayerRecord, SeasonRecord } from '../classes/playerRecord';
-import { all_seasons, weekly_players } from '../store';
+import { weekly_players } from '../store';
 import { get } from 'svelte/store';
 
 export const getAllGames = async (showToast = false): Promise<Game[]> => {
@@ -106,12 +106,12 @@ export const getFutureGames = async (): Promise<Game[]> => {
 export const createWeeklyPicksForAllPlayers = async () => {
 	try {
 		const weeklyPlayers = get(weekly_players) || (await getWeeklyPlayers());
-		const games = await getAllGames();
+		const games = await getFutureGames();
 		for await (const player of weeklyPlayers) {
 			await createWeeklyPicksForPlayer({ player, games });
 		}
 		const title = 'Created Weekly Picks!';
-		const msg = 'Pick documents were created for every game, for every Weekly pool player.';
+		const msg = 'Pick documents were created for every future game, for every Weekly pool player.';
 		LogAndToast({
 			title,
 			msg,
@@ -149,8 +149,12 @@ export const createWeeklyPicksForPlayer = async (input: createWeeklyPicksForPlay
 					where('season_year', '==', season_year),
 					where('week', '==', week)
 				];
-				const existing_doc = await getPicksData({ constraints: existing_doc_constraints });
+				const existing_doc = await getPicksData({
+					constraints: existing_doc_constraints,
+					show_log: false
+				});
 				if (existing_doc.length === 0) {
+					myLog({ msg: `${name} does not have a pick doc for game id ${game_id}` });
 					const newWeeklyPickRef = doc(weeklyPicksCollection); // auto-generates a new doc ref/id
 					const pickDoc = new WeeklyPickDoc({
 						doc_ref: newWeeklyPickRef,
@@ -166,6 +170,9 @@ export const createWeeklyPicksForPlayer = async (input: createWeeklyPicksForPlay
 						is_correct: null
 					});
 					await setDoc(newWeeklyPickRef.withConverter(weeklyPickConverter), pickDoc);
+					myLog({ msg: `Created a pick doc for ${name} for game id ${game_id}` });
+				} else if (existing_doc.length > 0) {
+					myLog({ msg: `${name} already has a pick doc for game id ${game_id}` });
 				}
 			}
 			const title = 'Created Weekly Picks!';
@@ -188,8 +195,8 @@ export const createWeeklyPicksForPlayer = async (input: createWeeklyPicksForPlay
 export const deleteWeeklyPicksForAllPlayers = async () => {
 	try {
 		const q = query(weeklyPicksCollection);
-		const allWeeklyDocs = await getDocs(q);
-		allWeeklyDocs.forEach((doc) => {
+		const all_weekly_pick_docs = await getDocs(q);
+		all_weekly_pick_docs.forEach((doc) => {
 			deleteDoc(doc.ref);
 		});
 		const title = 'Deleted Weekly Picks!';
@@ -207,26 +214,18 @@ export const deleteWeeklyPicksForAllPlayers = async () => {
 		});
 	}
 };
-export const deleteWeeklyPicksForPlayer = async (
-	player: Player,
-	selectedWeek?: number,
-	selectedYear?: number
-) => {
+type deleteWeeklyPicksForPlayerOptions = {
+	player: Player;
+	constraints?: QueryConstraint[];
+};
+export const deleteWeeklyPicksForPlayer = async (input: deleteWeeklyPicksForPlayerOptions) => {
+	const { player, constraints = [] } = input;
+	const { uid } = player;
 	try {
-		if (!selectedWeek) {
-			selectedWeek = await findCurrentWeekOfSchedule();
-		}
-		if (!selectedYear) {
-			selectedYear = new Date().getFullYear();
-		}
-		const wheres = [
-			where('uid', '==', player.uid),
-			where('week', '==', selectedWeek),
-			where('year', '==', selectedYear)
-		];
-		const q = query(weeklyPicksCollection, ...wheres);
-		const allWeeklyDocsForPlayer = await getDocs(q);
-		allWeeklyDocsForPlayer.forEach((doc) => {
+		const weekly_pick_constraints = [where('uid', '==', uid), ...constraints];
+		const q = query(weeklyPicksCollection, ...weekly_pick_constraints);
+		const matching_pick_docs_for_player = await getDocs(q);
+		matching_pick_docs_for_player.forEach((doc) => {
 			deleteDoc(doc.ref);
 		});
 		const title = 'Deleted Weekly Picks!';
@@ -354,41 +353,30 @@ export const deleteTiebreakersForAllPlayers = async () => {
 		});
 	}
 };
-export const deleteTiebreakersForPlayer = async (
-	player: Player,
-	selectedWeek?: number,
-	selectedYear?: number
-) => {
+type deleteTiebreakersForPlayerOptions = {
+	player: Player;
+	constraints?: QueryConstraint[];
+};
+export const deleteTiebreakersForPlayer = async (input: deleteTiebreakersForPlayerOptions) => {
+	const { player, constraints } = input;
 	try {
-		const proceed = confirm(
-			`Are you sure you want to delete tiebreakers for ${player.name} (${player.nickname})? ${
-				selectedWeek ? `for ${selectedWeek},` : ''
-			} ${selectedYear ? selectedYear : ''}`
-		);
-		if (proceed) {
-			const wheres: QueryConstraint[] = [where('uid', '==', player.uid)];
-			if (selectedWeek) {
-				wheres.push(where('week', '==', selectedWeek));
-			}
-			if (selectedYear) {
-				wheres.push(where('year', '==', selectedYear));
-			}
-			const q = query(weeklyTiebreakersCollection, ...wheres);
-			const playerTiebreakerDocs = await getDocs(q.withConverter(weeklyPickConverter));
+		const tiebreaker_constraints: QueryConstraint[] = [
+			where('uid', '==', player.uid),
+			...constraints
+		];
+		const q = query(weeklyTiebreakersCollection, ...tiebreaker_constraints);
+		const player_tiebreaker_docs = await getDocs(q.withConverter(weeklyPickConverter));
 
-			playerTiebreakerDocs.forEach((doc) => deleteDoc(doc.ref));
+		player_tiebreaker_docs.forEach((doc) => deleteDoc(doc.ref));
 
-			const title = `Deleted Weekly Tiebreakers for ${player.name}!`;
-			const msg = `All tiebreaker documents were deleted ${
-				selectedWeek && selectedYear ? `for Week ${selectedWeek}, ${selectedYear}` : null
-			}.`;
+		const title = `Deleted Weekly Tiebreakers for ${player.name}!`;
+		const msg = `All tiebreaker documents were deleted for ${player.name} (${player.nickname})`;
 
-			LogAndToast({
-				title,
-				msg,
-				traceLocation: true
-			});
-		}
+		LogAndToast({
+			title,
+			msg,
+			traceLocation: true
+		});
 	} catch (error) {
 		const msg = `Encountered an error while trying to delete ${player.name}'s tiebreakers.  Check the console for more info. ${error}`;
 		ErrorAndToast({
@@ -519,19 +507,65 @@ export const createWeeklyRecordForPlayer = async (
 		});
 	}
 };
+type deleteWeeklyRecordsForPlayerOptions = {
+	player: Player;
+	constraints?: QueryConstraint[];
+};
+export const deleteWeeklyRecordsForPlayer = async (input: deleteWeeklyRecordsForPlayerOptions) => {
+	const { player, constraints } = input;
+	const player_record_constraints = [where('uid', '==', player.uid), ...constraints];
+	const confirmed = confirm(
+		'Are you sure you want to delete all weekly records for this player? This cannot be undone.'
+	);
+	if (confirmed) {
+		try {
+			const q = query(weeklyRecordsCollection, ...player_record_constraints);
+			const player_records = await getDocs(q.withConverter(recordConverter));
+			if (!player_records.empty) {
+				myLog({
+					msg: `Weekly records found for player: ${player.name}`
+				});
+				for await (const doc of player_records.docs) {
+					deleteDoc(doc.ref);
+				}
+				LogAndToast({
+					title: 'Deleted Weekly Records',
+					msg: `Deleted weekly records for ${player.name}`
+				});
+			} else {
+				myLog({
+					msg: `No weekly records found for ${player.name} matching the provided constraints`,
+					additional_params: constraints
+				});
+			}
+		} catch (error) {
+			ErrorAndToast({
+				msg: `Encountered an error while trying to delete weekly records for ${player.name}`,
+				error,
+				additional_params: constraints
+			});
+		}
+	}
+};
 
 export const joinWeeklyPool = async (player: Player, season: SeasonBoundDoc) => {
-	// Get all games that will be played in the future and make picks for the player
-	const games = await getFutureGames();
-	if (games.length > 0) {
-		createWeeklyPicksForPlayer({
-			player,
-			games,
-			logAll: true
-		});
+	const now = Timestamp.now();
+	if (now.valueOf() > season.start_date.valueOf()) {
+		LogAndToast({ msg: 'Regular Season has already started.  Cannot join weekly pool.' });
+		return;
+	} else {
+		// Get all games that will be played in the future and make picks for the player
+		const games = await getFutureGames();
+		if (games.length > 0) {
+			createWeeklyPicksForPlayer({
+				player,
+				games,
+				logAll: true
+			});
+		}
+		createWeeklyTiebreakersForPlayer({ player, season });
+		createWeeklyRecordsForPlayer({ player, season });
 	}
-	createWeeklyTiebreakersForPlayer({ player, season });
-	createWeeklyRecordsForPlayer({ player, season });
 };
 export const joinSurvivorPool = async (player: Player, season: SeasonBoundDoc) => {
 	LogAndToast({ msg: `Joining Survivor pool is not yet implemented.` });
