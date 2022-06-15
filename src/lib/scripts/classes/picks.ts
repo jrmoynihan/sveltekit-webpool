@@ -9,6 +9,7 @@ export class WeeklyPickDoc {
 	season_year: number;
 	timestamp: Timestamp;
 	name: string;
+	nickname: string;
 	season_type: string;
 	is_correct: boolean;
 	is_before_game_time?: boolean;
@@ -21,6 +22,7 @@ export class WeeklyPickDoc {
 		this.season_year = args.season_year;
 		this.timestamp = args.timestamp;
 		this.name = args.name;
+		this.nickname = args.nickname;
 		this.season_type = args.season_type;
 		this.is_correct = args.is_correct;
 		this.is_before_game_time = args.is_before_game_time || false;
