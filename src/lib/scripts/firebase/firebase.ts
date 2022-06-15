@@ -1,10 +1,16 @@
 import { dev } from '$app/env';
 import { getApps, getApp, initializeApp, type FirebaseApp } from '@firebase/app';
 import { connectAuthEmulator, getAuth, type Auth } from '@firebase/auth';
-import { connectFirestoreEmulator, enableIndexedDbPersistence, enableMultiTabIndexedDbPersistence, Firestore, getFirestore } from '@firebase/firestore';
+import {
+	connectFirestoreEmulator,
+	enableIndexedDbPersistence,
+	enableMultiTabIndexedDbPersistence,
+	Firestore,
+	getFirestore
+} from '@firebase/firestore';
 
-const API_KEY: string = dev ? import.meta.env.API_KEY as string : process.env.API_KEY as string;
-const firebaseConfig = {
+const API_KEY: string = dev ? (import.meta.env.API_KEY as string) : (process.env.API_KEY as string);
+export const firebaseConfig = {
 	apiKey: 'AIzaSyDEAAXuJcftdIqBRxi_OmDYmFEMs2qnpIw', // FIXME - 5/10/22 - Why isn't Vercel processing this when I use process.env?
 	authDomain: 'tonyswebpool.firebaseapp.com',
 	databaseURL: 'https://tonyswebpool.firebaseio.com',
@@ -19,19 +25,19 @@ export function initializeFirebaseApp(): FirebaseApp {
 	// If a firebase app is already initialized, use that one
 	if (getApps().length === 0) {
 		return initializeApp(firebaseConfig);
-	} 
-	else {
+	} else {
 		return getApp();
 	}
 }
-const myApp : FirebaseApp = initializeFirebaseApp();
-export const firestoreDB : Firestore = getFirestore(myApp);
+export const myApp: FirebaseApp = initializeFirebaseApp();
+export const firestoreDB: Firestore = getFirestore(myApp);
 
-// Use emulators during dev and persist data on client during production
-if(dev){
-	connectFirestoreEmulator(firestoreDB,'localhost',8080)
-}else{
-	enableMultiTabIndexedDbPersistence(firestoreDB).catch((err) => {
+// Use emulators during dev
+// if(dev){
+// 	connectFirestoreEmulator(firestoreDB,'localhost',8080)
+// }else{
+// Persist data on client during production
+enableMultiTabIndexedDbPersistence(firestoreDB).catch((err) => {
 	if (err.code == 'failed-precondition') {
 		// Multiple tabs open, persistence can only be enabled
 		// in one tab at a a time.
@@ -42,6 +48,7 @@ if(dev){
 		// ...
 	}
 });
-}
-export const firebaseAuth : Auth = getAuth(myApp);
-if(dev) connectAuthEmulator(firebaseAuth,'http://localhost:9099')
+// }
+
+export const firebaseAuth: Auth = getAuth(myApp);
+// if(dev) connectAuthEmulator(firebaseAuth,'http://localhost:9099')
