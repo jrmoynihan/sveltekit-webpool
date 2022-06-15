@@ -28,13 +28,28 @@
 	let data_promise: Promise<{ picks: WeeklyPickDoc[]; games: Game[] }>;
 
 	const createMissingPicks = async (picks: WeeklyPickDoc[], games: Game[]) => {
-		$weekly_players.forEach((player) => {
+		for await (const player of $weekly_players) {
+			const games_with_missing_picks = [];
 			const player_pick_docs = picks.filter((pick) => pick.uid === player.uid);
-			const player_has_all_pick_docs = player_pick_docs.length === games.length;
-			if (!player_has_all_pick_docs) {
-				createWeeklyPicksForPlayer({ player, games });
+			for await (const game of games) {
+				const game_pick_doc = player_pick_docs.find((pick) => pick.game_id === game.id);
+				if (!game_pick_doc) {
+					games_with_missing_picks.push(game);
+				}
 			}
-		});
+			if (games_with_missing_picks.length > 0) {
+				console.log(
+					`Creating missing picks for ${player.name}.  Missing games: `,
+					games_with_missing_picks
+				);
+				await createWeeklyPicksForPlayer({
+					player,
+					games: games_with_missing_picks
+				});
+			} else {
+				console.log(`${player.name} has all picks`);
+			}
+		}
 	};
 	const confirmAllPicksArePresent = async (
 		picks: WeeklyPickDoc[],
@@ -43,7 +58,11 @@
 	) => {
 		// If the number of pick docs returned doesn't equal the number of players times the number of games, there are missing docs.
 		if (picks.length !== $weekly_players.length * games.length) {
-			console.log('not all picks are present!');
+			console.log(
+				`not all picks are present! Expected: ${$weekly_players.length} weekly players * ${
+					games.length
+				} games = ${$weekly_players.length * games.length} picks; only got ${picks.length} picks`
+			);
 			// A fallback to create missing picks on the fly
 			await createMissingPicks(picks, games);
 			console.log('created missing picks...');
@@ -121,49 +140,46 @@
 						{player.nickname}
 					</div>
 					{#each games as game}
-						{#await isBeforeGameTime(game.timestamp) then notAbleToSee}
+						{#await isBeforeGameTime(game.timestamp) then before_gametime}
 							{#each player_picks as pick_doc}
 								{@const { pick, game_id, is_correct } = pick_doc}
+								{@const picked_team = $all_teams.find((team) => team.abbreviation === pick)}
 								<!-- Match the pick document to the game -->
 								{#if game_id === game.id}
 									<!-- If there's no pick, display a placeholder dash -->
-									{#if pick === null || pick === ''}
-										<div transition:fly={{ x: -100, duration: 750 }} class="rounded placeholder">
+									{#if pick === null || pick === '' || before_gametime}
+										<div
+											transition:fly={{ x: -100, duration: 750 }}
+											class="rounded placeholder no-pick"
+										>
 											-
 										</div>
 									{:else}
-										{@const picked_team = $all_teams.find((team) => team.abbreviation === pick)}
-										{#if notAbleToSee}
-											<div transition:fly={{ x: -100, duration: 750 }} class="rounded placeholder">
-												-
-											</div>
-										{:else}
-											<div
-												transition:fly={{ x: -100, duration: 750 }}
-												class="rounded image-holder"
-												class:winner={is_correct}
-												class:dark={$use_dark_theme}
-												class:hovered={hover_player === player.uid || hover_game === game.id}
-												on:mouseover={() => {
-													hover_player = player.uid;
-													hover_game = game.id;
-												}}
-												on:mouseleave={() => {
-													hover_player = '';
-													hover_game = '';
-												}}
-												on:focus={() => {
-													hover_player = player.uid;
-													hover_game = game.id;
-												}}
-												on:blur={() => {
-													hover_player = '';
-													hover_game = '';
-												}}
-											>
-												<TeamImage team={picked_team} />
-											</div>
-										{/if}
+										<div
+											transition:fly={{ x: -100, duration: 750 }}
+											class="rounded image-holder"
+											class:winner={is_correct}
+											class:dark={$use_dark_theme}
+											class:hovered={hover_player === player.uid || hover_game === game.id}
+											on:mouseover={() => {
+												hover_player = player.uid;
+												hover_game = game.id;
+											}}
+											on:mouseleave={() => {
+												hover_player = '';
+												hover_game = '';
+											}}
+											on:focus={() => {
+												hover_player = player.uid;
+												hover_game = game.id;
+											}}
+											on:blur={() => {
+												hover_player = '';
+												hover_game = '';
+											}}
+										>
+											<TeamImage team={picked_team} />
+										</div>
 									{/if}
 								{/if}
 							{/each}
