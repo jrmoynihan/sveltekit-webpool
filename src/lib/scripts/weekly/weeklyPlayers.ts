@@ -139,18 +139,20 @@ export const getGameData = async (input: getGamesOptions) => {
 };
 type getPicksOptions = {
 	constraints: QueryConstraint[];
+	show_log?: boolean;
 };
 export const getPicksData = async (input: getPicksOptions): Promise<WeeklyPickDoc[]> => {
 	try {
-		const { constraints = [] } = input;
+		const { constraints = [], show_log = true } = input;
 		const picks: WeeklyPickDoc[] = [];
 		const q = query(weeklyPicksCollection, ...constraints);
 		const querySnapshot = await getDocs(q.withConverter(weeklyPickConverter));
 		querySnapshot.forEach((doc) => {
 			picks.push(doc.data());
 		});
-
-		myLog({ msg: 'Got picks!', icon: all_icons.pick, additional_params: [picks, constraints] });
+		if (show_log) {
+			myLog({ msg: 'Got picks!', icon: all_icons.pick, additional_params: { picks, constraints } });
+		}
 
 		return picks;
 	} catch (error) {
