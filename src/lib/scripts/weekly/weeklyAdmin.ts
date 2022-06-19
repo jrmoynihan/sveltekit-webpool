@@ -17,7 +17,7 @@ import {
 	weeklyTiebreakerConverter
 } from '$lib/scripts/converters';
 import { defaultToast, errorToast } from '$lib/scripts/toasts';
-import { getGameData, getPicksData, getWeeklyPlayers } from './weeklyPlayers';
+import { getGameData, getPicksData, getWeeklyPlayers, getWeeklyRecords } from './weeklyPlayers';
 import {
 	updateDoc,
 	deleteDoc,
@@ -27,9 +27,9 @@ import {
 	setDoc,
 	where,
 	type QueryConstraint,
-	Timestamp
+	Timestamp,
+	QuerySnapshot
 } from '@firebase/firestore';
-import { findCurrentWeekOfSchedule } from '$lib/scripts/schedule';
 import { getConsensusSpread } from '$lib/scripts/dataFetching';
 import { toast } from '@zerodevx/svelte-toast';
 import type { SeasonBoundDoc } from '../classes/seasonBound';
@@ -64,10 +64,10 @@ export const getAllGames = async (showToast = false): Promise<Game[]> => {
 	}
 };
 
-type getSpecificGameOptions = {
+interface getSpecificGameOptions {
 	constraints: QueryConstraint[];
 	showToast?: boolean;
-};
+}
 
 export const getSpecificGames = async (input: getSpecificGameOptions) => {
 	try {
@@ -125,12 +125,12 @@ export const createWeeklyPicksForAllPlayers = async () => {
 		});
 	}
 };
-type createWeeklyPicksForPlayerOptions = {
+interface createWeeklyPicksForPlayerOptions {
 	player: Player;
 	games: Game[];
 	showToast?: boolean;
 	logAll?: boolean;
-};
+}
 //TODO: Move to a triggered Cloud Function when a player joins the Weekly pool
 export const createWeeklyPicksForPlayer = async (input: createWeeklyPicksForPlayerOptions) => {
 	const { player, games, showToast, logAll } = input;
@@ -214,10 +214,10 @@ export const deleteWeeklyPicksForAllPlayers = async () => {
 		});
 	}
 };
-type deleteWeeklyPicksForPlayerOptions = {
+interface deleteWeeklyPicksForPlayerOptions {
 	player: Player;
 	constraints?: QueryConstraint[];
-};
+}
 export const deleteWeeklyPicksForPlayer = async (input: deleteWeeklyPicksForPlayerOptions) => {
 	const { player, constraints = [] } = input;
 	const { uid } = player;
@@ -265,11 +265,11 @@ export const createWeeklyTiebreakersForAllPlayers = async (season: SeasonBoundDo
 		});
 	}
 };
-type createWeeklyTiebreakersForPlayerOptions = {
+interface createWeeklyTiebreakersForPlayerOptions {
 	player: Player;
 	season: SeasonBoundDoc;
 	show_toast?: boolean;
-};
+}
 // TODO: Move to cloud function performed when player joins the pool
 export const createWeeklyTiebreakersForPlayer = async (
 	input: createWeeklyTiebreakersForPlayerOptions
@@ -353,10 +353,10 @@ export const deleteTiebreakersForAllPlayers = async () => {
 		});
 	}
 };
-type deleteTiebreakersForPlayerOptions = {
+interface deleteTiebreakersForPlayerOptions {
 	player: Player;
 	constraints?: QueryConstraint[];
-};
+}
 export const deleteTiebreakersForPlayer = async (input: deleteTiebreakersForPlayerOptions) => {
 	const { player, constraints } = input;
 	try {
@@ -417,10 +417,10 @@ export const updateGameSpreads = async (week: number, year: number) => {
 		ErrorAndToast({ msg, error });
 	}
 };
-type createSeasonRecordForPlayerOptions = {
+interface createSeasonRecordForPlayerOptions {
 	player: Player;
 	season_year: number;
-};
+}
 export const createSeasonRecordForPlayer = async (input: createSeasonRecordForPlayerOptions) => {
 	const { player, season_year } = input;
 	const doc_ref = doc(seasonRecordsCollection.withConverter(seasonRecordConverter));
@@ -444,17 +444,17 @@ export const createSeasonRecordForPlayer = async (input: createSeasonRecordForPl
 		});
 	}
 };
-type createWeeklyRecordsForPlayerOptions = {
+interface createWeeklyRecordsForPlayerOptions {
 	player: Player;
 	season: SeasonBoundDoc;
-};
+}
 export const createWeeklyRecordsForPlayer = async (input: createWeeklyRecordsForPlayerOptions) => {
 	const { player, season } = input;
 	try {
 		const { year, type_name, number_of_weeks } = season;
 		const weeks = makeNumericArrayOfDesiredLength(number_of_weeks);
 		for (const week of weeks) {
-			createWeeklyRecordForPlayer(player, year, week, type_name);
+			createWeeklyRecordForPlayer({ player, season_year: year, week, season_type: type_name });
 		}
 	} catch (error) {
 		ErrorAndToast({
@@ -464,53 +464,74 @@ export const createWeeklyRecordsForPlayer = async (input: createWeeklyRecordsFor
 		});
 	}
 };
-export const createWeeklyRecordForPlayer = async (
-	player: Player,
-	year: number,
-	week: number,
-	season_type: string
-) => {
+interface createWeeklyRecordForPlayerOptions {
+	player: Player;
+	season_year: number;
+	week: number;
+	season_type: string;
+	net_tiebreaker?: number;
+	net_tiebreaker_absolute?: number;
+	perform_prexisting_doc_check?: boolean;
+}
+export const createWeeklyRecordForPlayer = async (input: createWeeklyRecordForPlayerOptions) => {
+	const {
+		player,
+		season_year,
+		week,
+		season_type,
+		net_tiebreaker = null,
+		net_tiebreaker_absolute = null,
+		perform_prexisting_doc_check = true
+	} = input;
 	try {
-		const q = query(
-			weeklyRecordsCollection,
-			where('uid', '==', player.uid),
-			where('season_year', '==', year),
-			where('week', '==', week)
-		);
-		const docs = await getDocs(q.withConverter(recordConverter));
-		if (docs.empty) {
-			myLog({
-				msg: `no weekly records found for player: ${player.name} for ${year} season, week ${week}`
-			});
+		let snapshot: QuerySnapshot<PlayerRecord>;
+		if (perform_prexisting_doc_check) {
+			const constraints = [
+				where('uid', '==', player.uid),
+				where('season_year', '==', season_year),
+				where('week', '==', week)
+			];
+			snapshot = await getWeeklyRecords({ constraints });
+		}
+		if (!perform_prexisting_doc_check || snapshot?.empty) {
+			const msg = perform_prexisting_doc_check
+				? `no weekly records found for player: ${player.name} for ${season_year} season, week ${week}`
+				: `Skipping check for existing weekly record doc...`;
+			myLog({ msg });
 			const doc_ref = doc(weeklyRecordsCollection.withConverter(recordConverter));
-			const data: PlayerRecord = new PlayerRecord({
+			const record: PlayerRecord = new PlayerRecord({
 				doc_ref,
 				uid: player.uid,
-				season_year: year,
+				season_year,
 				season_type,
-				week
+				week,
+				net_tiebreaker,
+				net_tiebreaker_absolute
 			});
-			await setDoc(doc_ref, data);
+			await setDoc(doc_ref, record);
 			myLog({
-				msg: `set weekly record doc (${doc_ref.path}) for player: ${player.name} for ${year} season, week ${week}`
+				msg: `set weekly record doc (${doc_ref.path}) for player: ${player.name} for ${season_year} season, week ${week}`
 			});
+			return record;
 		} else {
 			myLog({
-				msg: `weekly records found for player: ${player.name} for ${year} season, week ${week}`
+				msg: `weekly records found for player: ${player.name} for ${season_year} season, week ${week}`,
+				additional_params: snapshot.docs
 			});
+			return snapshot.docs[0].data();
 		}
 	} catch (error) {
 		ErrorAndToast({
-			msg: `Encountered an error while trying to set weekly record doc for player: ${player.name} for ${year} season, week ${week}`,
+			msg: `Encountered an error while trying to set weekly record doc for player: ${player.name} for ${season_year} season, week ${week}`,
 			error,
 			additional_params: `unable to update weekly record for player ${player.name}`
 		});
 	}
 };
-type deleteWeeklyRecordsForPlayerOptions = {
+interface deleteWeeklyRecordsForPlayerOptions {
 	player: Player;
 	constraints?: QueryConstraint[];
-};
+}
 export const deleteWeeklyRecordsForPlayer = async (input: deleteWeeklyRecordsForPlayerOptions) => {
 	const { player, constraints } = input;
 	const player_record_constraints = [where('uid', '==', player.uid), ...constraints];
