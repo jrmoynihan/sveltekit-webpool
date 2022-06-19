@@ -175,13 +175,11 @@
 			<div class="header">{header}</div>
 		{/each}
 		{#await data_promise then { tiebreakers, last_game, weekly_records }}
-			{#if weekly_records.length === $weekly_players.length && tiebreakers.length === $weekly_players.length && last_game}
-				{#each $weekly_players as player, i}
-					{@const tiebreaker = tiebreakers.find((doc) => doc.uid === player.uid)}
-					{@const record = weekly_records.find((doc) => doc.uid === player.uid)}
-					<WeeklyStandingsRow {player} {i} {tiebreaker} {last_game} {record} />
-				{/each}
-			{/if}
+			{#each weekly_records as record, i}
+				{@const tiebreaker = tiebreakers.find((doc) => doc.uid === record.uid)}
+				{@const player = $weekly_players.find((player) => player.uid === record.uid)}
+				<WeeklyStandingsRow {player} {i} {tiebreaker} {last_game} {record} />
+			{/each}
 		{:catch error}
 			<ErrorModal>
 				Unable to load data: {error}
