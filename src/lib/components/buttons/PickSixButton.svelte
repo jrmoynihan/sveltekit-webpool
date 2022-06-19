@@ -6,6 +6,7 @@
 	import TeamImage from '../containers/TeamImage.svelte';
 
 	export let team: Team;
+	export let disabled: boolean = false;
 	export let selected: boolean;
 	export let group_selected_count: number = 0;
 	export let only_unselect: boolean = false;
@@ -16,6 +17,8 @@
 
 <button
 	class:selected
+	class:not-clickable={disabled}
+	{disabled}
 	on:click={() => {
 		if (!only_unselect && group_selected_count < 2) {
 			selected = !selected;
@@ -25,7 +28,7 @@
 	}}
 >
 	<span>
-		{#if selected}
+		{#if !disabled && selected}
 			<Fa
 				icon={faTrash}
 				style={`${
@@ -61,5 +64,16 @@
 	.selected {
 		background: var(--pick6-selection);
 		border-color: hsla(var(--pick6-selection-value), 1);
+	}
+	.not-clickable {
+		&:active,
+		&:hover,
+		&:focus {
+			cursor: unset;
+			box-shadow: none;
+			outline-offset: 0.25rem;
+			outline: var(--accent) solid 1px;
+			transform: scale(1);
+		}
 	}
 </style>
