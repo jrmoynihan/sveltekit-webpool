@@ -1,10 +1,14 @@
 <script lang="ts">
-	import Grid from '$containers/Grid.svelte';
-	import TeamImage from '$containers/TeamImage.svelte';
+	import type { Game } from '$classes/game';
 	import PageTitle from '$components/misc/PageTitle.svelte';
 	import ErrorModal from '$components/modals/ErrorModal.svelte';
 	import WeekSelect from '$components/selects/WeekSelect.svelte';
-	import type { Game } from '$classes/game';
+	import Grid from '$containers/Grid.svelte';
+	import TeamImage from '$containers/TeamImage.svelte';
+	import LoadingSpinner from '$lib/components/misc/LoadingSpinner.svelte';
+	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
+	import { createWeeklyPicksForPlayer } from '$lib/scripts/weekly/weeklyAdmin';
+	import { getGameData, getPicksData } from '$lib/scripts/weekly/weeklyPlayers';
 	import type { WeeklyPickDoc } from '$scripts/classes/picks';
 	import { isBeforeGameTime } from '$scripts/functions';
 	import {
@@ -14,12 +18,8 @@
 		use_dark_theme,
 		weekly_players
 	} from '$scripts/store';
-	import { where, orderBy, QueryConstraint } from '@firebase/firestore';
+	import { orderBy, QueryConstraint, where } from '@firebase/firestore';
 	import { fade, fly } from 'svelte/transition';
-	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
-	import LoadingSpinner from '$lib/components/misc/LoadingSpinner.svelte';
-	import { getGameData, getPicksData } from '$lib/scripts/weekly/weeklyPlayers';
-	import { createWeeklyPicksForPlayer } from '$lib/scripts/weekly/weeklyAdmin';
 
 	let hover_player: string;
 	let hover_game: string;
@@ -113,6 +113,8 @@
 			>
 				<div />
 				{#each games as game}
+					{@const home = game.home_team_abbreviation}
+					{@const away = game.away_team_abbreviation}
 					<div
 						transition:fade={{ duration: 750 }}
 						class="game label"
@@ -122,7 +124,9 @@
 						on:focus={() => (hover_game = game.id)}
 						on:blur={() => (hover_game = '')}
 					>
-						{game.short_name}
+						<p>{home}</p>
+						<p>@</p>
+						<p>{away}</p>
 					</div>
 				{/each}
 				<div>Wins</div>
