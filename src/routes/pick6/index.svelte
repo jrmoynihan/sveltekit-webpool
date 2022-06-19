@@ -7,7 +7,9 @@
 		all_teams,
 		current_season_year,
 		selected_year,
-		current_player
+		current_player,
+		current_season_start,
+		all_seasons
 	} from '$scripts/store';
 	import type { pickSixItem } from '$scripts/types/types';
 	import { quintOut } from 'svelte/easing';
@@ -17,12 +19,13 @@
 	import { dev } from '$app/env';
 	import { LogAndToast, myError } from '$lib/scripts/logging';
 	import { makeNumericArrayOfDesiredLength } from '$lib/scripts/functions';
-	import { doc, setDoc } from '@firebase/firestore';
+	import { doc, setDoc, Timestamp, where } from '@firebase/firestore';
 	import { pickSixCollection } from '$lib/scripts/collections';
 	import { pickSixConverter } from '$lib/scripts/converters';
 	import { PickSixDoc } from '$lib/scripts/classes/picks';
 	import { faCaretUp } from '@fortawesome/free-solid-svg-icons/index.es';
 	import Fa from 'svelte-fa';
+	import { createPickSixDoc, getPickSixData } from '$lib/scripts/pick6/pick6';
 
 	let pick_dock_visible: boolean = $larger_than_mobile;
 	let group_one_teams: pickSixItem[] = [];
@@ -32,6 +35,8 @@
 	let group_one_open = false;
 	let group_two_open = false;
 	let group_three_open = false;
+	let is_before_season_start = $current_season_start.valueOf() > Timestamp.now().valueOf();
+	let existing_pick_promise: Promise<PickSixDoc> = null;
 	let toggle_group_one: () => boolean;
 	let toggle_group_two: () => boolean;
 	let toggle_group_three: () => boolean;
@@ -103,6 +108,25 @@
 		const msg = `Your picks have been submitted for ${$selected_year}`;
 		LogAndToast({ title, msg });
 	}
+	async function getPlayerPickDoc() {
+		const pick_doc_constraints = [
+			where('uid', '==', $current_player.uid),
+			where('season_year', '==', $selected_year)
+		];
+		const player_pick_doc_data = await getPickSixData({ constraints: pick_doc_constraints });
+
+		if (player_pick_doc_data.length > 0) {
+			return player_pick_doc_data[0];
+		}
+		// If there is no pick 6 doc, make one.
+		else {
+			const new_doc = await createPickSixDoc({
+				player: $current_player,
+				season_year: $selected_year
+			});
+			return new_doc;
+		}
+	}
 
 	const [send, receive] = crossfade({
 		duration: (d) => Math.sqrt(d * 200),
@@ -127,7 +151,13 @@
 		group_one_selected_count !== 2 ? (group_one_open = true) : null;
 	}, 500);
 
-	$: if ($all_teams.length > 0 && $selected_year) getPickSixArrays($selected_year);
+	$: if ($selected_year)
+		is_before_season_start =
+			$all_seasons.find((season) => season.year === $selected_year).start_date.valueOf() >
+			Timestamp.now().valueOf();
+	$: if ($all_teams.length > 0 && $selected_year && is_before_season_start)
+		getPickSixArrays($selected_year);
+	$: if ($selected_year) existing_pick_promise = getPlayerPickDoc();
 	$: group_one_selected_count = group_one_teams.filter((item) => item.selected === true).length;
 	$: group_two_selected_count = group_two_teams.filter((item) => item.selected === true).length;
 	$: group_three_selected_count = group_three_teams.filter((item) => item.selected === true).length;
@@ -148,72 +178,85 @@
 	<title>Pick6 Pool</title>
 </svelte:head>
 
-<div class="grid layout-container">
-	<h2>Pick two teams from each group!</h2>
-	<button
-		class="reset"
-		on:click={() => {
-			group_one_teams = resetGroup(group_one_teams);
-			group_two_teams = resetGroup(group_two_teams);
-			group_three_teams = resetGroup(group_three_teams);
-		}}>Reset All</button
-	>
-	<div class="grid groups-container">
-		<PickSixGroup
-			bind:group={group_one_teams}
-			bind:group_selected_count={group_one_selected_count}
-			bind:toggle={toggle_group_one}
-			bind:open={group_one_open}
-			group_letter={'A'}
-		/>
-		<PickSixGroup
-			bind:group={group_two_teams}
-			bind:group_selected_count={group_two_selected_count}
-			bind:toggle={toggle_group_two}
-			bind:open={group_two_open}
-			group_letter={'B'}
-		/>
-		<PickSixGroup
-			bind:group={group_three_teams}
-			bind:group_selected_count={group_three_selected_count}
-			bind:toggle={toggle_group_three}
-			bind:open={group_three_open}
-			group_letter={'C'}
-		/>
-	</div>
-	{#if group_one_selected_count === 2 && group_two_selected_count === 2 && group_three_selected_count === 2}
+{#if is_before_season_start}
+	<div class="grid layout-container">
+		<h2>Pick two teams from each group!</h2>
 		<button
-			transition:fly={{ y: 300, duration: 500, easing: quintOut }}
-			class="submit"
-			on:click={submitSixPicks}>Submit Picks</button
+			class="reset"
+			on:click={() => {
+				group_one_teams = resetGroup(group_one_teams);
+				group_two_teams = resetGroup(group_two_teams);
+				group_three_teams = resetGroup(group_three_teams);
+			}}>Reset All</button
 		>
-	{/if}
-</div>
-
-<!-- The dock showing the player's picks -->
-<div class="grid fixed controls-container to-bottom to-left" class:hidden={!pick_dock_visible}>
-	{#if !$larger_than_mobile}
-		<button
-			class="toggle-pick-dock"
-			class:hidden={!pick_dock_visible}
-			on:click={() => (pick_dock_visible = !pick_dock_visible)}
-			><span class:rotated={pick_dock_visible}><Fa icon={faCaretUp} /></span></button
-		>
-	{/if}
-	{#each all_selected_teams as { team, selected } (team.abbreviation)}
-		<div
-			class="animation-container"
-			animate:flip={{ duration: 300 }}
-			in:receive={{ key: team.abbreviation }}
-			out:send={{ key: team.abbreviation }}
-		>
-			<PickSixButton bind:team bind:selected only_unselect={true} />
+		<div class="grid groups-container">
+			<PickSixGroup
+				bind:group={group_one_teams}
+				bind:group_selected_count={group_one_selected_count}
+				bind:toggle={toggle_group_one}
+				bind:open={group_one_open}
+				group_letter={'A'}
+			/>
+			<PickSixGroup
+				bind:group={group_two_teams}
+				bind:group_selected_count={group_two_selected_count}
+				bind:toggle={toggle_group_two}
+				bind:open={group_two_open}
+				group_letter={'B'}
+			/>
+			<PickSixGroup
+				bind:group={group_three_teams}
+				bind:group_selected_count={group_three_selected_count}
+				bind:toggle={toggle_group_three}
+				bind:open={group_three_open}
+				group_letter={'C'}
+			/>
 		</div>
-	{/each}
-	{#each makeNumericArrayOfDesiredLength(6 - total_selected_count) as i}
-		<placeholder class="placeholder" />
-	{/each}
-</div>
+		{#if group_one_selected_count === 2 && group_two_selected_count === 2 && group_three_selected_count === 2}
+			<button
+				transition:fly={{ y: 300, duration: 500, easing: quintOut }}
+				class="submit"
+				on:click={submitSixPicks}>Submit Picks</button
+			>
+		{/if}
+	</div>
+
+	<!-- The dock showing the player's picks -->
+	<div class="pick-dock grid fixed to-bottom to-left" class:hidden={!pick_dock_visible}>
+		{#if !$larger_than_mobile}
+			<button
+				class="toggle-pick-dock"
+				class:hidden={!pick_dock_visible}
+				on:click={() => (pick_dock_visible = !pick_dock_visible)}
+				><span class:rotated={pick_dock_visible}><Fa icon={faCaretUp} /></span></button
+			>
+		{/if}
+		{#each all_selected_teams as { team, selected } (team.abbreviation)}
+			<div
+				class="animation-container"
+				animate:flip={{ duration: 300 }}
+				in:receive={{ key: team.abbreviation }}
+				out:send={{ key: team.abbreviation }}
+			>
+				<PickSixButton bind:team bind:selected only_unselect={true} />
+			</div>
+		{/each}
+		{#each makeNumericArrayOfDesiredLength(6 - total_selected_count) as i}
+			<placeholder class="placeholder" />
+		{/each}
+	</div>
+{/if}
+{#if !is_before_season_start}
+	{#await existing_pick_promise then pick_data}
+		<h2>Your Picks</h2>
+		<div class="player-picks grid">
+			{#each pick_data.picks as pick}
+				{@const team = $all_teams.find((team) => team.abbreviation === pick)}
+				<PickSixButton disabled={true} selected={true} {team} />
+			{/each}
+		</div>
+	{/await}
+{/if}
 
 <style lang="scss">
 	.groups-container {
@@ -314,5 +357,8 @@
 	.rotated {
 		transition: transform 0.4s ease-in-out;
 		transform: rotate(180deg);
+	}
+	.player-picks {
+		grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
 	}
 </style>
