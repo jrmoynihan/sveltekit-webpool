@@ -7,14 +7,16 @@
 	import { defaultToast } from '$lib/scripts/toasts';
 	import {
 		createSeasonRecordForPlayer,
-		createWeeklyRecordsForPlayer
+		createWeeklyRecordsForPlayer,
+		deleteWeeklyRecordsForPlayer
 	} from '$lib/scripts/weekly/weeklyAdmin';
 	import {
 		larger_than_mobile,
 		weekly_players,
 		selected_year,
 		all_seasons,
-		selected_season_type
+		selected_season_type,
+		selected_player
 	} from '$scripts/store';
 	import { where } from '@firebase/firestore';
 	import { toast } from '@zerodevx/svelte-toast';
@@ -70,5 +72,8 @@
 	>
 	<StyledButton on:click={createWeeklyRecordForEachPlayer}
 		>Create {$selected_year} Weekly Records For Each Player</StyledButton
+	>
+	<DeletionButton on:click={() => deleteWeeklyRecordsForPlayer({ player: $selected_player })}
+		>Delete Weekly Records For {$selected_player.name}</DeletionButton
 	>
 </AdminExpandSection>
