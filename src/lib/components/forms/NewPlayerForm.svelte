@@ -1,41 +1,41 @@
 <script lang="ts">
+	import AccordionDetails from '$components/containers/accordions/AccordionDetails.svelte';
 	import { createNewPlayerDocument } from '$lib/scripts/auth/login';
+	import { findCurrentSeason } from '$lib/scripts/schedule';
+	import { savePlayerData } from '$lib/scripts/utilities/localStorage';
+	import { ErrorAndToast, myLog } from '$lib/scripts/utilities/logging';
+	import { createSeasonRecordForPlayer } from '$lib/scripts/weekly/seasonRecord';
+	import { getPlayers } from '$lib/scripts/weekly/weeklyPlayers';
 	import { all_icons } from '$scripts/classes/constants';
-	import { ErrorAndToast, myLog } from '$scripts/logging';
-	import { savePlayerData } from '$scripts/localStorage';
 	import {
-		firebase_user,
 		current_player,
 		current_season,
+		current_season_year,
+		firebase_user,
 		selected_player,
-		show_new_player_form,
-		current_season_year
+		show_new_player_form
 	} from '$scripts/store';
 	import { defaultToast } from '$scripts/toasts';
 	import {
-		createSeasonRecordForPlayer,
-		joinWeeklyPool,
-		joinSurvivorPool,
+		joinCollegePool,
 		joinPick6Pool,
 		joinPlayoffsPool,
-		joinCollegePool
+		joinSurvivorPool,
+		joinWeeklyPool
 	} from '$scripts/weekly/weeklyAdmin';
+	import { where } from '@firebase/firestore';
 	import {
 		faArrowAltCircleRight,
 		faFootballBall,
 		faTimesCircle
 	} from '@fortawesome/free-solid-svg-icons/index.es';
 	import Fa from 'svelte-fa';
+	import { cubicInOut } from 'svelte/easing';
 	import { fly, slide } from 'svelte/transition';
 	import Grid from '../containers/Grid.svelte';
 	import LoadingSpinner from '../misc/LoadingSpinner.svelte';
 	import Modal from '../modals/Modal.svelte';
 	import ToggleSwitch from '../switches/ToggleSwitch.svelte';
-	import { cubicInOut } from 'svelte/easing';
-	import AccordionDetails from '$components/containers/accordions/AccordionDetails.svelte';
-	import { findCurrentSeason } from '$lib/scripts/schedule';
-	import { getPlayers } from '$lib/scripts/weekly/weeklyPlayers';
-	import { where } from '@firebase/firestore';
 
 	export let openNewPlayerForm: () => Promise<void> = async () => {};
 	export let closeNewPlayerForm: () => Promise<void> = async () => {};
