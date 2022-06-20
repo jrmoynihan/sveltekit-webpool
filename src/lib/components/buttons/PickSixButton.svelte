@@ -31,9 +31,9 @@
 		{#if !disabled && selected}
 			<Fa
 				icon={faTrash}
-				style={`${
-					$larger_than_mobile ? 'position:absolute; right: -1.5rem; top: 45%;' : ''
-				} color: ${$use_dark_theme ? 'inherit' : 'var(--text)'}`}
+				style={`${$larger_than_mobile ? 'position:absolute; right: -2rem; top: 45%;' : ''} color: ${
+					$use_dark_theme ? 'inherit' : 'var(--text)'
+				}`}
 			/>
 		{/if}
 		{team.abbreviation}
@@ -50,9 +50,10 @@
 <style lang="scss">
 	button {
 		@include styledButton;
+		max-width: unset;
 		box-sizing: border-box;
 		display: grid;
-		gap: 0.5rem;
+		gap: 0.25rem;
 		height: 100%;
 		grid-template-rows: minmax(0, auto) minmax(0, 1fr) minmax(0, auto);
 		justify-items: center;
