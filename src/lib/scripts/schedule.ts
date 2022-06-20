@@ -1,5 +1,3 @@
-import { query, where, getDocs, setDoc, doc, Timestamp } from '@firebase/firestore';
-import { ErrorAndToast, myError, myLog } from '$scripts/logging';
 import type {
 	ESPNSeason,
 	ESPNSeasonCollection,
@@ -8,11 +6,13 @@ import type {
 	ESPNWeekEvent,
 	RefOnlyESPN
 } from '$classes/game';
-import { seasonBoundsCollection, weekBoundsCollection } from './collections';
-import { seasonBoundConverter, weekBoundConverter } from './converters';
-import { current_season_year, current_season, current_season_type_number } from '$scripts/store';
+import { ErrorAndToast, myError, myLog } from '$lib/scripts/utilities/logging';
+import { current_season, current_season_type_number, current_season_year } from '$scripts/store';
+import { doc, getDocs, query, setDoc, Timestamp, where } from '@firebase/firestore';
 import { get } from 'svelte/store';
 import { SeasonBoundDoc } from './classes/seasonBound';
+import { seasonBoundsCollection, weekBoundsCollection } from './firebase/collections';
+import { seasonBoundConverter, weekBoundConverter } from './firebase/converters';
 
 export const findCurrentWeekOfSchedule = async (showToast?: boolean): Promise<number> => {
 	try {
@@ -214,12 +214,4 @@ export const identifyCurrentSeasonType = async (
 	} else {
 		return null;
 	}
-};
-
-export const getAllSeasons = async () => {
-	const q = query(seasonBoundsCollection);
-	const season_bounds_docs = await getDocs(q.withConverter(seasonBoundConverter));
-	return season_bounds_docs.docs.map((doc) => {
-		return doc.data();
-	});
 };
