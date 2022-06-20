@@ -2,21 +2,20 @@
 	import DeletionButton from '$lib/components/buttons/DeletionButton.svelte';
 	import StyledButton from '$lib/components/buttons/StyledButton.svelte';
 	import { all_icons } from '$lib/scripts/classes/constants';
-	import { LogAndToast } from '$lib/scripts/logging';
-	import { getSeasonRecords } from '$lib/scripts/scorePicks';
 	import { defaultToast } from '$lib/scripts/toasts';
+	import { LogAndToast } from '$lib/scripts/utilities/logging';
+	import { createSeasonRecordForPlayer, getSeasonRecords } from '$lib/scripts/weekly/seasonRecord';
 	import {
-		createSeasonRecordForPlayer,
 		createWeeklyRecordsForPlayer,
 		deleteWeeklyRecordsForPlayer
-	} from '$lib/scripts/weekly/weeklyAdmin';
+	} from '$lib/scripts/weekly/weeklyRecords';
 	import {
-		larger_than_mobile,
-		weekly_players,
-		selected_year,
 		all_seasons,
+		larger_than_mobile,
+		selected_player,
 		selected_season_type,
-		selected_player
+		selected_year,
+		weekly_players
 	} from '$scripts/store';
 	import { where } from '@firebase/firestore';
 	import { toast } from '@zerodevx/svelte-toast';
