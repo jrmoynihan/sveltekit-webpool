@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { weekly_players, selected_year, window_width } from '$scripts/store';
-	import SeasonStandingsRow from './SeasonStandingsRow.svelte';
-	import { orderBy, where } from '@firebase/firestore';
-	import { mobile_breakpoint } from '$scripts/site';
-	import { getSeasonRecordsData } from '$lib/scripts/scorePicks';
 	import type { SeasonRecord } from '$lib/scripts/classes/playerRecord';
+	import { getSeasonRecordsData } from '$lib/scripts/weekly/seasonRecord';
+	import { mobile_breakpoint } from '$scripts/site';
+	import { selected_year, weekly_players, window_width } from '$scripts/store';
+	import { orderBy, where } from '@firebase/firestore';
+	import SeasonStandingsRow from './SeasonStandingsRow.svelte';
 
 	const season_record_constraints = [
 		where('season_year', '==', $selected_year),
