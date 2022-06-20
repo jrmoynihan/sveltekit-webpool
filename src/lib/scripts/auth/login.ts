@@ -1,29 +1,29 @@
+import { browser } from '$app/env';
+import { goto } from '$app/navigation';
+import { Player } from '$lib/scripts/classes/player';
+import { playersCollection } from '$lib/scripts/firebase/collections';
+import { playerConverter } from '$lib/scripts/firebase/converters';
+import { firebaseAuth } from '$lib/scripts/firebase/firebase';
+import { savePlayerData } from '$lib/scripts/utilities/localStorage';
+import { myError, myLog } from '$lib/scripts/utilities/logging';
+import { current_player, firebase_user } from '$scripts/store';
 import {
+	browserPopupRedirectResolver,
 	FacebookAuthProvider,
+	getRedirectResult,
 	GoogleAuthProvider,
 	linkWithPopup,
 	linkWithRedirect,
 	OAuthCredential,
+	onAuthStateChanged,
 	signInWithPopup,
 	signInWithRedirect,
 	signOut,
-	getRedirectResult,
-	browserPopupRedirectResolver,
-	type User,
-	type UserCredential,
 	type AuthProvider,
-	onAuthStateChanged
+	type User,
+	type UserCredential
 } from '@firebase/auth';
-import { firebaseAuth } from '$lib/scripts/firebase/firebase';
-import { Player } from '$lib/scripts/classes/player';
 import { doc, setDoc } from '@firebase/firestore';
-import { playersCollection } from '$scripts/collections';
-import { goto } from '$app/navigation';
-import { playerConverter } from '$scripts/converters';
-import { savePlayerData } from '$scripts/localStorage';
-import { firebase_user, current_player } from '$scripts/store';
-import { myError, myLog } from '$scripts/logging';
-import { browser } from '$app/env';
 
 /**
  *

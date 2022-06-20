@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { updateDoc } from '@firebase/firestore';
+	import { myLog } from '$lib/scripts/utilities/logging';
 	import type { Rule } from '$scripts/classes/rules';
-	import { myLog } from '$scripts/logging';
 	import { errorToast } from '$scripts/toasts';
+	import { updateDoc } from '@firebase/firestore';
 
 	export let rule: Rule;
 

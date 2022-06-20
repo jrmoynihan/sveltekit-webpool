@@ -15,10 +15,10 @@
 </script>
 
 <script lang="ts">
+	import { browser } from '$app/env';
 	import AmericanFootball from '$images/American_football.svelte';
 	import NflLogo from '$images/nfl-logo.svelte';
-	import { getWindowSize } from '$scripts/functions';
-	import { browser } from '$app/env';
+	import { getWindowSize } from '$lib/scripts/utilities/functions';
 	import { window_width } from '$scripts/store';
 
 	let drawing = true;

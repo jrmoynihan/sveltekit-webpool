@@ -1,31 +1,31 @@
 <script lang="ts">
+	import { dev } from '$app/env';
+	import PickSixButton from '$lib/components/buttons/PickSixButton.svelte';
 	import PickSixGroup from '$lib/components/containers/accordions/PickSixGroup.svelte';
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
+	import { PickSixDoc } from '$lib/scripts/classes/picks';
+	import { pickSixCollection } from '$lib/scripts/firebase/collections';
+	import { pickSixConverter } from '$lib/scripts/firebase/converters';
+	import { createPickSixDoc, getPickSixData } from '$lib/scripts/pick6/pick6';
+	import { makeNumericArrayOfDesiredLength } from '$lib/scripts/utilities/functions';
+	import { LogAndToast, myError } from '$lib/scripts/utilities/logging';
 	import type { Team } from '$scripts/classes/team';
 	import {
-		larger_than_mobile,
+		all_seasons,
 		all_teams,
-		current_season_year,
-		selected_year,
 		current_player,
 		current_season_start,
-		all_seasons
+		current_season_year,
+		larger_than_mobile,
+		selected_year
 	} from '$scripts/store';
 	import type { pickSixItem } from '$scripts/types/types';
-	import { quintOut } from 'svelte/easing';
-	import { crossfade, fly } from 'svelte/transition';
-	import { flip } from 'svelte/animate';
-	import PickSixButton from '$lib/components/buttons/PickSixButton.svelte';
-	import { dev } from '$app/env';
-	import { LogAndToast, myError } from '$lib/scripts/logging';
-	import { makeNumericArrayOfDesiredLength } from '$lib/scripts/functions';
 	import { doc, setDoc, Timestamp, where } from '@firebase/firestore';
-	import { pickSixCollection } from '$lib/scripts/collections';
-	import { pickSixConverter } from '$lib/scripts/converters';
-	import { PickSixDoc } from '$lib/scripts/classes/picks';
 	import { faCaretUp } from '@fortawesome/free-solid-svg-icons/index.es';
 	import Fa from 'svelte-fa';
-	import { createPickSixDoc, getPickSixData } from '$lib/scripts/pick6/pick6';
+	import { flip } from 'svelte/animate';
+	import { quintOut } from 'svelte/easing';
+	import { crossfade, fly } from 'svelte/transition';
 
 	let pick_dock_visible: boolean = $larger_than_mobile;
 	let group_one_teams: pickSixItem[] = [];

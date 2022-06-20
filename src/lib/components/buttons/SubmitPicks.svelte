@@ -1,6 +1,9 @@
 <script lang="ts">
-	import Fa from 'svelte-fa';
-	import { fly } from 'svelte/transition';
+	import { all_icons, checkmark } from '$lib/scripts/classes/constants';
+	import type { WeeklyTiebreaker } from '$lib/scripts/classes/tiebreaker';
+	import { weeklyPickConverter, weeklyTiebreakerConverter } from '$lib/scripts/firebase/converters';
+	import { defaultToast } from '$lib/scripts/toasts';
+	import { ErrorAndToast, myLog } from '$lib/scripts/utilities/logging';
 	import {
 		current_picks,
 		override_locked_picks,
@@ -10,13 +13,10 @@
 		tiebreaker_score_guess,
 		use_dark_theme
 	} from '$scripts/store';
-	import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/index.es';
 	import { updateDoc, type DocumentReference } from '@firebase/firestore';
-	import { weeklyPickConverter, weeklyTiebreakerConverter } from '$lib/scripts/converters';
-	import { ErrorAndToast, myLog } from '$lib/scripts/logging';
-	import { all_icons, checkmark } from '$lib/scripts/classes/constants';
-	import { defaultToast } from '$lib/scripts/toasts';
-	import type { WeeklyTiebreaker } from '$lib/scripts/classes/tiebreaker';
+	import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/index.es';
+	import Fa from 'svelte-fa';
+	import { fly } from 'svelte/transition';
 
 	export let tiebreaker: WeeklyTiebreaker;
 	export let upcoming_games_count = 0;

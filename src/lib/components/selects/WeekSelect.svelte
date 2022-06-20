@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { selected_week, selected_season } from '$scripts/store';
+	import { dev } from '$app/env';
+	import { makeNumericArrayOfDesiredLength } from '$lib/scripts/utilities/functions';
+	import { selected_season, selected_week } from '$scripts/store';
 	import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons/index.es';
 	import { createEventDispatcher } from 'svelte';
 	import Fa from 'svelte-fa';
-	import { makeNumericArrayOfDesiredLength } from '$lib/scripts/functions';
-	import { dev } from '$app/env';
 
 	export let weeks: number[] = makeNumericArrayOfDesiredLength($selected_season?.number_of_weeks);
 	export let showButtons = true;

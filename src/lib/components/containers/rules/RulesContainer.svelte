@@ -1,16 +1,16 @@
 <script lang="ts">
-	import { orderBy, query, CollectionReference, onSnapshot } from '@firebase/firestore';
-	import ToggleSwitch from '$switches/ToggleSwitch.svelte';
-	import Fa from 'svelte-fa';
-	import { faLock, faUnlock } from '@fortawesome/free-solid-svg-icons/index.es';
-	import { ruleCategoryConverter } from '$scripts/converters';
+	import type { RuleCategory, RuleTab } from '$classes/rules';
 	import PrizeCard from '$containers/rules/PrizeCard.svelte';
 	import RulesCategoryGrid from '$containers/rules/RulesCategoryGrid.svelte';
+	import { ruleCategoryConverter } from '$lib/scripts/firebase/converters';
+	import { myLog } from '$lib/scripts/utilities/logging';
 	import Tabs from '$navigation/Tabs.svelte';
-	import { editing, current_player } from '$scripts/store';
+	import { current_player, editing } from '$scripts/store';
+	import ToggleSwitch from '$switches/ToggleSwitch.svelte';
+	import { CollectionReference, onSnapshot, orderBy, query } from '@firebase/firestore';
+	import { faLock, faUnlock } from '@fortawesome/free-solid-svg-icons/index.es';
 	import { onDestroy } from 'svelte';
-	import { myLog } from '$scripts/logging';
-	import type { RuleCategory, RuleTab } from '$classes/rules';
+	import Fa from 'svelte-fa';
 
 	// This container can receive different collection references for the various pools
 	export let rulesCollection: CollectionReference;

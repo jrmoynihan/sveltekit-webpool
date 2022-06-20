@@ -7,10 +7,10 @@
 	import TeamImage from '$containers/TeamImage.svelte';
 	import LoadingSpinner from '$lib/components/misc/LoadingSpinner.svelte';
 	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
+	import { isBeforeGameTime } from '$lib/scripts/utilities/functions';
 	import { createWeeklyPicksForPlayer } from '$lib/scripts/weekly/weeklyAdmin';
 	import { getGameData, getPicksData } from '$lib/scripts/weekly/weeklyPlayers';
 	import type { WeeklyPickDoc } from '$scripts/classes/picks';
-	import { isBeforeGameTime } from '$scripts/functions';
 	import {
 		all_teams,
 		selected_week,

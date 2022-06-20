@@ -1,4 +1,20 @@
 <script lang="ts">
+	import { page } from '$app/stores';
+	import Auth from '$lib/components/auth/Auth.svelte';
+	import Grid from '$lib/components/containers/Grid.svelte';
+	import TeamSelector from '$lib/components/containers/micro/TeamSelector.svelte';
+	import AdminControlsModal from '$lib/components/modals/AdminControlsModal.svelte';
+	import ModalButtonAndSlot from '$lib/components/modals/ModalWithButton.svelte';
+	import Navigator from '$lib/components/navigation/Navigator.svelte';
+	import SiteNavOptions from '$lib/components/navigation/siteNavOptions.svelte';
+	import PlayerSelect from '$lib/components/selects/PlayerSelect.svelte';
+	import SeasonTypeSelect from '$lib/components/selects/SeasonTypeSelect.svelte';
+	import YearSelect from '$lib/components/selects/YearSelect.svelte';
+	import LightDarkToggle from '$lib/components/switches/LightDarkToggle.svelte';
+	import ThemeSelector from '$lib/components/switches/ThemeSelector.svelte';
+	import ToggleSwitch from '$lib/components/switches/ToggleSwitch.svelte';
+	import { admin_controls_pages } from '$lib/scripts/site';
+	import { setLocalStorageItem } from '$lib/scripts/utilities/localStorage';
 	import {
 		larger_than_mobile,
 		nav_toggled,
@@ -10,25 +26,9 @@
 		show_spreads,
 		show_timestamps
 	} from '$scripts/store';
+	import type { ScoreViewPreference } from '$scripts/types/types';
 	import { faBars, faCog, faLock, faUnlock } from '@fortawesome/free-solid-svg-icons/index.es';
 	import Fa from 'svelte-fa';
-	import Auth from '$lib/components/auth/Auth.svelte';
-	import ModalButtonAndSlot from '$lib/components/modals/ModalWithButton.svelte';
-	import LightDarkToggle from '$lib/components/switches/LightDarkToggle.svelte';
-	import ThemeSelector from '$lib/components/switches/ThemeSelector.svelte';
-	import Navigator from '$lib/components/navigation/Navigator.svelte';
-	import SiteNavOptions from '$lib/components/navigation/siteNavOptions.svelte';
-	import { page } from '$app/stores';
-	import { setLocalStorageItem } from '$scripts/localStorage';
-	import type { ScoreViewPreference } from '$scripts/types/types';
-	import Grid from '$lib/components/containers/Grid.svelte';
-	import ToggleSwitch from '$lib/components/switches/ToggleSwitch.svelte';
-	import AdminControlsModal from '$lib/components/modals/AdminControlsModal.svelte';
-	import SeasonTypeSelect from '$lib/components/selects/SeasonTypeSelect.svelte';
-	import YearSelect from '$lib/components/selects/YearSelect.svelte';
-	import PlayerSelect from '$lib/components/selects/PlayerSelect.svelte';
-	import { admin_controls_pages } from '$lib/scripts/site';
-	import TeamSelector from '$lib/components/containers/micro/TeamSelector.svelte';
 
 	let viewPreferences: { label: string; value: ScoreViewPreference }[] = [
 		{ label: 'Actual', value: 'Actual' },

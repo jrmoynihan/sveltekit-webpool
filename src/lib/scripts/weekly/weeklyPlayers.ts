@@ -1,26 +1,26 @@
+import { all_icons } from '$classes/constants';
 import type { Game } from '$classes/game';
 import type { WeeklyPickDoc } from '$classes/picks';
-import type { WeeklyTiebreaker } from '$classes/tiebreaker';
 import { Player } from '$classes/player';
-import { query, where, getDocs, QueryConstraint, doc, getDoc } from '@firebase/firestore';
-import { all_icons } from '$classes/constants';
-import { ErrorAndToast, LogAndToast, myError, myLog } from '$scripts/logging';
+import type { WeeklyTiebreaker } from '$classes/tiebreaker';
 import {
 	gamesCollection,
 	playersCollection,
 	weeklyPicksCollection,
-	weeklyTiebreakersCollection,
-	weeklyRecordsCollection
-} from '$scripts/collections';
+	weeklyRecordsCollection,
+	weeklyTiebreakersCollection
+} from '$lib/scripts/firebase/collections';
 import {
 	gameConverter,
 	playerConverter,
 	recordConverter,
 	weeklyPickConverter,
 	weeklyTiebreakerConverter
-} from '$scripts/converters';
+} from '$lib/scripts/firebase/converters';
+import { ErrorAndToast, LogAndToast, myError, myLog } from '$lib/scripts/utilities/logging';
 import type { PoolsToQuery } from '$scripts/types/types';
 import type { User } from '@firebase/auth';
+import { doc, getDoc, getDocs, query, QueryConstraint, where } from '@firebase/firestore';
 
 export const getPlayer = async (firebase_user: User): Promise<Player> => {
 	const player_doc_ref = doc(playersCollection, firebase_user.uid);

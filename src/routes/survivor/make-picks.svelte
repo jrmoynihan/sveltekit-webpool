@@ -3,16 +3,16 @@
 	import PickCorrectnessIndicator from '$lib/components/containers/micro/PickCorrectnessIndicator.svelte';
 	import TeamSelectRadioInput from '$lib/components/containers/micro/TeamSelectRadioInput.svelte';
 	import TeamImage from '$lib/components/containers/TeamImage.svelte';
+	import Tooltip from '$lib/components/containers/Tooltip.svelte';
 	import LoadingSpinner from '$lib/components/misc/LoadingSpinner.svelte';
 	import WeekSelect from '$lib/components/selects/WeekSelect.svelte';
 	import { all_icons } from '$lib/scripts/classes/constants';
 	import { Survivor } from '$lib/scripts/classes/survivor';
-	import { isBeforeGameTime } from '$lib/scripts/functions';
-	import { myWarning } from '$lib/scripts/logging';
 	import { createSurvivorDoc, getSurvivorData } from '$lib/scripts/survivor/survivorAdmin';
 	import { defaultToast } from '$lib/scripts/toasts';
+	import { isBeforeGameTime } from '$lib/scripts/utilities/functions';
+	import { myWarning } from '$lib/scripts/utilities/logging';
 	import { getGameData } from '$lib/scripts/weekly/weeklyPlayers';
-
 	import {
 		all_teams,
 		games_promise,
@@ -28,7 +28,6 @@
 	import { arrayUnion, deleteDoc, orderBy, updateDoc, where } from '@firebase/firestore';
 	import { faCaretLeft, faCaretRight } from '@fortawesome/free-solid-svg-icons/index.es';
 	import Fa from 'svelte-fa';
-	import Tooltip from '$lib/components/containers/Tooltip.svelte';
 
 	// let headers = ['Away Team', 'Game Date', 'Home Team'];
 	let layout_breakpoint = 1620;

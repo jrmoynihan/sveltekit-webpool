@@ -1,14 +1,14 @@
-import type {
-	RefOnlyESPN,
-	ESPNStatus,
-	ESPNSituation,
-	ESPNScore,
-	ESPNTeamData,
-	ESPNDrive,
-	ESPNDriveRef
-} from '$classes/game';
-import { myError, myLog } from '$scripts/logging';
 import { all_icons } from '$classes/constants';
+import type {
+	ESPNDrive,
+	ESPNDriveRef,
+	ESPNScore,
+	ESPNSituation,
+	ESPNStatus,
+	ESPNTeamData,
+	RefOnlyESPN
+} from '$classes/game';
+import { myError, myLog } from '$lib/scripts/utilities/logging';
 
 export const fetchWithTimeout = async (resourceUrl: string, options: { timeout: number }) => {
 	const { timeout = 8000 } = options;

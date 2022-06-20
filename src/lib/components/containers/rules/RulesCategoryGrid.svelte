@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { editing } from '$scripts/store';
-	import { getDocs, query, collection, orderBy, CollectionReference } from '@firebase/firestore';
 	import EditableRule from '$containers/rules/EditableRule.svelte';
 	import ViewOnlyRule from '$containers/rules/ViewOnlyRule.svelte';
-	import { ruleConverter } from '$scripts/converters';
+	import { ruleConverter } from '$lib/scripts/firebase/converters';
 	import type { Rule } from '$scripts/classes/rules';
+	import { editing } from '$scripts/store';
+	import { collection, CollectionReference, getDocs, orderBy, query } from '@firebase/firestore';
 
 	export let selectedTab: { [x: string]: CollectionReference };
 

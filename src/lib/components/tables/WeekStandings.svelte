@@ -1,4 +1,18 @@
 <script lang="ts">
+	import { dev } from '$app/env';
+	import type { Game } from '$classes/game';
+	import { WeeklyTiebreaker } from '$classes/tiebreaker';
+	import ReturnToTop from '$components/buttons/ReturnToTop.svelte';
+	import WeekSelect from '$components/selects/WeekSelect.svelte';
+	import WeeklyStandingsRow from '$components/tables/WeeklyStandingsRow.svelte';
+	import { PlayerRecord } from '$lib/scripts/classes/playerRecord';
+	import {
+		weeklyRecordsCollection,
+		weeklyTiebreakersCollection
+	} from '$lib/scripts/firebase/collections';
+	import { recordConverter, weeklyTiebreakerConverter } from '$lib/scripts/firebase/converters';
+	import { ErrorAndToast, LogAndToast, myWarning } from '$lib/scripts/utilities/logging';
+	import { mobile_breakpoint } from '$scripts/site';
 	import {
 		selected_season_type,
 		selected_week,
@@ -6,26 +20,15 @@
 		weekly_players,
 		window_width
 	} from '$scripts/store';
-	import { where, orderBy, setDoc, doc } from '@firebase/firestore';
 	import {
 		getGameData,
 		getTiebreakerData,
 		getWeeklyRecordData
 	} from '$scripts/weekly/weeklyPlayers';
-	import { ErrorAndToast, LogAndToast, myWarning } from '$scripts/logging';
-	import type { Game } from '$classes/game';
-	import ErrorModal from '../modals/ErrorModal.svelte';
-	import { WeeklyTiebreaker } from '$classes/tiebreaker';
-	import { mobile_breakpoint } from '$scripts/site';
-	import WeekSelect from '$components/selects/WeekSelect.svelte';
-	import WeeklyStandingsRow from '$components/tables/WeeklyStandingsRow.svelte';
-	import ReturnToTop from '$components/buttons/ReturnToTop.svelte';
-	import { PlayerRecord } from '$lib/scripts/classes/playerRecord';
-	import { dev } from '$app/env';
+	import { doc, orderBy, setDoc, where } from '@firebase/firestore';
 	import AdminOnlyControl from '../misc/AdminOnlyControl.svelte';
+	import ErrorModal from '../modals/ErrorModal.svelte';
 	import YearSelect from '../selects/YearSelect.svelte';
-	import { weeklyRecordsCollection, weeklyTiebreakersCollection } from '$lib/scripts/collections';
-	import { recordConverter, weeklyTiebreakerConverter } from '$lib/scripts/converters';
 
 	let initial_week_headers: string[] = ['Rank', 'Player', 'Wins', 'Losses', 'Tiebreaker', 'Prize'];
 	let abbreviated_week_headers: string[] = ['#', 'Name', 'W', 'L', 'T', '$'];

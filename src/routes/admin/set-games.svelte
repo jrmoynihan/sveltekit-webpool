@@ -1,35 +1,35 @@
 <script lang="ts">
+	import DeletionButton from '$components/buttons/DeletionButton.svelte';
+	import StyledButton from '$components/buttons/StyledButton.svelte';
+	import Grid from '$components/containers/Grid.svelte';
+	import EspnGameData from '$components/misc/ESPNGameData.svelte';
+	import LoadingSpinner from '$components/misc/LoadingSpinner.svelte';
+	import PageTitle from '$components/misc/PageTitle.svelte';
+	import ErrorModal from '$components/modals/ErrorModal.svelte';
+	import WeekSelect from '$components/selects/WeekSelect.svelte';
+	import YearSelect from '$components/selects/YearSelect.svelte';
+	import SeasonTypeSelect from '$lib/components/selects/SeasonTypeSelect.svelte';
+	import { gamesCollection } from '$lib/scripts/firebase/collections';
+	import { gameConverter } from '$lib/scripts/firebase/converters';
+	import { firestoreDB } from '$lib/scripts/firebase/firebase';
+	import { ErrorAndToast, LogAndToast, myError, myLog } from '$lib/scripts/utilities/logging';
+	import { all_icons, stopSign } from '$scripts/classes/constants';
 	import {
+		Game,
 		type ESPNGame,
 		type ESPNGamePruned,
-		Game,
 		type ESPNWeekEvent,
 		type RefOnlyESPN
 	} from '$scripts/classes/game';
-	import { gameConverter } from '$scripts/converters';
-	import { firestoreDB } from '$lib/scripts/firebase/firebase';
-	import { gamesCollection } from '$scripts/collections';
-	import { deleteDoc, doc, getDocs, query, setDoc, Timestamp, where } from '@firebase/firestore';
-	import WeekSelect from '$components/selects/WeekSelect.svelte';
-	import PageTitle from '$components/misc/PageTitle.svelte';
-	import { all_icons, stopSign } from '$scripts/classes/constants';
-	import { ErrorAndToast, LogAndToast, myError, myLog } from '$scripts/logging';
-	import SeasonTypeSelect from '$lib/components/selects/SeasonTypeSelect.svelte';
-	import YearSelect from '$components/selects/YearSelect.svelte';
-	import { defaultToast } from '$scripts/toasts';
-	import LoadingSpinner from '$components/misc/LoadingSpinner.svelte';
-	import Grid from '$components/containers/Grid.svelte';
-	import DeletionButton from '$components/buttons/DeletionButton.svelte';
-	import StyledButton from '$components/buttons/StyledButton.svelte';
-	import ErrorModal from '$components/modals/ErrorModal.svelte';
 	import { convertToHttps, getConsensusSpread } from '$scripts/dataFetching';
 	import {
-		selected_week,
 		selected_season_type,
 		selected_season_type_number,
+		selected_week,
 		selected_year
 	} from '$scripts/store';
-	import EspnGameData from '$components/misc/ESPNGameData.svelte';
+	import { defaultToast } from '$scripts/toasts';
+	import { deleteDoc, doc, getDocs, query, setDoc, Timestamp, where } from '@firebase/firestore';
 
 	// Are games being currently set by the function?  If so, we'll disable the Set Games button.
 	let currently_setting_games = false;

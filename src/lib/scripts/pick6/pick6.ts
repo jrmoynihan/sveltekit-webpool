@@ -2,9 +2,9 @@ import { doc, getDocs, query, setDoc, type QueryConstraint } from '@firebase/fir
 import { all_icons } from '../classes/constants';
 import { PickSixDoc } from '../classes/picks';
 import type { Player } from '../classes/player';
-import { pickSixCollection } from '../collections';
-import { pickSixConverter } from '../converters';
-import { ErrorAndToast, myLog, myWarning } from '../logging';
+import { pickSixCollection } from '../firebase/collections';
+import { pickSixConverter } from '../firebase/converters';
+import { ErrorAndToast, myLog, myWarning } from '../utilities/logging';
 
 type getPickSixOptions = {
 	constraints?: QueryConstraint[];

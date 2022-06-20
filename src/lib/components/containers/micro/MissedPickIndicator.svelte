@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { scrollToNextGame } from '$scripts/scrollAndFocus';
+	import { scrollToNextGame } from '$lib/scripts/animations/scrollAndFocus';
 	import { show_missing_pick_warning } from '$scripts/store';
 	import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons/index.es';
 	import Fa from 'svelte-fa';

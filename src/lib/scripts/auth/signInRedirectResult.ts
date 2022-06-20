@@ -1,18 +1,20 @@
 import { browser } from '$app/env';
-import { myLog } from '$scripts/logging';
-import { playersCollection } from '$scripts/collections';
+import { request } from '$lib/fetch';
+import { playersCollection } from '$lib/scripts/firebase/collections';
 import { firebaseAuth } from '$lib/scripts/firebase/firebase';
+import { capitalizeWord } from '$lib/scripts/utilities/functions';
+import { myLog } from '$lib/scripts/utilities/logging';
+import { firebase_user } from '$scripts/store';
 import { defaultToast } from '$scripts/toasts';
 import {
 	browserPopupRedirectResolver,
 	fetchSignInMethodsForEmail,
-	getRedirectResult, GoogleAuthProvider, type AuthError
+	getRedirectResult,
+	GoogleAuthProvider,
+	type AuthError
 } from '@firebase/auth';
-import { getDoc, doc } from '@firebase/firestore';
+import { doc, getDoc } from '@firebase/firestore';
 import { get } from 'svelte/store';
-import { capitalizeWord } from '$scripts/functions';
-import { firebase_user } from '$scripts/store';
-import { request } from '$lib/fetch';
 
 const doStuffOnRedirect = async (): Promise<void> => {
 	try {
@@ -21,7 +23,7 @@ const doStuffOnRedirect = async (): Promise<void> => {
 			console.log('got redirect result!', result);
 			const credential = GoogleAuthProvider.credentialFromResult(result);
 			const id_token = credential.accessToken;
-			await request('/auth',"POST", {id_token})
+			await request('/auth', 'POST', { id_token });
 			getCurrentPlayerDoc();
 		}
 	} catch (error) {
