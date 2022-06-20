@@ -21,6 +21,11 @@ export const survivor_tabs: PageOption[] = [
 	new PageOption({ navigation_text: 'Make Picks', path: '/survivor/make-picks' }),
 	new PageOption({ navigation_text: 'View League Picks', path: '/survivor/view-picks' })
 ];
+export const pick6_tabs: PageOption[] = [
+	new PageOption({ navigation_text: 'Make Picks', path: '/pick6/make-picks' }),
+	new PageOption({ navigation_text: 'Standings', path: '/pick6/standings' }),
+	new PageOption({ navigation_text: 'Rules', path: '/pick6/rules' })
+];
 export const admin_tabs: PageOption[] = [
 	new PageOption({ navigation_text: 'Manage Players', path: '/admin/manage-players' }),
 	new PageOption({ navigation_text: 'Manage Teams', path: '/admin/manage-teams' }),
@@ -35,7 +40,8 @@ export const admin_controls_pages: string[] = [
 	'/weekly/make-picks',
 	'/weekly/view-picks',
 	'/weekly/standings',
-	'/pick6',
+	'/pick6/make-picks',
+	'/pick6/rules',
 	'/survivor',
 	'/survivor/make-picks',
 	'/survivor/make-picks'
