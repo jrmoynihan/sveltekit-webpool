@@ -30,7 +30,7 @@
 	}
 </script>
 
-<div style="display:grid;">
+<div class="grid">
 	{#if labelText !== ''}
 		<label class="label-text" for={id} style={labelStyles}>
 			{labelText}
@@ -62,6 +62,10 @@
 	$toggle-background-color-active-hovered: var(--toggleBgColorActiveHovered, hsl(207, 90%, 34%));
 	$toggle-background-color-inactive: #aaa;
 	$slider-color: white;
+	.grid {
+		display: grid;
+	}
+
 	/* The switch - the box around the slider */
 	.switch,
 	.label-text {
