@@ -1,10 +1,10 @@
 import { browser } from '$app/env';
 import { current_player } from '$scripts/store';
 import { all_icons } from '$classes/constants';
-import { myError, myLog } from '$scripts/logging';
+import { myError, myLog } from '$lib/scripts/utilities/logging';
 import type { User } from '@firebase/auth';
-import { getPlayer } from './weekly/weeklyPlayers';
-import type { ScoreViewPreference } from './types/types';
+import { getPlayer } from '../weekly/weeklyPlayers';
+import type { ScoreViewPreference } from '../types/types';
 
 export const getLocalStorageItem = async <T>(key: string): Promise<T | null> => {
 	if (browser) {
