@@ -358,7 +358,7 @@
 		}
 		@include responsive_desktop_only {
 			&.to-left {
-				@include fixed($left: 0, $top: 5%, $bottom: 0);
+				@include absolute($left: 0, $top: 0, $bottom: 0);
 				width: 10%;
 				grid-template-rows: repeat(auto-fit, minmax(0, 1fr));
 			}

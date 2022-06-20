@@ -233,5 +233,6 @@
 		text-align: center;
 		position: relative;
 		grid-area: main;
+		height: 100%;
 	}
 </style>

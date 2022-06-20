@@ -22,6 +22,11 @@
 		<NavLink {index} page_option={tab} fully_rounded={true} />
 	{/each}
 </Navigator>
-<TransitionWrapper {refresh} customStyles={$nav_toggled ? 'margin-top: 0.6rem;' : 'margin-top: 0;'}>
+<TransitionWrapper
+	{refresh}
+	customStyles={`${
+		$nav_toggled ? 'margin-top: 0.6rem;' : 'margin-top: 0;'
+	} position: absolute;inset: 0;top:3.5rem;`}
+>
 	<slot />
 </TransitionWrapper>
