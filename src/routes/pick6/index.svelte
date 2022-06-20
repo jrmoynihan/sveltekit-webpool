@@ -3,6 +3,7 @@
 	import PickSixButton from '$lib/components/buttons/PickSixButton.svelte';
 	import PickSixGroup from '$lib/components/containers/accordions/PickSixGroup.svelte';
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
+	import { all_icons } from '$lib/scripts/classes/constants';
 	import { PickSixDoc } from '$lib/scripts/classes/picks';
 	import { pickSixCollection } from '$lib/scripts/firebase/collections';
 	import { pickSixConverter } from '$lib/scripts/firebase/converters';
@@ -20,7 +21,7 @@
 		selected_year
 	} from '$scripts/store';
 	import type { pickSixItem } from '$scripts/types/types';
-	import { doc, setDoc, Timestamp, where } from '@firebase/firestore';
+	import { doc, setDoc, Timestamp, updateDoc, where } from '@firebase/firestore';
 	import { faCaretUp } from '@fortawesome/free-solid-svg-icons/index.es';
 	import Fa from 'svelte-fa';
 	import { flip } from 'svelte/animate';
@@ -37,6 +38,7 @@
 	let group_three_open = false;
 	let is_before_season_start = $current_season_start.valueOf() > Timestamp.now().valueOf();
 	let existing_pick_promise: Promise<PickSixDoc> = null;
+	let existing_picks: string[] = [];
 	let toggle_group_one: () => boolean;
 	let toggle_group_two: () => boolean;
 	let toggle_group_three: () => boolean;
@@ -90,6 +92,26 @@
 		});
 		return group;
 	}
+	function selectExistingPicks() {
+		existing_picks.forEach((pick) => {
+			const group_one_team = group_one_teams.find((t) => t.team.abbreviation === pick);
+			if (group_one_team) {
+				group_one_team.selected = true;
+				return;
+			}
+			const group_two_team = group_two_teams.find((t) => t.team.abbreviation === pick);
+			if (group_two_team) {
+				group_two_team.selected = true;
+				return;
+			}
+			const group_three_team = group_three_teams.find((t) => t.team.abbreviation === pick);
+			if (group_three_team) {
+				group_three_team.selected = true;
+				return;
+			}
+		});
+	}
+
 	async function submitSixPicks() {
 		const picks = all_selected_teams.map((t) => t.team.abbreviation);
 		const new_doc = doc(pickSixCollection);
@@ -106,8 +128,18 @@
 		await setDoc(new_doc.withConverter(pickSixConverter), pick_doc_data);
 		const title = `${$selected_year} Pick Six Submitted`;
 		const msg = `Your picks have been submitted for ${$selected_year}`;
-		LogAndToast({ title, msg });
+		LogAndToast({ title, msg, icon: all_icons.checkmark });
 	}
+
+	async function updatePicks() {
+		const picks = all_selected_teams.map((t) => t.team.abbreviation);
+		const existing_pick_doc = await existing_pick_promise;
+		await updateDoc(existing_pick_doc.doc_ref, { picks });
+		const title = `${$selected_year} Pick Six Updated`;
+		const msg = `Your picks have been updated for ${$selected_year}`;
+		LogAndToast({ title, msg, icon: all_icons.checkmark });
+	}
+
 	async function getPlayerPickDoc() {
 		const pick_doc_constraints = [
 			where('uid', '==', $current_player.uid),
@@ -116,6 +148,8 @@
 		const player_pick_doc_data = await getPickSixData({ constraints: pick_doc_constraints });
 
 		if (player_pick_doc_data.length > 0) {
+			console.log('Player has picks', player_pick_doc_data[0].picks);
+			existing_picks = player_pick_doc_data[0].picks;
 			return player_pick_doc_data[0];
 		}
 		// If there is no pick 6 doc, make one.
@@ -171,6 +205,9 @@
 	];
 	$: total_selected_count =
 		group_one_selected_count + group_two_selected_count + group_three_selected_count;
+	$: if (existing_picks.length > 0) {
+		selectExistingPicks();
+	}
 </script>
 
 <PageTitle>Pick6</PageTitle>
@@ -179,73 +216,77 @@
 </svelte:head>
 
 {#if is_before_season_start}
-	<div class="grid layout-container">
-		<h2>Pick two teams from each group!</h2>
-		<button
-			class="reset"
-			on:click={() => {
-				group_one_teams = resetGroup(group_one_teams);
-				group_two_teams = resetGroup(group_two_teams);
-				group_three_teams = resetGroup(group_three_teams);
-			}}>Reset All</button
-		>
-		<div class="grid groups-container">
-			<PickSixGroup
-				bind:group={group_one_teams}
-				bind:group_selected_count={group_one_selected_count}
-				bind:toggle={toggle_group_one}
-				bind:open={group_one_open}
-				group_letter={'A'}
-			/>
-			<PickSixGroup
-				bind:group={group_two_teams}
-				bind:group_selected_count={group_two_selected_count}
-				bind:toggle={toggle_group_two}
-				bind:open={group_two_open}
-				group_letter={'B'}
-			/>
-			<PickSixGroup
-				bind:group={group_three_teams}
-				bind:group_selected_count={group_three_selected_count}
-				bind:toggle={toggle_group_three}
-				bind:open={group_three_open}
-				group_letter={'C'}
-			/>
-		</div>
-		{#if group_one_selected_count === 2 && group_two_selected_count === 2 && group_three_selected_count === 2}
+	{#key existing_picks}
+		<div class="grid layout-container">
+			<h2>Pick two teams from each group!</h2>
 			<button
-				transition:fly={{ y: 300, duration: 500, easing: quintOut }}
-				class="submit"
-				on:click={submitSixPicks}>Submit Picks</button
+				class="reset"
+				on:click={() => {
+					group_one_teams = resetGroup(group_one_teams);
+					group_two_teams = resetGroup(group_two_teams);
+					group_three_teams = resetGroup(group_three_teams);
+				}}>Reset All</button
 			>
-		{/if}
-	</div>
-
-	<!-- The dock showing the player's picks -->
-	<div class="pick-dock grid fixed to-bottom to-left" class:hidden={!pick_dock_visible}>
-		{#if !$larger_than_mobile}
-			<button
-				class="toggle-pick-dock"
-				class:hidden={!pick_dock_visible}
-				on:click={() => (pick_dock_visible = !pick_dock_visible)}
-				><span class:rotated={pick_dock_visible}><Fa icon={faCaretUp} /></span></button
-			>
-		{/if}
-		{#each all_selected_teams as { team, selected } (team.abbreviation)}
-			<div
-				class="animation-container"
-				animate:flip={{ duration: 300 }}
-				in:receive={{ key: team.abbreviation }}
-				out:send={{ key: team.abbreviation }}
-			>
-				<PickSixButton bind:team bind:selected only_unselect={true} />
+			<div class="grid groups-container">
+				<PickSixGroup
+					bind:group={group_one_teams}
+					bind:group_selected_count={group_one_selected_count}
+					bind:toggle={toggle_group_one}
+					bind:open={group_one_open}
+					group_letter={'A'}
+				/>
+				<PickSixGroup
+					bind:group={group_two_teams}
+					bind:group_selected_count={group_two_selected_count}
+					bind:toggle={toggle_group_two}
+					bind:open={group_two_open}
+					group_letter={'B'}
+				/>
+				<PickSixGroup
+					bind:group={group_three_teams}
+					bind:group_selected_count={group_three_selected_count}
+					bind:toggle={toggle_group_three}
+					bind:open={group_three_open}
+					group_letter={'C'}
+				/>
 			</div>
-		{/each}
-		{#each makeNumericArrayOfDesiredLength(6 - total_selected_count) as i}
-			<placeholder class="placeholder" />
-		{/each}
-	</div>
+			{#if group_one_selected_count === 2 && group_two_selected_count === 2 && group_three_selected_count === 2}
+				<button
+					transition:fly={{ y: 300, duration: 500, easing: quintOut }}
+					class="submit"
+					on:click={async () => (existing_picks ? updatePicks() : submitSixPicks())}
+					>{existing_picks ? 'Update' : 'Submit'} Picks</button
+				>
+			{/if}
+		</div>
+
+		<!-- The dock showing the player's picks -->
+		<div class="pick-dock grid fixed to-bottom to-left" class:hidden={!pick_dock_visible}>
+			{#if !$larger_than_mobile}
+				<button
+					class="toggle-pick-dock"
+					class:hidden={!pick_dock_visible}
+					on:click={() => (pick_dock_visible = !pick_dock_visible)}
+					><span class:rotated={pick_dock_visible}><Fa icon={faCaretUp} /></span></button
+				>
+			{/if}
+			{#each all_selected_teams as { team, selected } (team.abbreviation)}
+				<div
+					class="animation-container"
+					animate:flip={{ duration: 300 }}
+					in:receive={{ key: team.abbreviation }}
+					out:send={{ key: team.abbreviation }}
+				>
+					<PickSixButton bind:team bind:selected only_unselect={true} />
+				</div>
+			{/each}
+			{#each makeNumericArrayOfDesiredLength(6 - total_selected_count) as i}
+				<placeholder class="placeholder" />
+			{/each}
+		</div>
+	{/key}
 {/if}
+
 {#if !is_before_season_start}
 	{#await existing_pick_promise then pick_data}
 		<h2>Your Picks</h2>
