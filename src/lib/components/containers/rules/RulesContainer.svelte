@@ -5,12 +5,9 @@
 	import { ruleCategoryConverter } from '$lib/scripts/firebase/converters';
 	import { myLog } from '$lib/scripts/utilities/logging';
 	import Tabs from '$navigation/Tabs.svelte';
-	import { current_player, editing } from '$scripts/store';
-	import ToggleSwitch from '$switches/ToggleSwitch.svelte';
+	import { current_player } from '$scripts/store';
 	import { CollectionReference, onSnapshot, orderBy, query } from '@firebase/firestore';
-	import { faLock, faUnlock } from '@fortawesome/free-solid-svg-icons/index.es';
 	import { onDestroy } from 'svelte';
-	import Fa from 'svelte-fa';
 
 	// This container can receive different collection references for the various pools
 	export let rulesCollection: CollectionReference;
@@ -23,8 +20,8 @@
 
 	let ruleCategories: RuleCategory[];
 	const ruleQuery = query(rulesCollection, orderBy('order'));
-	// Dynamically watches for changes to the WeeklyRules collection, and brings them in in order of their 'order' field value
-	// This will also react to changes to hte WeeklyRules collection's documents, but not the fields of those documents
+	// Dynamically watches for changes to the Rules collection, and brings them in in order of their 'order' field value
+	// This will also react to changes to hte Rules collection's documents, but not the fields of those documents
 	const unsubscribe = onSnapshot(ruleQuery.withConverter(ruleCategoryConverter), (snap) => {
 		try {
 			const ruleDocs: RuleCategory[] = [];
@@ -63,89 +60,12 @@
 			});
 		}
 	}
-
-	// const getRuleCategories = async () => {
-	// 	const ruleCategories: RuleCategory[] = [];
-	// 	// Orders the rule documents as they are queried
-	// 	const ruleQuery = query(rulesCollection, orderBy('order'));
-	// 	const ruleCategorySnapshot = await getDocs(ruleQuery.withConverter(ruleCategoryConverter));
-	// 	ruleCategorySnapshot.forEach((ruleCategory) => {
-	// 		const ruleCategoryData = ruleCategory.data();
-	// 		const ruleCategoryRef = ruleCategory.ref;
-	// 		ruleCategories.push({ docRef: ruleCategoryRef, ...ruleCategoryData });
-	// 	});
-	// 	return ruleCategories;
-	// };
-	// let ruleCategoryPromise = getRuleCategories();
-	// let tabPromise: Promise<
-	// 	{ name: string; component: any; data: any; ref: DocumentReference<DocumentData> }[]
-	// >;
-	// const makeTabs = async (ruleCategories: RuleCategory[]) => {
-	// 	let tabs: { name: string; component: any; data: any; ref: DocumentReference }[] = [];
-	// 	ruleCategories.forEach((ruleCategory) => {
-	// 		if (ruleCategory.title !== 'Prizes') {
-	// 			tabs.push({
-	// 				name: ruleCategory.title,
-	// 				component: RulesCategoryGrid,
-	// 				data: ruleCategory,
-	// 				ref: ruleCategory.docRef
-	// 			});
-	// 		}
-	// 	});
-	// 	return tabs;
-	// };
-	// const getTabs = async (ruleCategoryPromise: Promise<RuleCategory[]>) => {
-	// 	if (ruleCategoryPromise) {
-	// 		const ruleCategories = await ruleCategoryPromise;
-	// 		tabPromise = makeTabs(ruleCategories);
-	// 	}
-	// };
-	// $: getTabs(ruleCategoryPromise);
 </script>
 
-<!-- Allows admins to edit this text directly -->
-{#if editable}
-	<div id="editToggle" class="editToggle">
-		<div class="editToggle-text">Edit (Admin Only)</div>
-		<div class="lock-switch ">
-			<ToggleSwitch on:toggle={() => ($editing = !$editing)} />
-			<Fa icon={$editing ? faUnlock : faLock} size="lg" />
-		</div>
-	</div>
-{/if}
-
-<!-- {#await ruleCategoryPromise}
-	Loading rules...
-{:then ruleCategories} -->
 {#if ruleCategories}
 	<PrizeCard {ruleCategories} />
 	<hr />
 {/if}
-<!-- {#await tabPromise then tabs} -->
 {#if tabs}
 	<Tabs {tabs} selectedTab={tabs[0]} />
 {/if}
-<!-- {/await} -->
-
-<!-- {/await} -->
-<style lang="scss">
-	div {
-		@include flexCenter;
-		padding: 1%;
-	}
-	.editToggle {
-		@include rounded;
-		display: grid;
-		padding: 1rem;
-		border: 2px var(--accent, hsl(37, 75%, 65%)) solid;
-		margin: 1rem auto;
-		max-width: max-content;
-	}
-	.editToggle-text {
-		width: 20vmin;
-	}
-	.lock-switch {
-		display: flex;
-		gap: 0.3em;
-	}
-</style>

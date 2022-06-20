@@ -16,6 +16,7 @@
 	import { admin_controls_pages } from '$lib/scripts/site';
 	import { setLocalStorageItem } from '$lib/scripts/utilities/localStorage';
 	import {
+		editing,
 		larger_than_mobile,
 		nav_toggled,
 		override_locked_picks,
@@ -85,10 +86,18 @@
 
 							<p>Override Locked Games <Fa icon={$override_locked_picks ? faUnlock : faLock} /></p>
 							<ToggleSwitch bind:checked={$override_locked_picks} />
+						{:else if $page.url.pathname === '/weekly/rules'}
+							<p>Edit Rules <Fa icon={$editing ? faUnlock : faLock} size="lg" /></p>
+							<ToggleSwitch bind:checked={$editing} />
 						{/if}
 					{:else if $page.url.pathname.includes('/pick6')}
-						<p>Select Year</p>
-						<YearSelect />
+						{#if $page.url.pathname === '/pick6/make-picks'}
+							<p>Select Year</p>
+							<YearSelect />
+						{:else if $page.url.pathname === '/pick6/rules'}
+							<p>Edit Rules <Fa icon={$editing ? faUnlock : faLock} size="lg" /></p>
+							<ToggleSwitch bind:checked={$editing} />
+						{/if}
 					{:else if $page.url.pathname.includes('/survivor')}
 						<p>Select Player</p>
 						<PlayerSelect player_pool="survivor" />
@@ -164,7 +173,7 @@
 		max-width: 100%;
 		position: sticky;
 		top: 0;
-		max-height: 100vh;
+		max-height: 100dvh;
 		grid-template-columns: repeat(2, minmax(3rem, auto)) 1fr;
 		background: linear-gradient(
 			hsla(var(--background-value, hsl(120, 16%, 17%)), 90%) 90%,
