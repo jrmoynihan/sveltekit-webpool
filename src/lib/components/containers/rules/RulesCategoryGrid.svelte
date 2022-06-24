@@ -10,11 +10,10 @@
 
 	const getRuleData = async () => {
 		const rules: Rule[] = [];
-		const q = query(collection(selectedTab['ref'], 'Rules'), orderBy('order'));
+		const q = query(collection(selectedTab.ref, 'Rules'), orderBy('order'));
 		const rulesSnapshot = await getDocs(q.withConverter(ruleConverter));
 		rulesSnapshot.forEach((rule) => {
-			const rulesData = rule.data();
-			rules.push({ ...rulesData });
+			rules.push(rule.data());
 		});
 		return rules;
 	};
