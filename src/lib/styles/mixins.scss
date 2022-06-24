@@ -126,6 +126,8 @@
 
 @mixin defaultInput($frosted: false) {
 	@include editableCell($frosted);
+	// caret-color: var(--accent);
+	// accent-color: var(--accent);
 }
 
 @mixin padded {
