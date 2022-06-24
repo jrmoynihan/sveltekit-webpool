@@ -1,39 +1,34 @@
 <script lang="ts">
+	import type { Tab } from '$lib/scripts/classes/tab';
 	import { larger_than_mobile, use_dark_theme } from '$scripts/store';
 	import TransitionWrapper from '../TransitionWrapper.svelte';
 
-	export let tabs = [];
-	export let selectedTab = {};
+	export let tabs: Tab[];
+	export let selectedTab: Tab;
 </script>
 
 <div class="tabs-container defaultTransition">
 	<div class="tab-header defaultTransition">
 		{#if tabs}
 			{#each tabs as tab}
-				<input
-					type="radio"
-					bind:group={selectedTab}
-					value={tab}
-					id={tab.name}
-					on:change={() => console.log(`tab changed`)}
-				/>
+				<input type="radio" bind:group={selectedTab} value={tab} id={tab.name} />
 				<label
-					class="defaultTransition {$use_dark_theme ? 'dark' : 'light'}
-					{$larger_than_mobile ? '' : 'mobile'}"
-					for={tab.name}><h3>{tab.name}</h3></label
+					class="defaultTransition light"
+					class:dark={$use_dark_theme}
+					class:light={!$use_dark_theme}
+					class:mobile={!$larger_than_mobile}
+					for={tab.name}
+				>
+					<h3>{tab.name}</h3></label
 				>
 			{/each}
 		{/if}
 	</div>
-	<TransitionWrapper refresh={selectedTab}>
-		<div class="tab-component">
-			{#if selectedTab}
-				<svelte:component this={selectedTab['component']} {selectedTab}>
-					<slot name="tab-component" />
-				</svelte:component>
-			{/if}
-		</div>
-	</TransitionWrapper>
+	<div class="tab-component">
+		<TransitionWrapper refresh={selectedTab}>
+			<svelte:component this={selectedTab.component} {selectedTab} />
+		</TransitionWrapper>
+	</div>
 	<slot name="tab-footer" />
 </div>
 
@@ -79,6 +74,8 @@
 	input[type='radio'] {
 		visibility: hidden;
 		display: none;
+
+		//TODO: replace with :has selector when broadly available!
 		&:checked + label {
 			&.light {
 				@include active($color: var(--background));
@@ -88,6 +85,7 @@
 			}
 		}
 	}
+
 	.tab-component {
 		border-radius: 1rem;
 		display: grid;
