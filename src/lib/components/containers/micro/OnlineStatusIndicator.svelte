@@ -2,8 +2,8 @@
 	import Tooltip from '../Tooltip.svelte';
 
 	let isOnline = false;
-	let onlineBgColor = isOnline ? 'hsl(120, 100%, 50%)' : 'red';
-	let text = isOnline ? 'Online' : 'Offline';
+	$: onlineBgColor = isOnline ? 'hsl(120, 80%, 40%)' : 'red';
+	$: text = isOnline ? 'Online' : 'Offline';
 </script>
 
 <div class="online-indicator">
