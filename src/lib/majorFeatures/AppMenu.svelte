@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import Auth from '$lib/components/auth/Auth.svelte';
+	import Avatar from '$lib/components/auth/Avatar.svelte';
 	import Grid from '$lib/components/containers/Grid.svelte';
 	import TeamSelector from '$lib/components/containers/micro/TeamSelector.svelte';
 	import AdminControlsModal from '$lib/components/modals/AdminControlsModal.svelte';
@@ -61,20 +61,22 @@
 		</ModalButtonAndSlot>
 	{/if}
 
-	<Auth />
+	<Avatar />
 
 	<div class="settings-wrapper">
 		{#if admin_controls_pages.includes($page.url.pathname)}
 			<AdminControlsModal modal_button_styles={`border-radius: 1rem; padding: 0.75rem;`}>
 				<Grid slot="modal-content" repeatColumns={2}>
 					{#if $page.url.pathname.includes('/weekly')}
-						<p>Select Season Type</p>
-						<SeasonTypeSelect />
-						<p>Select Year</p>
-						<YearSelect />
-						<p>Select Player</p>
-						<PlayerSelect player_pool="weekly" />
+						{#if !$page.url.pathname.includes('rules')}
+							<p>Select Season Type</p>
+							<SeasonTypeSelect />
+							<p>Select Year</p>
+							<YearSelect />
+						{/if}
 						{#if $page.url.pathname === '/weekly/make-picks'}
+							<p>Select Player</p>
+							<PlayerSelect player_pool="weekly" />
 							<p>Show Game IDs</p>
 							<ToggleSwitch bind:checked={$show_IDs} />
 							<p>Show Timestamps</p>
@@ -86,17 +88,11 @@
 
 							<p>Override Locked Games <Fa icon={$override_locked_picks ? faUnlock : faLock} /></p>
 							<ToggleSwitch bind:checked={$override_locked_picks} />
-						{:else if $page.url.pathname === '/weekly/rules'}
-							<p>Edit Rules <Fa icon={$editing ? faUnlock : faLock} size="lg" /></p>
-							<ToggleSwitch bind:checked={$editing} />
 						{/if}
 					{:else if $page.url.pathname.includes('/pick6')}
 						{#if $page.url.pathname === '/pick6/make-picks'}
 							<p>Select Year</p>
 							<YearSelect />
-						{:else if $page.url.pathname === '/pick6/rules'}
-							<p>Edit Rules <Fa icon={$editing ? faUnlock : faLock} size="lg" /></p>
-							<ToggleSwitch bind:checked={$editing} />
 						{/if}
 					{:else if $page.url.pathname.includes('/survivor')}
 						<p>Select Player</p>
@@ -109,6 +105,10 @@
 						<ToggleSwitch bind:checked={$show_spreads} />
 						<p>Override Locked Games <Fa icon={$override_locked_picks ? faUnlock : faLock} /></p>
 						<ToggleSwitch bind:checked={$override_locked_picks} />
+					{/if}
+					{#if $page.url.pathname.includes('rules')}
+						<p>Edit Rules <Fa icon={$editing ? faUnlock : faLock} size="lg" /></p>
+						<ToggleSwitch bind:checked={$editing} />
 					{/if}
 				</Grid>
 			</AdminControlsModal>

@@ -1,22 +1,15 @@
 <script lang="ts">
-	import type { RuleCategory, RuleTab } from '$classes/rules';
+	import { RuleTab, type RuleCategory } from '$classes/rules';
 	import PrizeCard from '$containers/rules/PrizeCard.svelte';
 	import RulesCategoryGrid from '$containers/rules/RulesCategoryGrid.svelte';
 	import { ruleCategoryConverter } from '$lib/scripts/firebase/converters';
 	import { myLog } from '$lib/scripts/utilities/logging';
 	import Tabs from '$navigation/Tabs.svelte';
-	import { current_player } from '$scripts/store';
 	import { CollectionReference, onSnapshot, orderBy, query } from '@firebase/firestore';
 	import { onDestroy } from 'svelte';
 
 	// This container can receive different collection references for the various pools
 	export let rulesCollection: CollectionReference;
-
-	// By default, even an admin won't see an editable rule page
-	let editable = false;
-
-	// But an admin will have the option to make it editable
-	$: editable = $current_player?.admin;
 
 	let ruleCategories: RuleCategory[];
 	const ruleQuery = query(rulesCollection, orderBy('order'));
@@ -43,29 +36,25 @@
 
 	let tabs: RuleTab[] = [];
 
-	$: {
-		if (ruleCategories) {
-			ruleCategories.forEach((ruleCategory) => {
-				// Package the categories into objects that are consumable by my Tabs components
-				const tab: RuleTab = {
-					name: ruleCategory.title,
-					component: RulesCategoryGrid,
-					data: ruleCategory,
-					ref: ruleCategory.docRef
-				};
-				if (tab.name !== 'Prizes') {
-					// Re-assignment will trigger the reactive update
-					tabs = [...tabs, tab];
-				}
+	$: ruleCategories?.forEach((ruleCategory) => {
+		if (ruleCategory.title !== 'Prizes') {
+			// Package categories that aren't prizes info into objects that are consumable by my Tabs components
+			const tab = new RuleTab({
+				name: ruleCategory.title,
+				component: RulesCategoryGrid,
+				data: ruleCategory,
+				ref: ruleCategory.docRef
 			});
+			// Re-assignment will trigger the reactive update
+			tabs = [...tabs, tab];
 		}
-	}
+	});
 </script>
 
 {#if ruleCategories}
 	<PrizeCard {ruleCategories} />
 	<hr />
 {/if}
-{#if tabs}
+{#if tabs.length > 0}
 	<Tabs {tabs} selectedTab={tabs[0]} />
 {/if}
