@@ -1,4 +1,14 @@
 <script lang="ts">
+	import type { Game } from '$classes/game';
+	import type { WeeklyTiebreaker } from '$classes/tiebreaker';
+	import ReturnToTop from '$components/buttons/ReturnToTop.svelte';
+	import WeekSelect from '$components/selects/WeekSelect.svelte';
+	import WeeklyStandingsRow from '$components/tables/WeeklyStandingsRow.svelte';
+	import type { PlayerRecord } from '$lib/scripts/classes/playerRecord';
+	import { ErrorAndToast, LogAndToast, myLog, myWarning } from '$lib/scripts/utilities/logging';
+	import { createTiebreaker } from '$lib/scripts/weekly/weeklyAdmin';
+	import { createWeeklyRecordForPlayer } from '$lib/scripts/weekly/weeklyRecords';
+	import { mobile_breakpoint } from '$scripts/site';
 	import {
 		selected_season_type,
 		selected_week,
@@ -6,26 +16,13 @@
 		weekly_players,
 		window_width
 	} from '$scripts/store';
-	import { where, orderBy, setDoc, doc } from '@firebase/firestore';
 	import {
 		getGameData,
 		getTiebreakerData,
 		getWeeklyRecordData
 	} from '$scripts/weekly/weeklyPlayers';
-	import { ErrorAndToast, LogAndToast, myWarning } from '$scripts/logging';
-	import type { Game } from '$classes/game';
+	import { orderBy, QueryConstraint, where } from '@firebase/firestore';
 	import ErrorModal from '../modals/ErrorModal.svelte';
-	import { WeeklyTiebreaker } from '$classes/tiebreaker';
-	import { mobile_breakpoint } from '$scripts/site';
-	import WeekSelect from '$components/selects/WeekSelect.svelte';
-	import WeeklyStandingsRow from '$components/tables/WeeklyStandingsRow.svelte';
-	import ReturnToTop from '$components/buttons/ReturnToTop.svelte';
-	import { PlayerRecord } from '$lib/scripts/classes/playerRecord';
-	import { dev } from '$app/env';
-	import AdminOnlyControl from '../misc/AdminOnlyControl.svelte';
-	import YearSelect from '../selects/YearSelect.svelte';
-	import { weeklyRecordsCollection, weeklyTiebreakersCollection } from '$lib/scripts/collections';
-	import { recordConverter, weeklyTiebreakerConverter } from '$lib/scripts/converters';
 
 	let initial_week_headers: string[] = ['Rank', 'Player', 'Wins', 'Losses', 'Tiebreaker', 'Prize'];
 	let abbreviated_week_headers: string[] = ['#', 'Name', 'W', 'L', 'T', '$'];
@@ -56,8 +53,10 @@
 		const weekly_player_record_constraints = [
 			where('week', '==', $selected_week),
 			where('season_year', '==', $selected_year),
+			orderBy('prize_amount', 'desc'),
 			orderBy('wins', 'desc'),
-			orderBy('net_tiebreaker_absolute')
+			orderBy('net_tiebreaker_absolute'),
+			orderBy('nickname')
 		];
 		const tiebreaker_constraints = [
 			where('week', '==', $selected_week),
@@ -72,8 +71,6 @@
 		let weekly_records: PlayerRecord[] = await getWeeklyRecordData({
 			constraints: weekly_player_record_constraints
 		});
-		let need_to_update_records = false;
-		let need_to_update_tiebreakers = false;
 
 		if (!last_game) {
 			LogAndToast({
@@ -83,59 +80,80 @@
 			return;
 		}
 
-		// Make sure a record doc exists for each player.
-		$weekly_players.forEach((player) => {
-			const found_player_record = weekly_records?.find((record) => record.uid === player.uid);
-			// If no doc was found, create one.
+		// Make sure a record and tiebreaker doc exists for each player.
+		const all_weekly_records_found = await confirmAllWeeklyRecordsExist(
+			weekly_records,
+			weekly_player_record_constraints
+		);
+		// If some records were missing, then re-query the database for the newly created ones
+		if (!all_weekly_records_found) {
+			weekly_records = await getWeeklyRecordData({
+				constraints: weekly_player_record_constraints
+			});
+		}
+		// If no tiebreaker doc is found, create one.
+		const all_tiebreakers_found = await confirmAllTiebreakersExist(
+			tiebreakers,
+			tiebreaker_constraints
+		);
+		if (!all_tiebreakers_found) {
+			tiebreakers = await getTiebreakerData({
+				constraints: tiebreaker_constraints
+			});
+		}
+		return { tiebreakers, last_game, weekly_records };
+	};
+	async function confirmAllWeeklyRecordsExist(
+		weekly_records: PlayerRecord[],
+		weekly_player_record_constraints: QueryConstraint[]
+	) {
+		let all_records_found = true;
+		for await (const player of $weekly_players) {
+			const found_player_record = weekly_records?.some((record) => record.uid === player.uid);
+			// If no record doc is found, create one.
 			if (found_player_record === undefined) {
 				myWarning({
 					msg: `A record for ${player.name} was not found.`,
 					additional_params: [found_player_record, weekly_records, weekly_player_record_constraints]
 				});
-				const new_record_doc_ref = doc(weeklyRecordsCollection);
-				const new_record = new PlayerRecord({
-					doc_ref: new_record_doc_ref,
-					uid: player.uid,
+				await createWeeklyRecordForPlayer({
+					player,
 					season_year: $selected_year,
 					season_type: $selected_season_type,
-					week: $selected_week,
-					wins: 0,
-					losses: 0,
-					net_tiebreaker: 0,
-					net_tiebreaker_absolute: 0,
-					prize_amount: 0
+					week: $selected_week
 				});
-				setDoc(new_record_doc_ref.withConverter(recordConverter), new_record);
-				need_to_update_records = true;
+				myLog({
+					msg: `Created weekly record for ${player.name}, week ${$selected_week}, ${$selected_year}`
+				});
+				all_records_found = false;
 			}
-			const found_tiebreaker = tiebreakers?.find((tiebreaker) => tiebreaker.uid === player.uid);
+		}
+		return all_records_found;
+	}
+	async function confirmAllTiebreakersExist(
+		tiebreakers: WeeklyTiebreaker[],
+		tiebreaker_constraints: QueryConstraint[]
+	) {
+		let all_tiebreakers_found = true;
+		for await (const player of $weekly_players) {
+			const found_tiebreaker = tiebreakers?.some((tiebreaker) => tiebreaker.uid === player.uid);
 			if (!found_tiebreaker) {
-				const new_tiebreaker_doc_ref = doc(weeklyTiebreakersCollection);
-				const new_tiebreaker = new WeeklyTiebreaker({
-					doc_ref: new_tiebreaker_doc_ref,
-					uid: player.uid,
+				myWarning({
+					msg: `A weekly tiebreaker for ${player.name} was not found.`,
+					additional_params: [found_tiebreaker, tiebreakers, tiebreaker_constraints]
+				});
+				await createTiebreaker({
+					player,
 					season_year: $selected_year,
 					season_type: $selected_season_type,
 					week: $selected_week,
 					score_guess: 0
 				});
-				setDoc(new_tiebreaker_doc_ref.withConverter(weeklyTiebreakerConverter), new_tiebreaker);
-				need_to_update_tiebreakers = true;
+				all_tiebreakers_found = false;
 			}
-		});
-		if (need_to_update_records) {
-			weekly_records = await getWeeklyRecordData({
-				constraints: weekly_player_record_constraints
-			});
 		}
-		if (need_to_update_tiebreakers) {
-			tiebreakers = await getTiebreakerData({
-				constraints: tiebreaker_constraints
-			});
-		}
-
-		return { tiebreakers, last_game, weekly_records };
-	};
+		return all_tiebreakers_found;
+	}
 
 	// Update the data promise if the week changes
 	let data_promise: Promise<{
@@ -154,39 +172,32 @@
 		$window_width < mobile_breakpoint - 500 ? abbreviated_week_headers : initial_week_headers;
 </script>
 
-<div class="week grid" class:dev style="--columns:{header_count}">
+<div class="week grid" style="--columns:{header_count}">
 	<WeekSelect
 		customStyles="grid-area:week-selector;"
 		on:change={changeData}
 		on:incrementWeek={changeData}
 		on:decrementWeek={changeData}
 	/>
-	{#if dev}
-		<AdminOnlyControl>
-			<YearSelect
-				on:change={changeData}
-				grid_area={'year-selector'}
-				custom_styles={' background: hsla(var(--admin-hue), var(--admin-saturation), 75%); color: var(--admin);'}
-			/>
-		</AdminOnlyControl>
-	{/if}
-	<div class="table grid" class:dev>
+	<div class="table grid">
 		{#each week_headers as header}
 			<div class="header">{header}</div>
 		{/each}
-		{#await data_promise then { tiebreakers, last_game, weekly_records }}
-			{#if weekly_records.length === $weekly_players.length && tiebreakers.length === $weekly_players.length && last_game}
-				{#each $weekly_players as player, i}
-					{@const tiebreaker = tiebreakers.find((doc) => doc.uid === player.uid)}
-					{@const record = weekly_records.find((doc) => doc.uid === player.uid)}
+		{#if data_promise}
+			{#await data_promise}
+				Loading...
+			{:then { tiebreakers, last_game, weekly_records }}
+				{#each weekly_records as record, i}
+					{@const tiebreaker = tiebreakers.find((doc) => doc.uid === record.uid)}
+					{@const player = $weekly_players.find((player) => player.uid === record.uid)}
 					<WeeklyStandingsRow {player} {i} {tiebreaker} {last_game} {record} />
 				{/each}
-			{/if}
-		{:catch error}
-			<ErrorModal>
-				Unable to load data: {error}
-			</ErrorModal>
-		{/await}
+			{:catch error}
+				<ErrorModal>
+					Unable to load data: {error}
+				</ErrorModal>
+			{/await}
+		{/if}
 	</div>
 </div>
 <ReturnToTop />
@@ -200,18 +211,11 @@
 		justify-items: center;
 		grid-template-areas: 'week-selector' 'table';
 		gap: 1rem;
-		&.dev {
-			grid-template-areas: 'week-selector year-selector' 'table table';
-			grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
-		}
 	}
 	.table {
 		grid-template-columns: repeat(var(--columns), minmax(max-content, 1fr));
 		padding-bottom: 1rem;
 		column-gap: 0;
-		&.dev {
-			grid-column: 1 / span 2;
-		}
 	}
 
 	.header {

@@ -4,18 +4,19 @@
 	import Tabs from '$navigation/Tabs.svelte';
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
 	import { writable } from 'svelte/store';
+	import { Tab } from '$lib/scripts/classes/tab';
 
-	const standingsTabs = [
-		{ name: 'Week', component: WeekStandings },
-		{ name: 'Season', component: SeasonStandings }
+	const tabs = [
+		new Tab({ name: 'Week', component: WeekStandings }),
+		new Tab({ name: 'Season', component: SeasonStandings })
 	];
-	const selectedStandingsTab = writable(standingsTabs[0]);
+	const selected_tab = writable(tabs[0]);
 </script>
 
 <PageTitle>Standings</PageTitle>
 
 <section class="standings">
-	<Tabs bind:selectedTab={$selectedStandingsTab} tabs={standingsTabs} />
+	<Tabs bind:selected_tab={$selected_tab} {tabs} />
 </section>
 
 <style lang="scss">

@@ -50,7 +50,6 @@
 		"rule-empty-line-before": null,
 		"scale-unlimited/declaration-strict-value": [["/color$/", "z-index", "font-size"]],
 		"scss/box-model": "border-box",
-		"hue-degree-notation": "no-degrees",
 		"scss/dollar-variable-pattern": "^[a-z][a-zA-Z0-9]+$",
 		"scss/no-global-function-names": null,
 		"selector-no-qualifying-type": [

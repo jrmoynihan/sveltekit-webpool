@@ -1,20 +1,19 @@
 <script lang="ts">
-	import { editing } from '$scripts/store';
-	import { getDocs, query, collection, orderBy, CollectionReference } from '@firebase/firestore';
 	import EditableRule from '$containers/rules/EditableRule.svelte';
 	import ViewOnlyRule from '$containers/rules/ViewOnlyRule.svelte';
-	import { ruleConverter } from '$scripts/converters';
+	import { ruleConverter } from '$lib/scripts/firebase/converters';
 	import type { Rule } from '$scripts/classes/rules';
+	import { editing } from '$scripts/store';
+	import { collection, CollectionReference, getDocs, orderBy, query } from '@firebase/firestore';
 
-	export let selectedTab: { [x: string]: CollectionReference };
+	export let selected_tab: { [x: string]: CollectionReference };
 
 	const getRuleData = async () => {
 		const rules: Rule[] = [];
-		const q = query(collection(selectedTab['ref'], 'Rules'), orderBy('order'));
+		const q = query(collection(selected_tab.ref, 'Rules'), orderBy('order'));
 		const rulesSnapshot = await getDocs(q.withConverter(ruleConverter));
 		rulesSnapshot.forEach((rule) => {
-			const rulesData = rule.data();
-			rules.push({ ...rulesData });
+			rules.push(rule.data());
 		});
 		return rules;
 	};

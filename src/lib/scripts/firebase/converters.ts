@@ -1,14 +1,14 @@
 import type { QueryDocumentSnapshot, SnapshotOptions } from '@firebase/firestore';
 import { Team } from '$lib/scripts/classes/team';
 import { Rule, RuleCategory } from '$lib/scripts/classes/rules';
-import { Game } from './classes/game';
-import { PickSixDoc, WeeklyPickDoc } from './classes/picks';
-import { WeeklyTiebreaker } from './classes/tiebreaker';
-import { WeekBoundDoc } from './classes/weekBound';
-import { Player } from './classes/player';
-import { SeasonBoundDoc } from './classes/seasonBound';
-import { PlayerRecord, SeasonRecord } from './classes/playerRecord';
-import { Survivor } from './classes/survivor';
+import { Game } from '../classes/game';
+import { PickSixDoc, WeeklyPickDoc } from '../classes/picks';
+import { WeeklyTiebreaker } from '../classes/tiebreaker';
+import { WeekBoundDoc } from '../classes/weekBound';
+import { Player } from '../classes/player';
+import { SeasonBoundDoc } from '../classes/seasonBound';
+import { PlayerRecord, SeasonRecord } from '../classes/playerRecord';
+import { Survivor } from '../classes/survivor';
 
 export const playerConverter = {
 	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types

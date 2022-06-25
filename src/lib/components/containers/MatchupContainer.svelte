@@ -1,15 +1,14 @@
 <script lang="ts">
-	import { isBeforeGameTime } from '$scripts/functions';
-	import { override_locked_picks, window_width } from '$scripts/store';
-	import { onDestroy, onMount } from 'svelte';
-	import GameInfo from './micro/GameInfo.svelte';
-	import TeamSelectRadioInput from './micro/TeamSelectRadioInput.svelte';
-	import type { ESPNScore, ESPNSituation, ESPNStatus, Game } from '$scripts/classes/game';
-	import { getScoreData, getSituation, getStatus } from '$scripts/dataFetching';
-	import { setContext } from 'svelte';
-	import { type Writable, writable } from 'svelte/store';
 	import type { WeeklyPickDoc } from '$lib/scripts/classes/picks';
 	import type { Team } from '$lib/scripts/classes/team';
+	import { isBeforeGameTime } from '$lib/scripts/utilities/functions';
+	import type { ESPNScore, ESPNSituation, ESPNStatus, Game } from '$scripts/classes/game';
+	import { getScoreData, getSituation, getStatus } from '$scripts/dataFetching';
+	import { override_locked_picks, window_width } from '$scripts/store';
+	import { onDestroy, onMount, setContext } from 'svelte';
+	import { writable, type Writable } from 'svelte/store';
+	import GameInfo from './micro/GameInfo.svelte';
+	import TeamSelectRadioInput from './micro/TeamSelectRadioInput.svelte';
 
 	export let index: number;
 	export let game: Game;

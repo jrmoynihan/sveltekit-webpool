@@ -2,19 +2,19 @@
 	import AccordionDetails3 from '$lib/components/containers/accordions/AccordionDetails.svelte';
 	import MultiToggleSwitch from '$lib/components/switches/MultiToggleSwitch.svelte';
 	import DriveChart from '$lib/images/DriveChart.svelte';
+	import { gamesCollection } from '$lib/scripts/firebase/collections';
+	import { gameConverter } from '$lib/scripts/firebase/converters';
 	import type { CompetitorESPN, ESPNGame, ESPNTeamData, Game } from '$scripts/classes/game';
-	import { gamesCollection } from '$scripts/collections';
-	import { gameConverter } from '$scripts/converters';
 	import { fetchHttpsToJson } from '$scripts/dataFetching';
 	import { all_teams, preferred_score_view } from '$scripts/store';
 	import type { ScoreViewPreference } from '$scripts/types/types';
+	import { getDocs, query, where } from '@firebase/firestore';
 	import {
 		faCalculator,
 		faCheckDouble,
 		faFootballBall,
 		type IconDefinition
 	} from '@fortawesome/free-solid-svg-icons/index.es';
-	import { getDocs, query, where } from '@firebase/firestore';
 
 	let open = false;
 	let other_items = [

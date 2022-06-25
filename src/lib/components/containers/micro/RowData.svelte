@@ -16,7 +16,7 @@
 		in:fly={{ x: x_even_row, duration, delay }}
 		class:even_row
 		class:dark
-		class:redZone={in_the_money}
+		class:red-zone={in_the_money}
 	>
 		<slot />
 	</div>

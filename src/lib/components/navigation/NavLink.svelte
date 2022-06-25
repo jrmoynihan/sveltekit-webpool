@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { nav_toggled, use_dark_theme } from '$scripts/store';
+	import { matchPath } from '$lib/scripts/utilities/functions';
 	import type { PageOption } from '$scripts/classes/pageOption';
-	import Fa from 'svelte-fa';
+	import { nav_toggled, use_dark_theme } from '$scripts/store';
 	import { faFootballBall } from '@fortawesome/free-solid-svg-icons/index.es';
-	import { matchPath } from '$scripts/functions';
+	import Fa from 'svelte-fa';
 
 	export let index = 0;
 	export let page_option: PageOption;

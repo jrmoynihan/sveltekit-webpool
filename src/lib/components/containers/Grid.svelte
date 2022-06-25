@@ -1,6 +1,9 @@
 <script lang="ts">
-	import type { BuiltInTransition, BuiltInTransitionConfig } from '$scripts/transitions';
-	import { variableTransition } from '$scripts/transitions';
+	import type {
+		BuiltInTransition,
+		BuiltInTransitionConfig
+	} from '$lib/scripts/animations/transitions';
+	import { variableTransition } from '$lib/scripts/animations/transitions';
 
 	export let customStyles = '';
 	export let minColumns: string | number = 0;

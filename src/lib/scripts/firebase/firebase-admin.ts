@@ -5,5 +5,6 @@ admin.initializeApp({
 	credential: applicationDefault(),
 	databaseURL: 'https://tonyswebpool.firebaseio.com'
 });
+export const admin_auth = admin.auth();
 
 export default admin;

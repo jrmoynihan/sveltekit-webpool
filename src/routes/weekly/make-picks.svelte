@@ -10,30 +10,25 @@
 </script>
 
 <script lang="ts">
+	import SubmitPicks from '$components/buttons/SubmitPicks.svelte';
+	import PickCounter from '$components/containers/micro/PickCounter.svelte';
+	import TiebreakerInput from '$components/inputs/TiebreakerInput.svelte';
+	import LoadingSpinner from '$components/misc/LoadingSpinner.svelte';
+	import ErrorModal from '$components/modals/ErrorModal.svelte';
 	import MatchupContainer from '$lib/components/containers/MatchupContainer.svelte';
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
 	import WeekSelect from '$lib/components/selects/WeekSelect.svelte';
-	import type { WeeklyPickDoc } from '$scripts/classes/picks';
+	import { focusTiebreaker } from '$lib/scripts/animations/scrollAndFocus';
+	import type { Player } from '$lib/scripts/classes/player';
+	import type { WeeklyTiebreaker } from '$lib/scripts/classes/tiebreaker';
+	import { isBeforeGameTime } from '$lib/scripts/utilities/functions';
 	import {
-		current_picks,
-		games_promise,
-		larger_than_mobile,
-		override_locked_picks,
-		picks_promise,
-		preferred_score_view,
-		tiebreaker_promise,
-		use_dark_theme,
-		selected_week,
-		selected_player,
-		selected_season_type,
-		tiebreaker_score_guess,
-		selected_year,
-		all_teams
-	} from '$scripts/store';
-	import { orderBy, where } from '@firebase/firestore';
-	import { tweened } from 'svelte/motion';
-	import { cubicOut } from 'svelte/easing';
-	import { isBeforeGameTime } from '$scripts/functions';
+		getLocalScoreViewPreference,
+		getLocalStorageItem
+	} from '$lib/scripts/utilities/localStorage';
+	import { ErrorAndToast, myError, myLog } from '$lib/scripts/utilities/logging';
+	import { createTiebreaker, createWeeklyPicksForPlayer } from '$lib/scripts/weekly/weeklyAdmin';
+	import { getGameData, getPicksData, getTiebreakerData } from '$lib/scripts/weekly/weeklyPlayers';
 	import {
 		airplaneDeparture,
 		all_icons,
@@ -41,22 +36,30 @@
 		home,
 		policeCarLight
 	} from '$scripts/classes/constants';
-	import { onMount } from 'svelte';
-	import { defaultToast, getToast } from '$scripts/toasts';
-	import TiebreakerInput from '$components/inputs/TiebreakerInput.svelte';
-	import PickCounter from '$components/containers/micro/PickCounter.svelte';
-	import SubmitPicks from '$components/buttons/SubmitPicks.svelte';
-	import { fly } from 'svelte/transition';
-	import LoadingSpinner from '$components/misc/LoadingSpinner.svelte';
 	import type { Game } from '$scripts/classes/game';
-	import { getLocalScoreViewPreference, getLocalStorageItem } from '$scripts/localStorage';
-	import ErrorModal from '$components/modals/ErrorModal.svelte';
-	import { focusTiebreaker } from '$scripts/scrollAndFocus';
-	import { ErrorAndToast, myError, myLog } from '$scripts/logging';
-	import { getGameData, getPicksData, getTiebreakerData } from '$lib/scripts/weekly/weeklyPlayers';
-	import { createTiebreaker, createWeeklyPicksForPlayer } from '$lib/scripts/weekly/weeklyAdmin';
-	import type { Player } from '$lib/scripts/classes/player';
-	import type { WeeklyTiebreaker } from '$lib/scripts/classes/tiebreaker';
+	import type { WeeklyPickDoc } from '$scripts/classes/picks';
+	import {
+		all_teams,
+		current_picks,
+		games_promise,
+		larger_than_mobile,
+		override_locked_picks,
+		picks_promise,
+		preferred_score_view,
+		selected_player,
+		selected_season_type,
+		selected_week,
+		selected_year,
+		tiebreaker_promise,
+		tiebreaker_score_guess,
+		use_dark_theme
+	} from '$scripts/store';
+	import { defaultToast, getToast } from '$scripts/toasts';
+	import { orderBy, where } from '@firebase/firestore';
+	import { onMount } from 'svelte';
+	import { cubicOut } from 'svelte/easing';
+	import { tweened } from 'svelte/motion';
+	import { fly } from 'svelte/transition';
 
 	export let query_year: string = null;
 	export let query_week: string = null;
@@ -130,7 +133,12 @@
 
 			// If tiebreaker doc isn't found, create one and return it
 			if (!tiebreakers || tiebreakers?.length === 0) {
-				$tiebreaker_promise = createTiebreaker(player.uid, week, year, season_type);
+				$tiebreaker_promise = createTiebreaker({
+					player,
+					week,
+					season_year: year,
+					season_type
+				});
 				tiebreakers = await $tiebreaker_promise;
 			}
 			// Multiple tiebreaker docs found, throw an error. Can't determine which one to use if the query returned multiple.
@@ -407,12 +415,7 @@
 				/>
 			{/key}
 			{#if show_tiebreaker_input || $override_locked_picks}
-				<TiebreakerInput
-					scoreGuess={$tiebreaker_score_guess}
-					on:change={(e) => {
-						$tiebreaker_score_guess = parseInt(e.detail);
-					}}
-				/>
+				<TiebreakerInput bind:score_guess={$tiebreaker_score_guess} />
 			{:else if upcoming_games_count !== 0}
 				<progress value={$progress || 0} />
 			{/if}

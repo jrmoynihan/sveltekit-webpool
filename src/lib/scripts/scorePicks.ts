@@ -2,77 +2,72 @@ import type {
 	ESPNRecord,
 	ESPNScore,
 	ESPNTeamData,
+	Game,
 	PrunedCompetition,
-	RefOnlyESPN,
-	Game
+	RefOnlyESPN
 } from '$classes/game';
-import {
-	DocumentReference,
-	QuerySnapshot,
-	QueryConstraint,
-	getDocsFromServer,
-	updateDoc,
-	getDocs,
-	query,
-	where,
-	increment,
-	doc,
-	type DocumentData,
-	setDoc,
-	getDoc,
-	deleteDoc
-} from '@firebase/firestore';
-import {
-	everyoneWinsResult,
-	weeklyPoolFee,
-	commishCost,
-	webDevCost,
-	hostingCost,
-	maxRegularSeasonWeeks,
-	weeklyPayout,
-	firstPlaceWeeklySeasonPercent,
-	secondPlaceWeeklySeasonPercent,
-	thirdPlaceWeeklySeasonPercent,
-	firstPlaceWeeklyAmount,
-	secondPlaceWeeklyAmount,
-	thirdPlaceWeeklyAmount,
-	checkeredFlag
-} from './classes/constants';
-import { ErrorAndToast, LogAndToast, myError, myLog, myWarning } from '$scripts/logging';
-import {
-	gamesCollection,
-	weeklyPicksCollection,
-	teamsCollection,
-	seasonRecordsCollection
-} from './collections';
-import {
-	gameConverter,
-	teamConverter,
-	playerConverter,
-	weeklyPickConverter,
-	recordConverter,
-	seasonRecordConverter
-} from './converters';
-import { defaultToast } from './toasts';
-import type { WeeklyTiebreaker } from './classes/tiebreaker';
-import type { WeeklyPickDoc } from './classes/picks';
-import { toast } from '@zerodevx/svelte-toast';
-import type { Player } from './classes/player';
-import { SeasonRecord, type PlayerRecord } from './classes/playerRecord';
-import { getStatus, getScoreData, convertToHttps } from './dataFetching';
-import { isBeforeGameTime } from './functions';
+import { LogAndToast, myError, myLog, myWarning } from '$lib/scripts/utilities/logging';
 import {
 	getGameData,
 	getPicksData,
 	getTiebreakerData,
 	getWeeklyPlayers,
-	getWeeklyRecordData,
-	getWeeklyRecords
-} from './weekly/weeklyPlayers';
-import { all_players, all_seasons, weekly_players } from './store';
+	getWeeklyRecordData
+} from '$scripts/weekly/weeklyPlayers';
+import {
+	doc,
+	DocumentReference,
+	getDoc,
+	getDocs,
+	getDocsFromServer,
+	increment,
+	query,
+	QueryConstraint,
+	setDoc,
+	updateDoc,
+	where,
+	type DocumentData
+} from '@firebase/firestore';
+import { toast } from '@zerodevx/svelte-toast';
 import { get } from 'svelte/store';
-import { createWeeklyRecordsForPlayer } from './weekly/weeklyAdmin';
+import {
+	checkeredFlag,
+	commishCost,
+	everyoneWinsResult,
+	firstPlaceWeeklyAmount,
+	firstPlaceWeeklySeasonPercent,
+	hostingCost,
+	maxRegularSeasonWeeks,
+	secondPlaceWeeklyAmount,
+	secondPlaceWeeklySeasonPercent,
+	thirdPlaceWeeklyAmount,
+	thirdPlaceWeeklySeasonPercent,
+	webDevCost,
+	weeklyPayout,
+	weeklyPoolFee
+} from './classes/constants';
+import type { WeeklyPickDoc } from './classes/picks';
+import type { Player } from './classes/player';
+import type { PlayerRecord, SeasonRecord } from './classes/playerRecord';
+import type { WeeklyTiebreaker } from './classes/tiebreaker';
+import { gamesCollection, teamsCollection, weeklyPicksCollection } from './firebase/collections';
+import {
+	gameConverter,
+	playerConverter,
+	recordConverter,
+	teamConverter,
+	weeklyPickConverter
+} from './firebase/converters';
+import { convertToHttps, getScoreData, getStatus } from './dataFetching';
+import { isBeforeGameTime } from './utilities/functions';
+import { all_players, weekly_players } from './store';
 import { scoreSurvivorPick } from './survivor/survivorAdmin';
+import { defaultToast } from './toasts';
+import { getSeasonRecordsData, updateWeeklyPlayerSeasonRecord } from './weekly/seasonRecord';
+import {
+	createWeeklyRecordForPlayer,
+	updateAllWeeklyPlayerRecordsForWeek
+} from './weekly/weeklyRecords';
 
 // Score all picks for a given week
 export const scorePicksForWeek = async (
@@ -104,53 +99,22 @@ export const scorePicksForWeek = async (
 			});
 			const { winnerAndLoser } = await updateGameandATSWinner(game, game.doc_ref);
 			const { winner, loser } = winnerAndLoser;
-			await scoreSurvivorPick(game.week, game.season_year, winner, loser);
+			const { week, season_year } = game;
+			await scoreSurvivorPick(week, season_year, winner, loser);
 			LogAndToast({ id: starting_toast_id, msg: `Scoring net tiebreakers...` });
 			await scoreNetTiebreakers(game, tiebreakers, weekly_records);
 			LogAndToast({ id: starting_toast_id, msg: `Marking correct picks...` });
 			await markIfPickIsCorrect(picks, game);
 		}
 
-		// // Initialize variables to perform winner/tiebreaker comparisons
-		let most_wins: number = 0;
-		let second_most_wins: number = 0;
-		let third_most_wins: number = 0;
-		const record_constraints = [
-			where('season_year', '==', selected_year),
-			where('week', '==', selected_week)
-		];
-
-		for await (const player of weeklyPlayers) {
-			// Get a fresh copy of the updated pick docs NOTE: (reads = # of games * # of players)
-			const pick_doc_constraints: QueryConstraint[] = [
-				where('week', '==', selected_week),
-				where('season_year', '==', selected_year),
-				where('season_type', '==', season_type),
-				where('uid', '==', player.uid)
-			];
-			const pick_query = query(weeklyPicksCollection, ...pick_doc_constraints);
-			const player_picks = await getDocsFromServer(pick_query.withConverter(weeklyPickConverter));
-			LogAndToast({
-				id: starting_toast_id,
-				msg: `Updating week ${selected_week} record for ${player.name}`
-			});
-			const total_wins = await updatePlayerRecordForWeek(
-				player.ref,
-				player_picks,
-				record_constraints,
+		let { most_wins, second_most_wins, third_most_wins } =
+			await updateAllWeeklyPlayerRecordsForWeek(
 				selected_year,
-				season_type
+				selected_week,
+				season_type,
+				starting_toast_id
 			);
 
-			// While we iterate through updating player records, also store what the 1st, 2nd, and 3rd most win totals are
-			if (total_wins > most_wins) {
-				most_wins = total_wins;
-			} else if (total_wins > second_most_wins) {
-				second_most_wins = total_wins;
-			} else if (total_wins > third_most_wins) {
-				third_most_wins = total_wins;
-			}
-		}
 		myLog({ msg: 'most wins:', additional_params: most_wins });
 		myLog({ msg: 'second most wins: ', additional_params: second_most_wins });
 		myLog({ msg: 'third most wins: ', additional_params: third_most_wins });
@@ -185,9 +149,18 @@ export const scorePicksForWeek = async (
 				secondPlacersForWeek,
 				thirdPlacersForWeek
 			);
-		myLog({ msg: '1st Placers: ', additional_params: firstPlacersForWeek });
-		myLog({ msg: '2nd Placers: ', additional_params: secondPlacersForWeek });
-		myLog({ msg: '3rd Placers: ', additional_params: thirdPlacersForWeek });
+		myLog({
+			msg: '1st Placers: ',
+			additional_params: { firstPlacersForWeek, firstPlaceWeeklyPrize }
+		});
+		myLog({
+			msg: '2nd Placers: ',
+			additional_params: { secondPlacersForWeek, secondPlaceWeeklyPrize }
+		});
+		myLog({
+			msg: '3rd Placers: ',
+			additional_params: { thirdPlacersForWeek, thirdPlaceWeeklyPrize }
+		});
 
 		LogAndToast({ id: starting_toast_id, msg: `Awarding weekly prizes...` });
 
@@ -481,144 +454,6 @@ export const findWeeklyLeaders = async (records: PlayerRecord[], comparison_win_
 	}
 };
 
-// /**
-//  *
-//  * @param mostWins - The highest win total found when scoring the week
-//  * @param smallesNetTiebreakerAbsolute - The smallest net tiebreaker (closest to actual score in either direction) found when scoring the week
-//  * @param greatestNetTiebreaker - The greatest net tiebreaker ()
-//  */
-// export const findWeeklyPlayerWinners = (
-// 	mostWins: number,
-// 	smallestNetTiebreakerAbsolute: number,
-// 	greatestNetTiebreaker: number
-// ) => {};
-
-export const updateWeeklyPlayerSeasonRecord = async (
-	player: Player,
-	players_records: PlayerRecord[],
-	season_year: number
-) => {
-	try {
-		let total_weekly_wins: number = 0;
-		let total_weekly_losses: number = 0;
-
-		// Sum all weekly wins/losses
-		for await (const record of players_records) {
-			const { wins, losses } = record;
-			total_weekly_wins += wins;
-			total_weekly_losses += losses;
-		}
-		// Get the player's season record doc to update
-		const { uid } = player;
-		const constraints = [where('season_year', '==', season_year), where('uid', '==', uid)];
-		const season_record_snapshot = await getSeasonRecords({ constraints });
-
-		// If only one doc is returned (expected), update the doc
-		if (season_record_snapshot.size === 1) {
-			const { ref } = season_record_snapshot.docs[0];
-			await updateDoc(ref, { total_weekly_wins, total_weekly_losses });
-			return total_weekly_wins; // Return wins to compare who has the best record
-
-			// If no docs are returned (unexpected), create a new doc
-		} else if (season_record_snapshot.empty) {
-			const new_doc = doc(seasonRecordsCollection.withConverter(seasonRecordConverter));
-			const new_season_record_data = new SeasonRecord({
-				uid,
-				doc_ref: new_doc,
-				season_year,
-				total_weekly_wins,
-				total_weekly_losses
-			});
-			await setDoc(new_doc, new_season_record_data);
-			return total_weekly_wins; // Return wins to compare who has the best record
-
-			// If more than one doc is returned (unexpected), throw an error
-		} else {
-			throw new Error(
-				`More than one season record found for this ${player.name} (${player.nickname})`
-			);
-		}
-	} catch (error) {
-		ErrorAndToast({ title: 'Error updating weekly player season record!', error });
-	}
-};
-
-type SeasonRecordOptions = {
-	constraints: QueryConstraint[];
-};
-export const getSeasonRecords = async (input: SeasonRecordOptions) => {
-	try {
-		const { constraints } = input;
-		const season_record_query = query(
-			seasonRecordsCollection.withConverter(seasonRecordConverter),
-			...constraints
-		);
-		const season_record_snapshot = await getDocs(season_record_query);
-		return season_record_snapshot;
-	} catch (error) {
-		ErrorAndToast({ title: 'Error getting season records!', error });
-	}
-};
-export const getSeasonRecordsData = async (input: SeasonRecordOptions) => {
-	try {
-		const { constraints } = input;
-		const records = await getSeasonRecords({ constraints });
-		const data = records.docs.map((doc) => doc.data());
-		return data;
-	} catch (error) {
-		ErrorAndToast({ title: 'Error getting season records data!', error });
-	}
-};
-/**
- * Updates the player document with the number of wins and losses in a given week
- * @param selected_week - The week record to update
- * @param player_ref - The player document to update
- * @param player_picks - The array of player picks to evaluate for correctness (win) / incorrectness (loss)
- * @returns The number of wins the player had in the week
- */
-export const updatePlayerRecordForWeek = async (
-	player_ref: DocumentReference,
-	player_picks: QuerySnapshot<WeeklyPickDoc>,
-	constraints: QueryConstraint[],
-	year?: number,
-	season_type?: string
-): Promise<number> => {
-	try {
-		const correct_picks = player_picks.docs.filter((doc) => doc.data().is_correct === true);
-		const incorrect_picks = player_picks.docs.filter((doc) => doc.data().is_correct === false);
-		const record_constraints = [...constraints, where('uid', '==', player_ref.id)];
-		console.log('record_constraints', record_constraints);
-		const record_docs = await getWeeklyRecords({ constraints: record_constraints });
-		if (record_docs.size === 1) {
-			await updateDoc(record_docs.docs[0].ref, {
-				wins: correct_picks.length,
-				losses: incorrect_picks.length
-			});
-		} else if (record_docs.size > 1) {
-			// Delete the extra docs (self-healing)
-			record_docs.docs.forEach((doc, i) => {
-				if (i > 0) {
-					deleteDoc(doc.ref);
-				}
-				myWarning({
-					msg: `More than one record found for uid: ${player_ref.id} for specified week. Extra records were deleted.`
-				});
-			});
-		} else if (record_docs.size === 0) {
-			// Create records since none exist (self-healing)
-			const player = get(all_players).find((player) => player.uid === player_ref.id);
-			const season = get(all_seasons).find((s) => s.year === year && s.type_name === season_type);
-			createWeeklyRecordsForPlayer({ player, season });
-			myWarning({
-				msg: `No record found for uid: ${player_ref.id} for specified week.  Created a new record.`
-			});
-		}
-		// Return the number of wins the player had in the week for tiebreaker purposes
-		return correct_picks.length;
-	} catch (error) {
-		ErrorAndToast({ title: 'Error encountered while updating player record', error });
-	}
-};
 export const markIfPickIsCorrect = async (picks: WeeklyPickDoc[], gameData: Game) => {
 	try {
 		picks.forEach(async (pick) => {
@@ -648,7 +483,7 @@ export const scoreNetTiebreakers = async (
 				msg: `${checkeredFlag} Last Game of the Week: ${game.short_name}, Total Score: ${total_score}`
 			});
 			// Iterate through each player's tiebreaker for that week
-			tiebreakers.forEach((tiebreaker) => {
+			tiebreakers.forEach(async (tiebreaker) => {
 				const { uid, score_guess, week, season_year, season_type } = tiebreaker;
 				if (score_guess) {
 					const net_tiebreaker = total_score - score_guess;
@@ -662,9 +497,24 @@ export const scoreNetTiebreakers = async (
 							record.season_year === season_year &&
 							record.season_type === season_type
 					);
-
-					// Store the net tiebreaker in the weekly record doc
-					updateDoc(player_record.doc_ref, { net_tiebreaker, net_tiebreaker_absolute });
+					if (player_record) {
+						// Store the net tiebreaker in the weekly record doc
+						await updateDoc(player_record.doc_ref, { net_tiebreaker, net_tiebreaker_absolute });
+					} else {
+						myWarning({
+							msg: `No record found for uid: ${uid} for week ${week} ${season_year} (${season_type}).`
+						});
+						const player = get(all_players)?.find((player) => player.uid === uid);
+						await createWeeklyRecordForPlayer({
+							player,
+							week,
+							season_year,
+							season_type,
+							net_tiebreaker,
+							net_tiebreaker_absolute,
+							perform_prexisting_doc_check: false
+						});
+					}
 				} else {
 					myLog({ msg: 'no tiebreaker posted' });
 				}
@@ -738,26 +588,22 @@ export const updateGamesAndATSWinners = async (
 };
 
 export const updateGameandATSWinner = async (
-	game_data: Game,
+	game: Game,
 	game_ref: DocumentReference
 ): Promise<{ winnerAndLoser: { winner: string; loser: string }; ATSwinner: string }> => {
 	try {
-		const competitions: PrunedCompetition[] = game_data.competitions;
+		const competitions: PrunedCompetition[] = game.competitions;
 		const status_data = await getStatus(competitions);
 		if (status_data?.type?.completed) {
-			myLog({ msg: `${game_data.id} completed: ${status_data.type.completed}` });
+			myLog({ msg: `${game.id} completed: ${status_data.type.completed}` });
 
-			const spread: number = game_data.spread;
+			const { spread } = game;
 			const { home_score_data, away_score_data } = await getScoreData(competitions);
 			const home_score: number = home_score_data.value;
 			const away_score: number = away_score_data.value;
-			const winner_and_loser = await findWinnerAndLoser(
-				home_score_data,
-				away_score_data,
-				game_data
-			);
+			const winner_and_loser = await findWinnerAndLoser(home_score_data, away_score_data, game);
 
-			const ATS_winner = await findATSWinner(game_data, home_score, away_score, spread);
+			const ATS_winner = await findATSWinner(game, home_score, away_score, spread);
 			const total_score = home_score + away_score;
 
 			myLog({
@@ -774,7 +620,7 @@ export const updateGameandATSWinner = async (
 			return { winnerAndLoser: winner_and_loser, ATSwinner: ATS_winner };
 		} else {
 			myLog({
-				msg: `game ${game_data.id} (${game_data.short_name}, ${game_data.date}) is NOT completed`
+				msg: `game ${game.id} (${game.short_name}, ${game.date}) is NOT completed`
 			});
 		}
 	} catch (error) {

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { setLocalStorageItem } from '$scripts/localStorage';
+	import { setLocalStorageItem } from '$lib/scripts/utilities/localStorage';
 	import ToggleSwitch from '$switches/ToggleSwitch.svelte';
 
 	export let msgMarkup = '';

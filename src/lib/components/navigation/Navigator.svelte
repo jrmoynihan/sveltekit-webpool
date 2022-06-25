@@ -35,7 +35,6 @@
 		top: 0;
 		transition: gap 500ms ease-in-out;
 		width: 100%;
-		z-index: var(--above);
 		background: var(--background);
 
 		@supports (backdrop-filter: none) {
@@ -46,6 +45,7 @@
 			display: flex;
 			gap: 0.5rem;
 			position: sticky;
+			z-index: var(--above);
 		}
 		@include responsive_mobile_only {
 			@include gridAndGap(0.5rem);

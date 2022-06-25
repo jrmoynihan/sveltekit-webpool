@@ -1,36 +1,36 @@
 import { browser } from '$app/env';
-import { type Writable, writable, derived, get } from 'svelte/store';
+import type { Game } from '$classes/game';
+import { Player } from '$classes/player';
+import type { Team } from '$classes/team';
+import type { User } from '@firebase/auth';
 import {
 	doc,
-	updateDoc,
 	onSnapshot,
 	query,
-	type Query,
+	updateDoc,
+	where,
 	type FirestoreDataConverter,
-	where
+	type Query
 } from '@firebase/firestore';
-import {
-	playerConverter,
-	seasonBoundConverter,
-	seasonRecordConverter,
-	teamConverter
-} from './converters';
-import { Player } from '$classes/player';
+import { derived, get, writable, type Writable } from 'svelte/store';
+import type { WeeklyPickDoc } from './classes/picks';
+import type { SeasonRecord } from './classes/playerRecord';
+import type { SeasonBoundDoc } from './classes/seasonBound';
+import type { WeeklyTiebreaker } from './classes/tiebreaker';
 import {
 	playersCollection,
 	seasonBoundsCollection,
 	seasonRecordsCollection,
 	teamsCollection
-} from './collections';
-import type { ScoreViewPreference } from './types/types';
-import type { WeeklyTiebreaker } from './classes/tiebreaker';
-import type { WeeklyPickDoc } from './classes/picks';
-import type { Game } from '$classes/game';
-import type { Team } from '$classes/team';
-import type { User } from '@firebase/auth';
+} from './firebase/collections';
+import {
+	playerConverter,
+	seasonBoundConverter,
+	seasonRecordConverter,
+	teamConverter
+} from './firebase/converters';
 import { firebaseAuth } from './firebase/firebase';
-import type { SeasonBoundDoc } from './classes/seasonBound';
-import type { SeasonRecord } from './classes/playerRecord';
+import type { ScoreViewPreference } from './types/types';
 
 export const use_dark_theme = writable(false);
 export const nav_toggled = writable(true);
@@ -89,17 +89,6 @@ export const firebase_user = writable<User>(firebaseAuth.currentUser); // The fi
 export const current_player = writable<Player>(new Player({})); // Who is logged into the app; their player data
 export const tiebreaker_score_guess = writable(0);
 
-// export const queryAsStore = (
-// 	query: Query,
-// 	converter?: FirestoreDataConverter<unknown>
-// ): Readable<unknown[]> => {
-// 	return readable<Array<unknown>>([], (set) => {
-// 		onSnapshot(query.withConverter(converter), async (snap) => {
-// 			set(snap.docs.map((doc) => doc.data()));
-// 		});
-// 	});
-// };
-
 export const writableQueryAsStore = (
 	query: Query,
 	converter: FirestoreDataConverter<unknown>
@@ -129,21 +118,6 @@ export const playerQueryAsStore = (query: Query): Writable<Player[]> =>
 		return unsubscribe;
 	});
 
-// export const queryDocumentAsStore = (
-// 	query: Query,
-// 	converter: FirestoreDataConverter<unknown>
-// ): Readable<unknown> =>
-// 	readable<unknown>({}, (set) => {
-// 		onSnapshot(query.withConverter(converter), async (snap) => {
-// 			set(snap.docs.map((doc) => doc.data()));
-// 		});
-// 	});
-
-// export const collectionAsStore = (
-// 	path: string,
-// 	converter: FirestoreDataConverter<unknown>
-// ): Readable<unknown[]> => queryAsStore(query(collection(firestoreDB, path)), converter);
-
 export const updatePlayer = async (player: Player): Promise<void> => {
 	const docRef = doc(playersCollection, player.uid);
 	try {
@@ -172,3 +146,29 @@ export const current_season_records = writableQueryAsStore(
 	query(seasonRecordsCollection, where('season_year', '==', get(current_season_year))),
 	seasonRecordConverter
 ) as Writable<SeasonRecord[]>;
+
+// export const queryAsStore = (
+// 	query: Query,
+// 	converter?: FirestoreDataConverter<unknown>
+// ): Readable<unknown[]> => {
+// 	return readable<Array<unknown>>([], (set) => {
+// 		onSnapshot(query.withConverter(converter), async (snap) => {
+// 			set(snap.docs.map((doc) => doc.data()));
+// 		});
+// 	});
+// };
+
+// export const queryDocumentAsStore = (
+// 	query: Query,
+// 	converter: FirestoreDataConverter<unknown>
+// ): Readable<unknown> =>
+// 	readable<unknown>({}, (set) => {
+// 		onSnapshot(query.withConverter(converter), async (snap) => {
+// 			set(snap.docs.map((doc) => doc.data()));
+// 		});
+// 	});
+
+// export const collectionAsStore = (
+// 	path: string,
+// 	converter: FirestoreDataConverter<unknown>
+// ): Readable<unknown[]> => queryAsStore(query(collection(firestoreDB, path)), converter);

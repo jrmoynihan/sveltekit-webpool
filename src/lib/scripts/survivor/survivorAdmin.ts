@@ -9,9 +9,9 @@ import {
 } from '@firebase/firestore';
 import { all_icons } from '../classes/constants';
 import type { Survivor, SurvivorPick } from '../classes/survivor';
-import { survivorCollection } from '../collections';
-import { survivorConverter } from '../converters';
-import { myLog, ErrorAndToast, myWarning, myError } from '../logging';
+import { survivorCollection } from '../firebase/collections';
+import { survivorConverter } from '../firebase/converters';
+import { ErrorAndToast, myError, myLog, myWarning } from '../utilities/logging';
 
 type getSurvivorOptions = {
 	constraints?: QueryConstraint[];

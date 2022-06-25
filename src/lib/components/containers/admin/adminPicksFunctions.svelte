@@ -18,6 +18,17 @@
 	export let customSummaryStyles = null;
 	// Min and Max for a minmax grid column function
 	let minColumns: string | number = '40%';
+
+	function deleteAllWeeklyPicksForPlayer() {
+		deleteWeeklyPicksForPlayer({ player: $selected_player });
+	}
+	function deleteSpecificWeeklyPicksForPlayer() {
+		const constraints = [
+			where('week', '==', $selected_week),
+			where('season_year', '==', $selected_year)
+		];
+		deleteWeeklyPicksForPlayer({ player: $selected_player, constraints });
+	}
 </script>
 
 <AdminExpandSection summaryText="Picks" bind:minColumns {customContentStyles} {customSummaryStyles}>
@@ -62,9 +73,10 @@
 			on:click={createWeeklyPicksForAllPlayers}
 			text="Create Picks for All Weekly Players"
 		/>
-		<DeletionButton
-			on:click={() => deleteWeeklyPicksForPlayer($selected_player, $selected_week, $selected_year)}
-		>
+		<DeletionButton on:click={deleteAllWeeklyPicksForPlayer}>
+			<span>Delete All Picks for <b>{$selected_player.name}</b></span>
+		</DeletionButton>
+		<DeletionButton on:click={deleteSpecificWeeklyPicksForPlayer}>
 			<span
 				>Delete All Picks for <b
 					>{$selected_player.name} for Week {$selected_week}, {$selected_year}</b

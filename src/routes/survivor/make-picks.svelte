@@ -3,16 +3,16 @@
 	import PickCorrectnessIndicator from '$lib/components/containers/micro/PickCorrectnessIndicator.svelte';
 	import TeamSelectRadioInput from '$lib/components/containers/micro/TeamSelectRadioInput.svelte';
 	import TeamImage from '$lib/components/containers/TeamImage.svelte';
+	import Tooltip from '$lib/components/containers/Tooltip.svelte';
 	import LoadingSpinner from '$lib/components/misc/LoadingSpinner.svelte';
 	import WeekSelect from '$lib/components/selects/WeekSelect.svelte';
 	import { all_icons } from '$lib/scripts/classes/constants';
 	import { Survivor } from '$lib/scripts/classes/survivor';
-	import { isBeforeGameTime } from '$lib/scripts/functions';
-	import { myWarning } from '$lib/scripts/logging';
 	import { createSurvivorDoc, getSurvivorData } from '$lib/scripts/survivor/survivorAdmin';
 	import { defaultToast } from '$lib/scripts/toasts';
+	import { isBeforeGameTime } from '$lib/scripts/utilities/functions';
+	import { myWarning } from '$lib/scripts/utilities/logging';
 	import { getGameData } from '$lib/scripts/weekly/weeklyPlayers';
-
 	import {
 		all_teams,
 		games_promise,
@@ -21,13 +21,13 @@
 		selected_player,
 		selected_week,
 		selected_year,
+		show_spreads,
 		use_dark_theme,
 		window_width
 	} from '$scripts/store';
 	import { arrayUnion, deleteDoc, orderBy, updateDoc, where } from '@firebase/firestore';
 	import { faCaretLeft, faCaretRight } from '@fortawesome/free-solid-svg-icons/index.es';
 	import Fa from 'svelte-fa';
-	import Tooltip from '$lib/components/containers/Tooltip.svelte';
 
 	// let headers = ['Away Team', 'Game Date', 'Home Team'];
 	let layout_breakpoint = 1620;
@@ -141,7 +141,7 @@
 			{#await survivor_promise}
 				<LoadingSpinner />
 			{:then survivor_data}
-				{#each games as { timestamp, away_team_abbreviation, home_team_abbreviation, id }}
+				{#each games as { timestamp, away_team_abbreviation, home_team_abbreviation, id, spread }}
 					{@const away_team = $all_teams.find((t) => t.abbreviation === away_team_abbreviation)}
 					{@const home_team = $all_teams.find((t) => t.abbreviation === home_team_abbreviation)}
 					{@const team_picks = survivor_data[0]?.picks.map((p) => p.pick)}
@@ -172,13 +172,18 @@
 								bind:show_game_container
 								bind:show_team_name_images
 							/>
-							{#if pick_is_home_or_away && mark_correct !== undefined}
-								<PickCorrectnessIndicator is_correct={mark_correct} />
-							{:else if is_before_game_time}
-								<GameTime {timestamp} />
-							{:else}
-								<span />
-							{/if}
+							<span>
+								{#if pick_is_home_or_away && mark_correct !== undefined}
+									<PickCorrectnessIndicator is_correct={mark_correct} />
+								{:else if is_before_game_time}
+									<GameTime {timestamp} />
+								{:else}
+									<span />
+								{/if}
+								{#if $show_spreads && spread}
+									{spread}
+								{/if}
+							</span>
 							<TeamSelectRadioInput
 								{id}
 								{element}

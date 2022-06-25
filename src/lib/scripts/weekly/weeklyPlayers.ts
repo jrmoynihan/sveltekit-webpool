@@ -1,26 +1,26 @@
+import { all_icons } from '$classes/constants';
 import type { Game } from '$classes/game';
 import type { WeeklyPickDoc } from '$classes/picks';
-import type { WeeklyTiebreaker } from '$classes/tiebreaker';
 import { Player } from '$classes/player';
-import { query, where, getDocs, QueryConstraint, doc, getDoc } from '@firebase/firestore';
-import { all_icons } from '$classes/constants';
-import { ErrorAndToast, LogAndToast, myError, myLog } from '$scripts/logging';
+import type { WeeklyTiebreaker } from '$classes/tiebreaker';
 import {
 	gamesCollection,
 	playersCollection,
 	weeklyPicksCollection,
-	weeklyTiebreakersCollection,
-	weeklyRecordsCollection
-} from '$scripts/collections';
+	weeklyRecordsCollection,
+	weeklyTiebreakersCollection
+} from '$lib/scripts/firebase/collections';
 import {
 	gameConverter,
 	playerConverter,
 	recordConverter,
 	weeklyPickConverter,
 	weeklyTiebreakerConverter
-} from '$scripts/converters';
+} from '$lib/scripts/firebase/converters';
+import { ErrorAndToast, LogAndToast, myError, myLog } from '$lib/scripts/utilities/logging';
 import type { PoolsToQuery } from '$scripts/types/types';
 import type { User } from '@firebase/auth';
+import { doc, getDoc, getDocs, query, QueryConstraint, where } from '@firebase/firestore';
 
 export const getPlayer = async (firebase_user: User): Promise<Player> => {
 	const player_doc_ref = doc(playersCollection, firebase_user.uid);
@@ -28,11 +28,11 @@ export const getPlayer = async (firebase_user: User): Promise<Player> => {
 	return player_snapshot.exists() ? new Player({ ...player_snapshot.data() }) : undefined;
 };
 
-type getPlayersOptions = {
+interface getPlayersOptions {
 	roles?: PoolsToQuery[];
 	constraints?: QueryConstraint[];
 	showToast?: boolean;
-};
+}
 export const getPlayers = async (input: getPlayersOptions) => {
 	const { showToast, roles = [], constraints = [] } = input;
 	try {
@@ -61,11 +61,10 @@ export const getWeeklyPlayers = async () => {
 	return getPlayers({ roles: ['weekly'] });
 };
 
-type getRecordsOptions = {
+interface getRecordsOptions {
 	constraints?: QueryConstraint[];
 	showToast?: boolean;
-	returnDocs?: boolean;
-};
+}
 export const getWeeklyRecords = async (input: getRecordsOptions) => {
 	const { constraints = [], showToast } = input;
 	try {
@@ -100,9 +99,9 @@ export const getWeeklyRecordData = async (input: getRecordsOptions) => {
 	}
 };
 
-type getGamesOptions = {
+interface getGamesOptions {
 	constraints?: QueryConstraint[];
-};
+}
 export const getGames = async (input: getGamesOptions) => {
 	const { constraints = [] } = input;
 	try {
@@ -137,20 +136,22 @@ export const getGameData = async (input: getGamesOptions) => {
 		ErrorAndToast({ msg, error });
 	}
 };
-type getPicksOptions = {
+interface getPicksOptions {
 	constraints: QueryConstraint[];
-};
+	show_log?: boolean;
+}
 export const getPicksData = async (input: getPicksOptions): Promise<WeeklyPickDoc[]> => {
 	try {
-		const { constraints = [] } = input;
+		const { constraints = [], show_log = true } = input;
 		const picks: WeeklyPickDoc[] = [];
 		const q = query(weeklyPicksCollection, ...constraints);
 		const querySnapshot = await getDocs(q.withConverter(weeklyPickConverter));
 		querySnapshot.forEach((doc) => {
 			picks.push(doc.data());
 		});
-
-		myLog({ msg: 'Got picks!', icon: all_icons.pick, additional_params: [picks, constraints] });
+		if (show_log) {
+			myLog({ msg: 'Got picks!', icon: all_icons.pick, additional_params: { picks, constraints } });
+		}
 
 		return picks;
 	} catch (error) {
@@ -158,10 +159,10 @@ export const getPicksData = async (input: getPicksOptions): Promise<WeeklyPickDo
 		ErrorAndToast({ msg, error });
 	}
 };
-type getTiebreakerOptions = {
+interface getTiebreakerOptions {
 	constraints: QueryConstraint[];
 	show_toast?: boolean;
-};
+}
 export const getTiebreakerData = async (
 	input: getTiebreakerOptions
 ): Promise<WeeklyTiebreaker[]> => {

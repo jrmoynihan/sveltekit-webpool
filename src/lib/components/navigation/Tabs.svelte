@@ -1,39 +1,46 @@
 <script lang="ts">
+	import type { Tab } from '$lib/scripts/classes/tab';
 	import { larger_than_mobile, use_dark_theme } from '$scripts/store';
 	import TransitionWrapper from '../TransitionWrapper.svelte';
 
-	export let tabs = [];
-	export let selectedTab = {};
+	export let tabs: Tab[];
+	export let selected_tab: Tab;
+
+	export const checkForEnterOrSpace = (
+		e: KeyboardEvent & { currentTarget: EventTarget & HTMLLabelElement },
+		index: number
+	) => {
+		if (e.code === 'Enter' || e.code === 'Space') {
+			selected_tab = tabs[index];
+		}
+	};
 </script>
 
 <div class="tabs-container defaultTransition">
 	<div class="tab-header defaultTransition">
 		{#if tabs}
-			{#each tabs as tab}
-				<input
-					type="radio"
-					bind:group={selectedTab}
-					value={tab}
-					id={tab.name}
-					on:change={() => console.log(`tab changed`)}
-				/>
+			{#each tabs as tab, i}
 				<label
-					class="defaultTransition {$use_dark_theme ? 'dark' : 'light'}
-					{$larger_than_mobile ? '' : 'mobile'}"
-					for={tab.name}><h3>{tab.name}</h3></label
+					class="defaultTransition"
+					class:dark={$use_dark_theme}
+					class:light={!$use_dark_theme}
+					class:mobile={!$larger_than_mobile}
+					class:active={tab === selected_tab}
+					for={tab.name}
+					tabindex="0"
+					on:keypress={(e) => checkForEnterOrSpace(e, i)}
 				>
+					<input type="radio" bind:group={selected_tab} value={tab} id={tab.name} />
+					<h3>{tab.name}</h3>
+				</label>
 			{/each}
 		{/if}
 	</div>
-	<TransitionWrapper refresh={selectedTab}>
-		<div class="tab-component">
-			{#if selectedTab}
-				<svelte:component this={selectedTab['component']} {selectedTab}>
-					<slot name="tab-component" />
-				</svelte:component>
-			{/if}
-		</div>
-	</TransitionWrapper>
+	<div class="tab-component">
+		<TransitionWrapper refresh={selected_tab}>
+			<svelte:component this={selected_tab.component} {selected_tab} />
+		</TransitionWrapper>
+	</div>
 	<slot name="tab-footer" />
 </div>
 
@@ -58,6 +65,12 @@
 		font-weight: bold;
 		padding: 1rem;
 		height: 100%;
+		&.active.light {
+			@include active($color: var(--background));
+		}
+		&.active.dark {
+			@include active($backgroundAlpha: 0.4);
+		}
 	}
 	.tab-header {
 		@include rounded;
@@ -74,11 +87,23 @@
 		& > label.mobile {
 			border-radius: 1rem;
 		}
+		& > label:hover:not(.active),
+		& > label:focus-within:not(.active) {
+			&.dark {
+				background-color: hsla(var(--accent-value, hsl(37, 75%, 65%)), 20%);
+			}
+			&.light {
+				background-color: hsla(var(--accent-value, forestgreen), 60%);
+				color: var(--background);
+			}
+		}
 	}
 
 	input[type='radio'] {
 		visibility: hidden;
 		display: none;
+
+		//TODO: replace with :has selector when broadly available!
 		&:checked + label {
 			&.light {
 				@include active($color: var(--background));
@@ -88,6 +113,7 @@
 			}
 		}
 	}
+
 	.tab-component {
 		border-radius: 1rem;
 		display: grid;

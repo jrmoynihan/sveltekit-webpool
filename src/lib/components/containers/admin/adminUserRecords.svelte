@@ -2,19 +2,20 @@
 	import DeletionButton from '$lib/components/buttons/DeletionButton.svelte';
 	import StyledButton from '$lib/components/buttons/StyledButton.svelte';
 	import { all_icons } from '$lib/scripts/classes/constants';
-	import { LogAndToast } from '$lib/scripts/logging';
-	import { getSeasonRecords } from '$lib/scripts/scorePicks';
 	import { defaultToast } from '$lib/scripts/toasts';
+	import { LogAndToast } from '$lib/scripts/utilities/logging';
+	import { createSeasonRecordForPlayer, getSeasonRecords } from '$lib/scripts/weekly/seasonRecord';
 	import {
-		createSeasonRecordForPlayer,
-		createWeeklyRecordsForPlayer
-	} from '$lib/scripts/weekly/weeklyAdmin';
+		createWeeklyRecordsForPlayer,
+		deleteWeeklyRecordsForPlayer
+	} from '$lib/scripts/weekly/weeklyRecords';
 	import {
-		larger_than_mobile,
-		weekly_players,
-		selected_year,
 		all_seasons,
-		selected_season_type
+		larger_than_mobile,
+		selected_player,
+		selected_season_type,
+		selected_year,
+		weekly_players
 	} from '$scripts/store';
 	import { where } from '@firebase/firestore';
 	import { toast } from '@zerodevx/svelte-toast';
@@ -40,6 +41,10 @@
 			if (record_doc.empty) {
 				createSeasonRecordForPlayer({ player, season_year: $selected_year });
 			}
+		});
+		LogAndToast({
+			msg: 'Created season records for each weekly player.',
+			icon: all_icons.checkmark
 		});
 	}
 	function createWeeklyRecordForEachPlayer() {
@@ -70,5 +75,8 @@
 	>
 	<StyledButton on:click={createWeeklyRecordForEachPlayer}
 		>Create {$selected_year} Weekly Records For Each Player</StyledButton
+	>
+	<DeletionButton on:click={() => deleteWeeklyRecordsForPlayer({ player: $selected_player })}
+		>Delete Weekly Records For {$selected_player.name}</DeletionButton
 	>
 </AdminExpandSection>

@@ -1,9 +1,9 @@
-import { toast } from '@zerodevx/svelte-toast';
-import SeenToast from '$switches/SeenToast.svelte';
 import { all_icons, policeCarLight } from '$classes/constants';
-import { query, where, getDocs } from '@firebase/firestore';
-import { toastsCollection } from '$scripts/collections';
-import { myError, myLog } from '$scripts/logging';
+import { toastsCollection } from '$lib/scripts/firebase/collections';
+import { myError, myLog } from '$lib/scripts/utilities/logging';
+import SeenToast from '$switches/SeenToast.svelte';
+import { getDocs, query, where } from '@firebase/firestore';
+import { toast } from '@zerodevx/svelte-toast';
 
 export type myToastOptions = {
 	id?: number;

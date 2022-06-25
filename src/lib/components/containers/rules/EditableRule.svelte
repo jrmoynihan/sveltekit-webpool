@@ -1,19 +1,17 @@
 <script lang="ts">
-	import { updateDoc } from '@firebase/firestore';
+	import { all_icons } from '$lib/scripts/classes/constants';
+	import { ErrorAndToast, LogAndToast } from '$lib/scripts/utilities/logging';
 	import type { Rule } from '$scripts/classes/rules';
-	import { myLog } from '$scripts/logging';
-	import { errorToast } from '$scripts/toasts';
+	import { updateDoc } from '@firebase/firestore';
 
 	export let rule: Rule;
 
 	const updateRule = async (): Promise<void> => {
 		try {
-			myLog({ msg: 'before rule change: ', additional_params: rule });
 			updateDoc(rule.docRef, { ...rule });
-			myLog({ msg: 'after rule change: ', additional_params: rule });
-		} catch (err) {
-			console.error(err);
-			errorToast({ msg: 'Unable to make rule change.  See console log for details.' });
+			LogAndToast({ msg: 'Updated rule: ', additional_params: rule, icon: all_icons.checkmark });
+		} catch (error) {
+			ErrorAndToast({ msg: 'Unable to make rule change.  See console log for details.', error });
 		}
 	};
 </script>

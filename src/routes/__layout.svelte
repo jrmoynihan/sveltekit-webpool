@@ -16,7 +16,17 @@
 </script>
 
 <script lang="ts">
-	import '../app.css';
+	import { dev } from '$app/env';
+	import ReturnToTop from '$lib/components/buttons/ReturnToTop.svelte';
+	import NewPlayerForm from '$lib/components/forms/NewPlayerForm.svelte';
+	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
+	import AppMenu from '$lib/majorFeatures/AppMenu.svelte';
+	import { findCurrentSeason } from '$lib/scripts/schedule';
+	import { getLocalStorageItem } from '$lib/scripts/utilities/localStorage';
+	import { myLog } from '$lib/scripts/utilities/logging';
+	import Navigator from '$navigation/Navigator.svelte';
+	import SiteNavOptions from '$navigation/siteNavOptions.svelte';
+	import { mobile_breakpoint } from '$scripts/site';
 	import {
 		all_players,
 		all_seasons,
@@ -30,21 +40,11 @@
 		use_dark_theme,
 		window_width
 	} from '$scripts/store';
-	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
-	import Navigator from '$navigation/Navigator.svelte';
-	import AppMenu from '$lib/majorFeatures/AppMenu.svelte';
-	import SiteNavOptions from '$navigation/siteNavOptions.svelte';
-	import ReturnToTop from '$lib/components/buttons/ReturnToTop.svelte';
-	import { SvelteToast } from '@zerodevx/svelte-toast';
-	import { mobile_breakpoint } from '$scripts/site';
-	import { onMount } from 'svelte';
-	import { getLocalStorageItem } from '$scripts/localStorage';
-	import NewPlayerForm from '$lib/components/forms/NewPlayerForm.svelte';
 	import type { LoadEvent, LoadOutput } from '@sveltejs/kit';
+	import { SvelteToast } from '@zerodevx/svelte-toast';
+	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
-	import { findCurrentSeason } from '$lib/scripts/schedule';
-	import { myLog } from '$lib/scripts/logging';
-	import { dev } from '$app/env';
+	import '../app.css';
 
 	export let refresh: any;
 	let openNewPlayerForm: () => Promise<void>;
@@ -108,7 +108,7 @@
 
 	<main>
 		<TransitionWrapper
-			{refresh}
+			bind:refresh
 			customStyles={$nav_toggled ? 'margin-top: 0.6rem;' : 'margin-top: 0;'}
 		>
 			<slot />
@@ -192,7 +192,7 @@
 		background: var(--background, hsl(120, 16%, 17%));
 		position: relative;
 		opacity: 99%;
-		min-height: 100vh;
+		min-height: 100dvh;
 		width: 100%;
 		grid-template-areas:
 			'menu'
@@ -233,5 +233,6 @@
 		text-align: center;
 		position: relative;
 		grid-area: main;
+		height: 100%;
 	}
 </style>

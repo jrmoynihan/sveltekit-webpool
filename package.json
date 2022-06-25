@@ -71,6 +71,7 @@
 		"@untemps/svelte-use-tooltip": "^2.7.0",
 		"cookie": "^0.5.0",
 		"dialog-polyfill": "^0.5.6",
+		"eslint-plugin-compat": "github:amilajack/eslint-plugin-compat",
 		"firebase": "^9.8.2",
 		"firebase-admin": "^10.2.0",
 		"firebase-tools": "^11.1.0",

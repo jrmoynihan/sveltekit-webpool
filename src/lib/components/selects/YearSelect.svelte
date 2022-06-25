@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { seasonBoundsCollection } from '$scripts/collections';
-	import { seasonBoundConverter } from '$scripts/converters';
-
+	import { seasonBoundsCollection } from '$lib/scripts/firebase/collections';
+	import { seasonBoundConverter } from '$lib/scripts/firebase/converters';
 	import {
 		all_seasons,
 		selected_season,

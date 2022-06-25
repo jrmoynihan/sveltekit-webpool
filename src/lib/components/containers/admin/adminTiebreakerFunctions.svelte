@@ -8,11 +8,23 @@
 		deleteTiebreakersForAllPlayers,
 		deleteTiebreakersForPlayer
 	} from '$scripts/weekly/weeklyAdmin';
+	import { where } from '@firebase/firestore';
 	import AdminExpandSection from './adminExpandSection.svelte';
 
 	export let customContentStyles = null;
 	export let customSummaryStyles = null;
 	let minColumns: string | number = '40%';
+
+	function deleteAllTiebreakersForPlayer() {
+		deleteTiebreakersForPlayer({ player: $selected_player });
+	}
+	function deleteSpecificTiebreakersForPlayer() {
+		const constraints = [
+			where('week', '==', $selected_week),
+			where('season_year', '==', $selected_year)
+		];
+		deleteTiebreakersForPlayer({ player: $selected_player, constraints });
+	}
 </script>
 
 <AdminExpandSection
@@ -30,12 +42,10 @@
 	>
 		Create All Tiebreakers for {$selected_player.name}
 	</StyledButton>
-	<DeletionButton on:click={() => deleteTiebreakersForPlayer($selected_player)}>
-		Delete All Tiebreakers for {$selected_player.name}
+	<DeletionButton on:click={deleteAllTiebreakersForPlayer}>
+		Delete Tiebreakers for {$selected_player.name}
 	</DeletionButton>
-	<DeletionButton
-		on:click={() => deleteTiebreakersForPlayer($selected_player, $selected_week, $selected_year)}
-	>
+	<DeletionButton on:click={deleteSpecificTiebreakersForPlayer}>
 		Delete Tiebreakers for {$selected_player.name} for Week {$selected_week}, {$selected_year}
 	</DeletionButton>
 	<DeletionButton on:click={() => deleteTiebreakersForAllPlayers()}>

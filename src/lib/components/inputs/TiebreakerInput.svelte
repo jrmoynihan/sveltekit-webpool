@@ -1,17 +1,20 @@
 <script lang="ts">
 	import { larger_than_mobile } from '$scripts/store';
-	import { createEventDispatcher } from 'svelte';
 	import { fade, slide } from 'svelte/transition';
 	import Tooltip from '../containers/Tooltip.svelte';
 
-	export let scoreGuess: number;
-	const dispatch = createEventDispatcher();
-	function changed(event: Event & { currentTarget: EventTarget & HTMLInputElement }): void {
-		dispatch('change', event.currentTarget.value);
-	}
+	export let score_guess: number;
+	export let tooltip_msg: string = `Enter a tiebreaker score -- the sum of both teams' scores in the last game of the week.`;
+	export let use_box_shadow = false;
+	export let grid_area = 'tiebreaker';
 </script>
 
-<span class="tiebreaker-container" class:pulse={scoreGuess < 10 || scoreGuess === undefined}>
+<span
+	style={`grid-area:${grid_area}`}
+	class="tiebreaker-container"
+	class:pulse={score_guess < 10 || score_guess === undefined}
+	class:box-shadowed={use_box_shadow}
+>
 	<Tooltip
 		arrowhorizontalPosition={$larger_than_mobile ? '23%' : '50%'}
 		tooltipHorizontalPosition={$larger_than_mobile ? '-25%' : '-55%'}
@@ -22,31 +25,33 @@
 			<input
 				id="tiebreaker-input"
 				type="number"
-				bind:value={scoreGuess}
-				on:input={(e) => changed(e)}
+				bind:value={score_guess}
 				placeholder="tiebreaker"
 				min="0"
 				in:fade={{ delay: 250, duration: 200 }}
 			/>
 			<span class="invalid" />
 		</svelte:fragment>
-		<span slot="text" transition:slide class="tooltip"
-			>Enter a tiebreaker score -- the sum of both teams' scores in the last game of the week.</span
-		>
+		<span slot="text" transition:slide class="tooltip">{tooltip_msg}</span>
 	</Tooltip>
 </span>
 
 <style lang="scss">
 	span {
 		@include rounded;
+		max-width: max-content;
 	}
 	.tiebreaker-container {
 		position: relative;
-		grid-area: tiebreaker;
+		display: grid;
+	}
+	.box-shadowed {
 		box-shadow: 0 0 4px 2px var(--accent, hsl(37, 75%, 65%));
 	}
 	input {
 		@include defaultInput;
+		font-size: 1.1em;
+		font-weight: 500;
 		box-sizing: border-box;
 		display: flex;
 		background-color: white;

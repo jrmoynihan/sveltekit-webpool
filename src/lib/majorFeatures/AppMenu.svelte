@@ -1,5 +1,22 @@
 <script lang="ts">
+	import { page } from '$app/stores';
+	import Avatar from '$lib/components/auth/Avatar.svelte';
+	import Grid from '$lib/components/containers/Grid.svelte';
+	import TeamSelector from '$lib/components/containers/micro/TeamSelector.svelte';
+	import AdminControlsModal from '$lib/components/modals/AdminControlsModal.svelte';
+	import ModalButtonAndSlot from '$lib/components/modals/ModalWithButton.svelte';
+	import Navigator from '$lib/components/navigation/Navigator.svelte';
+	import SiteNavOptions from '$lib/components/navigation/siteNavOptions.svelte';
+	import PlayerSelect from '$lib/components/selects/PlayerSelect.svelte';
+	import SeasonTypeSelect from '$lib/components/selects/SeasonTypeSelect.svelte';
+	import YearSelect from '$lib/components/selects/YearSelect.svelte';
+	import LightDarkToggle from '$lib/components/switches/LightDarkToggle.svelte';
+	import ThemeSelector from '$lib/components/switches/ThemeSelector.svelte';
+	import ToggleSwitch from '$lib/components/switches/ToggleSwitch.svelte';
+	import { admin_controls_pages } from '$lib/scripts/site';
+	import { setLocalStorageItem } from '$lib/scripts/utilities/localStorage';
 	import {
+		editing,
 		larger_than_mobile,
 		nav_toggled,
 		override_locked_picks,
@@ -10,25 +27,9 @@
 		show_spreads,
 		show_timestamps
 	} from '$scripts/store';
+	import type { ScoreViewPreference } from '$scripts/types/types';
 	import { faBars, faCog, faLock, faUnlock } from '@fortawesome/free-solid-svg-icons/index.es';
 	import Fa from 'svelte-fa';
-	import Auth from '$lib/components/auth/Auth.svelte';
-	import ModalButtonAndSlot from '$lib/components/modals/ModalWithButton.svelte';
-	import LightDarkToggle from '$lib/components/switches/LightDarkToggle.svelte';
-	import ThemeSelector from '$lib/components/switches/ThemeSelector.svelte';
-	import Navigator from '$lib/components/navigation/Navigator.svelte';
-	import SiteNavOptions from '$lib/components/navigation/siteNavOptions.svelte';
-	import { page } from '$app/stores';
-	import { setLocalStorageItem } from '$scripts/localStorage';
-	import type { ScoreViewPreference } from '$scripts/types/types';
-	import Grid from '$lib/components/containers/Grid.svelte';
-	import ToggleSwitch from '$lib/components/switches/ToggleSwitch.svelte';
-	import AdminControlsModal from '$lib/components/modals/AdminControlsModal.svelte';
-	import SeasonTypeSelect from '$lib/components/selects/SeasonTypeSelect.svelte';
-	import YearSelect from '$lib/components/selects/YearSelect.svelte';
-	import PlayerSelect from '$lib/components/selects/PlayerSelect.svelte';
-	import { admin_controls_pages } from '$lib/scripts/site';
-	import TeamSelector from '$lib/components/containers/micro/TeamSelector.svelte';
 
 	let viewPreferences: { label: string; value: ScoreViewPreference }[] = [
 		{ label: 'Actual', value: 'Actual' },
@@ -60,20 +61,22 @@
 		</ModalButtonAndSlot>
 	{/if}
 
-	<Auth />
+	<Avatar />
 
 	<div class="settings-wrapper">
 		{#if admin_controls_pages.includes($page.url.pathname)}
 			<AdminControlsModal modal_button_styles={`border-radius: 1rem; padding: 0.75rem;`}>
 				<Grid slot="modal-content" repeatColumns={2}>
 					{#if $page.url.pathname.includes('/weekly')}
-						<p>Select Season Type</p>
-						<SeasonTypeSelect />
-						<p>Select Year</p>
-						<YearSelect />
-						<p>Select Player</p>
-						<PlayerSelect player_pool="weekly" />
+						{#if !$page.url.pathname.includes('rules')}
+							<p>Select Season Type</p>
+							<SeasonTypeSelect />
+							<p>Select Year</p>
+							<YearSelect />
+						{/if}
 						{#if $page.url.pathname === '/weekly/make-picks'}
+							<p>Select Player</p>
+							<PlayerSelect player_pool="weekly" />
 							<p>Show Game IDs</p>
 							<ToggleSwitch bind:checked={$show_IDs} />
 							<p>Show Timestamps</p>
@@ -87,8 +90,10 @@
 							<ToggleSwitch bind:checked={$override_locked_picks} />
 						{/if}
 					{:else if $page.url.pathname.includes('/pick6')}
-						<p>Select Year</p>
-						<YearSelect />
+						{#if $page.url.pathname === '/pick6/make-picks'}
+							<p>Select Year</p>
+							<YearSelect />
+						{/if}
 					{:else if $page.url.pathname.includes('/survivor')}
 						<p>Select Player</p>
 						<PlayerSelect player_pool="survivor" />
@@ -96,8 +101,14 @@
 						<YearSelect />
 						<p>Select Team</p>
 						<TeamSelector />
+						<p>Show Spreads</p>
+						<ToggleSwitch bind:checked={$show_spreads} />
 						<p>Override Locked Games <Fa icon={$override_locked_picks ? faUnlock : faLock} /></p>
 						<ToggleSwitch bind:checked={$override_locked_picks} />
+					{/if}
+					{#if $page.url.pathname.includes('rules')}
+						<p>Edit Rules <Fa icon={$editing ? faUnlock : faLock} size="lg" /></p>
+						<ToggleSwitch bind:checked={$editing} />
 					{/if}
 				</Grid>
 			</AdminControlsModal>
@@ -162,7 +173,7 @@
 		max-width: 100%;
 		position: sticky;
 		top: 0;
-		max-height: 100vh;
+		max-height: 100dvh;
 		grid-template-columns: repeat(2, minmax(3rem, auto)) 1fr;
 		background: linear-gradient(
 			hsla(var(--background-value, hsl(120, 16%, 17%)), 90%) 90%,

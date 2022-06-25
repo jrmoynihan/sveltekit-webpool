@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { seasonBoundsCollection } from '$lib/scripts/collections';
-	import { seasonBoundConverter } from '$lib/scripts/converters';
+	import { seasonBoundsCollection } from '$lib/scripts/firebase/collections';
+	import { seasonBoundConverter } from '$lib/scripts/firebase/converters';
 	import { selected_season, selected_season_type, selected_year } from '$lib/scripts/store';
 	import { doc, getDoc } from '@firebase/firestore';
 	import { createEventDispatcher } from 'svelte';
