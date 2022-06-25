@@ -40,6 +40,7 @@ export const admin_controls_pages: string[] = [
 	'/weekly/make-picks',
 	'/weekly/view-picks',
 	'/weekly/standings',
+	'/weekly/rules',
 	'/pick6/make-picks',
 	'/pick6/rules',
 	'/survivor',
