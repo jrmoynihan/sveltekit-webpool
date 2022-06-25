@@ -133,7 +133,12 @@
 
 			// If tiebreaker doc isn't found, create one and return it
 			if (!tiebreakers || tiebreakers?.length === 0) {
-				$tiebreaker_promise = createTiebreaker(player.uid, week, year, season_type);
+				$tiebreaker_promise = createTiebreaker({
+					player,
+					week,
+					season_year: year,
+					season_type
+				});
 				tiebreakers = await $tiebreaker_promise;
 			}
 			// Multiple tiebreaker docs found, throw an error. Can't determine which one to use if the query returned multiple.
@@ -410,12 +415,7 @@
 				/>
 			{/key}
 			{#if show_tiebreaker_input || $override_locked_picks}
-				<TiebreakerInput
-					scoreGuess={$tiebreaker_score_guess}
-					on:change={(e) => {
-						$tiebreaker_score_guess = parseInt(e.detail);
-					}}
-				/>
+				<TiebreakerInput bind:score_guess={$tiebreaker_score_guess} />
 			{:else if upcoming_games_count !== 0}
 				<progress value={$progress || 0} />
 			{/if}
