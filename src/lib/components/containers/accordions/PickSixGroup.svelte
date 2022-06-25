@@ -39,9 +39,9 @@
 		? 'background: hsla(var(--accent-value), 40%); color:var(--text);'
 		: ''} transition: all 300ms ease-in-out; "
 >
-	<div slot="summary">
+	<div slot="summary" class="summary">
 		<p>Group {group_letter}</p>
-		<p>({group_selected_count}/2 picks made)</p>
+		<span class="group-count">{group_selected_count}/2</span>
 	</div>
 	<div slot="content" class="pick6 grid condensed expansive">
 		{#each group.filter((item) => !item.selected) as { team, selected } (team.abbreviation)}
@@ -62,6 +62,15 @@
 		@include gridAndGap;
 		padding: 1rem;
 		grid-template-rows: repeat(auto-fit, minmax(1fr, auto));
+	}
+	.summary {
+		position: relative;
+		display: grid;
+		grid-template-columns: 95% 5% 1rem;
+		width: 95%;
+	}
+	.group-count {
+		font-size: 1.1em;
 	}
 	.condensed {
 		grid-template-columns: 1fr 1fr;
