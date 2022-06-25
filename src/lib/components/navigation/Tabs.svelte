@@ -102,16 +102,6 @@
 	input[type='radio'] {
 		visibility: hidden;
 		display: none;
-
-		//TODO: replace with :has selector when broadly available!
-		&:checked + label {
-			&.light {
-				@include active($color: var(--background));
-			}
-			&.dark {
-				@include active($backgroundAlpha: 0.4);
-			}
-		}
 	}
 
 	.tab-component {
