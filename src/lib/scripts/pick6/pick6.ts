@@ -57,6 +57,7 @@ export const createPickSixDoc = async (input: createPickSixDocOptions) => {
 			nickname: player.nickname,
 			uid: player.uid,
 			picks: [],
+			tiebreaker_wins: 0,
 			season_year
 		});
 		await setDoc(new_doc_ref.withConverter(pickSixConverter), new_pick_six_doc);

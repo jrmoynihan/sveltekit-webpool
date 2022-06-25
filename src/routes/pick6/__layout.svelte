@@ -10,7 +10,7 @@
 	import NavLink from '$navigation/NavLink.svelte';
 	import Navigator from '$navigation/Navigator.svelte';
 	import TransitionWrapper from '$lib/components/TransitionWrapper.svelte';
-	import { nav_toggled } from '$scripts/store';
+	import { larger_than_mobile, nav_toggled } from '$scripts/store';
 	import type { LoadEvent, LoadOutput } from '@sveltejs/kit';
 	import { pick6_tabs } from '$scripts/site';
 
@@ -24,9 +24,11 @@
 </Navigator>
 <TransitionWrapper
 	{refresh}
-	customStyles={`${
-		$nav_toggled ? 'margin-top: 0.6rem;' : 'margin-top: 0;'
-	} position: absolute;inset: 0;top:3.5rem;`}
+	customStyles={`${$nav_toggled ? 'margin-top: 0.6rem;' : 'margin-top: 0;'} display: grid; ${
+		$larger_than_mobile
+			? `grid-template-areas: 'heading heading' 'dock picks'; grid-template-columns: minmax(0,10%) minmax(0,1fr); grid-template-rows: minmax(0,auto) minmax(0,1fr);`
+			: `grid-template-areas: 'heading' 'picks'; grid-template-columns: minmax(0,1fr); grid-template-rows: minmax(0,auto) minmax(0,1fr)`
+	}`}
 >
 	<slot />
 </TransitionWrapper>

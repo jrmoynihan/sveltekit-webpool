@@ -2,13 +2,16 @@
 	import { dev } from '$app/env';
 	import PickSixButton from '$lib/components/buttons/PickSixButton.svelte';
 	import PickSixGroup from '$lib/components/containers/accordions/PickSixGroup.svelte';
+	import TiebreakerInput from '$lib/components/inputs/TiebreakerInput.svelte';
 	import PageTitle from '$lib/components/misc/PageTitle.svelte';
 	import { all_icons } from '$lib/scripts/classes/constants';
 	import { PickSixDoc } from '$lib/scripts/classes/picks';
 	import { pickSixCollection } from '$lib/scripts/firebase/collections';
 	import { pickSixConverter } from '$lib/scripts/firebase/converters';
 	import { createPickSixDoc, getPickSixData } from '$lib/scripts/pick6/pick6';
+	import { defaultToast } from '$lib/scripts/toasts';
 	import { makeNumericArrayOfDesiredLength } from '$lib/scripts/utilities/functions';
+	import { getLocalStorageItem } from '$lib/scripts/utilities/localStorage';
 	import { LogAndToast, myError } from '$lib/scripts/utilities/logging';
 	import type { Team } from '$scripts/classes/team';
 	import {
@@ -23,6 +26,7 @@
 	import type { pickSixItem } from '$scripts/types/types';
 	import { doc, setDoc, Timestamp, updateDoc, where } from '@firebase/firestore';
 	import { faCaretUp } from '@fortawesome/free-solid-svg-icons/index.es';
+	import { onMount } from 'svelte';
 	import Fa from 'svelte-fa';
 	import { flip } from 'svelte/animate';
 	import { quintOut } from 'svelte/easing';
@@ -39,6 +43,7 @@
 	let is_before_season_start = $current_season_start.valueOf() > Timestamp.now().valueOf();
 	let existing_pick_promise: Promise<PickSixDoc> = null;
 	let existing_picks: string[] = [];
+	let tiebreaker_wins: number = 0;
 	let toggle_group_one: () => boolean;
 	let toggle_group_two: () => boolean;
 	let toggle_group_three: () => boolean;
@@ -134,7 +139,7 @@
 	async function updatePicks() {
 		const picks = all_selected_teams.map((t) => t.team.abbreviation);
 		const existing_pick_doc = await existing_pick_promise;
-		await updateDoc(existing_pick_doc.doc_ref, { picks });
+		await updateDoc(existing_pick_doc.doc_ref, { picks, tiebreaker_wins });
 		const title = `${$selected_year} Pick Six Updated`;
 		const msg = `Your picks have been updated for ${$selected_year}`;
 		LogAndToast({ title, msg, icon: all_icons.checkmark });
@@ -148,8 +153,8 @@
 		const player_pick_doc_data = await getPickSixData({ constraints: pick_doc_constraints });
 
 		if (player_pick_doc_data.length > 0) {
-			console.log('Player has picks', player_pick_doc_data[0].picks);
 			existing_picks = player_pick_doc_data[0].picks;
+			tiebreaker_wins = player_pick_doc_data[0].tiebreaker_wins;
 			return player_pick_doc_data[0];
 		}
 		// If there is no pick 6 doc, make one.
@@ -208,17 +213,29 @@
 	$: if (existing_picks.length > 0) {
 		selectExistingPicks();
 	}
+	onMount(async () => {
+		const key = 'pick6-make-picks';
+		const has_seen_toast = await getLocalStorageItem(key);
+		if (!has_seen_toast) {
+			defaultToast({
+				title: 'Pick Your Six!',
+				msg: 'Pick two teams from each group that you think will have the best records at the end of the year!',
+				useSeenToastComponent: true,
+				localStorageKey: key,
+				duration: 10_000
+			});
+		}
+	});
 </script>
 
-<PageTitle>Pick6</PageTitle>
+<PageTitle customStyles="grid-area: heading">Make Picks</PageTitle>
 <svelte:head>
-	<title>Pick6 Pool</title>
+	<title>Pick6 - Make Picks</title>
 </svelte:head>
 
 {#if is_before_season_start}
 	{#key existing_picks}
-		<div class="grid layout-container">
-			<h2>Pick two teams from each group!</h2>
+		<div class="grid picks-layout-container">
 			<button
 				class="reset"
 				on:click={() => {
@@ -251,24 +268,36 @@
 				/>
 			</div>
 			{#if group_one_selected_count === 2 && group_two_selected_count === 2 && group_three_selected_count === 2}
-				<button
-					transition:fly={{ y: 300, duration: 500, easing: quintOut }}
-					class="submit"
-					on:click={async () => (existing_picks ? updatePicks() : submitSixPicks())}
-					>{existing_picks ? 'Update' : 'Submit'} Picks</button
-				>
+				<label for="tiebreaker" class="tiebreaker">
+					Tiebreaker Wins: <TiebreakerInput
+						bind:score_guess={tiebreaker_wins}
+						grid_area={''}
+						tooltip_msg={'Enter a tiebreaker -- the total wins you expect your picked teams to have by the end of the season.'}
+					/>
+				</label>
+				{#if tiebreaker_wins}
+					<button
+						transition:fly={{ y: 300, duration: 500, easing: quintOut }}
+						class="submit"
+						on:click={async () => (existing_picks ? updatePicks() : submitSixPicks())}
+						>{existing_picks ? 'Update' : 'Submit'} Picks</button
+					>
+				{/if}
 			{/if}
 		</div>
 
 		<!-- The dock showing the player's picks -->
-		<div class="pick-dock grid fixed to-bottom to-left" class:hidden={!pick_dock_visible}>
+		<div class="pick-dock grid to-bottom to-left" class:hidden={!pick_dock_visible}>
 			{#if !$larger_than_mobile}
 				<button
 					class="toggle-pick-dock"
 					class:hidden={!pick_dock_visible}
+					style:--selected-teams={all_selected_teams.length}
 					on:click={() => (pick_dock_visible = !pick_dock_visible)}
-					><span class:rotated={pick_dock_visible}><Fa icon={faCaretUp} /></span></button
 				>
+					<p>{all_selected_teams.length} / 6</p>
+					<span class:rotated={pick_dock_visible}><Fa icon={faCaretUp} /></span>
+				</button>
 			{/if}
 			{#each all_selected_teams as { team, selected } (team.abbreviation)}
 				<div
@@ -303,41 +332,56 @@
 	.groups-container {
 		width: 100%;
 		@include responsive_desktop_only {
-			grid-template-rows: repeat(3, minmax(0, auto));
-			grid-template-columns: 1fr;
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+			grid-template-rows: 1fr;
 		}
 	}
 	.reset {
 		@include deletionButton;
 		max-width: max-content;
+		grid-area: reset;
 	}
 	.grid {
 		@include gridAndGap;
 		padding: 1rem;
 		margin: 0 auto;
 	}
-	.layout-container {
+	.picks-layout-container {
+		grid-area: picks;
+		grid-template-areas: 'reset' 'groups' 'tiebreaker' 'submit';
+		grid-template-rows: repeat(auto-fit, minmax(0, min-content));
+		justify-self: center;
+		width: 100%;
 		@include responsive_desktop_only {
-			max-width: 75%;
+			padding-right: 10%;
+			max-width: 95%;
 		}
 		@include responsive_mobile_only {
 			margin-bottom: 25vh;
 		}
 	}
-	.fixed {
+	.tiebreaker {
+		grid-area: tiebreaker;
+		display: grid;
+		place-items: center;
+		margin: auto;
+		font-size: 1.2em;
+		font-weight: bold;
+	}
+	.pick-dock {
 		display: grid;
 		background-color: var(--background);
+		// grid-row-start: heading;
+		// grid-row-end: dock;
 		@include responsive_mobile_only {
 			&.to-bottom {
-				@include fixed($bottom: 0, $top: 80%);
+				@include fixed($bottom: 0, $top: 80%, $left: 0, $right: 0);
 				box-sizing: border-box;
 				display: flex;
 				flex-wrap: wrap;
 				border-top: 2px solid var(--accent);
 				width: 100%;
 				height: 20rem;
-				left: 0;
-				right: 0;
 				margin: auto;
 				flex-direction: column;
 				margin-bottom: 0;
@@ -358,9 +402,10 @@
 		}
 		@include responsive_desktop_only {
 			&.to-left {
-				@include absolute($left: 0, $top: 0, $bottom: 0);
-				width: 10%;
-				grid-template-rows: repeat(auto-fit, minmax(0, 1fr));
+				@include fixed($left: 0, $top: 0, $bottom: 0);
+				max-width: 10%;
+				grid-template-rows: repeat(auto-fit, minmax(0, 15%));
+				margin-top: 8.2rem;
 			}
 		}
 	}
@@ -368,6 +413,7 @@
 		@include styledButton;
 		@include pulse($pulseDistance: 1.5rem);
 		max-width: max-content;
+		grid-area: submit;
 	}
 	.animation-container {
 		height: 100%;
@@ -385,6 +431,7 @@
 		background-color: hsla(var(--accent-hue), 10%, 10%, 100%);
 		max-width: max-content;
 		position: absolute;
+		gap: 0.5rem;
 		z-index: var(--above);
 		top: -2rem;
 		right: 0;
