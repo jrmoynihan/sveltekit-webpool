@@ -42,6 +42,10 @@
 				createSeasonRecordForPlayer({ player, season_year: $selected_year });
 			}
 		});
+		LogAndToast({
+			msg: 'Created season records for each weekly player.',
+			icon: all_icons.checkmark
+		});
 	}
 	function createWeeklyRecordForEachPlayer() {
 		const toast_id = defaultToast({
