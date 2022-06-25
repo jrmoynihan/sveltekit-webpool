@@ -5,22 +5,34 @@
 
 	export let tabs: Tab[];
 	export let selectedTab: Tab;
+
+	export const checkForEnterOrSpace = (
+		e: KeyboardEvent & { currentTarget: EventTarget & HTMLLabelElement },
+		index: number
+	) => {
+		if (e.code === 'Enter' || e.code === 'Space') {
+			selectedTab = tabs[index];
+		}
+	};
 </script>
 
 <div class="tabs-container defaultTransition">
 	<div class="tab-header defaultTransition">
 		{#if tabs}
-			{#each tabs as tab}
-				<input type="radio" bind:group={selectedTab} value={tab} id={tab.name} />
+			{#each tabs as tab, i}
 				<label
-					class="defaultTransition light"
+					class="defaultTransition"
 					class:dark={$use_dark_theme}
 					class:light={!$use_dark_theme}
 					class:mobile={!$larger_than_mobile}
+					class:active={tab === selectedTab}
 					for={tab.name}
+					tabindex="0"
+					on:keypress={(e) => checkForEnterOrSpace(e, i)}
 				>
-					<h3>{tab.name}</h3></label
-				>
+					<input type="radio" bind:group={selectedTab} value={tab} id={tab.name} />
+					<h3>{tab.name}</h3>
+				</label>
 			{/each}
 		{/if}
 	</div>
@@ -53,6 +65,12 @@
 		font-weight: bold;
 		padding: 1rem;
 		height: 100%;
+		&.active.light {
+			@include active($color: var(--background));
+		}
+		&.active.dark {
+			@include active($backgroundAlpha: 0.4);
+		}
 	}
 	.tab-header {
 		@include rounded;
@@ -68,6 +86,16 @@
 		}
 		& > label.mobile {
 			border-radius: 1rem;
+		}
+		& > label:hover:not(.active),
+		& > label:focus-within:not(.active) {
+			&.dark {
+				background-color: hsla(var(--accent-value, hsl(37, 75%, 65%)), 20%);
+			}
+			&.light {
+				background-color: hsla(var(--accent-value, forestgreen), 60%);
+				color: var(--background);
+			}
 		}
 	}
 
