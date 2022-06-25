@@ -6,11 +6,11 @@
 	import { editing } from '$scripts/store';
 	import { collection, CollectionReference, getDocs, orderBy, query } from '@firebase/firestore';
 
-	export let selectedTab: { [x: string]: CollectionReference };
+	export let selected_tab: { [x: string]: CollectionReference };
 
 	const getRuleData = async () => {
 		const rules: Rule[] = [];
-		const q = query(collection(selectedTab.ref, 'Rules'), orderBy('order'));
+		const q = query(collection(selected_tab.ref, 'Rules'), orderBy('order'));
 		const rulesSnapshot = await getDocs(q.withConverter(ruleConverter));
 		rulesSnapshot.forEach((rule) => {
 			rules.push(rule.data());

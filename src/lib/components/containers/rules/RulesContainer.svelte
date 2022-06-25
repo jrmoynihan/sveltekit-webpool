@@ -56,5 +56,5 @@
 	<hr />
 {/if}
 {#if tabs.length > 0}
-	<Tabs {tabs} selectedTab={tabs[0]} />
+	<Tabs {tabs} selected_tab={tabs[0]} />
 {/if}

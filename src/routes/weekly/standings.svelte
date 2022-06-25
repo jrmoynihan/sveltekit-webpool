@@ -16,7 +16,7 @@
 <PageTitle>Standings</PageTitle>
 
 <section class="standings">
-	<Tabs bind:selectedTab={$selected_tab} {tabs} />
+	<Tabs bind:selected_tab={$selected_tab} {tabs} />
 </section>
 
 <style lang="scss">

@@ -4,14 +4,14 @@
 	import TransitionWrapper from '../TransitionWrapper.svelte';
 
 	export let tabs: Tab[];
-	export let selectedTab: Tab;
+	export let selected_tab: Tab;
 
 	export const checkForEnterOrSpace = (
 		e: KeyboardEvent & { currentTarget: EventTarget & HTMLLabelElement },
 		index: number
 	) => {
 		if (e.code === 'Enter' || e.code === 'Space') {
-			selectedTab = tabs[index];
+			selected_tab = tabs[index];
 		}
 	};
 </script>
@@ -25,20 +25,20 @@
 					class:dark={$use_dark_theme}
 					class:light={!$use_dark_theme}
 					class:mobile={!$larger_than_mobile}
-					class:active={tab === selectedTab}
+					class:active={tab === selected_tab}
 					for={tab.name}
 					tabindex="0"
 					on:keypress={(e) => checkForEnterOrSpace(e, i)}
 				>
-					<input type="radio" bind:group={selectedTab} value={tab} id={tab.name} />
+					<input type="radio" bind:group={selected_tab} value={tab} id={tab.name} />
 					<h3>{tab.name}</h3>
 				</label>
 			{/each}
 		{/if}
 	</div>
 	<div class="tab-component">
-		<TransitionWrapper refresh={selectedTab}>
-			<svelte:component this={selectedTab.component} {selectedTab} />
+		<TransitionWrapper refresh={selected_tab}>
+			<svelte:component this={selected_tab.component} {selected_tab} />
 		</TransitionWrapper>
 	</div>
 	<slot name="tab-footer" />
