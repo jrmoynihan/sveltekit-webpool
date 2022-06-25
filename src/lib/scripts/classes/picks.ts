@@ -31,6 +31,7 @@ export class WeeklyPickDoc {
 export class PickSixDoc {
 	doc_ref: DocumentReference;
 	picks: string[];
+	tiebreaker_wins: number;
 	uid: string;
 	season_year: number;
 	name: string;
@@ -38,8 +39,8 @@ export class PickSixDoc {
 	constructor({ ...args }) {
 		(this.doc_ref = args.doc_ref),
 			(this.picks = args.picks),
-			(this.uid = args.uid),
-			(this.season_year = args.season_year);
+			(this.tiebreaker_wins = args.tiebreaker_wins);
+		(this.uid = args.uid), (this.season_year = args.season_year);
 		this.name = args.name;
 		this.nickname = args.nickname;
 	}
