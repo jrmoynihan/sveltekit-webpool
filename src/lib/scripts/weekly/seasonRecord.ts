@@ -23,6 +23,8 @@ export const createSeasonRecordForPlayer = async (input: createSeasonRecordForPl
 	try {
 		const data: SeasonRecord = new SeasonRecord({
 			uid: player.uid,
+			name: player.name,
+			nickname: player.nickname,
 			season_year,
 			doc_ref,
 			total_weekly_losses: 0,

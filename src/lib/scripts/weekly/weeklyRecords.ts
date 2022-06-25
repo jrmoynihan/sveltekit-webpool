@@ -50,6 +50,9 @@ interface createWeeklyRecordForPlayerOptions {
 	season_type: string;
 	net_tiebreaker?: number;
 	net_tiebreaker_absolute?: number;
+	prize_amount?: number;
+	wins?: number;
+	losses?: number;
 	perform_prexisting_doc_check?: boolean;
 }
 export const createWeeklyRecordForPlayer = async (input: createWeeklyRecordForPlayerOptions) => {
@@ -60,6 +63,9 @@ export const createWeeklyRecordForPlayer = async (input: createWeeklyRecordForPl
 		season_type,
 		net_tiebreaker = null,
 		net_tiebreaker_absolute = null,
+		prize_amount = 0,
+		wins = 0,
+		losses = 0,
 		perform_prexisting_doc_check = true
 	} = input;
 	try {
@@ -81,11 +87,16 @@ export const createWeeklyRecordForPlayer = async (input: createWeeklyRecordForPl
 			const record: PlayerRecord = new PlayerRecord({
 				doc_ref,
 				uid: player.uid,
+				name: player.name,
+				nickname: player.nickname,
 				season_year,
 				season_type,
 				week,
+				wins,
+				losses,
 				net_tiebreaker,
-				net_tiebreaker_absolute
+				net_tiebreaker_absolute,
+				prize_amount
 			});
 			await setDoc(doc_ref, record);
 			myLog({

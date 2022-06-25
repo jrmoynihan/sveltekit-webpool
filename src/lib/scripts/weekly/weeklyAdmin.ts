@@ -271,13 +271,12 @@ export const createWeeklyTiebreakersForPlayer = async (
 ) => {
 	const { player, season, show_toast } = input;
 	try {
-		const { uid } = player;
 		const { year, number_of_weeks, type_name } = season;
 		// Make an array from the number of weeks, starting with 1
 		const weeks = makeNumericArrayOfDesiredLength(number_of_weeks);
 		// Create a tiebreaker doc for each week
 		weeks.forEach(async (week) => {
-			await createTiebreaker(uid, week, year, type_name);
+			await createTiebreaker({ player, week, season_year: year, season_type: type_name });
 		});
 		myLog({ msg: `set tiebreakers for ${player.name} (${player.nickname})` });
 	} catch (error) {
@@ -290,18 +289,22 @@ export const createWeeklyTiebreakersForPlayer = async (
 			: myError({ msg, error });
 	}
 };
-export const createTiebreaker = async (
-	uid: string,
-	week: number,
-	season_year: number,
-	season_type = 'Regular Season',
-	score_guess = null
-) => {
+interface createTiebreakerOptions {
+	player: Player;
+	week: number;
+	season_year: number;
+	season_type?: string;
+	score_guess?: number;
+}
+export const createTiebreaker = async (input: createTiebreakerOptions) => {
+	const { player, week, season_year, season_type = 'Regular Season', score_guess = null } = input;
 	const doc_ref = doc(weeklyTiebreakersCollection.withConverter(weeklyTiebreakerConverter));
 	try {
-		const data: WeeklyTiebreaker = new WeeklyTiebreaker({
+		const data = new WeeklyTiebreaker({
 			score_guess,
-			uid,
+			uid: player.uid,
+			name: player.name,
+			nickname: player.nickname,
 			week,
 			season_year,
 			season_type,
@@ -309,7 +312,8 @@ export const createTiebreaker = async (
 		});
 		await setDoc(doc_ref, data);
 		myLog({
-			msg: `set tiebreaker doc (${doc_ref.path}); uid: ${uid}, week ${week}, ${season_year}`
+			msg: `Created new tiebreaker doc (${doc_ref.path}); player: ${player.name} (uid: ${player.uid}), week ${week}, ${season_year}`,
+			additional_params: data
 		});
 		// TODO: why does this need to return an array?
 		return [data];
@@ -317,7 +321,7 @@ export const createTiebreaker = async (
 		ErrorAndToast({
 			msg: `Encountered an error while trying to set tiebreaker doc (${doc_ref.path})`,
 			error,
-			additional_params: `unable to update tiebreaker ${doc_ref.path} for player ${uid}`
+			additional_params: `unable to update tiebreaker ${doc_ref.path} for ${player.name} (${player.uid})`
 		});
 	}
 };
