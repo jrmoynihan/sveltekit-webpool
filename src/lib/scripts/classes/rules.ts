@@ -1,5 +1,5 @@
 import { collection, CollectionReference, DocumentReference } from '@firebase/firestore';
-import type { SvelteComponentDev } from 'node_modules/svelte/internal';
+import { Tab } from './tab';
 
 export class Rule {
 	docRef: DocumentReference;
@@ -10,7 +10,9 @@ export class Rule {
 		this.docRef = args.docRef;
 		this.order = args.order;
 		this.text = args.text;
-		this.subtext = args.subtext;
+		if (args.subtext) {
+			this.subtext = args.subtext;
+		}
 	}
 }
 
@@ -40,9 +42,12 @@ export class RuleCategory {
 			(this.rules = collection(args.docRef, 'Rules'));
 	}
 }
-export class RuleTab {
-	name: string;
-	component: typeof SvelteComponentDev;
+export class RuleTab extends Tab {
 	data: {};
 	ref: DocumentReference;
+	constructor({ ...args }) {
+		super(args);
+		this.data = args.data;
+		this.ref = args.ref;
+	}
 }
