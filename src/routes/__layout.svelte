@@ -108,7 +108,7 @@
 
 	<main>
 		<TransitionWrapper
-			{refresh}
+			bind:refresh
 			customStyles={$nav_toggled ? 'margin-top: 0.6rem;' : 'margin-top: 0;'}
 		>
 			<slot />
