@@ -10,17 +10,17 @@
 		text: 'hsla(0, 0%, 0%, 1)', // main/text color
 		background: 'hsla(0, 0%, 100%, 1)', // background/alternate color
 		accent: 'hsla(120, 16.3%, 16.9%, 1)',
-		admin: 'hsl(220 100% 35%)',
-		adminBorder: 'hsl(220 100% 35%)',
-		adminBackground: 'hsl(220 40% 85%)'
+		admin: 'hsla(220, 100%, 50%, 1)',
+		adminBorder: 'hsla(220, 100%, 50%, 0.5)',
+		adminBackground: 'hsla(220, 40%, 85%, 0)'
 	};
 	export let darkThemeColors = {
 		text: 'hsla(0, 0%, 100%, 1)', // main/text color
 		background: 'hsla(120, 16.3%, 16.9%, 1)', // background/alternate color
 		accent: 'hsla(36.7, 75.3%, 65.1%, 1)',
-		admin: 'hsla(220, 100%, 35%, 1)',
-		adminBorder: 'hsla(220, 100%, 35%, 1)',
-		adminBackground: 'hsla(220, 40%, 80%, 1)'
+		admin: 'hsla(220, 100%, 70%, 1)',
+		adminBorder: 'hsla(220, 100%, 70%, 0.5)',
+		adminBackground: 'hsla(220, 40%, 80%, 0)'
 	};
 	export let colors = { ...darkThemeColors };
 
