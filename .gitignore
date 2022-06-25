@@ -11,4 +11,5 @@ public/**
 .env
 .env.*
 .vercel
+.VSCodeCounter
 *.log
