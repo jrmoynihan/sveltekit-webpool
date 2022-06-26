@@ -20,6 +20,7 @@
 	import Grid from '$lib/components/containers/Grid.svelte';
 	import { onMount } from 'svelte';
 	import { findCurrentSeason } from '$lib/scripts/schedule';
+	import AdminExpandSection from '$lib/components/containers/admin/adminExpandSection.svelte';
 
 	let customContentStyles = 'padding-top: 1rem;';
 
@@ -30,8 +31,8 @@
 </script>
 
 <PageTitle>Weekly Pool Admin</PageTitle>
+<AdminSelectors player_pool={'weekly'} {customContentStyles} />
 <Grid minColumns={$larger_than_mobile ? '40%' : '100%'} customStyles={'align-items:start;'}>
-	<AdminSelectors player_pool={'weekly'} {customContentStyles} />
 	<AdminSpreadFunctions {customContentStyles} />
 	<AdminPicksFunctions {customContentStyles} />
 	<AdminTiebreakerFunctions {customContentStyles} />
@@ -39,12 +40,11 @@
 	<AdminTeamRecords {customContentStyles} />
 	<AdminUserRecords {customContentStyles} />
 	<AdminScheduleFunctions {customContentStyles} />
+	<AdminExpandSection {customContentStyles} summaryText="Weekly Users">
+		<div>
+			{#each $all_players.filter((player) => player.weekly === true) as player}
+				<p>{player.name}</p>
+			{/each}
+		</div>
+	</AdminExpandSection>
 </Grid>
-
-<AccordionDetails expandTitle="Weekly Users" {customContentStyles} expanderIconSide={'right'}>
-	<svelte:fragment slot="content">
-		{#each $all_players.filter((player) => player.weekly === true) as player}
-			<p>{player.name}</p>
-		{/each}
-	</svelte:fragment>
-</AccordionDetails>
