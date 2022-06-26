@@ -51,7 +51,12 @@
 				in:receive={{ key: team.abbreviation }}
 				out:send={{ key: team.abbreviation }}
 			>
-				<PickSixButton bind:team bind:selected bind:group_selected_count show_record={true} />
+				<PickSixButton
+					bind:team
+					bind:selected
+					bind:group_selected_count
+					show_previous_year_record={true}
+				/>
 			</div>
 		{/each}
 	</div>

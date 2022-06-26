@@ -10,9 +10,11 @@
 	export let selected: boolean;
 	export let group_selected_count: number = 0;
 	export let only_unselect: boolean = false;
-	export let show_record: boolean = false;
+	export let show_previous_year_record: boolean = false;
+	export let show_this_year_record: boolean = false;
 
-	$: record = team.records.find((r) => r.year === $selected_year - 1);
+	$: previous_year_record = team.records.find((r) => r.year === $selected_year - 1);
+	$: this_year_record = team.records.find((r) => r.year === $selected_year);
 </script>
 
 <button
@@ -39,10 +41,16 @@
 		{team.abbreviation}
 	</span>
 	<TeamImage {team} />
-	{#if show_record}
+	{#if show_previous_year_record}
 		<span>
-			{record?.wins}-{record?.losses}{#if record?.ties}-{record?.ties}{/if}
-			<p>({record?.year})</p>
+			{previous_year_record?.wins}-{previous_year_record?.losses}{#if previous_year_record?.ties}-{previous_year_record?.ties}{/if}
+			<p>({previous_year_record?.year})</p>
+		</span>
+	{/if}
+	{#if show_this_year_record}
+		<span>
+			{this_year_record?.wins}-{this_year_record?.losses}{#if this_year_record?.ties}-{this_year_record?.ties}{/if}
+			<p>({this_year_record?.year})</p>
 		</span>
 	{/if}
 </button>
