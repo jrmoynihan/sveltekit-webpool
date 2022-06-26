@@ -26,8 +26,14 @@
 		window_width
 	} from '$scripts/store';
 	import { arrayUnion, deleteDoc, orderBy, updateDoc, where } from '@firebase/firestore';
+	import {
+		faBars,
+		faLongArrowAltLeft,
+		faLongArrowAltRight
+	} from '@fortawesome/free-solid-svg-icons';
 	import { faCaretLeft, faCaretRight } from '@fortawesome/free-solid-svg-icons/index.es';
 	import Fa from 'svelte-fa';
+	import { FaLayers } from 'svelte-fa/src';
 
 	// let headers = ['Away Team', 'Game Date', 'Home Team'];
 	let layout_breakpoint = 1620;
@@ -127,10 +133,15 @@
 			{@const picks = survivor_data[0]?.picks}
 
 			{#if !$larger_than_mobile && picks.find((p) => p.pick !== '')}
-				<button class="show-picks-btn" on:click={() => (show_past_picks = !show_past_picks)}
-					><Fa icon={show_past_picks ? faCaretRight : faCaretLeft} size="lg" />
-					{show_past_picks ? 'Hide' : 'Show'} Past Picks</button
-				>
+				<button class="show-picks-btn" on:click={() => (show_past_picks = !show_past_picks)}>
+					<FaLayers>
+						<Fa icon={faBars} translateX={show_past_picks ? -0.2 : 0.2} />
+						<Fa
+							icon={show_past_picks ? faLongArrowAltRight : faLongArrowAltLeft}
+							translateX={show_past_picks ? 0.2 : -0.2}
+						/>
+					</FaLayers>
+				</button>
 			{/if}
 		{/await}
 	</section>
@@ -171,6 +182,7 @@
 								bind:pick
 								bind:show_game_container
 								bind:show_team_name_images
+								{is_before_game_time}
 							/>
 							<span>
 								{#if pick_is_home_or_away && mark_correct !== undefined}
@@ -196,6 +208,7 @@
 								bind:pick
 								bind:show_game_container
 								bind:show_team_name_images
+								{is_before_game_time}
 							/>
 						</div>
 					{/await}
@@ -217,9 +230,15 @@
 						<button
 							class="show-picks-btn top-right"
 							on:click={() => (show_past_picks = !show_past_picks)}
-							><Fa icon={show_past_picks ? faCaretRight : faCaretLeft} size="lg" />
-							{show_past_picks ? 'Hide' : 'Show'} Past Picks</button
 						>
+							<FaLayers>
+								<Fa icon={faBars} translateX={show_past_picks ? -0.2 : 0.2} />
+								<Fa
+									icon={show_past_picks ? faLongArrowAltRight : faLongArrowAltLeft}
+									translateX={show_past_picks ? 0.2 : -0.2}
+								/>
+							</FaLayers>
+						</button>
 					{:else}
 						<span />
 					{/if}
@@ -274,6 +293,8 @@
 		padding: 1rem 0.5rem;
 	}
 	.past-picks-section {
+		padding: 1rem;
+		border-radius: 1rem;
 		background-color: var(--background);
 		@include responsive_desktop_only {
 			grid-area: past-picks;
