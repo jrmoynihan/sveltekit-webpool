@@ -48,7 +48,7 @@ import {
 } from './classes/constants';
 import type { WeeklyPickDoc } from './classes/picks';
 import type { Player } from './classes/player';
-import type { PlayerRecord, SeasonRecord } from './classes/playerRecord';
+import type { PlayerRecord, RankedWeeklyRecord, SeasonRecord } from './classes/playerRecord';
 import type { WeeklyTiebreaker } from './classes/tiebreaker';
 import { gamesCollection, teamsCollection, weeklyPicksCollection } from './firebase/collections';
 import {
@@ -107,98 +107,95 @@ export const scorePicksForWeek = async (
 			await markIfPickIsCorrect(picks, game);
 		}
 
-		let { most_wins, second_most_wins, third_most_wins } =
-			await updateAllWeeklyPlayerRecordsForWeek(
-				selected_year,
-				selected_week,
-				season_type,
-				starting_toast_id
-			);
+		await updateAllWeeklyPlayerRecordsForWeek(
+			selected_year,
+			selected_week,
+			season_type,
+			starting_toast_id
+		);
 
-		myLog({ msg: 'most wins:', additional_params: most_wins });
-		myLog({ msg: 'second most wins: ', additional_params: second_most_wins });
-		myLog({ msg: 'third most wins: ', additional_params: third_most_wins });
-
-		// Now that records have been updated, query them all to compare wins
+		// Now that records have been updated, query them all to compare wins; we'll need the whole season year to update season records
 		const weeklyPickRecordsForWholeYear = await getWeeklyRecordData({
 			constraints: [where('season_year', '==', selected_year)]
 		});
+		// Filter down to just the selected week's records
 		const weeklyPickRecordsForSelectedWeek = weeklyPickRecordsForWholeYear.filter((record) => {
 			return record.week === selected_week;
 		});
 
+		// Sort the records by wins
+		weeklyPickRecordsForSelectedWeek.sort((a, b) => (a.wins > b.wins ? -1 : 1));
+		myLog({ msg: 'Sorted Records: ', additional_params: weeklyPickRecordsForSelectedWeek });
+
+		// Get the most wins
+		const most_wins = weeklyPickRecordsForSelectedWeek[0];
+		const second_most_wins = weeklyPickRecordsForSelectedWeek[1];
+		const third_most_wins = weeklyPickRecordsForSelectedWeek[2].wins;
+		myLog({ msg: 'most wins:', additional_params: most_wins });
+		myLog({ msg: 'second most wins: ', additional_params: second_most_wins });
+		myLog({ msg: 'third most wins: ', additional_params: third_most_wins });
+
+		// Get records that have at least the third-most wins (maximum # of records = 2 + however many players tie at 3rd place)
+		const records_with_at_least_third_most_wins = weeklyPickRecordsForSelectedWeek.filter(
+			(record) => {
+				return record.wins >= third_most_wins;
+			}
+		);
 		LogAndToast({ id: starting_toast_id, msg: `Finding week ${selected_week} leaders...` });
-		const firstPlacersForWeek = await findWeeklyLeaders(
-			weeklyPickRecordsForSelectedWeek,
-			most_wins
+
+		const ranked_records = assignRanksToRecordsByNetTiebreaker(
+			records_with_at_least_third_most_wins
 		);
-		const secondPlacersForWeek = await findWeeklyLeaders(
-			weeklyPickRecordsForSelectedWeek,
-			second_most_wins
-		);
-		const thirdPlacersForWeek = await findWeeklyLeaders(
-			weeklyPickRecordsForSelectedWeek,
-			third_most_wins
-		);
+		myLog({ msg: 'Ranked Records:', additional_params: ranked_records });
+
+		const first_placer_records = ranked_records.filter((record) => record.rank === 1);
+		const second_placer_records = ranked_records.filter((record) => record.rank === 2);
+		const third_placer_records = ranked_records.filter((record) => record.rank === 3);
 
 		LogAndToast({ id: starting_toast_id, msg: `Calculating weekly prize splits...` });
-		// Find out how the week's prize pool should be split
+
 		const { firstPlaceWeeklyPrize, secondPlaceWeeklyPrize, thirdPlaceWeeklyPrize } =
 			await calculateWeekPrizeSplits(
-				firstPlacersForWeek,
-				secondPlacersForWeek,
-				thirdPlacersForWeek
+				first_placer_records,
+				second_placer_records,
+				third_placer_records
 			);
 		myLog({
 			msg: '1st Placers: ',
-			additional_params: { firstPlacersForWeek, firstPlaceWeeklyPrize }
+			additional_params: {
+				winners: first_placer_records.map((r) => r.nickname),
+				firstPlaceWeeklyPrize
+			}
 		});
 		myLog({
 			msg: '2nd Placers: ',
-			additional_params: { secondPlacersForWeek, secondPlaceWeeklyPrize }
+			additional_params: {
+				winners: second_placer_records.map((r) => r.nickname),
+				secondPlaceWeeklyPrize
+			}
 		});
 		myLog({
 			msg: '3rd Placers: ',
-			additional_params: { thirdPlacersForWeek, thirdPlaceWeeklyPrize }
+			additional_params: {
+				winners: third_placer_records.map((r) => r.nickname),
+				thirdPlaceWeeklyPrize
+			}
 		});
 
 		LogAndToast({ id: starting_toast_id, msg: `Awarding weekly prizes...` });
 
-		weeklyPlayers.forEach(async (player) => {
-			const record_to_update = weeklyPickRecordsForSelectedWeek.find(
-				(record) => record.uid === player.uid
-			);
-			if (record_to_update) {
-				if (firstPlacersForWeek.includes(player.uid)) {
-					myLog({
-						msg: `first place winner for week ${selected_week}: `,
-						additional_params: player.name
-					});
-					await assignWeeklyPrize(record_to_update, firstPlaceWeeklyPrize);
-				} else if (secondPlacersForWeek.includes(player.uid)) {
-					myLog({
-						msg: `second place winner for week ${selected_week}: `,
-						additional_params: player.name
-					});
-					await assignWeeklyPrize(record_to_update, secondPlaceWeeklyPrize);
-				} else if (thirdPlacersForWeek.includes(player.uid)) {
-					myLog({
-						msg: `third place winner for week ${selected_week}: `,
-						additional_params: player.name
-					});
-					await assignWeeklyPrize(record_to_update, thirdPlaceWeeklyPrize);
-				} else if (record_to_update) {
-					myLog({
-						msg: `non-winner for week ${selected_week}: `,
-						additional_params: player.name
-					});
-					await assignWeeklyPrize(record_to_update, 0);
-				}
-			}
-		});
+		for await (const record of first_placer_records) {
+			await assignWeeklyPrize(record, firstPlaceWeeklyPrize);
+		}
+		for await (const record of second_placer_records) {
+			await assignWeeklyPrize(record, secondPlaceWeeklyPrize);
+		}
+		for await (const record of third_placer_records) {
+			await assignWeeklyPrize(record, thirdPlaceWeeklyPrize);
+		}
 
 		// Update weekly player season records
-		weeklyPlayers.forEach(async (player) => {
+		for await (const player of weeklyPlayers) {
 			const player_weekly_records = weeklyPickRecordsForWholeYear.filter(
 				(data) => data.uid === player.uid
 			);
@@ -210,7 +207,7 @@ export const scorePicksForWeek = async (
 			});
 			// TODO: Turn this into a cloud function trigger
 			await updateWeeklyPlayerSeasonRecord(player, player_weekly_records, selected_year);
-		});
+		}
 
 		toast.pop(starting_toast_id);
 		defaultToast({
@@ -219,6 +216,47 @@ export const scorePicksForWeek = async (
 		});
 	} catch (error) {
 		myError({ error });
+	}
+};
+export const sortRecordsByNetTiebreaker = (records: PlayerRecord[]) => {
+	const sorted_by_net_tiebreaker = records.sort((a, b) => {
+		if (a.net_tiebreaker < b.net_tiebreaker) {
+			return -1;
+		} else if (a.net_tiebreaker > b.net_tiebreaker) {
+			return 1;
+		} else {
+			sortRecordsByNetTiebreakerAbsolute([a, b]);
+		}
+	});
+	return sorted_by_net_tiebreaker;
+};
+export const assignRanksToRecordsByNetTiebreaker = (records: PlayerRecord[], rank = 1) => {
+	const ranked_records = sortRecordsByNetTiebreaker(records) as RankedWeeklyRecord[];
+	for (let i = 0; i < ranked_records.length; i++) {
+		if (i === 0) {
+			ranked_records[i].rank = rank;
+		} else if (ranked_records[i].net_tiebreaker !== ranked_records[i - 1].net_tiebreaker) {
+			rank++;
+			ranked_records[i].rank = rank;
+		} else if (
+			ranked_records[i].net_tiebreaker_absolute !== ranked_records[i - 1].net_tiebreaker_absolute
+		) {
+			rank++;
+			ranked_records[i].rank = rank;
+		} else {
+			ranked_records[i].rank = rank;
+		}
+	}
+	return ranked_records;
+};
+
+export const sortRecordsByNetTiebreakerAbsolute = (records: PlayerRecord[]) => {
+	if (records[0].net_tiebreaker_absolute < records[1].net_tiebreaker_absolute) {
+		return -1;
+	} else if (records[0].net_tiebreaker_absolute > records[1].net_tiebreaker_absolute) {
+		return 1;
+	} else {
+		return 0;
 	}
 };
 
@@ -299,7 +337,7 @@ export const assignWeeklyPoolSeasonPrizes = async (selected_year: number) => {
 		);
 
 	// Assign either the first, second, third, or no prize value to the player for the season
-	weeklyPlayers.forEach(async (player) => {
+	for await (const player of weeklyPlayers) {
 		const { uid, ref, name, nickname } = player;
 		toast.set(toast_id, { msg: `Assigning season prizes for ${name} (${nickname})...` });
 		if (first_placers_for_season.includes(uid)) {
@@ -311,7 +349,7 @@ export const assignWeeklyPoolSeasonPrizes = async (selected_year: number) => {
 		} else {
 			await assignSeasonPrize(ref, 0);
 		}
-	});
+	}
 };
 
 export const assignSeasonPrize = async (
@@ -324,32 +362,32 @@ export const assignSeasonPrize = async (
 };
 
 export const calculateWeekPrizeSplits = async (
-	firstPlacers: string[],
-	secondPlacers: string[],
-	thirdPlacers: string[]
+	first_place_records: PlayerRecord[],
+	second_place_records: PlayerRecord[],
+	third_place_records: PlayerRecord[]
 ) => {
 	let firstPlaceWeeklyPrize: number;
 	let secondPlaceWeeklyPrize: number;
 	let thirdPlaceWeeklyPrize: number;
 
-	if (firstPlacers.length === 1) {
+	if (first_place_records.length === 1) {
 		firstPlaceWeeklyPrize = firstPlaceWeeklyAmount;
-		if (secondPlacers.length === 1) {
+		if (second_place_records.length === 1) {
 			secondPlaceWeeklyPrize = secondPlaceWeeklyAmount;
-			thirdPlaceWeeklyPrize = thirdPlaceWeeklyAmount / thirdPlacers.length;
-		} else if (secondPlacers.length >= 2) {
+			thirdPlaceWeeklyPrize = thirdPlaceWeeklyAmount / third_place_records.length;
+		} else if (second_place_records.length >= 2) {
 			secondPlaceWeeklyPrize =
-				(secondPlaceWeeklyAmount + thirdPlaceWeeklyAmount) / secondPlacers.length;
+				(secondPlaceWeeklyAmount + thirdPlaceWeeklyAmount) / second_place_records.length;
 			thirdPlaceWeeklyPrize = 0;
 		}
-	} else if (firstPlacers.length === 2) {
+	} else if (first_place_records.length === 2) {
 		firstPlaceWeeklyPrize = (firstPlaceWeeklyAmount + secondPlaceWeeklyAmount) / 2;
-		secondPlaceWeeklyPrize = thirdPlaceWeeklyAmount / secondPlacers.length;
+		secondPlaceWeeklyPrize = thirdPlaceWeeklyAmount / second_place_records.length;
 		thirdPlaceWeeklyPrize = 0;
-	} else if (firstPlacers.length >= 3) {
+	} else if (first_place_records.length >= 3) {
 		firstPlaceWeeklyPrize =
 			(firstPlaceWeeklyAmount + secondPlaceWeeklyAmount + thirdPlaceWeeklyAmount) /
-			firstPlacers.length;
+			first_place_records.length;
 		secondPlaceWeeklyPrize = 0;
 		thirdPlaceWeeklyPrize = 0;
 	}
@@ -433,27 +471,6 @@ export const filterWeeklySeasonLeaders = async (
 	}
 };
 
-/**
- * Returns an array of players who have the specified number of wins in the specified week
- * @param records - The array of weekly pool player records
- * @param comparison_win_count - The number of wins a player must have (exactly) to be added to the return array
- * @returns An array of player uid's of players who meet the win criteria
- */
-export const findWeeklyLeaders = async (records: PlayerRecord[], comparison_win_count: number) => {
-	try {
-		let leaders: string[] = [];
-		records.forEach((record) => {
-			const { wins, uid } = record;
-			if (wins === comparison_win_count) {
-				leaders.push(uid);
-			}
-		});
-		return leaders;
-	} catch (error) {
-		myError({ error });
-	}
-};
-
 export const markIfPickIsCorrect = async (picks: WeeklyPickDoc[], gameData: Game) => {
 	try {
 		picks.forEach(async (pick) => {
@@ -483,7 +500,7 @@ export const scoreNetTiebreakers = async (
 				msg: `${checkeredFlag} Last Game of the Week: ${game.short_name}, Total Score: ${total_score}`
 			});
 			// Iterate through each player's tiebreaker for that week
-			tiebreakers.forEach(async (tiebreaker) => {
+			for await (const tiebreaker of tiebreakers) {
 				const { uid, score_guess, week, season_year, season_type } = tiebreaker;
 				if (score_guess) {
 					const net_tiebreaker = total_score - score_guess;
@@ -518,7 +535,7 @@ export const scoreNetTiebreakers = async (
 				} else {
 					myLog({ msg: 'no tiebreaker posted' });
 				}
-			});
+			}
 		}
 	} catch (error) {
 		myError({ error });
