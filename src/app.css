@@ -4,6 +4,9 @@
 	font-display: swap;
 	font-family: 'Open Sans';
 }
+html, body{
+	overflow-x: hidden;
+}
 html {
 	box-sizing: border-box;
   }
@@ -18,7 +21,6 @@ html {
 	color: var(--text, black);
 	scrollbar-width: thin;
 	scrollbar-color: var(--accent, hsl(37, 75%, 65%)) var(--background, hsl(120, 16%, 17%));
-	overflow-x: hidden;
 
 	--h1-size:  clamp(2rem,5vw,3rem);
 	/* --h2-size: clamp(0.5rem,4vw,1rem); */
