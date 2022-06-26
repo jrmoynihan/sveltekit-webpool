@@ -172,7 +172,7 @@ export const updatePlayerRecordForWeek = async (
 	constraints: QueryConstraint[],
 	year?: number,
 	season_type?: string
-): Promise<number> => {
+): Promise<void> => {
 	try {
 		const correct_picks = player_picks.docs.filter((doc) => doc.data().is_correct === true);
 		const incorrect_picks = player_picks.docs.filter((doc) => doc.data().is_correct === false);
@@ -202,8 +202,6 @@ export const updatePlayerRecordForWeek = async (
 				msg: `No record found for uid: ${player_ref.id} for specified week.  Created a new record.`
 			});
 		}
-		// Return the number of wins the player had in the week for tiebreaker purposes
-		return correct_picks.length;
 	} catch (error) {
 		ErrorAndToast({ title: 'Error encountered while updating player record', error });
 	}
@@ -226,10 +224,6 @@ export const updateAllWeeklyPlayerRecordsForWeek = async (
 		// Get the weekly players from the store or query the DB
 		const weeklyPlayers = get(weekly_players) || (await getWeeklyPlayers());
 		const record_constraints = [where('season_year', '==', year), where('week', '==', week)];
-		// Initialize variables to perform winner/tiebreaker comparison
-		let most_wins = 0;
-		let second_most_wins = 0;
-		let third_most_wins = 0;
 
 		for await (const player of weeklyPlayers) {
 			// Get a fresh copy of the updated pick docs NOTE: (reads = # of games * # of players)
@@ -245,29 +239,14 @@ export const updateAllWeeklyPlayerRecordsForWeek = async (
 				id: toast_id || null,
 				msg: `Updating week ${week} record for ${player.name}`
 			});
-			const total_wins = await updatePlayerRecordForWeek(
+			await updatePlayerRecordForWeek(
 				player.ref,
 				player_picks,
 				record_constraints,
 				year,
 				season_type
 			);
-
-			// While we iterate through updating player records, also store what the 1st, 2nd, and 3rd most win totals are
-			if (total_wins > most_wins) {
-				// Shift the first and second most wins down one slot
-				third_most_wins = second_most_wins;
-				second_most_wins = most_wins;
-				most_wins = total_wins;
-			} else if (total_wins > second_most_wins) {
-				third_most_wins = second_most_wins;
-				second_most_wins = total_wins;
-			} else if (total_wins > third_most_wins) {
-				third_most_wins = total_wins;
-			}
 		}
-		// Return the three most win totals
-		return { most_wins, second_most_wins, third_most_wins };
 	} catch (error) {
 		myError({ error });
 	}
