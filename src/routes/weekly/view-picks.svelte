@@ -234,6 +234,7 @@
 		display: flex;
 		position: sticky;
 		left: -1rem;
+		backdrop-filter: blur(3px);
 		&.hovered {
 			background: hsla(var(--background-value), 100%);
 		}
