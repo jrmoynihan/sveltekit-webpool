@@ -28,6 +28,9 @@ export class PlayerRecord {
 		this.prize_amount = args.prize_amount || 0;
 	}
 }
+export class RankedWeeklyRecord extends PlayerRecord {
+	rank: number;
+}
 export class SeasonRecord {
 	doc_ref: DocumentReference;
 	uid: string;
