@@ -29,7 +29,6 @@
 		background-size: cover;
 		will-change: opacity transform;
 		display: grid;
-		grid-template-rows: auto 1fr;
-		grid-template-areas: 'nav' 'content';
+		grid-auto-rows: max-content;
 	}
 </style>
