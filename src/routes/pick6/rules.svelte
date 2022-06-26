@@ -4,6 +4,16 @@
 	import { pick6RulesCollection } from '$lib/scripts/firebase/collections';
 </script>
 
-<PageTitle>Pick6 Pool Rules</PageTitle>
+<div class="rules">
+	<PageTitle>Pick6 Pool Rules</PageTitle>
 
-<RulesContainer rulesCollection={pick6RulesCollection} />
+	<RulesContainer rulesCollection={pick6RulesCollection} />
+</div>
+
+<style lang="scss">
+	.rules {
+		display: grid;
+		grid-template-rows: repeat(auto-fit, minmax(0, max-content));
+		gap: 1rem;
+	}
+</style>

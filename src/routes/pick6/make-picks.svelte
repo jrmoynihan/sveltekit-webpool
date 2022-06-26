@@ -228,107 +228,127 @@
 	});
 </script>
 
-<PageTitle customStyles="grid-area: heading">Make Picks</PageTitle>
 <svelte:head>
 	<title>Pick6 - Make Picks</title>
 </svelte:head>
+<section class="make-picks">
+	<PageTitle customStyles="grid-area: heading"
+		>{is_before_season_start ? 'Make Picks' : 'Your Picks'}</PageTitle
+	>
 
-{#if is_before_season_start}
-	{#key existing_picks}
-		<div class="grid picks-layout-container">
-			<button
-				class="reset"
-				on:click={() => {
-					group_one_teams = resetGroup(group_one_teams);
-					group_two_teams = resetGroup(group_two_teams);
-					group_three_teams = resetGroup(group_three_teams);
-				}}>Reset All</button
-			>
-			<div class="grid groups-container">
-				<PickSixGroup
-					bind:group={group_one_teams}
-					bind:group_selected_count={group_one_selected_count}
-					bind:toggle={toggle_group_one}
-					bind:open={group_one_open}
-					group_letter={'A'}
-				/>
-				<PickSixGroup
-					bind:group={group_two_teams}
-					bind:group_selected_count={group_two_selected_count}
-					bind:toggle={toggle_group_two}
-					bind:open={group_two_open}
-					group_letter={'B'}
-				/>
-				<PickSixGroup
-					bind:group={group_three_teams}
-					bind:group_selected_count={group_three_selected_count}
-					bind:toggle={toggle_group_three}
-					bind:open={group_three_open}
-					group_letter={'C'}
-				/>
-			</div>
-			{#if group_one_selected_count === 2 && group_two_selected_count === 2 && group_three_selected_count === 2}
-				<label for="tiebreaker" class="tiebreaker">
-					Tiebreaker Wins: <TiebreakerInput
-						bind:score_guess={tiebreaker_wins}
-						grid_area={''}
-						tooltip_msg={'Enter a tiebreaker -- the total wins you expect your picked teams to have by the end of the season.'}
-					/>
-				</label>
-				{#if tiebreaker_wins}
-					<button
-						transition:fly={{ y: 300, duration: 500, easing: quintOut }}
-						class="submit"
-						on:click={async () => (existing_picks ? updatePicks() : submitSixPicks())}
-						>{existing_picks ? 'Update' : 'Submit'} Picks</button
-					>
-				{/if}
-			{/if}
-		</div>
-
-		<!-- The dock showing the player's picks -->
-		<div class="pick-dock grid to-bottom to-left" class:hidden={!pick_dock_visible}>
-			{#if !$larger_than_mobile}
+	{#if is_before_season_start}
+		{#key existing_picks}
+			<div class="grid picks-layout-container">
 				<button
-					class="toggle-pick-dock"
-					class:hidden={!pick_dock_visible}
-					style:--selected-teams={all_selected_teams.length}
-					on:click={() => (pick_dock_visible = !pick_dock_visible)}
+					class="reset"
+					on:click={() => {
+						group_one_teams = resetGroup(group_one_teams);
+						group_two_teams = resetGroup(group_two_teams);
+						group_three_teams = resetGroup(group_three_teams);
+					}}>Reset All</button
 				>
-					<p>{all_selected_teams.length} / 6</p>
-					<span class:rotated={pick_dock_visible}><Fa icon={faCaretUp} /></span>
-				</button>
-			{/if}
-			{#each all_selected_teams as { team, selected } (team.abbreviation)}
-				<div
-					class="animation-container"
-					animate:flip={{ duration: 300 }}
-					in:receive={{ key: team.abbreviation }}
-					out:send={{ key: team.abbreviation }}
-				>
-					<PickSixButton bind:team bind:selected only_unselect={true} />
+				<div class="grid groups-container">
+					<PickSixGroup
+						bind:group={group_one_teams}
+						bind:group_selected_count={group_one_selected_count}
+						bind:toggle={toggle_group_one}
+						bind:open={group_one_open}
+						group_letter={'A'}
+					/>
+					<PickSixGroup
+						bind:group={group_two_teams}
+						bind:group_selected_count={group_two_selected_count}
+						bind:toggle={toggle_group_two}
+						bind:open={group_two_open}
+						group_letter={'B'}
+					/>
+					<PickSixGroup
+						bind:group={group_three_teams}
+						bind:group_selected_count={group_three_selected_count}
+						bind:toggle={toggle_group_three}
+						bind:open={group_three_open}
+						group_letter={'C'}
+					/>
 				</div>
-			{/each}
-			{#each makeNumericArrayOfDesiredLength(6 - total_selected_count) as i}
-				<placeholder class="placeholder" />
-			{/each}
-		</div>
-	{/key}
-{/if}
+				{#if group_one_selected_count === 2 && group_two_selected_count === 2 && group_three_selected_count === 2}
+					<label for="tiebreaker" class="tiebreaker">
+						Tiebreaker Wins: <TiebreakerInput
+							bind:score_guess={tiebreaker_wins}
+							grid_area={''}
+							tooltip_msg={'Enter a tiebreaker -- the total wins you expect your picked teams to have by the end of the season.'}
+						/>
+					</label>
+					{#if tiebreaker_wins}
+						<button
+							transition:fly={{ y: 300, duration: 500, easing: quintOut }}
+							class="submit"
+							on:click={async () => (existing_picks ? updatePicks() : submitSixPicks())}
+							>{existing_picks ? 'Update' : 'Submit'} Picks</button
+						>
+					{/if}
+				{/if}
+			</div>
 
-{#if !is_before_season_start}
-	{#await existing_pick_promise then pick_data}
-		<h2>Your Picks</h2>
-		<div class="player-picks grid">
-			{#each pick_data.picks as pick}
-				{@const team = $all_teams.find((team) => team.abbreviation === pick)}
-				<PickSixButton disabled={true} selected={true} {team} />
-			{/each}
-		</div>
-	{/await}
-{/if}
+			<!-- The dock showing the player's picks -->
+			<div class="pick-dock grid to-bottom to-left" class:hidden={!pick_dock_visible}>
+				{#if !$larger_than_mobile}
+					<button
+						class="toggle-pick-dock"
+						class:hidden={!pick_dock_visible}
+						style:--selected-teams={all_selected_teams.length}
+						on:click={() => (pick_dock_visible = !pick_dock_visible)}
+					>
+						<p>{all_selected_teams.length} / 6</p>
+						<span class:rotated={pick_dock_visible}><Fa icon={faCaretUp} /></span>
+					</button>
+				{/if}
+				{#each all_selected_teams as { team, selected }, i (team.abbreviation)}
+					<div
+						class="animation-container"
+						animate:flip={{ duration: 300 }}
+						in:receive={{ key: team.abbreviation }}
+						out:send={{ key: team.abbreviation }}
+					>
+						<PickSixButton bind:team bind:selected only_unselect={true} />
+					</div>
+				{/each}
+				{#each makeNumericArrayOfDesiredLength(6 - total_selected_count) as i}
+					<placeholder class="placeholder" />
+				{/each}
+			</div>
+		{/key}
+	{/if}
+
+	{#if !is_before_season_start}
+		{#await existing_pick_promise then pick_data}
+			<div class="player-picks grid">
+				{#each pick_data.picks as pick, i}
+					{@const team = $all_teams.find((team) => team.abbreviation === pick)}
+					<label for={pick} style="display: grid; gap: 0.5rem;">
+						<PickSixButton disabled={true} selected={true} {team} show_this_year_record={true} />
+						<span style="padding: 0.5rem; font-size: 2em;">{i + 1}</span>
+					</label>
+				{/each}
+			</div>
+		{/await}
+	{/if}
+</section>
 
 <style lang="scss">
+	.make-picks {
+		display: grid;
+
+		@include responsive_desktop_only {
+			grid-template-areas: 'heading heading' 'dock picks';
+			grid-template-columns: minmax(0, 10%) minmax(0, 1fr);
+			grid-template-rows: minmax(0, auto) minmax(0, 1fr);
+		}
+		@include responsive_mobile_only {
+			grid-template-areas: 'heading' 'picks';
+			grid-template-columns: minmax(0, 1fr);
+			grid-template-rows: minmax(0, auto) minmax(0, 1fr);
+		}
+	}
 	.groups-container {
 		width: 100%;
 		@include responsive_desktop_only {
@@ -415,7 +435,8 @@
 		max-width: max-content;
 		grid-area: submit;
 	}
-	.animation-container {
+	.animation-container,
+	.placeholder {
 		height: 100%;
 	}
 	.placeholder {
@@ -423,7 +444,6 @@
 		display: grid;
 		place-content: center;
 		outline: 2px hsla(var(--accent-value), 50%) solid;
-		height: max(8.5rem, 100%);
 	}
 	.toggle-pick-dock {
 		@include styledButton;
@@ -447,6 +467,7 @@
 		transform: rotate(180deg);
 	}
 	.player-picks {
-		grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+		grid-column: 1 / span 2;
+		grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr));
 	}
 </style>
