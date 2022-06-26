@@ -91,7 +91,7 @@ export const getWeeklyRecordData = async (input: getRecordsOptions) => {
 		const records = await getWeeklyRecords(input);
 		if (records?.empty) throw new Error('No records found.');
 		const record_data = records.docs.map((record) => record.data());
-		myLog({ msg: 'Weekly records: ', additional_params: record_data });
+		myLog({ msg: 'Weekly Records: ', additional_params: [record_data] });
 		return record_data;
 	} catch (error) {
 		myError({ msg: error, error });
