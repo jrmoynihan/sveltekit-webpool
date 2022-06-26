@@ -30,8 +30,7 @@
 		faBars,
 		faLongArrowAltLeft,
 		faLongArrowAltRight
-	} from '@fortawesome/free-solid-svg-icons';
-	import { faCaretLeft, faCaretRight } from '@fortawesome/free-solid-svg-icons/index.es';
+	} from '@fortawesome/free-solid-svg-icons/index.es';
 	import Fa from 'svelte-fa';
 	import { FaLayers } from 'svelte-fa/src';
 
