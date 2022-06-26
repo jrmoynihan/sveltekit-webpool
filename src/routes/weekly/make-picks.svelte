@@ -537,6 +537,7 @@
 	}
 	.game-container {
 		@include defaultContainerStyles;
+		font-size: clamp(0.5rem, 6ch, 75%);
 		position: relative; // for the pseudo-element absolute positioning below
 		cursor: initial;
 		height: 100%;

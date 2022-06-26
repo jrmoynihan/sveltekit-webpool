@@ -150,7 +150,7 @@
 		@include gridAndGap($gap: 1.6rem);
 		@include rounded;
 		justify-items: center;
-		grid-template-columns: repeat(3, minmax(0, 1fr));
+		grid-template-columns: minmax(0,1fr) minmax(0,1.5fr) minmax(0,1fr)
 		height: 100%;
 	}
 </style>

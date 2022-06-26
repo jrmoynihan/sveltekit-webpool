@@ -97,7 +97,7 @@
 	.status-info {
 		width: auto;
 		justify-self: center;
-		grid-template-columns: minmax(0, 1fr) minmax(0, auto) minmax(0, 1fr);
+		grid-template-columns: minmax(4ch, 1fr) minmax(4ch, auto) minmax(4ch, 1fr);
 		grid-template-rows: repeat(auto-fit, minmax(0, auto));
 		grid-template-areas:
 			'away finalOrTime home'
