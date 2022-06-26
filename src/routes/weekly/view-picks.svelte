@@ -96,111 +96,118 @@
 	$: if ($selected_week && $selected_year) data_promise = getData();
 </script>
 
-<PageTitle>View League Picks</PageTitle>
-<WeekSelect customStyles={'width:fit-content;margin:auto;'} />
+<section class="view-picks">
+	<PageTitle>View League Picks</PageTitle>
+	<WeekSelect customStyles={'width:fit-content;margin:auto;'} />
 
-{#await data_promise}
-	<LoadingSpinner />
-{:then { picks, games }}
-	{#if picks && games}
-		<TransitionWrapper refresh={picks}>
-			<Grid
-				repeatColumns={games.length + 2}
-				minColumns={'min-content'}
-				maxColumns={'max-content'}
-				gap={'0.4rem;'}
-				customStyles={'overflow-x: auto;max-width: 90%;margin: auto;position:relative;justify-content:unset;justify-items:center;'}
-			>
-				<div />
-				{#each games as game}
-					{@const home = game.home_team_abbreviation}
-					{@const away = game.away_team_abbreviation}
-					<div
-						transition:fade={{ duration: 750 }}
-						class="game label"
-						class:hovered={hover_game === game.id}
-						on:mouseover={() => (hover_game = game.id)}
-						on:mouseleave={() => (hover_game = '')}
-						on:focus={() => (hover_game = game.id)}
-						on:blur={() => (hover_game = '')}
-					>
-						<p>{home}</p>
-						<p>@</p>
-						<p>{away}</p>
-					</div>
-				{/each}
-				<div>Wins</div>
-				{#each $weekly_players as player}
-					{@const player_picks = picks.filter((pick) => pick.uid === player.uid)}
-					<div
-						transition:fly={{ x: -100, duration: 750 }}
-						class="nickname label"
-						class:hovered={hover_player === player.uid}
-						on:mouseover={() => (hover_player = player.uid)}
-						on:mouseleave={() => (hover_player = '')}
-						on:focus={() => (hover_player = player.uid)}
-						on:blur={() => (hover_player = '')}
-					>
-						{player.nickname}
-					</div>
+	{#await data_promise}
+		<LoadingSpinner />
+	{:then { picks, games }}
+		{#if picks && games}
+			<TransitionWrapper refresh={picks}>
+				<Grid
+					repeatColumns={games.length + 2}
+					minColumns={'min-content'}
+					maxColumns={'max-content'}
+					gap={'0.4rem;'}
+					customStyles={'overflow-x: auto;max-width: 90%;margin: auto;position:relative;justify-content:unset;justify-items:center;'}
+				>
+					<div />
 					{#each games as game}
-						{#await isBeforeGameTime(game.timestamp) then before_gametime}
-							{#each player_picks as pick_doc}
-								{@const { pick, game_id, is_correct } = pick_doc}
-								{@const picked_team = $all_teams.find((team) => team.abbreviation === pick)}
-								<!-- Match the pick document to the game -->
-								{#if game_id === game.id}
-									<!-- If there's no pick, display a placeholder dash -->
-									{#if pick === null || pick === '' || before_gametime}
-										<div
-											transition:fly={{ x: -100, duration: 750 }}
-											class="rounded placeholder no-pick"
-										>
-											-
-										</div>
-									{:else}
-										<div
-											transition:fly={{ x: -100, duration: 750 }}
-											class="rounded image-holder"
-											class:winner={is_correct}
-											class:dark={$use_dark_theme}
-											class:hovered={hover_player === player.uid || hover_game === game.id}
-											on:mouseover={() => {
-												hover_player = player.uid;
-												hover_game = game.id;
-											}}
-											on:mouseleave={() => {
-												hover_player = '';
-												hover_game = '';
-											}}
-											on:focus={() => {
-												hover_player = player.uid;
-												hover_game = game.id;
-											}}
-											on:blur={() => {
-												hover_player = '';
-												hover_game = '';
-											}}
-										>
-											<TeamImage team={picked_team} />
-										</div>
-									{/if}
-								{/if}
-							{/each}
-						{:catch error}
-							<ErrorModal {error} />
-						{/await}
+						{@const home = game.home_team_abbreviation}
+						{@const away = game.away_team_abbreviation}
+						<div
+							transition:fade={{ duration: 750 }}
+							class="game label"
+							class:hovered={hover_game === game.id}
+							on:mouseover={() => (hover_game = game.id)}
+							on:mouseleave={() => (hover_game = '')}
+							on:focus={() => (hover_game = game.id)}
+							on:blur={() => (hover_game = '')}
+						>
+							<p>{home}</p>
+							<p>@</p>
+							<p>{away}</p>
+						</div>
 					{/each}
-					{player_picks.filter((pick) => pick.is_correct).length}
-				{/each}
-			</Grid>
-		</TransitionWrapper>
-	{/if}
-{:catch error}
-	<ErrorModal {error} />
-{/await}
+					<div>Wins</div>
+					{#each $weekly_players.sort((a, b) => (a.nickname > b.nickname ? 1 : -1)) as player}
+						{@const player_picks = picks.filter((pick) => pick.uid === player.uid)}
+						<div
+							transition:fly={{ x: -100, duration: 750 }}
+							class="nickname label"
+							class:hovered={hover_player === player.uid}
+							on:mouseover={() => (hover_player = player.uid)}
+							on:mouseleave={() => (hover_player = '')}
+							on:focus={() => (hover_player = player.uid)}
+							on:blur={() => (hover_player = '')}
+						>
+							{player.nickname}
+						</div>
+						{#each games as game}
+							{#await isBeforeGameTime(game.timestamp) then before_gametime}
+								{#each player_picks as pick_doc}
+									{@const { pick, game_id, is_correct } = pick_doc}
+									{@const picked_team = $all_teams.find((team) => team.abbreviation === pick)}
+									<!-- Match the pick document to the game -->
+									{#if game_id === game.id}
+										<!-- If there's no pick, display a placeholder dash -->
+										{#if pick === null || pick === '' || before_gametime}
+											<div
+												transition:fly={{ x: -100, duration: 750 }}
+												class="rounded placeholder no-pick"
+											>
+												-
+											</div>
+										{:else}
+											<div
+												transition:fly={{ x: -100, duration: 750 }}
+												class="rounded image-holder"
+												class:winner={is_correct}
+												class:dark={$use_dark_theme}
+												class:hovered={hover_player === player.uid || hover_game === game.id}
+												on:mouseover={() => {
+													hover_player = player.uid;
+													hover_game = game.id;
+												}}
+												on:mouseleave={() => {
+													hover_player = '';
+													hover_game = '';
+												}}
+												on:focus={() => {
+													hover_player = player.uid;
+													hover_game = game.id;
+												}}
+												on:blur={() => {
+													hover_player = '';
+													hover_game = '';
+												}}
+											>
+												<TeamImage team={picked_team} />
+											</div>
+										{/if}
+									{/if}
+								{/each}
+							{:catch error}
+								<ErrorModal {error} />
+							{/await}
+						{/each}
+						{player_picks.filter((pick) => pick.is_correct).length}
+					{/each}
+				</Grid>
+			</TransitionWrapper>
+		{/if}
+	{:catch error}
+		<ErrorModal {error} />
+	{/await}
+</section>
 
 <style lang="scss">
+	.view-picks {
+		display: grid;
+		grid-template-rows: repeat(3, minmax(0, auto));
+		gap: 0.5rem;
+	}
 	div {
 		padding: 1em;
 	}
