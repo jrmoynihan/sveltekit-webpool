@@ -17,7 +17,7 @@
 	export let refresh: unknown;
 </script>
 
-<Navigator minItemSize="10rem" maxItemSize="max-content" customStyles="top: 3.5rem;">
+<Navigator minItemSize="10rem" maxItemSize="max-content">
 	{#each weekly_tabs as tab, index}
 		<NavLink {index} page_option={tab} fully_rounded={true} />
 	{/each}

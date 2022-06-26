@@ -7,6 +7,7 @@
 	export let useModal = false;
 	export let offsetTop = false;
 	export let modalID = '';
+	export let grid_area = null;
 </script>
 
 <nav
@@ -15,6 +16,7 @@
 	class:expanded={$nav_toggled}
 	class:collapsed={!$nav_toggled}
 	class="navigationList"
+	style:grid-area={grid_area}
 	style="--minItemSize:{minItemSize}; --maxItemSize: {maxItemSize}; {customStyles}"
 >
 	<slot {modalID} />
@@ -28,7 +30,6 @@
 		place-items: center;
 		text-align: center;
 		font-weight: bold;
-		grid-area: nav;
 		max-width: 100%;
 		padding: 0.2rem 0;
 		padding-bottom: 0.4rem;

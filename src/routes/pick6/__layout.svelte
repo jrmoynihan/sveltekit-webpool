@@ -17,18 +17,14 @@
 	export let refresh: unknown;
 </script>
 
-<Navigator minItemSize="10rem" maxItemSize="max-content" customStyles="top: 3.5rem;">
+<Navigator minItemSize="10rem" maxItemSize="max-content">
 	{#each pick6_tabs as tab, index}
 		<NavLink {index} page_option={tab} fully_rounded={true} />
 	{/each}
 </Navigator>
 <TransitionWrapper
 	{refresh}
-	customStyles={`${$nav_toggled ? 'margin-top: 0.6rem;' : 'margin-top: 0;'} display: grid; ${
-		$larger_than_mobile
-			? `grid-template-areas: 'heading heading' 'dock picks'; grid-template-columns: minmax(0,10%) minmax(0,1fr); grid-template-rows: minmax(0,auto) minmax(0,1fr);`
-			: `grid-template-areas: 'heading' 'picks'; grid-template-columns: minmax(0,1fr); grid-template-rows: minmax(0,auto) minmax(0,1fr)`
-	}`}
+	customStyles={`${$nav_toggled ? 'margin-top: 0.6rem;' : 'margin-top: 0;'} display: grid;`}
 >
 	<slot />
 </TransitionWrapper>

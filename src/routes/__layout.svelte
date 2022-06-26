@@ -101,7 +101,7 @@
 >
 	<AppMenu />
 	{#if $larger_than_mobile}
-		<Navigator offsetTop={true} customStyles="padding-bottom: 0.5rem;">
+		<Navigator offsetTop={true} customStyles="padding-bottom: 0.5rem;" grid_area={'nav'}>
 			<SiteNavOptions />
 		</Navigator>
 	{/if}
@@ -109,7 +109,7 @@
 	<main>
 		<TransitionWrapper
 			bind:refresh
-			customStyles={$nav_toggled ? 'margin-top: 0.6rem;' : 'margin-top: 0;'}
+			customStyles={`${$nav_toggled ? 'margin-top: 0.6rem;' : 'margin-top: 0;'}`}
 		>
 			<slot />
 		</TransitionWrapper>
