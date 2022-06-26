@@ -83,9 +83,9 @@ export const scoreSurvivorPick = async (
 				pick_for_week[0].is_correct = winner === pick_for_week[0].pick;
 				updateDoc(doc.doc_ref, { picks: doc.picks });
 			} else if (pick_for_week.length > 1) {
-				myWarning({ msg: 'Multiple picks for the same week found.' });
+				myWarning({ msg: 'Multiple survivor picks for the same week found.' });
 			} else if (pick_for_week.length === 0) {
-				myWarning({ msg: 'No pick found for the week.' });
+				myWarning({ msg: 'No survivor pick found for the week.' });
 			}
 		}
 	} catch (error) {
