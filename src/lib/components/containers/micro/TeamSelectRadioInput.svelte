@@ -20,6 +20,7 @@
 	export let disabled: boolean;
 	export let show_disabled_icons: boolean = false;
 	export let survivor_player_is_dead: boolean = false;
+	export let is_before_game_time: boolean = false;
 </script>
 
 <label
@@ -60,7 +61,7 @@
 		{#if show_disabled_icons}
 		<span class="already-used-tooltip" use:useTooltip={{
 			animated: true,
-			content: survivor_player_is_dead ? `You're dead!` : 'This pick has already been used!',
+			content: survivor_player_is_dead ? `You're dead!` : is_before_game_time ? 'This pick has already been used!' : 'This pick is locked because the game has already started!',
 			containerClassName: `custom-tooltip __tooltip __tooltip-top ${use_dark_theme ? '__tooltip-dark' : ''}`,
 		}}>
 		<Fa icon={faCancel} size='3x' color={$use_dark_theme ? 'tomato' : 'darkred'} />
