@@ -10,4 +10,3 @@ Sentry.init({
 	// We recommend adjusting this value in production
 	tracesSampleRate: 1.0
 });
-myUndefinedFunction();
