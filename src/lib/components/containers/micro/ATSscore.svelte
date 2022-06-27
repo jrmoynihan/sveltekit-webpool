@@ -46,7 +46,7 @@
 		align-self: center;
 		min-width: 2ch;
 		padding: 0.5rem;
-		font-size: clamp(1.5rem, 5.5%, 5vw);
+		font-size: clamp(1rem, 7vw, 1.7rem);
 		font-weight: bold;
 	}
 	.higherATSscore {

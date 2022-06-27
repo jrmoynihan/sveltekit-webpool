@@ -32,7 +32,7 @@
 <style lang="scss">
 	.score {
 		font-weight: bold;
-		font-size: clamp(1.5rem, 5.5%, 5vw);
+		font-size: clamp(1rem, 7vw, 1.7rem);
 		min-width: 2ch;
 		padding: min(0.5rem, 1.4vw);
 	}

@@ -26,7 +26,7 @@
 		getLocalScoreViewPreference,
 		getLocalStorageItem
 	} from '$lib/scripts/utilities/localStorage';
-	import { ErrorAndToast, myError, myLog } from '$lib/scripts/utilities/logging';
+	import { ErrorAndToast, myError, myLog, myWarning } from '$lib/scripts/utilities/logging';
 	import { createTiebreaker, createWeeklyPicksForPlayer } from '$lib/scripts/weekly/weeklyAdmin';
 	import { getGameData, getPicksData, getTiebreakerData } from '$lib/scripts/weekly/weeklyPlayers';
 	import {
@@ -55,7 +55,7 @@
 		use_dark_theme
 	} from '$scripts/store';
 	import { defaultToast, getToast } from '$scripts/toasts';
-	import { orderBy, where } from '@firebase/firestore';
+	import { deleteDoc, orderBy, where } from '@firebase/firestore';
 	import { onMount } from 'svelte';
 	import { cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
@@ -141,9 +141,15 @@
 				});
 				tiebreakers = await $tiebreaker_promise;
 			}
-			// Multiple tiebreaker docs found, throw an error. Can't determine which one to use if the query returned multiple.
+			// Multiple tiebreaker docs found, heal the issue.
 			else if (tiebreakers.length > 1) {
-				throw new Error('There should only be one tiebreaker');
+				myWarning({
+					msg: 'Multiple tiebreaker docs found for player',
+					additional_params: player.name
+				});
+				const extra_docs = tiebreakers.slice(1);
+				extra_docs.forEach((doc) => deleteDoc(doc.doc_ref));
+				myLog({ msg: 'Deleted extra tiebreaker docs', additional_params: extra_docs });
 			}
 
 			$tiebreaker_score_guess = tiebreakers[0].score_guess;
@@ -537,7 +543,7 @@
 	}
 	.game-container {
 		@include defaultContainerStyles;
-		font-size: clamp(0.5rem, 6ch, 75%);
+		font-size: clamp(0.5rem, 4vw, 1.1rem);
 		position: relative; // for the pseudo-element absolute positioning below
 		cursor: initial;
 		height: 100%;
