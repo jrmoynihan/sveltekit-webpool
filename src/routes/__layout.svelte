@@ -44,6 +44,7 @@
 	import { SvelteToast } from '@zerodevx/svelte-toast';
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
+	import '$scripts/sentry/sentry';
 	import '../app.css';
 
 	export let refresh: any;

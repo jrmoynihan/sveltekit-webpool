@@ -13,6 +13,8 @@ specifiers:
   '@fortawesome/free-brands-svg-icons': ^6.1.1
   '@fortawesome/free-solid-svg-icons': ^6.1.1
   '@mapbox/stylelint-processor-arbitrary-tags': ^0.4.0
+  '@sentry/browser': ^7.3.0
+  '@sentry/tracing': ^7.3.0
   '@sveltejs/adapter-auto': 1.0.0-next.50
   '@sveltejs/adapter-vercel': 1.0.0-next.58
   '@sveltejs/kit': 1.0.0-next.345
@@ -75,6 +77,8 @@ dependencies:
   '@fortawesome/fontawesome-common-types': 6.1.1
   '@fortawesome/free-brands-svg-icons': 6.1.1
   '@fortawesome/free-solid-svg-icons': 6.1.1
+  '@sentry/browser': 7.3.0
+  '@sentry/tracing': 7.3.0
   '@sveltejs/adapter-auto': 1.0.0-next.50
   '@sveltejs/adapter-vercel': 1.0.0-next.58
   '@untemps/svelte-use-tooltip': 2.7.0
@@ -106,7 +110,7 @@ devDependencies:
   eslint-config-prettier: 8.5.0_eslint@8.18.0
   eslint-plugin-svelte3: 4.0.0_wy4erphnvhealet26qderqv6bu
   firebase-functions: 3.21.2_firebase-admin@10.3.0
-  kit: github.com/sveltejs/kit/fb068fe96bfe73bd8a49df26dba1565e9ecb9748
+  kit: github.com/sveltejs/kit/435e0570fdffc909c4172d7ffa167904b4aa122c
   postcss: 8.4.14
   postcss-load-config: 4.0.1_postcss@8.4.14
   postcss-scss: 4.0.4_postcss@8.4.14
@@ -1450,6 +1454,58 @@ packages:
       estree-walker: 2.0.2
       picomatch: 2.3.1
     dev: true
+
+  /@sentry/browser/7.3.0:
+    resolution: {integrity: sha512-UJMTDbajKNRGrs4ZQNelrPDaATvSZ9uELpPOtPSG6JUvB1BCwGgsgzz55RS0Uqs7B8KhMnDQ0kIn3FMewM4FMg==}
+    engines: {node: '>=8'}
+    dependencies:
+      '@sentry/core': 7.3.0
+      '@sentry/types': 7.3.0
+      '@sentry/utils': 7.3.0
+      tslib: 1.14.1
+    dev: false
+
+  /@sentry/core/7.3.0:
+    resolution: {integrity: sha512-EvuWVlYm0F0+BtIEmQiCL31Fw0cfKSwUTmxc99wvouaabpHBr2zCJHRxaXOWzxS705bYBJEQiFDTIHfoOQZMzA==}
+    engines: {node: '>=8'}
+    dependencies:
+      '@sentry/hub': 7.3.0
+      '@sentry/types': 7.3.0
+      '@sentry/utils': 7.3.0
+      tslib: 1.14.1
+    dev: false
+
+  /@sentry/hub/7.3.0:
+    resolution: {integrity: sha512-0GtTaWf/hoAMoIFY7Ke6eozIbG3FdIPM364sER4SxUQVSklp6AORrV6p82IgWPROK6aj83cPk9Bszgi6RiF/BA==}
+    engines: {node: '>=8'}
+    dependencies:
+      '@sentry/types': 7.3.0
+      '@sentry/utils': 7.3.0
+      tslib: 1.14.1
+    dev: false
+
+  /@sentry/tracing/7.3.0:
+    resolution: {integrity: sha512-A+mLEH8jtLkhfyw81EZA1XgI96jh9TIwH9EST3hdfSPgdZQf0A5sV8oVVh/d9Hw7NVb65Va5KhAZDNhcx5QxUA==}
+    engines: {node: '>=8'}
+    dependencies:
+      '@sentry/hub': 7.3.0
+      '@sentry/types': 7.3.0
+      '@sentry/utils': 7.3.0
+      tslib: 1.14.1
+    dev: false
+
+  /@sentry/types/7.3.0:
+    resolution: {integrity: sha512-cGkHdh9+uvbFTj65TjWcXuhe6vQiMY+U+N2GE5xCfmZT9hwuouCASViNsbJMpZqvCg+Yi0fasQLZ71rujiRNOA==}
+    engines: {node: '>=8'}
+    dev: false
+
+  /@sentry/utils/7.3.0:
+    resolution: {integrity: sha512-xUP8TBf2p/c6CN8eFQ7Y+xk0IFrJXsph5ScozqNl/2l/Xs8hd2EiYETqgUklphoYD4J2RxvPwMyqBL15QN6wNg==}
+    engines: {node: '>=8'}
+    dependencies:
+      '@sentry/types': 7.3.0
+      tslib: 1.14.1
+    dev: false
 
   /@sindresorhus/is/0.14.0:
     resolution: {integrity: sha512-9NET910DNaIPngYnLLPeg+Ogzqsi9uM4mSboU5y6p8S5DzMTVEsJZrawi+BoDNUVBa2DhJqQYUFvMDfgU062LQ==}
@@ -8269,7 +8325,6 @@ packages:
 
   /tslib/1.14.1:
     resolution: {integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==}
-    dev: true
 
   /tslib/2.4.0:
     resolution: {integrity: sha512-d6xOpEDfsi2CZVlPQzGeux8XMwLT9hssAsaPYExaQMuYskwb+x1x7J371tWlbBdWHroy99KnVB6qIkUbs5X3UQ==}
@@ -8903,8 +8958,8 @@ packages:
       postcss-value-parser: 4.2.0
     dev: true
 
-  github.com/sveltejs/kit/fb068fe96bfe73bd8a49df26dba1565e9ecb9748:
-    resolution: {tarball: https://codeload.github.com/sveltejs/kit/tar.gz/fb068fe96bfe73bd8a49df26dba1565e9ecb9748}
+  github.com/sveltejs/kit/435e0570fdffc909c4172d7ffa167904b4aa122c:
+    resolution: {tarball: https://codeload.github.com/sveltejs/kit/tar.gz/435e0570fdffc909c4172d7ffa167904b4aa122c}
     name: kit
     version: 0.0.1
     engines: {pnpm: ^7.0.0}
