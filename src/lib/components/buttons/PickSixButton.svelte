@@ -18,6 +18,7 @@
 </script>
 
 <button
+	class="pick-six-button"
 	class:selected
 	class:not-clickable={disabled}
 	{disabled}
@@ -56,7 +57,7 @@
 </button>
 
 <style lang="scss">
-	button {
+	.pick-six-button {
 		@include styledButton;
 		max-width: unset;
 		box-sizing: border-box;
@@ -67,7 +68,9 @@
 		justify-items: center;
 		padding: min(var(--padding-normal), 5%);
 		@include responsive_mobile-only {
-			grid-column: span 2;
+			&:not(:disabled) {
+				grid-column: span 2;
+			}
 		}
 	}
 	.selected {
