@@ -39,7 +39,7 @@ export class RuleCategory {
 			(this.weeklySecond = args.weeklySecond),
 			(this.weeklyThird = args.weeklyThird),
 			(this.hasWeeklyPayout = args.hasWeeklyPayout),
-			(this.rules = collection(args.docRef, 'Rules'));
+			(this.rules = args.rules ?? collection(args.docRef, 'Rules'));
 	}
 }
 export class RuleTab extends Tab {
