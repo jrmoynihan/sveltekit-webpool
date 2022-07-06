@@ -36,11 +36,11 @@ export class Game {
 		this.short_name = args.short_name;
 		this.spread = args.spread;
 		this.timestamp = args.timestamp;
-		this.week = args.week;
-		this.season_year = args.season_year;
-		this.season_type = args.season_type;
-		this.home_team_abbreviation = args.home_team_abbreviation;
-		this.away_team_abbreviation = args.away_team_abbreviation;
+		this.week = args.week ?? 1;
+		this.season_year = args.season_year ?? 2020;
+		this.season_type = args.season_type ?? '';
+		this.home_team_abbreviation = args.home_team_abbreviation ?? '';
+		this.away_team_abbreviation = args.away_team_abbreviation ?? '';
 		this.winner = args.winner || '';
 		this.loser = args.loser || '';
 		this.ATS_winner = args.ATS_winner || '';
