@@ -6,8 +6,10 @@
 
 	export const isValidUrl = (testString: string) => {
 		try {
-			new URL(testString);
-			return true;
+			if (testString) {
+				new URL(testString);
+				return true;
+			}
 		} catch (error) {
 			return false;
 		}
@@ -54,7 +56,7 @@
 	{:else}
 		<b>{key}: </b>
 		<span class="indent">
-			{#if isValidUrl(value.toString())}
+			{#if isValidUrl(value?.toString())}
 				<a href={value.toString()}>{value}</a>
 			{:else}
 				{value}
