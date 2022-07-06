@@ -69,10 +69,12 @@
 		grid-template-rows: repeat(auto-fit, minmax(1fr, auto));
 	}
 	.summary {
+		box-sizing: border-box;
 		position: relative;
 		display: grid;
-		grid-template-columns: 95% 5% 1rem;
+		grid-template-columns: minmax(0, 0.95fr) minmax(0, 0.05fr);
 		width: 95%;
+		padding-right: 1rem;
 	}
 	.group-count {
 		font-size: 1.1em;
