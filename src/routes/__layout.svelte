@@ -193,7 +193,7 @@
 		background: var(--background, hsl(120, 16%, 17%));
 		position: relative;
 		opacity: 99%;
-		min-height: 100dvh;
+		min-height: 100vh; /* TODO: replace with dvh/lvh/svh when supported */
 		width: 100%;
 		grid-template-areas:
 			'menu'
