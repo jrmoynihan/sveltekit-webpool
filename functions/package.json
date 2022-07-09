@@ -14,7 +14,7 @@
 	},
 	"main": "lib/index.js",
 	"dependencies": {
-		"@firebase/app-compat": "^0.1.25",
+		"@firebase/app-compat": "^0.1.26",
 		"@firebase/app-types": "^0.7.0",
 		"firebase": "^9.8.1",
 		"firebase-admin": "^10.2.0",
