@@ -36,18 +36,19 @@ export const firestoreDB: Firestore = getFirestore(myApp);
 // if(dev){
 // 	connectFirestoreEmulator(firestoreDB,'localhost',8080)
 // }else{
+
 // Persist data on client during production
-enableMultiTabIndexedDbPersistence(firestoreDB).catch((err) => {
-	if (err.code == 'failed-precondition') {
-		// Multiple tabs open, persistence can only be enabled
-		// in one tab at a a time.
-		// ...
-	} else if (err.code == 'unimplemented') {
-		// The current browser does not support all of the
-		// features required to enable persistence
-		// ...
-	}
-});
+// enableMultiTabIndexedDbPersistence(firestoreDB).catch((err) => {
+// if (err.code == 'failed-precondition') {
+// Multiple tabs open, persistence can only be enabled
+// in one tab at a a time.
+// ...
+// } else if (err.code == 'unimplemented') {
+// The current browser does not support all of the
+// features required to enable persistence
+// ...
+// }
+// });
 // }
 
 export const firebaseAuth: Auth = getAuth(myApp);
